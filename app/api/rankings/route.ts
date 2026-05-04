@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
@@ -8,7 +7,7 @@ export async function GET(request: NextRequest) {
     const categoryId = searchParams.get("categoryId");
     const status = searchParams.get("status") || "approved";
 
-    const where: Prisma.RankingWhereInput = { status };
+    const where: { status: string; categoryId?: string } = { status };
     if (categoryId) {
       where.categoryId = categoryId;
     }

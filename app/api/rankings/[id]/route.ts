@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
@@ -11,7 +10,7 @@ export async function PATCH(
     const body = await request.json();
     const { status, score, votes } = body;
 
-    const updateData: Prisma.RankingUpdateInput = {};
+    const updateData: { status?: string; score?: number; votes?: number } = {};
     if (status) updateData.status = status;
     if (score !== undefined) updateData.score = score;
     if (votes !== undefined) updateData.votes = votes;
