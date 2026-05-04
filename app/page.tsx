@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
+type CategoryCard = {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  _count: {
+    rankings: number;
+  };
+};
+
 export default async function Home() {
   const categories = await prisma.category.findMany({
     include: {
@@ -23,7 +33,7 @@ export default async function Home() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {categories.map((category) => (
+          {(categories as CategoryCard[]).map((category) => (
             <Link
               key={category.id}
               href={`/category/${category.id}`}
