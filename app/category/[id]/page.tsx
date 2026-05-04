@@ -2,6 +2,15 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+type RankingListItem = {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  score: number;
+  votes: number;
+};
+
 export default async function CategoryPage({
   params,
 }: {
@@ -49,7 +58,7 @@ export default async function CategoryPage({
         </div>
 
         <div className="space-y-4">
-          {category.rankings.map((ranking, index) => (
+          {(category.rankings as RankingListItem[]).map((ranking, index) => (
             <div
               key={ranking.id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex items-center gap-6"
@@ -78,13 +87,7 @@ export default async function CategoryPage({
                   <span>投票: {ranking.votes}</span>
                 </div>
               </div>
-              <button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
-                onClick={() => {
-                  // TODO: 实现投票功能
-                  alert("投票功能即将推出");
-                }}
-              >
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
                 投票
               </button>
             </div>
