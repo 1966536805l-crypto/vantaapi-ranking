@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(rankings);
   } catch (error) {
+    console.error("Rankings GET error:", error);
     return NextResponse.json(
       { message: "获取排行榜失败" },
       { status: 500 }
@@ -135,6 +136,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("Rankings POST error:", error);
     return NextResponse.json(
       { message: "创建排行榜项目失败" },
       { status: 500 }

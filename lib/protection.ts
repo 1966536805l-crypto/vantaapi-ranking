@@ -1,12 +1,12 @@
 if (typeof window !== "undefined") {
-  const devtools = /./;
-  (devtools as any).toString = function () {
-    (this as any).opened = true;
+  const devtools = /./ as RegExp & { opened?: boolean };
+  devtools.toString = function () {
+    devtools.opened = true;
     return "";
   };
 
   const checkDevTools = () => {
-    if ((devtools as any).opened) {
+    if (devtools.opened) {
       window.location.href = "about:blank";
     }
   };

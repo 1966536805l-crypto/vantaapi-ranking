@@ -31,6 +31,7 @@ export function checkRateLimit(
 }
 
 export function sanitizeInput(input: string): string {
+  if (typeof input !== "string") return "";
   return input
     // 移除所有 HTML 标签
     .replace(/<[^>]*>/g, "")
@@ -44,8 +45,22 @@ export function sanitizeInput(input: string): string {
     .replace(/on\w+\s*=/gi, "")
     // 移除 iframe、script、object、embed 等标签名
     .replace(/iframe|script|object|embed|applet|meta|link|style/gi, "")
+    // 移除 SQL 注入常见字符
+    .replace(/[;\\]/g, "")
     .trim()
     .slice(0, 1000);
+}
+
+export function validateEmail(email: string): boolean {
+  if (typeof email !== "string") return false;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email) && email.length <= 254;
+}
+
+export function validateUsername(username: string): boolean {
+  if (typeof username !== "string") return false;
+  const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
+  return usernameRegex.test(username);
 }
 
 export function sanitizeHtml(input: string): string {

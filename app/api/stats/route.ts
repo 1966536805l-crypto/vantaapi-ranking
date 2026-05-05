@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import redis from "@/lib/redis";
 
+type DailyTrendItem = {
+  date: string;
+  views: number;
+  likes: number;
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -11,8 +17,8 @@ export async function GET(request: NextRequest) {
       totalViews: 0,
       totalLikes: 0,
       totalComments: 0,
-      categoryStats: [] as any[],
-      dailyTrend: [] as any[],
+      categoryStats: [] as Array<{ category: string; count: number }>,
+      dailyTrend: [] as DailyTrendItem[],
     };
 
     const projectCount = await redis.get("stats:projects:total");

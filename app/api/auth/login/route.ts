@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    console.error("User login error:", error);
     return NextResponse.json({ message: "登录失败" }, { status: 500 });
   }
 }

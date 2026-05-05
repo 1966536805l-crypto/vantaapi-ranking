@@ -55,7 +55,7 @@ export default function SubmitPage() {
       });
 
       if (response.ok) {
-        alert("提交成功，已进入榜单。");
+        alert("提交成功，等待审核。");
         router.push("/");
       } else {
         const error = await response.json();
@@ -114,7 +114,7 @@ export default function SubmitPage() {
               </ul>
             </div>
             <div className="rounded-lg border border-red-500/30 bg-red-900/10 p-3 text-xs text-red-200">
-              <p className="font-semibold">⚠️ 重要：点击"提交"即表示您已完整阅读、理解并同意遵守上述所有条款，并承诺对提交内容承担全部法律责任。</p>
+              <p className="font-semibold">⚠️ 重要：点击“提交”即表示您已完整阅读、理解并同意遵守上述所有条款，并承诺对提交内容承担全部法律责任。</p>
             </div>
           </div>
         </header>

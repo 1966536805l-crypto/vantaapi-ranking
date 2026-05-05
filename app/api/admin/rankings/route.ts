@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(rankings);
   } catch (error) {
+    console.error("Admin rankings GET error:", error);
     return NextResponse.json(
       { message: "获取列表失败" },
       { status: 500 }
@@ -55,6 +56,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json(ranking);
   } catch (error) {
+    console.error("Admin rankings PATCH error:", error);
     return NextResponse.json(
       { message: "审核失败" },
       { status: 500 }

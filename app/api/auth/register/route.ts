@@ -27,9 +27,18 @@ export async function POST(request: NextRequest) {
     }
 
     // 验证邮箱格式
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const { validateEmail, validateUsername } = await import("@/lib/security");
+    if (!validateEmail(email)) {
       return NextResponse.json(
         { message: "邮箱格式不正确" },
+        { status: 400 }
+      );
+    }
+
+    // 验证用户名格式
+    if (username && !validateUsername(username)) {
+      return NextResponse.json(
+        { message: "用户名只能包含字母、数字、下划线和连字符，长度3-30字符" },
         { status: 400 }
       );
     }
@@ -81,6 +90,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("User register error:", error);
     return NextResponse.json(
       { message: "注册失败" },
       { status: 500 }

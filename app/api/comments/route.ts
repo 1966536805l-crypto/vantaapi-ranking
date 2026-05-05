@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyUserToken } from "@/lib/auth";
-import { sanitizeInput } from "@/lib/security";
+import { sanitizeInput, getRateLimitKey, checkRateLimit } from "@/lib/security";
 import { logAudit } from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
@@ -9,6 +9,17 @@ export async function POST(request: NextRequest) {
     const user = await verifyUserToken(request);
     if (!user) {
       return NextResponse.json({ message: "请先登录" }, { status: 401 });
+    }
+
+    // 频率限制
+    const rateLimitKey = getRateLimitKey(request);
+    const rateLimit = checkRateLimit(rateLimitKey, 10, 60000); // 10次/分钟
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { message: "评论过于频繁" },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();
@@ -58,6 +69,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {
+    console.error("Comment POST error:", error);
     return NextResponse.json({ message: "评论失败" }, { status: 500 });
   }
 }
@@ -104,6 +116,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(comments);
   } catch (error) {
+    console.error("Comment GET error:", error);
     return NextResponse.json({ message: "获取评论失败" }, { status: 500 });
   }
 }

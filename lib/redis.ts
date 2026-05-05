@@ -50,7 +50,7 @@ export async function logAudit(data: {
   userId?: string;
   action: string;
   resource: string;
-  details?: any;
+  details?: unknown;
   ip?: string;
   userAgent?: string;
 }) {

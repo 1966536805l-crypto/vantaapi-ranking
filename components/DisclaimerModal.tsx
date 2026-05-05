@@ -8,6 +8,7 @@ export default function DisclaimerModal() {
   useEffect(() => {
     const accepted = localStorage.getItem("disclaimer-accepted");
     if (!accepted) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShow(true);
     }
   }, []);
@@ -80,7 +81,7 @@ export default function DisclaimerModal() {
 
           <div className="mt-6 rounded-lg border border-red-500/30 bg-red-900/10 p-4">
             <p className="font-semibold text-red-200">
-              ⚠️ 重要提示：点击"我已阅读并同意"即表示您已完整阅读、理解并同意遵守上述所有条款。如不同意，请立即停止使用本平台。
+              ⚠️ 重要提示：点击“我已阅读并同意”即表示您已完整阅读、理解并同意遵守上述所有条款。如不同意，请立即停止使用本平台。
             </p>
           </div>
         </div>

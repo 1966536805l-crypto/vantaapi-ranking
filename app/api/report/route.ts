@@ -43,7 +43,8 @@ export async function POST(request: NextRequest) {
     const sanitizedEmail = email ? sanitizeInput(email) : null;
 
     // 验证邮箱格式
-    if (sanitizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+    const { validateEmail } = await import("@/lib/security");
+    if (sanitizedEmail && !validateEmail(sanitizedEmail)) {
       return NextResponse.json(
         { message: "邮箱格式不正确" },
         { status: 400 }
@@ -76,6 +77,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    console.error("Report POST error:", error);
     return NextResponse.json(
       { message: "提交举报失败" },
       { status: 500 }

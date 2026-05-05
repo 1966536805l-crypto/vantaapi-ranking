@@ -20,9 +20,9 @@ export async function verifyAdminToken(request: NextRequest) {
     const token = authHeader.substring(7);
     const decoded = jwt.verify(token, JWT_SECRET) as { adminId: string };
 
-    const admin = await prisma.admin.findUnique({
+    const admin = await prisma.user.findUnique({
       where: { id: decoded.adminId },
-      select: { id: true, username: true, email: true },
+      select: { id: true, username: true, email: true, twoFactorSecret: true },
     });
 
     return admin;
