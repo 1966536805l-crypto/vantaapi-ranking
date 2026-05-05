@@ -95,11 +95,11 @@ export default function SubmitPage() {
 
         <header className="mb-7">
           <p className="mb-3 inline-flex rounded-full border border-lime-300/20 bg-gradient-to-r from-lime-300/10 to-yellow-300/10 px-4 py-2 text-sm font-medium text-lime-200 shadow-lg shadow-lime-300/10">
-            Submit to Immortal
+            提交 AI/API 项目
           </p>
           <h1 className="bg-gradient-to-br from-white via-lime-100 to-yellow-200 bg-clip-text text-4xl font-bold text-transparent">提交项目</h1>
           <p className="mt-4 text-sm leading-6 text-stone-400">
-            分享你觉得值得长期关注的产品、工具或内容。提交后会出现在对应榜单里。
+            提交 AI 工具、API 服务或技术项目。提交后将进入人工审核队列，审核通过后才会公开展示。
           </p>
           <div className="mt-5 space-y-3">
             <div className="rounded-lg border border-yellow-500/20 bg-gradient-to-br from-yellow-900/10 to-orange-900/10 p-4 text-xs leading-relaxed text-stone-400 backdrop-blur-sm">

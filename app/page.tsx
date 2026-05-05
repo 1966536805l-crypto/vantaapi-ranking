@@ -55,13 +55,13 @@ export default async function Home() {
         <header className="grid gap-10 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-end lg:py-20">
           <div>
             <p className="mb-5 inline-flex rounded-full border border-lime-300/20 bg-gradient-to-r from-lime-300/10 to-yellow-300/10 px-4 py-2 text-sm font-medium text-lime-200 shadow-lg shadow-lime-300/10">
-              Curated by builders, ranked by signal
+              AI/API 项目展示目录
             </p>
             <h1 className="glow-gold max-w-4xl bg-gradient-to-br from-white via-lime-100 to-yellow-200 bg-clip-text text-6xl font-bold leading-none text-transparent sm:text-7xl lg:text-8xl">
               Immortal
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-300">
-              一个更锋利的 AI 与工具发现榜。收集真实项目、筛选有效信号，把值得长期关注的东西放到台前。
+              AI 与 API 工具发现目录。收集优质项目、筛选有效信号，把值得关注的技术工具放到台前。
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -110,7 +110,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="rounded-lg bg-black/30 p-4 text-sm leading-6 text-stone-300">
-              Immortal 会把新项目放进对应榜单。少一点噪音，多一点可用的判断。
+              Immortal 展示经过审核的 AI/API 项目。所有内容需人工审核后才会公开显示。
             </div>
           </div>
         </header>
@@ -118,9 +118,9 @@ export default async function Home() {
         <section className="pb-14">
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-semibold text-white">榜单分类</h2>
+              <h2 className="text-2xl font-semibold text-white">项目分类</h2>
               <p className="mt-2 text-sm text-stone-400">
-                浏览不同赛道里正在被提交和发现的项目。
+                浏览不同类别的 AI/API 工具和项目。
               </p>
             </div>
           </div>
@@ -165,16 +165,17 @@ export default async function Home() {
         </section>
 
         <footer className="mt-auto border-t border-white/10 py-6 text-center text-xs text-stone-500">
-          <p className="mb-3 font-semibold">Immortal / signal over noise</p>
+          <p className="mb-3 font-semibold">Immortal - AI/API 项目展示目录</p>
+          <div className="mb-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-stone-400">
+            <Link href="/terms" className="hover:text-lime-300 underline">用户协议</Link>
+            <Link href="/privacy" className="hover:text-lime-300 underline">隐私政策</Link>
+            <Link href="/disclaimer" className="hover:text-lime-300 underline">免责声明</Link>
+            <Link href="/report" className="hover:text-lime-300 underline">投诉举报</Link>
+          </div>
           <div className="space-y-1 text-stone-600">
             <p>本平台仅提供信息展示服务 · 不对用户提交内容进行实质性审查</p>
             <p>用户提交内容的真实性、合法性、准确性由提交者本人承担全部法律责任</p>
             <p>平台不对第三方内容或链接产生的任何后果承担责任</p>
-            <p className="mt-2">
-              <Link href="/terms" className="text-lime-300 hover:text-lime-200 underline">
-                查看完整服务条款与法律声明
-              </Link>
-            </p>
             <p className="mt-2 text-stone-700">© 2026 Immortal. All user-generated content is the sole responsibility of the submitter.</p>
           </div>
         </footer>

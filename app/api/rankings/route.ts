@@ -6,6 +6,7 @@ import {
   sanitizeInput,
   validateUrl,
 } from "@/lib/security";
+import { verifyUserToken } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,6 +38,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // 验证用户登录
+    const user = await verifyUserToken(request);
+    if (!user) {
+      return NextResponse.json(
+        { message: "请先登录后再提交" },
+        { status: 401 }
+      );
+    }
+
     const rateLimitKey = getRateLimitKey(request);
     const rateLimit = checkRateLimit(rateLimitKey, 5, 60000);
 
@@ -79,6 +89,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // AI预审
+    const aiReview = await fetch(
+      `${request.nextUrl.origin}/api/ai-review`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: sanitizedTitle, description: sanitizedDescription }),
+      }
+    );
+
+    const aiResult = await aiReview.json();
+    if (!aiResult.allowed) {
+      return NextResponse.json(
+        { message: `内容审核未通过：${aiResult.reason}` },
+        { status: 400 }
+      );
+    }
+
     const category = await prisma.category.findUnique({
       where: { id: categoryId },
     });
@@ -97,11 +125,15 @@ export async function POST(request: NextRequest) {
         imageUrl: imageUrl || null,
         categoryId,
         submittedBy: sanitizedSubmittedBy,
-        status: "approved",
+        userId: user.id,
+        status: "pending",
       },
     });
 
-    return NextResponse.json(ranking, { status: 201 });
+    return NextResponse.json(
+      { message: "提交成功，等待审核", ranking },
+      { status: 201 }
+    );
   } catch (error) {
     return NextResponse.json(
       { message: "创建排行榜项目失败" },

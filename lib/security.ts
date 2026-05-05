@@ -32,11 +32,36 @@ export function checkRateLimit(
 
 export function sanitizeInput(input: string): string {
   return input
-    .replace(/[<>]/g, "")
+    // 移除所有 HTML 标签
+    .replace(/<[^>]*>/g, "")
+    // 移除危险字符
+    .replace(/[<>'"]/g, "")
+    // 移除 javascript: 协议
     .replace(/javascript:/gi, "")
-    .replace(/on\w+=/gi, "")
+    .replace(/data:/gi, "")
+    .replace(/vbscript:/gi, "")
+    // 移除事件处理器
+    .replace(/on\w+\s*=/gi, "")
+    // 移除 iframe、script、object、embed 等标签名
+    .replace(/iframe|script|object|embed|applet|meta|link|style/gi, "")
     .trim()
     .slice(0, 1000);
+}
+
+export function sanitizeHtml(input: string): string {
+  // 更严格的 HTML 清理，用于富文本内容
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, "")
+    .replace(/<embed[^>]*>/gi, "")
+    .replace(/<applet[^>]*>/gi, "")
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, "")
+    .replace(/on\w+\s*=\s*[^\s>]*/gi, "")
+    .replace(/javascript:/gi, "")
+    .replace(/data:text\/html/gi, "")
+    .trim()
+    .slice(0, 5000);
 }
 
 export function validateUrl(url: string): boolean {

@@ -32,12 +32,15 @@ model Ranking {
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   status      String   @default("pending") // pending, approved, rejected
   submittedBy String?
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([categoryId])
   @@index([status])
   @@index([score])
+  @@index([userId])
 }
 
 // 管理员用户
@@ -48,4 +51,32 @@ model Admin {
   email     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// 普通用户
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  username  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  rankings  Ranking[]
+}
+
+// 举报记录
+model Report {
+  id          String   @id @default(cuid())
+  type        String   // ranking, spam, illegal, copyright, other
+  targetId    String
+  reason      String
+  description String?  @db.Text
+  email       String?
+  status      String   @default("pending") // pending, processing, resolved, rejected
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
 }
