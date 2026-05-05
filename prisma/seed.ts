@@ -1,10 +1,16 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
-import path from 'path'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
-const dbPath = path.join(process.cwd(), 'prisma', 'dev.db')
-const adapter = new PrismaLibSql({
-  url: `file:${dbPath}`
+const databaseUrl = new URL(process.env.DATABASE_URL ?? '')
+
+const adapter = new PrismaMariaDb({
+  host: databaseUrl.hostname,
+  port: Number(databaseUrl.port || 3306),
+  user: decodeURIComponent(databaseUrl.username),
+  password: decodeURIComponent(databaseUrl.password),
+  database: databaseUrl.pathname.replace(/^\//, ''),
+  connectionLimit: 5,
+  ssl: false,
 })
 
 const prisma = new PrismaClient({ adapter })
