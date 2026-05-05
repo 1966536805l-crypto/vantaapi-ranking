@@ -71,6 +71,12 @@ export default async function Home() {
 
         <div className="flex justify-center gap-4">
           <Link
+            href="/ai"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-colors"
+          >
+            Gemini AI
+          </Link>
+          <Link
             href="/submit"
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-colors"
           >
