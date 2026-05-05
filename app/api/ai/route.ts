@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getRateLimitKey, checkRateLimit, sanitizeInput } from "@/lib/security";
 
 export const runtime = "nodejs";
 
@@ -33,19 +34,31 @@ type CompatibleResponse = {
 };
 
 export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => null);
-  const message = typeof body?.message === "string" ? body.message.trim() : "";
+  const rateLimitKey = getRateLimitKey(request);
+  const rateLimit = checkRateLimit(rateLimitKey, 10, 60000);
 
-  if (!message) {
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "请求过于频繁，请稍后再试" },
+      { status: 429 }
+    );
+  }
+
+  const body = await request.json().catch(() => null);
+  const rawMessage = typeof body?.message === "string" ? body.message.trim() : "";
+
+  if (!rawMessage) {
     return NextResponse.json({ error: "Message is required" }, { status: 400 });
   }
 
-  if (message.length > 4000) {
+  if (rawMessage.length > 4000) {
     return NextResponse.json(
       { error: "Message is too long" },
       { status: 400 }
     );
   }
+
+  const message = sanitizeInput(rawMessage);
 
   if (process.env.AI_API_KEY) {
     return createOpenAiCompatibleResponse(message);

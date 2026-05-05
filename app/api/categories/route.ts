@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sanitizeInput } from "@/lib/security";
 
 export async function GET() {
   try {
@@ -38,8 +39,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sanitizedName = sanitizeInput(name);
+    const sanitizedDescription = description ? sanitizeInput(description) : null;
+    const sanitizedIcon = icon ? sanitizeInput(icon) : null;
+
     const category = await prisma.category.create({
-      data: { name, description, icon },
+      data: {
+        name: sanitizedName,
+        description: sanitizedDescription,
+        icon: sanitizedIcon,
+      },
     });
 
     return NextResponse.json(category, { status: 201 });

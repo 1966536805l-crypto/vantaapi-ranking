@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import ParticleBackground from "@/components/ParticleBackground";
 
 type Category = {
   id: string;
@@ -71,8 +72,9 @@ export default function SubmitPage() {
     Boolean(formData.title.trim()) && Boolean(formData.categoryId) && !loading;
 
   return (
-    <main className="min-h-screen bg-[#07070a] text-stone-100">
-      <div className="mx-auto min-h-screen w-full max-w-3xl px-5 py-6 sm:px-8">
+    <main className="relative min-h-screen bg-gradient-to-br from-[#07070a] via-[#0a0a0f] to-[#0d0a08] text-stone-100">
+      <ParticleBackground />
+      <div className="relative z-10 mx-auto min-h-screen w-full max-w-3xl px-5 py-6 sm:px-8">
         <nav className="mb-10 flex items-center justify-between border-b border-white/10 pb-5">
           <Link
             href="/"
@@ -92,16 +94,20 @@ export default function SubmitPage() {
         </nav>
 
         <header className="mb-7">
-          <p className="mb-3 text-sm font-medium text-lime-200">
+          <p className="mb-3 inline-flex rounded-full border border-lime-300/20 bg-gradient-to-r from-lime-300/10 to-yellow-300/10 px-4 py-2 text-sm font-medium text-lime-200 shadow-lg shadow-lime-300/10">
             Submit to Immortal
           </p>
-          <h1 className="text-4xl font-semibold text-white">提交项目</h1>
+          <h1 className="bg-gradient-to-br from-white via-lime-100 to-yellow-200 bg-clip-text text-4xl font-bold text-transparent">提交项目</h1>
           <p className="mt-4 text-sm leading-6 text-stone-400">
             分享你觉得值得长期关注的产品、工具或内容。提交后会出现在对应榜单里。
           </p>
+          <div className="mt-5 rounded-lg border border-yellow-500/20 bg-gradient-to-br from-yellow-900/10 to-orange-900/10 p-4 text-xs leading-relaxed text-stone-400 backdrop-blur-sm">
+            <p className="font-semibold text-yellow-200">⚠️ 提交须知</p>
+            <p className="mt-2">提交即表示您确认：(1) 您对提交内容拥有合法权利或已获得授权；(2) 提交内容不违反任何法律法规；(3) 您对提交内容的真实性、合法性承担全部法律责任；(4) 平台有权在不通知的情况下删除违规内容。</p>
+          </div>
         </header>
 
-        <section className="rounded-lg border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/40 sm:p-6">
+        <section className="rounded-lg border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-5 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-6">
           {categoriesLoading ? (
             <p className="py-10 text-center text-sm text-stone-400">
               正在加载分类...
