@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import ParticleBackground from "@/components/ParticleBackground";
+import DisclaimerModal from "@/components/DisclaimerModal";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function Home() {
 
   return (
     <main className="relative min-h-screen bg-gradient-to-br from-[#07070a] via-[#0a0a0f] to-[#0d0a08] text-stone-100">
+      <DisclaimerModal />
       <ParticleBackground />
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-6 sm:px-8 lg:px-10">
         <nav className="flex items-center justify-between border-b border-white/10 pb-5">
@@ -163,8 +165,18 @@ export default async function Home() {
         </section>
 
         <footer className="mt-auto border-t border-white/10 py-6 text-center text-xs text-stone-500">
-          <p className="mb-2 font-semibold">Immortal / signal over noise</p>
-          <p className="text-stone-600">用户提交内容的法律责任由提交者承担 · 平台不对内容真实性负责</p>
+          <p className="mb-3 font-semibold">Immortal / signal over noise</p>
+          <div className="space-y-1 text-stone-600">
+            <p>本平台仅提供信息展示服务 · 不对用户提交内容进行实质性审查</p>
+            <p>用户提交内容的真实性、合法性、准确性由提交者本人承担全部法律责任</p>
+            <p>平台不对第三方内容或链接产生的任何后果承担责任</p>
+            <p className="mt-2">
+              <Link href="/terms" className="text-lime-300 hover:text-lime-200 underline">
+                查看完整服务条款与法律声明
+              </Link>
+            </p>
+            <p className="mt-2 text-stone-700">© 2026 Immortal. All user-generated content is the sole responsibility of the submitter.</p>
+          </div>
         </footer>
       </div>
     </main>

@@ -101,9 +101,21 @@ export default function SubmitPage() {
           <p className="mt-4 text-sm leading-6 text-stone-400">
             分享你觉得值得长期关注的产品、工具或内容。提交后会出现在对应榜单里。
           </p>
-          <div className="mt-5 rounded-lg border border-yellow-500/20 bg-gradient-to-br from-yellow-900/10 to-orange-900/10 p-4 text-xs leading-relaxed text-stone-400 backdrop-blur-sm">
-            <p className="font-semibold text-yellow-200">⚠️ 提交须知</p>
-            <p className="mt-2">提交即表示您确认：(1) 您对提交内容拥有合法权利或已获得授权；(2) 提交内容不违反任何法律法规；(3) 您对提交内容的真实性、合法性承担全部法律责任；(4) 平台有权在不通知的情况下删除违规内容。</p>
+          <div className="mt-5 space-y-3">
+            <div className="rounded-lg border border-yellow-500/20 bg-gradient-to-br from-yellow-900/10 to-orange-900/10 p-4 text-xs leading-relaxed text-stone-400 backdrop-blur-sm">
+              <p className="font-semibold text-yellow-200">⚠️ 提交须知与法律声明</p>
+              <ul className="mt-2 ml-4 list-disc space-y-1">
+                <li>您对提交内容拥有合法权利或已获得授权</li>
+                <li>提交内容不违反中华人民共和国法律法规及相关国际公约</li>
+                <li>提交内容不侵犯任何第三方的知识产权、隐私权或其他合法权益</li>
+                <li>您对提交内容的真实性、合法性、准确性承担全部法律责任</li>
+                <li>因提交内容引发的任何法律纠纷、经济损失由您本人独立承担</li>
+                <li>平台有权在不通知的情况下删除违规内容，但不承担审查义务</li>
+              </ul>
+            </div>
+            <div className="rounded-lg border border-red-500/30 bg-red-900/10 p-3 text-xs text-red-200">
+              <p className="font-semibold">⚠️ 重要：点击"提交"即表示您已完整阅读、理解并同意遵守上述所有条款，并承诺对提交内容承担全部法律责任。</p>
+            </div>
           </div>
         </header>
 
