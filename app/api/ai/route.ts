@@ -77,7 +77,7 @@ async function createOpenAiCompatibleResponse(message: string) {
         {
           role: "system",
           content:
-            "你是 VantaAPI 网站里的轻量 AI 助手。回答要简洁、直接、中文优先；如果不确定，就说明不确定。",
+            "你是 Immortal 网站里的轻量 AI 助手。回答要简洁、直接、中文优先；如果不确定，就说明不确定。",
         },
         {
           role: "user",
@@ -128,7 +128,7 @@ async function createGeminiResponse(message: string) {
           parts: [
             {
               text:
-                "你是 VantaAPI 网站里的轻量 AI 助手。回答要简洁、直接、中文优先；如果不确定，就说明不确定。",
+                "你是 Immortal 网站里的轻量 AI 助手。回答要简洁、直接、中文优先；如果不确定，就说明不确定。",
             },
           ],
         },

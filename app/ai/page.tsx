@@ -12,7 +12,7 @@ export default function AiPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      text: "你好，我是 VantaAPI 的轻量 AI 助手。",
+      text: "你好，我是 Immortal 的 AI 助手。",
     },
   ]);
   const [input, setInput] = useState("");
@@ -56,22 +56,50 @@ export default function AiPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto flex min-h-screen max-w-4xl flex-col px-4 py-8">
-        <div className="mb-6">
+    <main className="min-h-screen bg-[#07070a] text-stone-100">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-6 sm:px-8">
+        <nav className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
           <Link
             href="/"
-            className="mb-4 inline-block text-blue-600 hover:text-blue-700 dark:text-blue-400"
+            className="flex items-center gap-3 text-stone-200 transition hover:text-lime-200"
           >
-            ← 返回首页
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-lime-300 text-sm font-black text-black">
+              I
+            </span>
+            <span className="font-semibold">Immortal</span>
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+          <Link
+            href="/submit"
+            className="rounded-lg border border-white/10 px-4 py-2 text-sm text-stone-200 transition hover:border-lime-300/50 hover:text-lime-200"
+          >
+            提交项目
+          </Link>
+        </nav>
+
+        <header className="mb-7">
+          <p className="mb-3 text-sm font-medium text-lime-200">
+            Immortal Assistant
+          </p>
+          <h1 className="text-4xl font-semibold text-white sm:text-5xl">
             AI 助手
           </h1>
-        </div>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-stone-400">
+            快速提问、整理想法，或者让它帮你判断一个工具是否值得进入榜单。
+          </p>
+        </header>
 
-        <div className="flex-1 overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800">
-          <div className="flex h-[65vh] flex-col">
+        <div className="flex-1 overflow-hidden rounded-lg border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/40">
+          <div className="flex h-[66vh] min-h-[520px] flex-col">
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+              <div>
+                <p className="font-semibold text-white">Immortal AI</p>
+                <p className="mt-1 text-xs text-stone-500">Qwen powered</p>
+              </div>
+              <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-semibold text-emerald-200">
+                Online
+              </span>
+            </div>
+
             <div className="flex-1 space-y-4 overflow-y-auto p-5">
               {messages.map((message, index) => (
                 <div
@@ -83,8 +111,8 @@ export default function AiPage() {
                   <div
                     className={`max-w-[82%] whitespace-pre-wrap rounded-lg px-4 py-3 text-sm leading-6 ${
                       message.role === "user"
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100"
+                        ? "bg-lime-300 text-black"
+                        : "border border-white/10 bg-black/30 text-stone-100"
                     }`}
                   >
                     {message.text}
@@ -93,7 +121,7 @@ export default function AiPage() {
               ))}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                  <div className="rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-stone-400">
                     思考中...
                   </div>
                 </div>
@@ -102,20 +130,20 @@ export default function AiPage() {
 
             <form
               onSubmit={sendMessage}
-              className="border-t border-gray-200 p-4 dark:border-gray-700"
+              className="border-t border-white/10 bg-black/20 p-4"
             >
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <input
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
                   maxLength={4000}
                   placeholder="问 AI 一个问题"
-                  className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                  className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-stone-500 focus:border-lime-300/60"
                 />
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                  className="rounded-lg bg-lime-300 px-6 py-3 font-semibold text-black transition hover:bg-lime-200 disabled:cursor-not-allowed disabled:bg-stone-700 disabled:text-stone-400"
                 >
                   发送
                 </button>
@@ -124,6 +152,6 @@ export default function AiPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
