@@ -84,7 +84,7 @@ export default function AiPage() {
             AI 助手
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-stone-400">
-            快速提问、整理想法，或者让它帮你判断一个工具是否值得进入榜单。
+            快速提问、整理想法，或者让它帮你判断一个工具是否值得提交到榜单。
           </p>
         </header>
 

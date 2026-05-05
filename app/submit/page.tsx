@@ -54,7 +54,7 @@ export default function SubmitPage() {
       });
 
       if (response.ok) {
-        alert("提交成功，等待审核。");
+        alert("提交成功，已进入榜单。");
         router.push("/");
       } else {
         const error = await response.json();
@@ -97,7 +97,7 @@ export default function SubmitPage() {
           </p>
           <h1 className="text-4xl font-semibold text-white">提交项目</h1>
           <p className="mt-4 text-sm leading-6 text-stone-400">
-            分享你觉得值得长期关注的产品、工具或内容。提交后会进入审核队列。
+            分享你觉得值得长期关注的产品、工具或内容。提交后会出现在对应榜单里。
           </p>
         </header>
 

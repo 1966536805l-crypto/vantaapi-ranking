@@ -102,7 +102,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="rounded-lg bg-black/30 p-4 text-sm leading-6 text-stone-300">
-              Immortal 会把新项目先放进审核流，再进入榜单。少一点噪音，多一点可用的判断。
+              Immortal 会把新项目放进对应榜单。少一点噪音，多一点可用的判断。
             </div>
           </div>
         </header>
@@ -112,7 +112,7 @@ export default async function Home() {
             <div>
               <h2 className="text-2xl font-semibold text-white">榜单分类</h2>
               <p className="mt-2 text-sm text-stone-400">
-                浏览不同赛道里正在被提交和审核的项目。
+                浏览不同赛道里正在被提交和发现的项目。
               </p>
             </div>
           </div>

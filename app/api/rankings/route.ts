@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
         imageUrl,
         categoryId,
         submittedBy,
-        status: "pending",
+        status: "approved",
       },
     });
 
