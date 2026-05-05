@@ -11,36 +11,40 @@ datasource db {
 
 // 排行榜分类
 model Category {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String    @id @default(cuid())
+  name        String    @unique
   description String?
   icon        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   rankings    Ranking[]
 }
 
 // 排行榜项目
 model Ranking {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
   imageUrl    String?
-  score       Float    @default(0)
-  votes       Int      @default(0)
+  score       Float     @default(0)
+  votes       Int       @default(0)
+  views       Int       @default(0)
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  status      String   @default("pending") // pending, approved, rejected
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  status      String    @default("pending") // pending, approved, rejected
   submittedBy String?
   userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  comments    Comment[]
+  likes       Like[]
 
   @@index([categoryId])
   @@index([status])
   @@index([score])
   @@index([userId])
+  @@index([createdAt])
 }
 
 // 管理员用户
@@ -55,13 +59,71 @@ model Admin {
 
 // 普通用户
 model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  username          String?
+  name              String?
+  role              String    @default("user") // user, admin
+  twoFactorSecret   String?   // 加密存储的2FA密钥
+  twoFactorEnabled  Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  rankings          Ranking[]
+  comments          Comment[]
+  likes             Like[]
+  follows           Follow[]  @relation("UserFollows")
+  followers         Follow[]  @relation("UserFollowers")
+
+  @@index([email])
+}
+
+// 评论
+model Comment {
   id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  username  String?
+  content   String    @db.Text
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rankingId String
+  ranking   Ranking   @relation(fields: [rankingId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  rankings  Ranking[]
+
+  @@index([rankingId])
+  @@index([userId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+// 点赞
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rankingId String
+  ranking   Ranking  @relation(fields: [rankingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, rankingId])
+  @@index([rankingId])
+  @@index([userId])
+}
+
+// 关注
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("UserFollows", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 // 举报记录
