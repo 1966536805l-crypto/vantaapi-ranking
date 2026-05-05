@@ -9,8 +9,8 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-3">1. 信息收集</h2>
             <p className="mb-2">我们收集以下信息：</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>您提交的排行榜内容（标题、描述、图片链接）</li>
-              <li>提交者名称（可选）</li>
+              <li>您主动保存或提交的学习、项目、错题、状态记录</li>
+              <li>账号信息（如启用登录功能时的邮箱、用户名、加密密码）</li>
               <li>访问日志（IP 地址、访问时间、浏览器信息）</li>
               <li>管理员账户信息（用户名、邮箱、加密密码）</li>
             </ul>
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-3">2. 信息用途</h2>
             <p className="mb-2">我们使用收集的信息用于：</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>展示和管理排行榜内容</li>
+              <li>提供个人学习与项目控制台功能</li>
               <li>防止滥用和垃圾信息</li>
               <li>改进网站功能和用户体验</li>
               <li>处理违规举报和投诉</li>
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-3">3. 信息保存</h2>
             <p>我们会保存您的信息直到：</p>
             <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
-              <li>用户提交的内容：永久保存，除非被删除或举报移除</li>
+              <li>本地控制台数据：主要保存在您的浏览器本地存储中</li>
               <li>访问日志：保存 90 天</li>
               <li>举报记录：保存 2 年（法律要求）</li>
             </ul>
@@ -54,8 +54,8 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-3">5. 您的权利</h2>
             <p className="mb-2">您有权：</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>查看您提交的内容</li>
-              <li>要求删除您的内容（联系管理员）</li>
+              <li>查看您在本机保存的控制台数据</li>
+              <li>通过浏览器清理本地存储删除控制台数据</li>
               <li>反对不当使用您的信息</li>
               <li>获取我们持有的关于您的信息副本</li>
             </ul>

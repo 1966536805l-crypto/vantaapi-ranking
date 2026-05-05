@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Immortal - AI/API 项目展示目录",
-  description: "AI 与 API 工具发现目录，展示经过审核的优质技术项目",
+  title: "Immortal - 个人学习与项目控制台",
+  description: "今日目标、学习路线、错题复盘、项目进度、状态记录与 AI 助手",
 };
 
 export default function RootLayout({

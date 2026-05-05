@@ -1,185 +1,139 @@
+"use client";
+
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import ParticleBackground from "@/components/ParticleBackground";
-import DisclaimerModal from "@/components/DisclaimerModal";
+import { useEffect, useState } from "react";
+import ConsolePage from "@/components/ConsolePage";
 
-export const dynamic = "force-dynamic";
-
-type CategoryCard = {
-  id: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  _count: {
-    rankings: number;
-  };
+type DashboardState = {
+  goal: string;
+  focus: string;
+  project: string;
+  learnMath: number;
+  learnPhysics: number;
+  learnEnglish: number;
+  learnCode: number;
 };
 
-export default async function Home() {
-  const categories = await prisma.category.findMany({
-    include: {
-      _count: {
-        select: { rankings: true }
-      }
+const defaultState: DashboardState = {
+  goal: "完成 2 小时数学复盘，修复 VantaAPI 一个页面问题",
+  focus: "先学习，再项目，晚上做错题回顾",
+  project: "VantaAPI 个人控制台改版",
+  learnMath: 35,
+  learnPhysics: 20,
+  learnEnglish: 45,
+  learnCode: 60,
+};
+
+export default function Home() {
+  const [state, setState] = useState<DashboardState>(defaultState);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("immortal-dashboard");
+    if (saved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setState({ ...defaultState, ...JSON.parse(saved) });
     }
-  });
+  }, []);
+
+  const updateState = <K extends keyof DashboardState>(
+    key: K,
+    value: DashboardState[K]
+  ) => {
+    const next = { ...state, [key]: value };
+    setState(next);
+    localStorage.setItem("immortal-dashboard", JSON.stringify(next));
+  };
+
+  const progress = [
+    ["数学", state.learnMath],
+    ["物理", state.learnPhysics],
+    ["英语", state.learnEnglish],
+    ["编程", state.learnCode],
+  ] as const;
 
   return (
-    <main className="relative min-h-screen bg-gradient-to-br from-[#07070a] via-[#0a0a0f] to-[#0d0a08] text-stone-100">
-      <DisclaimerModal />
-      <ParticleBackground />
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-6 sm:px-8 lg:px-10">
-        <nav className="flex items-center justify-between border-b border-white/10 pb-5">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-lg border border-lime-300/40 bg-lime-300 text-sm font-black text-black">
-              I
+    <ConsolePage
+      eyebrow="今日控制台"
+      title="学习、项目、状态都收进一个屏幕。"
+      description="这里是你的个人学习与项目控制台，只记录你自己的目标、进度和复盘，不展示他人信息，不做公开对比。"
+    >
+      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/30">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-white">今日目标</h2>
+            <span className="rounded-full bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+              local only
             </span>
-            <span className="text-xl font-semibold tracking-normal">Immortal</span>
-          </Link>
-          <div className="flex items-center gap-2 text-sm">
-            <Link
-              href="/ai"
-              className="rounded-lg border border-white/10 px-4 py-2 text-stone-200 transition hover:border-lime-300/60 hover:text-lime-200"
-            >
-              AI 助手
-            </Link>
-            <Link
-              href="/submit"
-              className="rounded-lg bg-lime-300 px-4 py-2 font-semibold text-black transition hover:bg-lime-200"
-            >
-              提交
-            </Link>
           </div>
-        </nav>
-
-        <header className="grid gap-10 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-end lg:py-20">
-          <div>
-            <p className="mb-5 inline-flex rounded-full border border-lime-300/20 bg-gradient-to-r from-lime-300/10 to-yellow-300/10 px-4 py-2 text-sm font-medium text-lime-200 shadow-lg shadow-lime-300/10">
-              AI/API 项目展示目录
-            </p>
-            <h1 className="glow-gold max-w-4xl bg-gradient-to-br from-white via-lime-100 to-yellow-200 bg-clip-text text-6xl font-bold leading-none text-transparent sm:text-7xl lg:text-8xl">
-              Immortal
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-300">
-              AI 与 API 工具发现目录。收集优质项目、筛选有效信号，把值得关注的技术工具放到台前。
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/ai"
-                className="rounded-lg bg-white px-5 py-3 font-semibold text-black transition hover:bg-lime-200"
-              >
-                开始对话
-              </Link>
-              <Link
-                href="/submit"
-                className="rounded-lg border border-white/10 px-5 py-3 font-semibold text-stone-100 transition hover:border-white/30 hover:bg-white/[0.04]"
-              >
-                提交项目
-              </Link>
-            </div>
-            <div className="mt-6 rounded-lg border border-yellow-500/20 bg-gradient-to-br from-yellow-900/10 to-orange-900/10 p-4 text-xs leading-relaxed text-stone-400 backdrop-blur-sm">
-              <p className="font-semibold text-yellow-200">⚠️ 免责声明</p>
-              <p className="mt-2">本平台仅提供工具展示服务。所有提交内容均由用户自行发布，平台不对其真实性、合法性、准确性承担任何责任。用户提交内容产生的一切法律责任由提交者本人承担，与本平台无关。如发现违法违规内容，请联系我们删除。</p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.04] p-5">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <span className="text-sm text-stone-400">Live Index</span>
-              <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-semibold text-emerald-200">
-                Online
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <p className="text-3xl font-semibold text-white">{categories.length}</p>
-                <p className="mt-1 text-sm text-stone-400">分类</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold text-white">
-                  {categories.reduce(
-                    (total, category) => total + category._count.rankings,
-                    0
-                  )}
-                </p>
-                <p className="mt-1 text-sm text-stone-400">项目</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold text-lime-200">AI</p>
-                <p className="mt-1 text-sm text-stone-400">助手</p>
-              </div>
-            </div>
-            <div className="rounded-lg bg-black/30 p-4 text-sm leading-6 text-stone-300">
-              Immortal 展示经过审核的 AI/API 项目。所有内容需人工审核后才会公开显示。
-            </div>
-          </div>
-        </header>
-
-        <section className="pb-14">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-semibold text-white">项目分类</h2>
-              <p className="mt-2 text-sm text-stone-400">
-                浏览不同类别的 AI/API 工具和项目。
-              </p>
-            </div>
-          </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {(categories as CategoryCard[]).map((category) => (
-            <Link
-              key={category.id}
-              href={`/category/${category.id}`}
-              className="card-hover group rounded-lg border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.02] p-6 backdrop-blur-sm transition hover:border-lime-300/40 hover:bg-gradient-to-br hover:from-lime-300/[0.08] hover:to-yellow-300/[0.04]"
-            >
-              <div className="mb-6 flex items-center justify-between">
-                {category.icon && (
-                  <span className="text-4xl">{category.icon}</span>
-                )}
-                <span className="text-sm text-stone-500 transition group-hover:text-lime-200">
-                  查看
-                </span>
-              </div>
-              <div>
-                <h3 className="text-2xl font-semibold text-white">
-                  {category.name}
-                </h3>
-                {category.description && (
-                  <p className="mt-3 min-h-12 text-sm leading-6 text-stone-400">
-                    {category.description}
-                  </p>
-                )}
-              </div>
-              <div className="mt-6 border-t border-white/10 pt-4 text-sm text-stone-400">
-                {category._count.rankings} 个项目
-              </div>
-            </Link>
-          ))}
+          <textarea
+            value={state.goal}
+            onChange={(event) => updateState("goal", event.target.value)}
+            rows={4}
+            className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm leading-6 text-white outline-none focus:border-cyan-300/60"
+          />
+          <label className="mt-4 block text-sm text-stone-400">今日策略</label>
+          <input
+            value={state.focus}
+            onChange={(event) => updateState("focus", event.target.value)}
+            className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-cyan-300/60"
+          />
         </div>
 
-        {categories.length === 0 && (
-          <div className="rounded-lg border border-dashed border-white/15 py-16 text-center">
-            <p className="text-stone-400">暂无分类，请先添加分类</p>
+        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+          <h2 className="text-xl font-semibold text-white">正在做的项目</h2>
+          <input
+            value={state.project}
+            onChange={(event) => updateState("project", event.target.value)}
+            className="mt-4 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-cyan-300/60"
+          />
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <Link className="rounded-lg bg-cyan-300 px-4 py-3 text-center font-semibold text-black" href="/projects">
+              看项目
+            </Link>
+            <Link className="rounded-lg border border-white/10 px-4 py-3 text-center font-semibold text-stone-200" href="/ai">
+              问 AI
+            </Link>
           </div>
-        )}
-        </section>
+        </div>
+      </section>
 
-        <footer className="mt-auto border-t border-white/10 py-6 text-center text-xs text-stone-500">
-          <p className="mb-3 font-semibold">Immortal - AI/API 项目展示目录</p>
-          <div className="mb-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-stone-400">
-            <Link href="/terms" className="hover:text-lime-300 underline">用户协议</Link>
-            <Link href="/privacy" className="hover:text-lime-300 underline">隐私政策</Link>
-            <Link href="/disclaimer" className="hover:text-lime-300 underline">免责声明</Link>
-            <Link href="/report" className="hover:text-lime-300 underline">投诉举报</Link>
-          </div>
-          <div className="space-y-1 text-stone-600">
-            <p>本平台仅提供信息展示服务 · 不对用户提交内容进行实质性审查</p>
-            <p>用户提交内容的真实性、合法性、准确性由提交者本人承担全部法律责任</p>
-            <p>平台不对第三方内容或链接产生的任何后果承担责任</p>
-            <p className="mt-2 text-stone-700">© 2026 Immortal. All user-generated content is the sole responsibility of the submitter.</p>
-          </div>
-        </footer>
-      </div>
-    </main>
+      <section className="mt-4 rounded-lg border border-white/10 bg-white/[0.04] p-5">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-white">学习进度</h2>
+          <Link href="/learn" className="text-sm text-cyan-200 hover:text-cyan-100">
+            编辑路线
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {progress.map(([label, value]) => (
+            <div key={label} className="rounded-lg border border-white/10 bg-black/20 p-4">
+              <div className="mb-3 flex justify-between text-sm">
+                <span className="text-stone-300">{label}</span>
+                <span className="text-cyan-100">{value}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={value}
+                onChange={(event) =>
+                  updateState(
+                    `learn${label === "数学" ? "Math" : label === "物理" ? "Physics" : label === "英语" ? "English" : "Code"}` as keyof DashboardState,
+                    Number(event.target.value) as never
+                  )
+                }
+                className="w-full accent-cyan-300"
+              />
+              <div className="mt-3 h-2 rounded-full bg-white/10">
+                <div
+                  className="h-2 rounded-full bg-gradient-to-r from-cyan-300 to-lime-300"
+                  style={{ width: `${value}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </ConsolePage>
   );
 }
