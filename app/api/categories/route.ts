@@ -21,6 +21,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const adminToken = process.env.ADMIN_TOKEN;
+    const requestToken = request.headers.get("x-admin-token");
+
+    if (!adminToken || requestToken !== adminToken) {
+      return NextResponse.json({ message: "无权限" }, { status: 403 });
+    }
+
     const body = await request.json();
     const { name, description, icon } = body;
 

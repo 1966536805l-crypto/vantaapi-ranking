@@ -6,6 +6,13 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const adminToken = process.env.ADMIN_TOKEN;
+    const requestToken = request.headers.get("x-admin-token");
+
+    if (!adminToken || requestToken !== adminToken) {
+      return NextResponse.json({ message: "无权限" }, { status: 403 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { status, score, votes } = body;
@@ -34,6 +41,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const adminToken = process.env.ADMIN_TOKEN;
+    const requestToken = request.headers.get("x-admin-token");
+
+    if (!adminToken || requestToken !== adminToken) {
+      return NextResponse.json({ message: "无权限" }, { status: 403 });
+    }
+
     const { id } = await params;
 
     await prisma.ranking.delete({

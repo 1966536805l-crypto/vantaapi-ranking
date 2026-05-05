@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+type Category = {
+  id: string;
+  name: string;
+};
 
 export default function SubmitPage() {
   const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -14,8 +21,29 @@ export default function SubmitPage() {
     categoryId: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        const data = (await response.json()) as Category[];
+
+        setCategories(data);
+        setFormData((current) => ({
+          ...current,
+          categoryId: current.categoryId || data[0]?.id || "",
+        }));
+      } catch {
+        setCategories([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
 
     try {
@@ -26,117 +54,155 @@ export default function SubmitPage() {
       });
 
       if (response.ok) {
-        alert("提交成功！等待管理员审核");
+        alert("提交成功，等待审核。");
         router.push("/");
       } else {
         const error = await response.json();
-        alert(`提交失败: ${error.message}`);
+        alert(`提交失败：${error.message}`);
       }
-    } catch (error) {
-      alert("提交失败，请重试");
+    } catch {
+      alert("提交失败，请重试。");
     } finally {
       setLoading(false);
     }
   };
 
+  const canSubmit =
+    Boolean(formData.title.trim()) && Boolean(formData.categoryId) && !loading;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-2xl mx-auto">
+    <main className="min-h-screen bg-[#07070a] text-stone-100">
+      <div className="mx-auto min-h-screen w-full max-w-3xl px-5 py-6 sm:px-8">
+        <nav className="mb-10 flex items-center justify-between border-b border-white/10 pb-5">
           <Link
             href="/"
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 mb-4 inline-block"
+            className="flex items-center gap-3 text-stone-200 transition hover:text-lime-200"
           >
-            ← 返回首页
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-lime-300 text-sm font-black text-black">
+              I
+            </span>
+            <span className="font-semibold">Immortal</span>
           </Link>
+          <Link
+            href="/ai"
+            className="rounded-lg border border-white/10 px-4 py-2 text-sm text-stone-200 transition hover:border-lime-300/50 hover:text-lime-200"
+          >
+            AI 助手
+          </Link>
+        </nav>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-              提交项目
-            </h1>
+        <header className="mb-7">
+          <p className="mb-3 text-sm font-medium text-lime-200">
+            Submit to Immortal
+          </p>
+          <h1 className="text-4xl font-semibold text-white">提交项目</h1>
+          <p className="mt-4 text-sm leading-6 text-stone-400">
+            分享你觉得值得长期关注的产品、工具或内容。提交后会进入审核队列。
+          </p>
+        </header>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+        <section className="rounded-lg border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/40 sm:p-6">
+          {categoriesLoading ? (
+            <p className="py-10 text-center text-sm text-stone-400">
+              正在加载分类...
+            </p>
+          ) : categories.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-white/15 px-5 py-10 text-center">
+              <p className="font-medium text-white">暂时没有可提交的分类</p>
+              <p className="mt-2 text-sm text-stone-400">
+                分类准备好之后，这里会自动显示下拉选择。
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="mb-2 block text-sm font-medium text-stone-300">
                   项目名称 *
                 </label>
                 <input
                   type="text"
                   required
                   value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
+                  onChange={(event) =>
+                    setFormData({ ...formData, title: event.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-stone-500 focus:border-lime-300/60"
                   placeholder="输入项目名称"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="mb-2 block text-sm font-medium text-stone-300">
+                  分类 *
+                </label>
+                <select
+                  required
+                  value={formData.categoryId}
+                  onChange={(event) =>
+                    setFormData({ ...formData, categoryId: event.target.value })
+                  }
+                  className="w-full rounded-lg border border-white/10 bg-[#111115] px-4 py-3 text-white outline-none transition focus:border-lime-300/60"
+                >
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-stone-300">
                   项目描述
                 </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
+                  onChange={(event) =>
+                    setFormData({
+                      ...formData,
+                      description: event.target.value,
+                    })
                   }
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-stone-500 focus:border-lime-300/60"
                   placeholder="描述项目的特点和亮点"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="mb-2 block text-sm font-medium text-stone-300">
                   图片链接
                 </label>
                 <input
                   type="url"
                   value={formData.imageUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imageUrl: e.target.value })
+                  onChange={(event) =>
+                    setFormData({ ...formData, imageUrl: event.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-stone-500 focus:border-lime-300/60"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  分类 *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.categoryId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, categoryId: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="输入分类 ID（从首页获取）"
-                />
-              </div>
-
-              <div className="flex gap-4">
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+                  disabled={!canSubmit}
+                  className="flex-1 rounded-lg bg-lime-300 px-6 py-3 font-semibold text-black transition hover:bg-lime-200 disabled:cursor-not-allowed disabled:bg-stone-700 disabled:text-stone-400"
                 >
                   {loading ? "提交中..." : "提交"}
                 </button>
                 <Link
                   href="/"
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-lg text-center transition-colors"
+                  className="flex-1 rounded-lg border border-white/10 px-6 py-3 text-center font-semibold text-stone-200 transition hover:border-white/30 hover:bg-white/[0.04]"
                 >
-                  取消
+                  返回首页
                 </Link>
               </div>
             </form>
-          </div>
-        </div>
+          )}
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

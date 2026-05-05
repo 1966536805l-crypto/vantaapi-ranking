@@ -67,10 +67,10 @@ export default async function Home() {
                 开始对话
               </Link>
               <Link
-                href="/admin"
+                href="/submit"
                 className="rounded-lg border border-white/10 px-5 py-3 font-semibold text-stone-100 transition hover:border-white/30 hover:bg-white/[0.04]"
               >
-                管理后台
+                提交项目
               </Link>
             </div>
           </div>
