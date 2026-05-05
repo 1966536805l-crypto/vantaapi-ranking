@@ -74,6 +74,8 @@ model User {
   likes             Like[]
   follows           Follow[]  @relation("UserFollows")
   followers         Follow[]  @relation("UserFollowers")
+  cppErrors         CppError[]
+  mistakes          Mistake[]
 
   @@index([email])
 }
@@ -140,5 +142,64 @@ model Report {
   updatedAt   DateTime @updatedAt
 
   @@index([status])
+  @@index([createdAt])
+}
+
+// C++ 错误记录
+model CppError {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code        String   @db.Text
+  stdin       String   @db.Text
+  stdout      String?  @db.Text
+  stderr      String?  @db.Text
+  note        String?  @db.Text
+  aiAnalysis  String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// 错题本
+model Mistake {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question        String    @db.Text
+  myAnswer        String    @db.Text
+  correctAnswer   String    @db.Text
+  myProcess       String?   @db.Text
+  mistakeType     String    // 审题错/概念不清/公式乱用/计算粗心/图形没看出来/变量关系没建出来/第一突破口卡住/会方法但表达乱
+  correctThinking String?   @db.Text
+  nextReviewAt    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([mistakeType])
+  @@index([nextReviewAt])
+  @@index([createdAt])
+}
+
+// 题库
+model Question {
+  id          String   @id @default(cuid())
+  content     String   @db.Text      // 题目内容
+  answer      String   @db.Text      // 答案
+  explanation String?  @db.Text      // 解析
+  difficulty  String   @default("中等") // 简单/中等/困难
+  subject     String   @default("数学") // 数学/物理/化学等
+  topic       String?                // 知识点（函数/三角/立体几何/解析几何/数列等）
+  type        String   @default("选择题") // 选择题/填空题/解答题
+  tags        String?                // 标签（JSON数组字符串）
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([difficulty])
+  @@index([subject])
+  @@index([topic])
+  @@index([type])
   @@index([createdAt])
 }

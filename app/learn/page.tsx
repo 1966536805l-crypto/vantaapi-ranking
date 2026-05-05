@@ -46,24 +46,24 @@ export default function LearnPage() {
         {tracks.map((track, index) => (
           <article
             key={track.name}
-            className="rounded-lg border border-white/10 bg-white/[0.04] p-5"
+            className="border border-slate-200 bg-white p-5 shadow-sm"
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-white">{track.name}</h2>
-              <span className="text-sm text-cyan-100">{track.progress}%</span>
+              <h2 className="text-2xl font-semibold text-slate-950">{track.name}</h2>
+              <span className="font-mono text-sm text-blue-700">{track.progress}%</span>
             </div>
-            <label className="text-sm text-stone-400">当前重点</label>
+            <label className="text-sm text-slate-600">当前重点</label>
             <textarea
               value={track.focus}
               onChange={(event) => updateTrack(index, { focus: event.target.value })}
               rows={3}
-              className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-cyan-300/60"
+              className="mt-2 w-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-950 outline-none focus:border-blue-400"
             />
-            <label className="mt-4 block text-sm text-stone-400">下一步</label>
+            <label className="mt-4 block text-sm text-slate-600">下一步</label>
             <input
               value={track.next}
               onChange={(event) => updateTrack(index, { next: event.target.value })}
-              className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-cyan-300/60"
+              className="mt-2 w-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-950 outline-none focus:border-blue-400"
             />
             <input
               type="range"
@@ -73,7 +73,7 @@ export default function LearnPage() {
               onChange={(event) =>
                 updateTrack(index, { progress: Number(event.target.value) })
               }
-              className="mt-5 w-full accent-cyan-300"
+              className="mt-5 w-full accent-blue-600"
             />
           </article>
         ))}

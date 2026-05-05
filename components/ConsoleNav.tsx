@@ -1,33 +1,37 @@
 import Link from "next/link";
 
 const navItems = [
-  { href: "/", label: "首页" },
-  { href: "/learn", label: "学习" },
-  { href: "/mistakes", label: "错题" },
-  { href: "/projects", label: "项目" },
-  { href: "/status", label: "状态" },
-  { href: "/games", label: "小游戏" },
-  { href: "/ai", label: "AI" },
+  { href: "/", label: "Dashboard" },
+  { href: "/cpp", label: "C++ Run" },
+  { href: "/learn", label: "Training" },
+  { href: "/mistakes", label: "Wrong Set" },
+  { href: "/projects", label: "Build" },
+  { href: "/status", label: "Status" },
+  { href: "/games", label: "Drills" },
+  { href: "/ai", label: "AI Coach" },
 ];
 
 export default function ConsoleNav() {
   return (
-    <nav className="flex flex-col gap-4 border-b border-cyan-300/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
+    <nav className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
       <Link href="/" className="flex items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-lg border border-cyan-300/40 bg-cyan-300 text-sm font-black text-black shadow-lg shadow-cyan-300/20">
-          I
+        <span className="relative grid h-12 w-12 place-items-center border border-blue-200 bg-white shadow-sm">
+          <span className="h-0 w-0 border-l-[10px] border-r-[10px] border-b-[18px] border-l-transparent border-r-transparent border-b-blue-700" />
+          <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-amber-400" />
         </span>
         <div>
-          <p className="text-lg font-semibold text-white">Immortal</p>
-          <p className="text-xs text-cyan-200/70">Personal Console</p>
+          <p className="font-mono text-lg font-black tracking-[0.14em] text-slate-950">IMMORTAL</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue-700">
+            Contest Console
+          </p>
         </div>
       </Link>
-      <div className="flex flex-wrap gap-2 text-sm">
+      <div className="flex flex-wrap gap-2 font-mono text-xs">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-stone-300 transition hover:border-cyan-300/50 hover:text-cyan-100"
+            className="border border-slate-200 bg-white px-3 py-2 text-slate-600 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
           >
             {item.label}
           </Link>
