@@ -66,7 +66,7 @@ export default function AiPage() {
             ← 返回首页
           </Link>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-            Gemini AI
+            AI 助手
           </h1>
         </div>
 
@@ -109,7 +109,7 @@ export default function AiPage() {
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
                   maxLength={4000}
-                  placeholder="问 Gemini 一个问题"
+                  placeholder="问 AI 一个问题"
                   className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white"
                 />
                 <button
