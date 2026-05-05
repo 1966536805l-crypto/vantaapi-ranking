@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 
 const DEFAULT_MODEL = "gemini-2.5-flash-lite";
 const DEFAULT_COMPATIBLE_BASE_URL = "https://api.siliconflow.cn/v1";
-const DEFAULT_COMPATIBLE_MODEL = "Qwen/Qwen2-7B-Instruct";
+const DEFAULT_COMPATIBLE_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
 type GeminiPart = {
   text?: string;
