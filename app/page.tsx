@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ConsolePage from "@/components/ConsolePage";
+import { ProgressChart, TrendChart, KnowledgeRadar } from "@/components/Charts";
+import { StatCard, Tabs, Badge, ProgressBar } from "@/components/UIComponents";
 
 type DashboardState = {
   goal: string;
@@ -59,12 +61,70 @@ export default function Home() {
     { type: "project", title: "控制台改版", time: "3天前", status: "进行中" },
   ];
 
+  // 学习趋势数据（最近7天）
+  const trendData = [
+    { date: "周一", value: 120 },
+    { date: "周二", value: 150 },
+    { date: "周三", value: 90 },
+    { date: "周四", value: 180 },
+    { date: "周五", value: 160 },
+    { date: "周六", value: 200 },
+    { date: "周日", value: 140 },
+  ];
+
+  // 知识点掌握雷达图数据
+  const radarData = [
+    { subject: "数学", value: state.learnMath, fullMark: 100 },
+    { subject: "物理", value: state.learnPhysics, fullMark: 100 },
+    { subject: "英语", value: state.learnEnglish, fullMark: 100 },
+    { subject: "编程", value: state.learnCode, fullMark: 100 },
+  ];
+
+  // 统计数据
+  const stats = {
+    totalTime: 850, // 总学习时长（分钟）
+    todayTime: 140, // 今日学习时长
+    mistakeCount: 23, // 错题数量
+    solvedCount: 18, // 已解决错题
+  };
+
   return (
     <ConsolePage
       eyebrow="Dashboard"
       title="把每天当成一场训练赛。"
       description="这里是你的个人学习控制台：只记录自己的目标、进度、错题和项目，不展示他人信息，不做公开对比。"
     >
+      {/* 统计卡片 */}
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="本周学习时长"
+          value={`${Math.floor(stats.totalTime / 60)}h ${stats.totalTime % 60}m`}
+          change="+12% vs 上周"
+          trend="up"
+          icon="📚"
+        />
+        <StatCard
+          title="今日学习时长"
+          value={`${Math.floor(stats.todayTime / 60)}h ${stats.todayTime % 60}m`}
+          change="目标: 3h"
+          trend="neutral"
+          icon="⏱️"
+        />
+        <StatCard
+          title="错题总数"
+          value={stats.mistakeCount}
+          change={`已解决 ${stats.solvedCount}`}
+          trend="down"
+          icon="📝"
+        />
+        <StatCard
+          title="完成率"
+          value={`${Math.round((stats.solvedCount / stats.mistakeCount) * 100)}%`}
+          change="+5% vs 上周"
+          trend="up"
+          icon="✅"
+        />
+      </section>
       <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-slate-900/40">
           <div className="mb-4 flex items-center justify-between">
@@ -179,44 +239,90 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 学习数据可视化 */}
       <section className="mt-4 border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-slate-900/40">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
-            Division Progress
-          </h2>
-          <Link href="/learn" className="font-mono text-xs uppercase tracking-[0.14em] text-blue-400 hover:text-blue-300">
-            edit route
-          </Link>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {progress.map(([label, value]) => (
-            <div key={label} className="border border-slate-800 bg-slate-900/50 p-4">
-              <div className="mb-3 flex justify-between text-sm">
-                <span className="text-slate-300">{label}</span>
-                <span className="font-mono text-blue-400">{value}%</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={value}
-                onChange={(event) =>
-                  updateState(
-                    `learn${label === "数学" ? "Math" : label === "物理" ? "Physics" : label === "英语" ? "English" : "Code"}` as keyof DashboardState,
-                    Number(event.target.value) as never
-                  )
-                }
-                className="w-full accent-blue-500"
-              />
-              <div className="mt-3 h-2 bg-slate-800">
-                <div
-                  className="h-2 bg-gradient-to-r from-blue-600 via-sky-400 to-amber-400"
-                  style={{ width: `${value}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <Tabs
+          tabs={[
+            { id: "progress", label: "学科进度", icon: "📊" },
+            { id: "trend", label: "学习趋势", icon: "📈" },
+            { id: "radar", label: "知识雷达", icon: "🎯" },
+          ]}
+          defaultTab="progress"
+        >
+          {(activeTab) => (
+            <>
+              {activeTab === "progress" && (
+                <div>
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
+                      Division Progress
+                    </h3>
+                    <Link href="/learn" className="font-mono text-xs uppercase tracking-[0.14em] text-blue-400 hover:text-blue-300">
+                      edit route
+                    </Link>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {progress.map(([label, value]) => (
+                      <div key={label} className="border border-slate-800 bg-slate-900/50 p-4">
+                        <div className="mb-3 flex items-center justify-between">
+                          <span className="text-sm text-slate-300">{label}</span>
+                          <Badge variant={value >= 60 ? "success" : value >= 40 ? "warning" : "error"}>
+                            {value >= 60 ? "良好" : value >= 40 ? "进行中" : "需加强"}
+                          </Badge>
+                        </div>
+                        <ProgressBar value={value} max={100} showLabel={true} />
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={value}
+                          onChange={(event) =>
+                            updateState(
+                              `learn${label === "数学" ? "Math" : label === "物理" ? "Physics" : label === "英语" ? "English" : "Code"}` as keyof DashboardState,
+                              Number(event.target.value) as never
+                            )
+                          }
+                          className="mt-3 w-full accent-blue-500"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {activeTab === "trend" && (
+                <div>
+                  <h3 className="mb-4 font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
+                    本周学习时长趋势
+                  </h3>
+                  <div className="rounded-lg bg-white p-4">
+                    <TrendChart data={trendData} color="#3b82f6" />
+                  </div>
+                  <p className="mt-3 text-sm text-slate-400">
+                    本周平均每天学习 {Math.round(trendData.reduce((sum, d) => sum + d.value, 0) / trendData.length)} 分钟
+                  </p>
+                </div>
+              )}
+              {activeTab === "radar" && (
+                <div>
+                  <h3 className="mb-4 font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
+                    知识点掌握程度
+                  </h3>
+                  <div className="rounded-lg bg-white p-4">
+                    <KnowledgeRadar data={radarData} />
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {radarData.map((item) => (
+                      <div key={item.subject} className="border border-slate-800 bg-slate-900/50 p-3 text-center">
+                        <p className="text-xs text-slate-400">{item.subject}</p>
+                        <p className="mt-1 font-mono text-lg font-bold text-blue-400">{item.value}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </Tabs>
       </section>
     </ConsolePage>
   );
