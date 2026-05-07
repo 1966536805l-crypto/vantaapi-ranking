@@ -18,6 +18,16 @@ type Mode = "mixed" | "word" | "sentence";
 type HintMode = "meaning" | "shape" | "answer";
 
 const storageKey = "vantaapi-english-typing-v1";
+const missedStorageKey = "vantaapi-english-typing-missed-v1";
+const sessionGoal = 10;
+
+type TypingStats = {
+  correct: number;
+  wrong: number;
+  index: number;
+  streak: number;
+  bestStreak: number;
+};
 
 function normalize(value: string) {
   return value
@@ -47,26 +57,48 @@ function charState(answer: string, draft: string, index: number) {
 }
 
 function readStats() {
-  if (typeof window === "undefined") return { correct: 0, wrong: 0, index: 0 };
+  if (typeof window === "undefined") return { correct: 0, wrong: 0, index: 0, streak: 0, bestStreak: 0 };
   try {
     const parsed = JSON.parse(window.localStorage.getItem(storageKey) || "{}") as {
       correct?: number;
       wrong?: number;
       index?: number;
+      streak?: number;
+      bestStreak?: number;
     };
     return {
       correct: Math.max(0, Number(parsed.correct || 0)),
       wrong: Math.max(0, Number(parsed.wrong || 0)),
       index: Math.max(0, Number(parsed.index || 0)),
+      streak: Math.max(0, Number(parsed.streak || 0)),
+      bestStreak: Math.max(0, Number(parsed.bestStreak || 0)),
     };
   } catch {
-    return { correct: 0, wrong: 0, index: 0 };
+    return { correct: 0, wrong: 0, index: 0, streak: 0, bestStreak: 0 };
   }
 }
 
-function saveStats(stats: { correct: number; wrong: number; index: number }) {
+function saveStats(stats: TypingStats) {
   try {
     window.localStorage.setItem(storageKey, JSON.stringify(stats));
+  } catch {
+    // Best effort only.
+  }
+}
+
+function readMissedIds() {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(missedStorageKey) || "[]");
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMissedIds(ids: string[]) {
+  try {
+    window.localStorage.setItem(missedStorageKey, JSON.stringify(Array.from(new Set(ids)).slice(-80)));
   } catch {
     // Best effort only.
   }
@@ -81,7 +113,10 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
   const [focusMode, setFocusMode] = useState(true);
   const [hintMode, setHintMode] = useState<HintMode>("meaning");
   const [autoListen, setAutoListen] = useState(true);
-  const [stats, setStats] = useState({ correct: 0, wrong: 0, index: 0 });
+  const [reviewOnly, setReviewOnly] = useState(false);
+  const [missedIds, setMissedIds] = useState<string[]>([]);
+  const [sessionDone, setSessionDone] = useState(0);
+  const [stats, setStats] = useState<TypingStats>({ correct: 0, wrong: 0, index: 0, streak: 0, bestStreak: 0 });
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [questionElapsedSeconds, setQuestionElapsedSeconds] = useState(0);
   const [timeoutIds, setTimeoutIds] = useState<Record<string, boolean>>({});
@@ -89,10 +124,14 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
   const lastErrorRef = useRef("");
   const autoSubmittedRef = useRef("");
 
+  const effectiveReviewOnly = reviewOnly && missedIds.length > 0;
+
   const activeItems = useMemo(() => {
-    if (mode === "mixed") return items;
-    return items.filter((item) => item.type === mode);
-  }, [items, mode]);
+    const modeItems = mode === "mixed" ? items : items.filter((item) => item.type === mode);
+    if (!effectiveReviewOnly) return modeItems;
+    const missedSet = new Set(missedIds);
+    return modeItems.filter((item) => missedSet.has(item.id));
+  }, [effectiveReviewOnly, items, missedIds, mode]);
 
   const safeItems = activeItems.length > 0 ? activeItems : items;
   const activeIndex = safeItems.length ? index % safeItems.length : 0;
@@ -112,15 +151,33 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
   const hintLabel = hintMode === "meaning" ? "只看释义" : hintMode === "shape" ? "看词形" : "看答案";
   const typedCount = Math.min(draft.length, current?.answer.length || 0);
   const nextNeeded = current?.answer[typedCount] || "";
+  const sessionProgress = Math.min(100, Math.round((sessionDone / sessionGoal) * 100));
+  const sessionComplete = sessionDone >= sessionGoal;
 
   const speak = useCallback((text = current?.answer) => {
     if (!text) return;
     void speakMemoryPronunciation({ text, kind: current?.type === "sentence" ? "sentence" : "word" });
   }, [current.answer, current.type]);
 
-  const persist = useCallback((nextStats: { correct: number; wrong: number; index: number }) => {
+  const persist = useCallback((nextStats: TypingStats) => {
     setStats(nextStats);
     saveStats(nextStats);
+  }, []);
+
+  const rememberMissed = useCallback((id: string) => {
+    setMissedIds((ids) => {
+      const nextIds = Array.from(new Set([...ids, id])).slice(-80);
+      saveMissedIds(nextIds);
+      return nextIds;
+    });
+  }, []);
+
+  const forgetMissed = useCallback((id: string) => {
+    setMissedIds((ids) => {
+      const nextIds = ids.filter((item) => item !== id);
+      saveMissedIds(nextIds);
+      return nextIds;
+    });
   }, []);
 
   const next = useCallback(() => {
@@ -155,8 +212,9 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
       correct: stats.correct + (correct ? 1 : 0),
       wrong: stats.wrong + (correct ? 0 : 1),
       index: activeIndex,
+      streak: stats.streak,
+      bestStreak: stats.bestStreak,
     };
-    persist(nextStats);
 
     recordLocalActivity({
       id: `english-typing:${current.id}:${Date.now()}`,
@@ -168,29 +226,36 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     });
 
     if (correct) {
+      const nextStreak = stats.streak + 1;
+      persist({ ...nextStats, streak: nextStreak, bestStreak: Math.max(stats.bestStreak, nextStreak) });
+      forgetMissed(current.id);
+      setSessionDone((value) => Math.min(sessionGoal, value + 1));
       setMessage("✓ 通过 自动下一题");
       setHintMode("meaning");
       window.setTimeout(next, 520);
       return;
     }
 
+    persist({ ...nextStats, streak: 0, bestStreak: stats.bestStreak });
+    rememberMissed(current.id);
     setMessage("✗ 拼写错误 再听一遍 必须打对才能过关");
     setShowAnswer(false);
     setHintMode("shape");
     speak(current.answer);
     window.setTimeout(() => inputRef.current?.focus(), 0);
-  }, [activeIndex, current, draft, next, persist, speak, stats.correct, stats.wrong]);
+  }, [activeIndex, current, draft, forgetMissed, next, persist, rememberMissed, speak, stats.bestStreak, stats.correct, stats.streak, stats.wrong]);
 
   const giveUp = useCallback(() => {
     if (!current) return;
     const latestStats = readStats();
-    persist({ ...latestStats, wrong: latestStats.wrong + 1, index: activeIndex });
+    persist({ ...latestStats, wrong: latestStats.wrong + 1, index: activeIndex, streak: 0 });
+    rememberMissed(current.id);
     setShowAnswer(true);
     setHintMode("answer");
     setMessage("已加入复习 下一题前先看一眼正确拼写");
     speak(current.answer);
     window.setTimeout(next, 900);
-  }, [activeIndex, current, next, persist, speak]);
+  }, [activeIndex, current, next, persist, rememberMissed, speak]);
 
   const cycleHint = useCallback(() => {
     setHintMode((value) => {
@@ -228,20 +293,22 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     const timer = window.setTimeout(() => {
       setTimeoutIds((ids) => ({ ...ids, [current.id]: true }));
       const latestStats = readStats();
-      const nextStats = { ...latestStats, wrong: latestStats.wrong + 1 };
+      const nextStats = { ...latestStats, wrong: latestStats.wrong + 1, streak: 0 };
       persist(nextStats);
+      rememberMissed(current.id);
       setMessage("5 秒未回忆出来 已记为待复习 先重听");
       speak(current.answer);
       window.setTimeout(() => inputRef.current?.focus(), 0);
     }, 5000);
     return () => window.clearTimeout(timer);
-  }, [current, draft, persist, speak, timeoutIds]);
+  }, [current, draft, persist, rememberMissed, speak, timeoutIds]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const saved = readStats();
       setStats(saved);
       setIndex(saved.index);
+      setMissedIds(readMissedIds());
       inputRef.current?.focus();
     }, 0);
     return () => window.clearTimeout(timer);
@@ -254,6 +321,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
       setHintMode("meaning");
       setMessage("已切换题型 听音拼写");
       setIndex(0);
+      setReviewOnly(false);
       setQuestionElapsedSeconds(0);
       autoSubmittedRef.current = "";
       inputRef.current?.focus();
@@ -292,6 +360,8 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
               <span>{current.source}</span>
               <span>{activeIndex + 1} / {safeItems.length}</span>
               <span>剩余 {remaining}</span>
+              <span>连对 {stats.streak}</span>
+              <span>错题 {missedIds.length}</span>
               <span>5 秒 {strictTimeoutActive ? "待复习" : `${recallSeconds}s`}</span>
               <span><kbd>Enter</kbd> 检查</span>
               <span><kbd>Ctrl P</kbd> 发音</span>
@@ -327,6 +397,21 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
           <button type="button" className={autoListen ? "active" : ""} onClick={() => setAutoListen((value) => !value)}>
             首听
           </button>
+          <button
+            type="button"
+            className={effectiveReviewOnly ? "active" : ""}
+            onClick={() => {
+              setReviewOnly((value) => !value);
+              setIndex(0);
+              setDraft("");
+              setShowAnswer(false);
+              setHintMode("meaning");
+              window.setTimeout(() => inputRef.current?.focus(), 0);
+            }}
+            disabled={missedIds.length === 0}
+          >
+            错题复练 {missedIds.length}
+          </button>
           <button type="button" onClick={() => {
             setShowAnswer((value) => !value);
             setHintMode(showAnswer ? "meaning" : "answer");
@@ -337,6 +422,27 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
             沉浸
           </button>
         </div>
+
+        <section className="typing-session-strip">
+          <div>
+            <p className="eyebrow">Today Goal</p>
+            <strong>{sessionDone} / {sessionGoal}</strong>
+            <span>{sessionComplete ? "本轮完成 可以继续刷错题" : "本轮先打对 10 个再休息"}</span>
+          </div>
+          <div>
+            <p className="eyebrow">Streak</p>
+            <strong>{stats.streak}</strong>
+            <span>最佳 {stats.bestStreak}</span>
+          </div>
+          <div>
+            <p className="eyebrow">Review Queue</p>
+            <strong>{missedIds.length}</strong>
+            <span>{effectiveReviewOnly ? "正在复练错题" : "错了会自动加入"}</span>
+          </div>
+          <div className="typing-session-progress" aria-label="today typing goal progress">
+            <span style={{ width: `${sessionProgress}%` }} />
+          </div>
+        </section>
 
         <div className="typing-board mt-4">
           <aside className="typing-side">
@@ -436,6 +542,8 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
             <div className="typing-stats">
               <span>✓ {stats.correct}</span>
               <span>✗ {stats.wrong}</span>
+              <span>连对 {stats.streak}</span>
+              <span>最佳 {stats.bestStreak}</span>
               <span>{accuracy}% 准确率</span>
               <span>{wpm} WPM</span>
             </div>

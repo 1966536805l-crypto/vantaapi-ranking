@@ -3428,6 +3428,66 @@ body:has(.home-core-page) .global-search-trigger {
   color: white;
 }
 
+.typing-mode-bar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.typing-session-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 10px;
+}
+
+.typing-session-strip > div:not(.typing-session-progress) {
+  min-width: 0;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.78);
+  padding: 10px;
+}
+
+.typing-session-strip strong {
+  display: block;
+  margin-top: 4px;
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 820;
+  line-height: 1;
+}
+
+.typing-session-strip span {
+  display: block;
+  overflow: hidden;
+  margin-top: 5px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 720;
+}
+
+.typing-session-progress {
+  grid-column: 1 / -1;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.typing-session-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0f172a, #16a34a);
+  transition: width 160ms ease;
+}
+
 .typing-board {
   display: grid;
   grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.22fr);
