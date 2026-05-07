@@ -31,6 +31,10 @@ type HomeCopy = {
   tertiaryCta: string;
   focus: string;
   ready: string;
+  secondaryTitle: string;
+  secondaryHeading: string;
+  secondaryBody: string;
+  open: string;
   cards: Array<{
     href: string;
     eyebrow: string;
@@ -61,6 +65,10 @@ const homeCopy: Record<string, HomeCopy> = {
     tertiaryCta: "开始英语训练",
     focus: "体检范围",
     ready: "可用",
+    secondaryTitle: "长期训练入口",
+    secondaryHeading: "英语和世界语言作为可持续训练",
+    secondaryBody: "上线体检是主工具 英语和世界语言训练放在二级入口 需要时直接进入 不打乱首页主线",
+    open: "打开",
     cards: [
       {
         href: "/tools/github-repo-analyzer",
@@ -103,6 +111,10 @@ const homeCopy: Record<string, HomeCopy> = {
     tertiaryCta: "Start English",
     focus: "Audit Scope",
     ready: "Ready",
+    secondaryTitle: "Long Term Practice",
+    secondaryHeading: "English and world languages stay as practice labs",
+    secondaryBody: "Launch audit stays as the main tool while English and world language practice remain one click away.",
+    open: "Open",
     cards: [
       {
         href: "/tools/github-repo-analyzer",
@@ -145,6 +157,10 @@ const homeCopy: Record<string, HomeCopy> = {
     tertiaryCta: "ロードマップを作る",
     focus: "ホームの重点",
     ready: "利用可能",
+    secondaryTitle: "継続練習",
+    secondaryHeading: "英語と世界言語は練習ラボとして残します",
+    secondaryBody: "主線はリリース監査に保ち 英語と世界言語の練習は二級入口に置きます",
+    open: "開く",
     cards: [
       { href: "/tools", eyebrow: "ツール", title: "AI ツール", body: "プロンプト改善、コード説明、バグ分析、API リクエスト生成、開発ユーティリティをまとめています。", points: ["Prompt", "Code", "Bug"] },
       { href: "/programming", eyebrow: "練習", title: "コード練習", body: "初心者向けに言語、テーマ、問題形式、ヒント、解答を整理した練習入口です。", points: ["初心者向け", "分類練習", "AI 補助"] },
@@ -169,6 +185,10 @@ const homeCopy: Record<string, HomeCopy> = {
     tertiaryCta: "로드맵 만들기",
     focus: "홈 핵심",
     ready: "사용 가능",
+    secondaryTitle: "장기 연습",
+    secondaryHeading: "영어와 세계 언어는 연습 랩으로 유지합니다",
+    secondaryBody: "출시 점검을 메인으로 두고 영어와 세계 언어 연습은 보조 입구로 유지합니다",
+    open: "열기",
     cards: [
       { href: "/tools", eyebrow: "도구", title: "AI 도구", body: "프롬프트 개선, 코드 설명, 버그 분석, API 요청 생성, 개발 유틸리티를 제공합니다.", points: ["Prompt", "Code", "Bug"] },
       { href: "/programming", eyebrow: "연습", title: "코딩 연습", body: "초보자도 시작할 수 있게 언어, 주제, 문제 유형, 힌트, 답안을 정리했습니다.", points: ["초보 친화", "분류 연습", "AI 보조"] },
@@ -193,6 +213,10 @@ const homeCopy: Record<string, HomeCopy> = {
     tertiaryCta: "Crear ruta",
     focus: "Enfoque",
     ready: "Listo",
+    secondaryTitle: "Práctica continua",
+    secondaryHeading: "Inglés e idiomas del mundo quedan como laboratorios",
+    secondaryBody: "La auditoría de lanzamiento sigue como herramienta principal y los idiomas quedan como entradas secundarias.",
+    open: "Abrir",
     cards: [
       { href: "/tools", eyebrow: "Herramientas", title: "Herramientas IA", body: "Optimización de prompts, explicación de código, diagnóstico de bugs, generación de requests API y utilidades de desarrollo.", points: ["Prompt", "Código", "Bug"] },
       { href: "/programming", eyebrow: "Práctica", title: "Práctica de código", body: "Entrenamiento organizado por lenguaje, tema, tipo de pregunta, pistas y respuestas para empezar desde cero.", points: ["Desde cero", "Clasificado", "IA asistida"] },
@@ -217,6 +241,10 @@ const homeCopy: Record<string, HomeCopy> = {
     tertiaryCta: "Créer un parcours",
     focus: "Focus",
     ready: "Prêt",
+    secondaryTitle: "Pratique continue",
+    secondaryHeading: "Anglais et langues du monde restent des labs",
+    secondaryBody: "L audit de lancement reste l outil principal tandis que les langues restent accessibles en second niveau.",
+    open: "Ouvrir",
     cards: [
       { href: "/tools", eyebrow: "Outils", title: "Outils IA", body: "Optimisation de prompts, explication de code, diagnostic de bugs, génération de requêtes API et utilitaires développeur.", points: ["Prompt", "Code", "Bug"] },
       { href: "/programming", eyebrow: "Pratique", title: "Pratique code", body: "Exercices organisés par langage, thème, type de question, indices et réponses pour débutants.", points: ["Débutant", "Classé", "IA assistée"] },
@@ -245,12 +273,57 @@ function homeHref(ui: string) {
   return ui === "chinese" ? "/?lang=zh" : `/?ui=${ui}&lang=${language}`;
 }
 
+function secondaryLabItems(ui: string, siteLanguage: SiteLanguage) {
+  if (ui === "english") {
+    return [
+      { href: localizedHref("/english/typing", siteLanguage), title: "English Typing", meta: "Drill" },
+      { href: "/languages", title: "World Languages", meta: `${worldLanguages.length} languages` },
+      { href: "/languages/japanese", title: "Japanese Training", meta: "Listen and type" },
+    ];
+  }
+  if (ui === "japanese") {
+    return [
+      { href: localizedHref("/english/typing", siteLanguage), title: "英語タイピング", meta: "練習" },
+      { href: "/languages", title: "世界言語", meta: `${worldLanguages.length} 言語` },
+      { href: "/languages/japanese", title: "日本語練習", meta: "聞いて入力" },
+    ];
+  }
+  if (ui === "korean") {
+    return [
+      { href: localizedHref("/english/typing", siteLanguage), title: "영어 타이핑", meta: "연습" },
+      { href: "/languages", title: "세계 언어", meta: `${worldLanguages.length} 언어` },
+      { href: "/languages/japanese", title: "일본어 연습", meta: "듣고 입력" },
+    ];
+  }
+  if (ui === "spanish") {
+    return [
+      { href: localizedHref("/english/typing", siteLanguage), title: "Typing en inglés", meta: "Práctica" },
+      { href: "/languages", title: "Idiomas del mundo", meta: `${worldLanguages.length} idiomas` },
+      { href: "/languages/japanese", title: "Japonés", meta: "Escuchar y escribir" },
+    ];
+  }
+  if (ui === "french") {
+    return [
+      { href: localizedHref("/english/typing", siteLanguage), title: "Saisie anglaise", meta: "Pratique" },
+      { href: "/languages", title: "Langues du monde", meta: `${worldLanguages.length} langues` },
+      { href: "/languages/japanese", title: "Japonais", meta: "Écouter et taper" },
+    ];
+  }
+
+  return [
+    { href: localizedHref("/english/typing", siteLanguage), title: "英文打字", meta: "练习" },
+    { href: "/languages", title: "世界语言", meta: `${worldLanguages.length} 门` },
+    { href: "/languages/japanese", title: "日本語训练", meta: "听音拼写" },
+  ];
+}
+
 export default async function HomePage({ searchParams }: { searchParams: HomeSearchParams }) {
   const user = await getServerUser();
   const params = await searchParams;
   const selectedUi = getSelectedUi(params?.ui);
   const siteLanguage = getSiteLanguage(selectedUi, params?.lang);
   const copy = homeCopy[selectedUi] ?? homeCopy.chinese;
+  const secondaryLabs = secondaryLabItems(selectedUi, siteLanguage);
 
   return (
     <main className="apple-page home-core-page">
@@ -318,6 +391,24 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                 </div>
               </Link>
             ))}
+          </section>
+
+          <section className="mt-3 dense-panel p-5">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-center">
+              <div>
+                <p className="eyebrow">{copy.secondaryTitle}</p>
+                <h2 className="mt-2 text-2xl font-semibold">{copy.secondaryHeading}</h2>
+                <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">{copy.secondaryBody}</p>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {secondaryLabs.map((item) => (
+                  <Link key={item.href} href={item.href} className="dense-row">
+                    <span className="text-sm font-semibold">{item.title}</span>
+                    <span className="text-xs text-[color:var(--muted)]">{item.meta}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </section>
         </section>
       </div>
