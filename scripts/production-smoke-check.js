@@ -65,8 +65,10 @@ async function checkRobots() {
     const body = await response.text();
     if (!response.ok) return logFail("/robots.txt", `HTTP ${response.status}`);
     if (!body.includes("Sitemap:")) return logFail("/robots.txt", "missing Sitemap directive");
-    if (!body.includes("/api/")) return logWarn("/robots.txt", "does not disallow /api/");
-    logPass("/robots.txt", "robots file present");
+    const requiredDisallows = ["/api/", "/admin/", "/today", "/english", "/cpp", "/learn", "/languages", "/games", "/projects", "/questions", "/report"];
+    const missing = requiredDisallows.filter((route) => !body.includes(`Disallow: ${route}`));
+    if (missing.length) return logFail("/robots.txt", `missing disallow entries: ${missing.join(", ")}`);
+    logPass("/robots.txt", "robots blocks off-focus surfaces");
   } catch (error) {
     logFail("/robots.txt", error instanceof Error ? error.message : "request failed");
   }
@@ -78,9 +80,27 @@ async function checkSitemap() {
     const body = await response.text();
     if (!response.ok) return logFail("/sitemap.xml", `HTTP ${response.status}`);
     if (!body.includes("/tools/github-repo-analyzer")) return logFail("/sitemap.xml", "missing GitHub Audit URL");
-    logPass("/sitemap.xml", "sitemap includes core audit URL");
+    const offFocus = ["/today", "/english", "/cpp", "/learn", "/languages", "/wrong", "/dashboard", "/progress", "/games", "/projects", "/questions", "/report"];
+    const exposed = offFocus.filter((route) => body.includes(route));
+    if (exposed.length) return logFail("/sitemap.xml", `off-focus routes exposed: ${exposed.join(", ")}`);
+    logPass("/sitemap.xml", "sitemap includes core audit URL only");
   } catch (error) {
     logFail("/sitemap.xml", error instanceof Error ? error.message : "request failed");
+  }
+}
+
+async function checkRetiredEndpoint(path, method = "GET") {
+  try {
+    const response = await fetchWithTimeout(path, { method });
+    if (response.status !== 410) return logFail(path, `expected 410 retired response, got HTTP ${response.status}`);
+    const robotsHeader = response.headers.get("x-robots-tag") || "";
+    const cacheHeader = response.headers.get("cache-control") || "";
+    if (!/noindex/i.test(robotsHeader) || !/no-store/i.test(cacheHeader)) {
+      return logFail(path, "retired response missing noindex or no-store headers");
+    }
+    logPass(path, "retired endpoint returns hardened 410");
+  } catch (error) {
+    logFail(path, error instanceof Error ? error.message : "request failed");
   }
 }
 
@@ -107,6 +127,9 @@ async function main() {
   await checkPage("/tools/github-repo-analyzer", "GitHub Launch Audit");
   await checkRobots();
   await checkSitemap();
+  await checkRetiredEndpoint("/api/rankings");
+  await checkRetiredEndpoint("/api/comments");
+  await checkRetiredEndpoint("/api/cpp/run", "POST");
   await checkAuditApi();
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (fail > 0) process.exit(1);
