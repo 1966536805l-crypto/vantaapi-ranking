@@ -23,6 +23,12 @@ type GitHubRepoAnalysis = {
     riskLevel: "Low" | "Medium" | "High";
     summary: string;
   };
+  scorecard: Array<{
+    label: string;
+    score: number;
+    status: "pass" | "review" | "missing";
+    note: string;
+  }>;
   mustFix: string[];
   copyableIssues: string[];
   overview: string[];
@@ -70,6 +76,13 @@ const sampleGitHubAnalysis: GitHubRepoAnalysis = {
     summary:
       "Public launch shape is strong. The remaining work is mostly release polish, contributor handoff, and keeping setup steps copy ready.",
   },
+  scorecard: [
+    { label: "README", score: 90, status: "pass", note: "Purpose, install, and usage are easy to find." },
+    { label: "Environment", score: 75, status: "review", note: "Env expectations should stay explicit for examples and release docs." },
+    { label: "CI", score: 85, status: "pass", note: "Quality commands should stay visible in pull requests." },
+    { label: "Deploy", score: 82, status: "pass", note: "Release notes and rollback steps are the remaining launch polish." },
+    { label: "Security", score: 88, status: "pass", note: "No obvious committed local secrets in the sample report." },
+  ],
   mustFix: [
     "Keep the README quick start path under five minutes for a new contributor.",
     "Make required environment variables explicit in one env example section.",
@@ -192,6 +205,12 @@ function numberedList(items: string[]) {
   return items.length ? items.map((item, index) => `${index + 1}. ${item}`).join("\n") : "1. No action detected";
 }
 
+function scorecardList(items: GitHubRepoAnalysis["scorecard"], zh: boolean) {
+  return items.length
+    ? items.map((item) => `- ${item.label}: ${item.score}/100 · ${scorecardStatusLabel(item.status, zh)} · ${item.note}`).join("\n")
+    : "- No scorecard detected";
+}
+
 function base64UrlEncode(value: string) {
   const bytes = new TextEncoder().encode(value);
   let binary = "";
@@ -217,6 +236,7 @@ function isSharedGitHubAnalysis(value: unknown): value is GitHubRepoAnalysis {
       typeof candidate.repository.url === "string" &&
       candidate.launchScore &&
       typeof candidate.launchScore.score === "number" &&
+      Array.isArray(candidate.scorecard) &&
       Array.isArray(candidate.mustFix) &&
       Array.isArray(candidate.releaseChecklist)
   );
@@ -262,6 +282,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
   const sections = zh
     ? [
         `上线体检\n评分：${analysis.launchScore.score}/100\n风险：${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
+        `五维评分卡\n${scorecardList(analysis.scorecard, true)}`,
         `上线前必须修\n${numberedList(analysis.mustFix)}`,
         `仓库\n${analysis.repository.fullName}\n${analysis.repository.url}`,
         `概览\n${bulletList(analysis.overview)}`,
@@ -281,6 +302,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
       ]
     : [
         `Launch readiness\nScore: ${analysis.launchScore.score}/100\nRisk: ${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
+        `Five-point scorecard\n${scorecardList(analysis.scorecard, false)}`,
         `Must fix before launch\n${numberedList(analysis.mustFix)}`,
         `Repository\n${analysis.repository.fullName}\n${analysis.repository.url}`,
         `Overview\n${bulletList(analysis.overview)}`,
@@ -328,6 +350,12 @@ function impactLabel(score: number) {
   if (score >= 82) return "Launch polish";
   if (score >= 58) return "Staging cleanup";
   return "Launch blocked";
+}
+
+function scorecardStatusLabel(status: "pass" | "review" | "missing", zh: boolean) {
+  if (status === "pass") return zh ? "通过" : "Pass";
+  if (status === "review") return zh ? "待确认" : "Review";
+  return zh ? "缺失" : "Missing";
 }
 
 function issueTitle(issue: string, index: number) {
@@ -598,6 +626,20 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
           </div>
         )}
       </div>
+      {analysis && (
+        <section className="repo-scorecard-grid">
+          {analysis.scorecard.map((item) => (
+            <article key={item.label} className={`repo-scorecard-item repo-scorecard-${item.status}`}>
+              <div>
+                <p className="eyebrow">{item.label}</p>
+                <strong>{item.score}</strong>
+              </div>
+              <span>{scorecardStatusLabel(item.status, zh)}</span>
+              <p>{item.note}</p>
+            </article>
+          ))}
+        </section>
+      )}
       {analysis && (
         <section className="repo-action-panel">
           <div>

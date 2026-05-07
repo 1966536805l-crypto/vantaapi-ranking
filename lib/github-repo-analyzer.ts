@@ -24,6 +24,12 @@ export type GitHubRepoAnalysis = {
     riskLevel: "Low" | "Medium" | "High";
     summary: string;
   };
+  scorecard: Array<{
+    label: string;
+    score: number;
+    status: "pass" | "review" | "missing";
+    note: string;
+  }>;
   mustFix: string[];
   copyableIssues: string[];
   overview: string[];
@@ -407,6 +413,79 @@ function environmentChecklist(files: Map<string, string | null>) {
   ];
 }
 
+function scorecardItem(label: string, score: number, note: string) {
+  return {
+    label,
+    score,
+    status: score >= 80 ? "pass" as const : score >= 45 ? "review" as const : "missing" as const,
+    note,
+  };
+}
+
+function launchScorecard({
+  files,
+  packageJson,
+  workflows,
+  readme,
+  riskyFiles,
+}: {
+  files: Map<string, string | null>;
+  packageJson: ReturnType<typeof parsePackageJson>;
+  workflows: string[];
+  readme: string | null;
+  riskyFiles: string[];
+}) {
+  const scripts = packageJson?.scripts ?? {};
+  const readmeText = readme?.toLowerCase() ?? "";
+  const readmeSignals = [
+    Boolean(readme),
+    /install|setup|getting started|quick start/.test(readmeText),
+    /deploy|vercel|docker|production/.test(readmeText),
+    /test|lint|quality|build/.test(readmeText),
+  ].filter(Boolean).length;
+  const envSignals = [files.has(".env.example"), Boolean(files.get(".env.example")?.match(/^([A-Z0-9_]+)=/gm))].filter(Boolean).length;
+  const ciSignals = [workflows.length > 0, Boolean(scripts.lint), Boolean(scripts.test), Boolean(scripts.build)].filter(Boolean).length;
+  const deploySignals = [
+    Boolean(scripts.build),
+    Boolean(scripts.start || scripts.dev),
+    files.has("Dockerfile") || files.has("docker-compose.yml") || /deploy|vercel|docker|production/.test(readmeText),
+  ].filter(Boolean).length;
+  const securitySignals = [
+    riskyFiles.length === 0,
+    files.has(".env.example"),
+    workflows.length > 0,
+    Boolean(scripts.lint || scripts.test),
+  ].filter(Boolean).length;
+
+  return [
+    scorecardItem(
+      "README",
+      Math.round((readmeSignals / 4) * 100),
+      readme ? "Purpose and onboarding signals were checked." : "README is missing."
+    ),
+    scorecardItem(
+      "Environment",
+      Math.round((envSignals / 2) * 100),
+      files.has(".env.example") ? "Env template exists. Required and production-only keys still need review." : "Add a sanitized .env.example."
+    ),
+    scorecardItem(
+      "CI",
+      Math.round((ciSignals / 4) * 100),
+      workflows.length ? "Workflow signal found. Confirm build lint and tests run on PRs." : "No GitHub Actions workflow found."
+    ),
+    scorecardItem(
+      "Deploy",
+      Math.round((deploySignals / 3) * 100),
+      "Checks build/start commands and deployment notes."
+    ),
+    scorecardItem(
+      "Security",
+      Math.round((securitySignals / 4) * 100),
+      riskyFiles.length ? `Risky public files detected: ${riskyFiles.join(", ")}.` : "No obvious secret or local database files detected in public tree."
+    ),
+  ];
+}
+
 function issueLabelPlan(stack: string[], workflows: string[]) {
   const labels = [
     "good first issue",
@@ -546,6 +625,7 @@ function buildAnalysis({
   const stack = detectStack(files, packageJson, meta.language);
   const commands = runCommands(packageManager, packageJson);
   const audit = launchAuditSummary({ meta, files, packageJson, workflows, readme, riskyFiles });
+  const scorecard = launchScorecard({ files, packageJson, workflows, readme, riskyFiles });
   const releaseChecklist = [
     "Fix every item in Must fix before public launch.",
     "Run install build lint and tests in a clean clone.",
@@ -573,6 +653,7 @@ function buildAnalysis({
       pushedAt: meta.pushed_at,
     },
     launchScore: audit.launchScore,
+    scorecard,
     mustFix: audit.mustFix,
     copyableIssues: audit.copyableIssues,
     overview: [

@@ -5,6 +5,7 @@
   "type": "object",
   "required": [
     "repository",
+    "scorecard",
     "overview",
     "howToRun",
     "techStack",
@@ -39,6 +40,22 @@
         "archived": { "type": "boolean" },
         "pushedAt": { "type": "string" }
       }
+    },
+    "scorecard": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "score", "status", "note"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string" },
+          "score": { "type": "number", "minimum": 0, "maximum": 100 },
+          "status": { "type": "string", "enum": ["pass", "review", "missing"] },
+          "note": { "type": "string" }
+        }
+      },
+      "minItems": 5,
+      "maxItems": 5
     },
     "overview": { "$ref": "#/$defs/sectionItems" },
     "howToRun": { "$ref": "#/$defs/commandItems" },

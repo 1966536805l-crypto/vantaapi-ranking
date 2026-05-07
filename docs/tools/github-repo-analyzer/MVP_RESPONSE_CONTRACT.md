@@ -24,6 +24,12 @@ type GitHubRepoAnalysis = {
     archived: boolean;
     pushedAt: string;
   };
+  scorecard: Array<{
+    label: string;
+    score: number;
+    status: "pass" | "review" | "missing";
+    note: string;
+  }>;
   overview: string[];
   howToRun: string[];
   techStack: string[];
@@ -42,6 +48,7 @@ type GitHubRepoAnalysis = {
 Frontend section | MVP field | Notes
 --- | --- | ---
 Project Overview | `overview` | Include one-sentence project summary and maturity estimate.
+Launch Scorecard | `scorecard` | Five compact scores for README, environment, CI, deploy, and security.
 How to Run | `howToRun` | Safe commands only.
 Tech Stack | `techStack` | Include evidence when short enough.
 File Structure | `fileStructure` | Root-level structure summary.

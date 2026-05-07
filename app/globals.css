@@ -2052,6 +2052,79 @@ body:has(.home-audit-page) .global-search-trigger {
   color: white;
 }
 
+.repo-scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.repo-scorecard-item {
+  min-width: 0;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 10px;
+}
+
+.repo-scorecard-item > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.repo-scorecard-item strong {
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.repo-scorecard-item span {
+  display: inline-flex;
+  margin-top: 8px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.repo-scorecard-item p:not(.eyebrow) {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.repo-scorecard-pass {
+  border-color: rgba(22, 163, 74, 0.22);
+}
+
+.repo-scorecard-pass span {
+  background: rgba(220, 252, 231, 0.86);
+  color: #166534;
+}
+
+.repo-scorecard-review {
+  border-color: rgba(217, 119, 6, 0.24);
+}
+
+.repo-scorecard-review span {
+  background: rgba(254, 243, 199, 0.88);
+  color: #92400e;
+}
+
+.repo-scorecard-missing {
+  border-color: rgba(220, 38, 38, 0.22);
+}
+
+.repo-scorecard-missing span {
+  background: rgba(254, 226, 226, 0.86);
+  color: #991b1b;
+}
+
 .repo-report-board {
   margin-top: 12px;
   border: 1px solid rgba(15, 23, 42, 0.10);
@@ -2376,6 +2449,10 @@ body:has(.home-audit-page) .global-search-trigger {
     grid-template-columns: 1fr;
   }
 
+  .repo-scorecard-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .tool-output {
     min-height: 440px;
   }
@@ -2401,6 +2478,7 @@ body:has(.home-audit-page) .global-search-trigger {
 
   .tool-proof-grid,
   .tool-field-grid,
+  .repo-scorecard-grid,
   .repo-audit-brief,
   .repo-action-panel,
   .repo-verdict {
