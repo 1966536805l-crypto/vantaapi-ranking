@@ -26,6 +26,7 @@
     "security:full": "npm run security:check && npm run security:regression && npm run security:repo && npm run security:network && npm run security:supply-chain && npm run security:secrets && npm run typecheck && npm run lint && npm run build && npm audit --audit-level=high",
     "backup:db": "node scripts/backup-db.js",
     "launch:secrets": "node scripts/generate-secrets.js",
+    "launch:providers": "node scripts/launch-provider-checklist.js",
     "launch:fix-secrets": "node scripts/fix-vercel-app-secrets.js",
     "launch:check": "node scripts/prelaunch-check.js",
     "launch:vercel": "node scripts/vercel-env-check.js",

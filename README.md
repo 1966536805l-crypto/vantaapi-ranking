@@ -145,6 +145,12 @@ Without `--apply`, the command is a dry run and only prints what it would do.
 
 This does not touch `DATABASE_URL`, `AI_API_KEY`, or Turnstile keys because those must come from external provider dashboards.
 
+For those provider-owned values, print the source checklist:
+
+```bash
+npm run launch:providers
+```
+
 Then run:
 
 ```bash
