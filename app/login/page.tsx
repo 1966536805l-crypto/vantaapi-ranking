@@ -5,5 +5,5 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
   const params = searchParams ? await searchParams : undefined;
   const language = resolveLanguage(params);
   const nextHref = resolveSafeNextHref(params, localizedHref("/dashboard", language));
-  return <SmartAuthForm language={language} nextHref={nextHref} />;
+  return <SmartAuthForm language={language} nextHref={nextHref} allowRegister initialMode="login" />;
 }

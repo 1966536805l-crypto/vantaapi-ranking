@@ -19,6 +19,7 @@ type SmartAuthFormProps = {
   language?: SiteLanguage;
   nextHref?: string;
   allowRegister?: boolean;
+  initialMode?: AuthMode;
 };
 
 const copy = {
@@ -94,9 +95,10 @@ export default function SmartAuthForm({
   language = "en",
   nextHref = localizedHref("/dashboard", language),
   allowRegister = false,
+  initialMode = "login",
 }: SmartAuthFormProps) {
   const t = copy[language];
-  const [mode, setMode] = useState<AuthMode>("login");
+  const [mode, setMode] = useState<AuthMode>(allowRegister ? initialMode : "login");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -184,8 +186,8 @@ export default function SmartAuthForm({
         <div className="auth-side">
           <div className="flex items-center justify-between gap-3">
             <Link href={localizedHref("/", language)} className="auth-brand">
-              <span className="auth-brand-mark">JM</span>
-              <span>JinMing Lab</span>
+              <span className="auth-brand-mark">VA</span>
+              <span>VantaAPI</span>
             </Link>
             <FlagLanguageToggle initialLanguage={language} />
           </div>
