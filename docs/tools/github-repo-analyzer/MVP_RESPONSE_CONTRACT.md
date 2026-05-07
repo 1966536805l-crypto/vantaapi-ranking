@@ -30,6 +30,12 @@ type GitHubRepoAnalysis = {
     status: "pass" | "review" | "missing";
     note: string;
   }>;
+  issueFindings: Array<{
+    title: string;
+    severity: "P0" | "P1" | "P2";
+    evidence: string;
+    source: string;
+  }>;
   priorityFixes: {
     today: string[];
     beforeLaunch: string[];
@@ -55,6 +61,7 @@ Frontend section | MVP field | Notes
 --- | --- | ---
 Project Overview | `overview` | Include one-sentence project summary and maturity estimate.
 Launch Scorecard | `scorecard` | Five compact scores for README, environment, CI, deploy, and security.
+Evidence Findings | `issueFindings` | Each core issue includes severity, evidence, and source file or metadata.
 Fix Priority | `priorityFixes` | Split work into today, before launch, and later polish.
 PR Description | `prDescription` | Copy-ready pull request body for maintainers.
 How to Run | `howToRun` | Safe commands only.

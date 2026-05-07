@@ -30,6 +30,12 @@ type GitHubRepoAnalysis = {
     note: string;
   }>;
   mustFix: string[];
+  issueFindings: Array<{
+    title: string;
+    severity: "P0" | "P1" | "P2";
+    evidence: string;
+    source: string;
+  }>;
   priorityFixes: {
     today: string[];
     beforeLaunch: string[];
@@ -93,6 +99,26 @@ const sampleGitHubAnalysis: GitHubRepoAnalysis = {
     "Keep the README quick start path under five minutes for a new contributor.",
     "Make required environment variables explicit in one env example section.",
     "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.",
+  ],
+  issueFindings: [
+    {
+      title: "Make required environment variables explicit in one env example section",
+      severity: "P1",
+      source: ".env.example",
+      evidence: "Env expectations exist but need clearer local, preview, and production separation.",
+    },
+    {
+      title: "Keep the README quick start path under five minutes",
+      severity: "P1",
+      source: "README.md",
+      evidence: "README onboarding is the first contributor decision point.",
+    },
+    {
+      title: "Keep release and PR checklists visible",
+      severity: "P2",
+      source: "README.md and release docs",
+      evidence: "Launch process should not depend on private maintainer memory.",
+    },
   ],
   priorityFixes: {
     today: ["Make required environment variables explicit in one env example section."],
@@ -259,6 +285,12 @@ function priorityFixList(priorityFixes: GitHubRepoAnalysis["priorityFixes"], zh:
   ].join("\n");
 }
 
+function findingList(findings: GitHubRepoAnalysis["issueFindings"]) {
+  return findings.length
+    ? findings.map((item) => `- ${item.severity} ${item.title}\n  Source: ${item.source}\n  Evidence: ${item.evidence}`).join("\n")
+    : "- No evidence-backed findings detected";
+}
+
 function base64UrlEncode(value: string) {
   const bytes = new TextEncoder().encode(value);
   let binary = "";
@@ -285,6 +317,7 @@ function isSharedGitHubAnalysis(value: unknown): value is GitHubRepoAnalysis {
       candidate.launchScore &&
       typeof candidate.launchScore.score === "number" &&
       Array.isArray(candidate.scorecard) &&
+      Array.isArray(candidate.issueFindings) &&
       candidate.priorityFixes &&
       typeof candidate.prDescription === "string" &&
       Array.isArray(candidate.mustFix) &&
@@ -334,6 +367,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
         `上线体检\n评分：${analysis.launchScore.score}/100\n风险：${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
         `五维评分卡\n${scorecardList(analysis.scorecard, true)}`,
         `修复优先级\n${priorityFixList(analysis.priorityFixes, true)}`,
+        `证据和严重程度\n${findingList(analysis.issueFindings)}`,
         `上线前必须修\n${numberedList(analysis.mustFix)}`,
         `仓库\n${analysis.repository.fullName}\n${analysis.repository.url}`,
         `概览\n${bulletList(analysis.overview)}`,
@@ -356,6 +390,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
         `Launch readiness\nScore: ${analysis.launchScore.score}/100\nRisk: ${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
         `Five-point scorecard\n${scorecardList(analysis.scorecard, false)}`,
         `Fix priority\n${priorityFixList(analysis.priorityFixes, false)}`,
+        `Evidence and severity\n${findingList(analysis.issueFindings)}`,
         `Must fix before launch\n${numberedList(analysis.mustFix)}`,
         `Repository\n${analysis.repository.fullName}\n${analysis.repository.url}`,
         `Overview\n${bulletList(analysis.overview)}`,
@@ -444,11 +479,12 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
       { badge: `${analysis.launchScore.score}`, title: `${analysis.launchScore.riskLevel} risk verdict`, content: analysis.launchScore.summary },
       { badge: "01", title: zh ? "必须修" : "Must fix", content: numberedList(analysis.mustFix) },
       { badge: "02", title: zh ? "GitHub Issues" : "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
-      { badge: "03", title: zh ? "PR 描述" : "PR description", content: analysis.prDescription },
-      { badge: "04", title: zh ? "发布清单" : "Release checklist", content: numberedList(analysis.releaseChecklist) },
-      { badge: "05", title: zh ? "环境变量清单" : "Environment checklist", content: bulletList(analysis.envChecklist) },
-      { badge: "06", title: zh ? "README 优化" : "README upgrades", content: bulletList(analysis.readmeSuggestions) },
-      { badge: "07", title: zh ? "PR 检查清单" : "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
+      { badge: "03", title: zh ? "证据" : "Evidence", content: findingList(analysis.issueFindings) },
+      { badge: "04", title: zh ? "PR 描述" : "PR description", content: analysis.prDescription },
+      { badge: "05", title: zh ? "发布清单" : "Release checklist", content: numberedList(analysis.releaseChecklist) },
+      { badge: "06", title: zh ? "环境变量清单" : "Environment checklist", content: bulletList(analysis.envChecklist) },
+      { badge: "07", title: zh ? "README 优化" : "README upgrades", content: bulletList(analysis.readmeSuggestions) },
+      { badge: "08", title: zh ? "PR 检查清单" : "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
     ];
   }, [analysis, zh]);
 
@@ -725,6 +761,20 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
               ))}
             </ol>
           </article>
+        </section>
+      )}
+      {analysis && (
+        <section className="repo-evidence-grid">
+          {analysis.issueFindings.slice(0, 4).map((item) => (
+            <article key={`${item.severity}-${item.title}`} className={`repo-evidence-card repo-evidence-${item.severity.toLowerCase()}`}>
+              <div className="repo-evidence-head">
+                <span>{item.severity}</span>
+                <strong>{item.source}</strong>
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.evidence}</p>
+            </article>
+          ))}
         </section>
       )}
       {analysis && (

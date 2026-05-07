@@ -31,6 +31,12 @@ export type GitHubRepoAnalysis = {
     note: string;
   }>;
   mustFix: string[];
+  issueFindings: Array<{
+    title: string;
+    severity: "P0" | "P1" | "P2";
+    evidence: string;
+    source: string;
+  }>;
   priorityFixes: {
     today: string[];
     beforeLaunch: string[];
@@ -92,6 +98,8 @@ type CachedAnalysis = {
   expiresAt: number;
   value: GitHubRepoAnalysis;
 };
+
+type LaunchAuditSummary = Pick<GitHubRepoAnalysis, "launchScore" | "mustFix" | "issueFindings" | "priorityFixes" | "prDescription" | "copyableIssues">;
 
 const REQUEST_TIMEOUT_MS = 5000;
 const RAW_FILE_TIMEOUT_MS = 4500;
@@ -517,6 +525,19 @@ function riskyPublicFiles(tree: GitHubTreeItem[]) {
     .slice(0, 12);
 }
 
+function findingEvidence(item: string, files: Map<string, string | null>, workflows: string[], riskyFiles: string[]) {
+  if (/archived/i.test(item)) return { source: "GitHub repository metadata", evidence: "Repository archived flag is enabled." };
+  if (/sensitive|temporary files/i.test(item)) return { source: "GitHub repository tree", evidence: riskyFiles.join(", ") };
+  if (/README/i.test(item)) return { source: files.has("README.md") || files.has("README") ? "README" : "Repository root", evidence: files.has("README.md") || files.has("README") ? "README exists but lacks this launch signal." : "No README file was read from the root." };
+  if (/\.env|environment|env/i.test(item)) return { source: ".env.example", evidence: files.has(".env.example") ? ".env.example exists and needs clearer production/local key guidance." : "No .env.example file was read from the root." };
+  if (/build script/i.test(item)) return { source: "package.json", evidence: "package.json scripts.build was not detected." };
+  if (/test|lint/i.test(item)) return { source: "package.json", evidence: "package.json scripts.test and scripts.lint were not detected." };
+  if (/GitHub Actions|workflow|CI/i.test(item)) return { source: ".github/workflows", evidence: workflows.length ? `Detected workflows: ${workflows.join(", ")}` : "No workflow files were detected." };
+  if (/license/i.test(item)) return { source: "GitHub repository metadata", evidence: "GitHub API did not return a license signal." };
+  if (/deploy|rollback|production/i.test(item)) return { source: "README and deployment files", evidence: "Deployment or rollback wording was not detected in the files read." };
+  return { source: "Repository files read", evidence: "Derived from public repository metadata and root configuration files." };
+}
+
 function launchAuditSummary({
   meta,
   files,
@@ -531,7 +552,7 @@ function launchAuditSummary({
   workflows: string[];
   readme: string | null;
   riskyFiles: string[];
-}) {
+}): LaunchAuditSummary {
   const scripts = packageJson?.scripts ?? {};
   const blockers: string[] = [];
   const warnings: string[] = [];
@@ -562,6 +583,14 @@ function launchAuditSummary({
     ...blockers,
     ...warnings.slice(0, Math.max(0, 6 - blockers.length)),
   ];
+  const issueFindings: GitHubRepoAnalysis["issueFindings"] = mustFix.map((item, index) => {
+    const evidence = findingEvidence(item, files, workflows, riskyFiles);
+    return {
+      title: item.replace(/\.$/, ""),
+      severity: blockers.includes(item) ? "P0" as const : index < 2 ? "P1" as const : "P2" as const,
+      ...evidence,
+    };
+  });
   const priorityFixes = {
     today: blockers.length ? blockers : warnings.slice(0, 1),
     beforeLaunch: blockers.length ? warnings.slice(0, 3) : warnings.slice(1, 4),
@@ -583,6 +612,7 @@ function launchAuditSummary({
 
 Priority: ${priority}
 Labels: ${labels}
+Evidence: ${findingEvidence(item, files, workflows, riskyFiles).source} — ${findingEvidence(item, files, workflows, riskyFiles).evidence}
 
 ### Why this matters
 ${item}
@@ -628,6 +658,12 @@ npm run build
   return {
     launchScore: { score, riskLevel, summary },
     mustFix: visibleMustFix,
+    issueFindings: issueFindings.length ? issueFindings : [{
+      title: "No launch blockers detected from the public files read",
+      severity: "P2",
+      source: "Repository files read",
+      evidence: "README, package metadata, env template, workflow, deployment, and risky file checks did not produce a blocker.",
+    }],
     priorityFixes,
     prDescription,
     copyableIssues: copyableIssues.length ? copyableIssues : ["No blocking issue template needed from this audit."],
@@ -652,7 +688,7 @@ function buildAnalysis({
   fileStructure: string[];
   riskyFiles?: string[];
   extraOverview?: string[];
-}) {
+}): GitHubRepoAnalysis {
   const readme = files.get("README.md") ?? files.get("README") ?? null;
   const packageJson = parsePackageJson(files.get("package.json") ?? null);
   const packageManager = detectPackageManager(files, packageJson);
@@ -689,6 +725,7 @@ function buildAnalysis({
     launchScore: audit.launchScore,
     scorecard,
     mustFix: audit.mustFix,
+    issueFindings: audit.issueFindings,
     priorityFixes: audit.priorityFixes,
     prDescription: audit.prDescription,
     copyableIssues: audit.copyableIssues,

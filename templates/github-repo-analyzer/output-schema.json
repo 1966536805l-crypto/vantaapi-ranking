@@ -6,6 +6,7 @@
   "required": [
     "repository",
     "scorecard",
+    "issueFindings",
     "priorityFixes",
     "prDescription",
     "overview",
@@ -58,6 +59,21 @@
       },
       "minItems": 5,
       "maxItems": 5
+    },
+    "issueFindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "severity", "evidence", "source"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "severity": { "type": "string", "enum": ["P0", "P1", "P2"] },
+          "evidence": { "type": "string" },
+          "source": { "type": "string" }
+        }
+      },
+      "maxItems": 12
     },
     "priorityFixes": {
       "type": "object",

@@ -2160,6 +2160,70 @@ body:has(.home-audit-page) .global-search-trigger {
   white-space: pre-wrap;
 }
 
+.repo-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.repo-evidence-card {
+  min-width: 0;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 12px;
+}
+
+.repo-evidence-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.repo-evidence-head span {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #0f172a;
+  color: white;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.repo-evidence-head strong {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.repo-evidence-card h3 {
+  margin-top: 9px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.repo-evidence-card p {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.repo-evidence-p0 {
+  border-color: rgba(220, 38, 38, 0.22);
+}
+
+.repo-evidence-p1 {
+  border-color: rgba(217, 119, 6, 0.22);
+}
+
 .repo-report-board {
   margin-top: 12px;
   border: 1px solid rgba(15, 23, 42, 0.10);
@@ -2515,6 +2579,7 @@ body:has(.home-audit-page) .global-search-trigger {
   .tool-field-grid,
   .repo-scorecard-grid,
   .repo-priority-grid,
+  .repo-evidence-grid,
   .repo-audit-brief,
   .repo-action-panel,
   .repo-verdict {
