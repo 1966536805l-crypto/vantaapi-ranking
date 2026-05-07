@@ -148,7 +148,7 @@ export async function askCoach(input: CoachInput): Promise<CoachResult> {
     content: result.content.trim(),
     mode,
     provider: "ai",
-    model: process.env.AI_MODEL || "configured-model",
+    model: result.model || process.env.AI_MODEL || "configured-model",
   };
 }
 
@@ -163,6 +163,14 @@ function extractDelta(payload: unknown) {
   return choice?.delta?.content || choice?.message?.content || "";
 }
 
+function extractOllamaDelta(payload: unknown) {
+  const data = payload as {
+    message?: { content?: string };
+    response?: string;
+  };
+  return data.message?.content || data.response || "";
+}
+
 export async function streamCoach(input: CoachInput) {
   const { mode, cleanPrompt, system, user } = buildCoachPayload(input);
   const result = await streamAI(
@@ -173,7 +181,7 @@ export async function streamCoach(input: CoachInput) {
     {
       temperature: mode === "english" ? 0.22 : 0.16,
       maxTokens: mode === "english" ? 260 : 240,
-      timeoutMs: 8000,
+      timeoutMs: 12000,
     },
   );
 
@@ -221,11 +229,18 @@ export async function streamCoach(input: CoachInput) {
 
           for (const rawLine of lines) {
             const line = rawLine.trim();
-            if (!line || !line.startsWith("data:")) continue;
-            const data = line.slice(5).trim();
-            if (!data || data === "[DONE]") continue;
+            if (!line) continue;
 
             try {
+              if (result.format === "ollama-jsonl") {
+                const delta = extractOllamaDelta(JSON.parse(line));
+                if (delta) controller.enqueue(encoder.encode(delta));
+                continue;
+              }
+
+              if (!line.startsWith("data:")) continue;
+              const data = line.slice(5).trim();
+              if (!data || data === "[DONE]") continue;
               const delta = extractDelta(JSON.parse(data));
               if (delta) controller.enqueue(encoder.encode(delta));
             } catch {

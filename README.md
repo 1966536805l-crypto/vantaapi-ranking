@@ -63,6 +63,25 @@ npm run dev:3001
 
 Open <http://localhost:3001>.
 
+## Optional local AI fallback
+
+For a no-per-request local fallback, install Ollama on the same machine that runs Next.js:
+
+```bash
+ollama pull qwen2.5:3b
+ollama serve
+```
+
+Then add these values to `.env`:
+
+```bash
+OLLAMA_ENABLED="true"
+OLLAMA_BASE_URL="http://127.0.0.1:11434"
+OLLAMA_MODEL="qwen2.5:3b"
+```
+
+The app will try `AI_API_KEY` first, then Ollama, then the built-in coach fallback. Vercel cannot reach Ollama on your personal computer; use this for local development or a self-hosted server running Ollama beside the app.
+
 ## Admin initialization
 
 Production no longer creates public default admin credentials. To intentionally create an admin, pass explicit environment variables:

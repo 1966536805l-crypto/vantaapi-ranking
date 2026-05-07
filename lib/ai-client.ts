@@ -13,6 +13,8 @@ type AIResponse = {
   content?: string;
   error?: string;
   status?: number;
+  model?: string;
+  provider?: "gateway" | "ollama";
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -20,11 +22,19 @@ type AIResponse = {
   };
 };
 
+type AIOptions = {
+  temperature?: number;
+  maxTokens?: number;
+  model?: string;
+  timeoutMs?: number;
+};
+
 type AIStreamResponse =
   | {
       success: true;
       response: Response;
       model: string;
+      format: "openai-sse" | "ollama-jsonl";
     }
   | {
       success: false;
@@ -36,31 +46,210 @@ const AI_BASE_URL = process.env.AI_BASE_URL || "https://api.deepseek.com/v1";
 const AI_API_KEY = process.env.AI_API_KEY || "";
 const AI_MODEL = process.env.AI_MODEL || "deepseek-chat";
 const AI_TIMEOUT = parseInt(process.env.AI_TIMEOUT || "12000", 10);
+const OLLAMA_ENABLED = process.env.OLLAMA_ENABLED === "true";
+const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || "http://127.0.0.1:11434";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5:3b";
+const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY || "";
+const OLLAMA_TIMEOUT = parseInt(process.env.OLLAMA_TIMEOUT || "18000", 10);
+
+function normalizeBaseUrl(value: string) {
+  return value.replace(/\/+$/, "");
+}
+
+function ollamaHeaders() {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Accept-Language": "en-US,en",
+  };
+
+  if (OLLAMA_API_KEY) headers.Authorization = `Bearer ${OLLAMA_API_KEY}`;
+  return headers;
+}
+
+function ollamaOptions(options?: { temperature?: number; maxTokens?: number }) {
+  return {
+    temperature: options?.temperature ?? 0.3,
+    num_predict: options?.maxTokens ?? 700,
+  };
+}
+
+async function callOllama(
+  messages: AIMessage[],
+  options?: AIOptions,
+): Promise<AIResponse> {
+  if (!OLLAMA_ENABLED) {
+    return {
+      success: false,
+      error: "Ollama 未启用",
+    };
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), Math.max(options?.timeoutMs ?? 0, OLLAMA_TIMEOUT));
+
+  try {
+    const response = await fetch(`${normalizeBaseUrl(OLLAMA_BASE_URL)}/api/chat`, {
+      method: "POST",
+      headers: ollamaHeaders(),
+      body: JSON.stringify({
+        model: options?.model || OLLAMA_MODEL,
+        messages,
+        stream: false,
+        options: ollamaOptions(options),
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      console.error("Ollama API 错误:", response.status, errorText);
+      return {
+        success: false,
+        error: `Ollama 返回错误: ${response.status}`,
+        status: response.status,
+      };
+    }
+
+    const data = (await response.json()) as {
+      message?: { content?: string };
+      response?: string;
+    };
+
+    return {
+      success: true,
+      content: data.message?.content || data.response || "",
+      model: options?.model || OLLAMA_MODEL,
+      provider: "ollama",
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error instanceof Error) {
+      return {
+        success: false,
+        error: error.name === "AbortError" ? "Ollama 请求超时" : error.message,
+      };
+    }
+
+    return {
+      success: false,
+      error: "Ollama 未知错误",
+    };
+  }
+}
+
+async function streamOllama(
+  messages: AIMessage[],
+  options?: AIOptions,
+): Promise<AIStreamResponse> {
+  if (!OLLAMA_ENABLED) {
+    return {
+      success: false,
+      error: "Ollama 未启用",
+    };
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), Math.max(options?.timeoutMs ?? 0, OLLAMA_TIMEOUT));
+
+  try {
+    const response = await fetch(`${normalizeBaseUrl(OLLAMA_BASE_URL)}/api/chat`, {
+      method: "POST",
+      headers: ollamaHeaders(),
+      body: JSON.stringify({
+        model: options?.model || OLLAMA_MODEL,
+        messages,
+        stream: true,
+        options: ollamaOptions(options),
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok || !response.body) {
+      const errorText = await response.text().catch(() => "");
+      console.error("Ollama stream API 错误:", response.status, errorText);
+      return {
+        success: false,
+        error: `Ollama 返回错误: ${response.status}`,
+        status: response.status,
+      };
+    }
+
+    return {
+      success: true,
+      response,
+      model: options?.model || OLLAMA_MODEL,
+      format: "ollama-jsonl",
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error instanceof Error) {
+      return {
+        success: false,
+        error: error.name === "AbortError" ? "Ollama 请求超时" : error.message,
+      };
+    }
+
+    return {
+      success: false,
+      error: "Ollama 未知错误",
+    };
+  }
+}
+
+async function callOllamaFallback(
+  messages: AIMessage[],
+  options: AIOptions | undefined,
+  primaryError: string,
+  status?: number,
+): Promise<AIResponse> {
+  const fallback = await callOllama(messages, options);
+  if (fallback.success) return fallback;
+
+  return {
+    success: false,
+    error: `${primaryError}; Ollama fallback: ${fallback.error}`,
+    status,
+  };
+}
+
+async function streamOllamaFallback(
+  messages: AIMessage[],
+  options: AIOptions | undefined,
+  primaryError: string,
+  status?: number,
+): Promise<AIStreamResponse> {
+  const fallback = await streamOllama(messages, options);
+  if (fallback.success) return fallback;
+
+  return {
+    success: false,
+    error: `${primaryError}; Ollama fallback: ${fallback.error}`,
+    status,
+  };
+}
 
 /**
  * 调用 AI 模型
  */
 export async function callAI(
   messages: AIMessage[],
-  options?: {
-    temperature?: number;
-    maxTokens?: number;
-    model?: string;
-    timeoutMs?: number;
-  }
+  options?: AIOptions,
 ): Promise<AIResponse> {
   if (!AI_API_KEY) {
-    return {
-      success: false,
-      error: "AI_API_KEY 未配置",
-    };
+    return callOllamaFallback(messages, options, "AI_API_KEY 未配置");
   }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), options?.timeoutMs ?? AI_TIMEOUT);
 
   try {
-    const baseUrl = AI_BASE_URL.replace(/\/+$/, "");
+    const baseUrl = normalizeBaseUrl(AI_BASE_URL);
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
@@ -82,11 +271,7 @@ export async function callAI(
     if (!response.ok) {
       const errorText = await response.text();
       console.error("AI API 错误:", response.status, errorText);
-      return {
-        success: false,
-        error: `AI API 返回错误: ${response.status}`,
-        status: response.status,
-      };
+      return callOllamaFallback(messages, options, `AI API 返回错误: ${response.status}`, response.status);
     }
 
     const data = await response.json() as {
@@ -113,6 +298,8 @@ export async function callAI(
     return {
       success: true,
       content: data.choices[0].message?.content || "",
+      model: options?.model || AI_MODEL,
+      provider: "gateway",
       usage: data.usage
         ? {
             promptTokens: data.usage.prompt_tokens ?? 0,
@@ -126,15 +313,9 @@ export async function callAI(
 
     if (error instanceof Error) {
       if (error.name === "AbortError") {
-        return {
-          success: false,
-          error: "AI 请求超时",
-        };
+        return callOllamaFallback(messages, options, "AI 请求超时");
       }
-      return {
-        success: false,
-        error: error.message,
-      };
+      return callOllamaFallback(messages, options, error.message);
     }
 
     return {
@@ -146,25 +327,15 @@ export async function callAI(
 
 export async function streamAI(
   messages: AIMessage[],
-  options?: {
-    temperature?: number;
-    maxTokens?: number;
-    model?: string;
-    timeoutMs?: number;
-  }
+  options?: AIOptions,
 ): Promise<AIStreamResponse> {
-  if (!AI_API_KEY) {
-    return {
-      success: false,
-      error: "AI_API_KEY 未配置",
-    };
-  }
+  if (!AI_API_KEY) return streamOllamaFallback(messages, options, "AI_API_KEY 未配置");
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), options?.timeoutMs ?? AI_TIMEOUT);
 
   try {
-    const baseUrl = AI_BASE_URL.replace(/\/+$/, "");
+    const baseUrl = normalizeBaseUrl(AI_BASE_URL);
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
@@ -187,26 +358,20 @@ export async function streamAI(
     if (!response.ok || !response.body) {
       const errorText = await response.text().catch(() => "");
       console.error("AI stream API 错误:", response.status, errorText);
-      return {
-        success: false,
-        error: `AI API 返回错误: ${response.status}`,
-        status: response.status,
-      };
+      return streamOllamaFallback(messages, options, `AI API 返回错误: ${response.status}`, response.status);
     }
 
     return {
       success: true,
       response,
       model: options?.model || AI_MODEL,
+      format: "openai-sse",
     };
   } catch (error) {
     clearTimeout(timeoutId);
 
     if (error instanceof Error) {
-      return {
-        success: false,
-        error: error.name === "AbortError" ? "AI 请求超时" : error.message,
-      };
+      return streamOllamaFallback(messages, options, error.name === "AbortError" ? "AI 请求超时" : error.message);
     }
 
     return {

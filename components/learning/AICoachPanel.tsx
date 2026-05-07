@@ -156,7 +156,7 @@ export default function AICoachPanel({
     }
 
     const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 10000);
+    const timeoutId = window.setTimeout(() => controller.abort(), 18000);
 
     try {
       const response = await fetch("/api/ai/coach", {
