@@ -72,12 +72,12 @@ if (has("docs/SUPPLY_CHAIN_SECURITY.md", "Supply Chain Security") && has("script
 }
 
 const ignore = read(".gitignore") + "\n" + read(".vercelignore");
-const ignoreMarkers = [".env", "*.db", "node_modules", ".next"];
+const ignoreMarkers = [".env", "*.db", "*.sqlite", "node_modules", ".next"];
 const missingIgnores = ignoreMarkers.filter((marker) => !ignore.includes(marker));
 if (missingIgnores.length) fail("ignore-sensitive", `missing ignore markers: ${missingIgnores.join(", ")}`);
 else pass("ignore-sensitive", "local secrets, DB files, build artifacts are ignored");
 
-const suspiciousFiles = [".env", "prisma/dev.db", "dev.db", ".vercel/project.json"].filter((file) => {
+const suspiciousFiles = [".env", "prisma/dev.db", "dev.db", "prisma/dev.sqlite", "dev.sqlite", ".vercel/project.json"].filter((file) => {
   try {
     require("child_process").execFileSync("git", ["ls-files", "--error-unmatch", file], { stdio: "ignore" });
     return true;
@@ -87,6 +87,10 @@ const suspiciousFiles = [".env", "prisma/dev.db", "dev.db", ".vercel/project.jso
 });
 if (suspiciousFiles.length) fail("tracked-local-sensitive", `tracked local-sensitive files: ${suspiciousFiles.join(", ")}`);
 else pass("tracked-local-sensitive", "no known local secret/database files are tracked");
+
+const localDatabaseFiles = ["dev.db", "prisma/dev.db", "dev.sqlite", "prisma/dev.sqlite"].filter((file) => exists(file));
+if (localDatabaseFiles.length) fail("local-dev-db-present", `remove local DB files before release packaging: ${localDatabaseFiles.join(", ")}`);
+else pass("local-dev-db-present", "no legacy local dev database file is present");
 
 if (has("package.json", "security:full") && has("package.json", "security:repo") && has("package.json", "security:supply-chain") && has("package.json", "security:secrets")) {
   pass("package-scripts", "full, repo, supply-chain, and secret security scripts are available");

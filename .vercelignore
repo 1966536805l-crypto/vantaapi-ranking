@@ -3,7 +3,11 @@
 .env.*
 *.db
 *.db-*
+*.sqlite
+*.sqlite3
 prisma/*.db
+prisma/*.sqlite
+prisma/*.sqlite3
 
 # build/cache artifacts
 .next

@@ -36,6 +36,11 @@ yarn-error.log*
 # local databases
 *.db
 *.db-*
+*.sqlite
+*.sqlite3
+prisma/*.db
+prisma/*.sqlite
+prisma/*.sqlite3
 prisma/legacy-mysql-migrations/
 
 # OpenClaw / local assistant workspace

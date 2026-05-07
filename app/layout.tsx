@@ -1,19 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { CSSProperties } from "react";
 import GlobalSearchLauncher from "@/components/layout/GlobalSearchLauncher";
 import CsrfBootstrap from "@/components/security/CsrfBootstrap";
 import "./globals.css";
 import "@/lib/protection";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const fontVariables = {
+  "--font-geist-sans": "Arial, Helvetica, sans-serif",
+  "--font-geist-mono": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+} as CSSProperties & Record<"--font-geist-sans" | "--font-geist-mono", string>;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vantaapi.com"),
@@ -30,7 +25,8 @@ export default function RootLayout({
   return (
     <html
       lang="zh-CN"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
+      style={fontVariables}
     >
       <body className="min-h-full flex flex-col bg-white text-slate-900">
         <CsrfBootstrap />
