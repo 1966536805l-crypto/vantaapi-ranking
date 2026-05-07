@@ -158,6 +158,18 @@ npm run launch:production
 npm run build
 ```
 
+After deployment, run a public smoke check:
+
+```bash
+npm run launch:smoke
+```
+
+To check a preview deployment instead of the production domain:
+
+```bash
+npm run launch:smoke -- --base=https://your-preview-url.vercel.app
+```
+
 `launch:production` checks Vercel Production variable presence, pulls Production env into the ignored `.env.vercel.production.local` file, then validates the pulled values without printing secrets.
 
 If `launch:production` reports empty Vercel values, remove or edit those variables in Vercel Production first. For app-owned secrets, rerun `npm run launch:secrets`; for provider values, copy fresh values from Postgres, your AI provider, and Cloudflare Turnstile.
