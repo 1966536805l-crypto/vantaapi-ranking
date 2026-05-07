@@ -29,8 +29,9 @@
     "launch:full": "npm run launch:check && npm run security:full"
   },
   "dependencies": {
-    "@prisma/adapter-mariadb": "^7.8.0",
+    "@prisma/adapter-pg": "7.8.0",
     "@prisma/client": "^7.8.0",
+    "@types/pg": "8.20.0",
     "@types/qrcode": "^1.5.6",
     "@types/speakeasy": "^2.0.10",
     "bcryptjs": "^3.0.3",
@@ -40,8 +41,8 @@
     "dotenv": "^17.4.2",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
-    "mariadb": "^3.5.2",
     "next": "16.2.4",
+    "pg": "8.20.0",
     "prisma": "^7.8.0",
     "qrcode": "^1.5.4",
     "react": "19.2.4",

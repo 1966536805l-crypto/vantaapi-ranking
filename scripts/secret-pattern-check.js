@@ -15,7 +15,7 @@ const patterns = [
   { name: "openai-key", regex: /sk-[A-Za-z0-9_-]{32,}/ },
   { name: "jwt-like", regex: /eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/ },
   { name: "aws-access-key", regex: /AKIA[0-9A-Z]{16}/ },
-  { name: "hardcoded-db-url", regex: /mysql:\/\/[^\s"'<>]+:[^\s"'<>]+@[^\s"'<>]+/i },
+  { name: "hardcoded-db-url", regex: /(?:mysql|postgresql?):\/\/[^\s"'<>]+:[^\s"'<>]+@[^\s"'<>]+/i },
   { name: "hardcoded-secret-assignment", regex: /(?:JWT_SECRET|CSRF_SECRET|ENCRYPTION_KEY|API_KEY|SECRET_KEY)\s*=\s*["'][^"']{20,}["']/i },
 ];
 

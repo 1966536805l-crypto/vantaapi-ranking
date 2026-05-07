@@ -74,6 +74,12 @@ function checkDatabasePassword() {
   if (looksPlaceholder(value)) return bad("env:DATABASE_URL", "missing or still a placeholder");
   try {
     const parsed = new URL(value);
+    if (!["postgres:", "postgresql:"].includes(parsed.protocol)) {
+      return bad("env:DATABASE_URL", "must be a valid postgres/postgresql URL");
+    }
+    if (["127.0.0.1", "localhost"].includes(parsed.hostname)) {
+      return bad("env:DATABASE_URL", "must use a reachable production database host");
+    }
     const password = decodeURIComponent(parsed.password || "");
     if (looksPlaceholder(password) || password.length < 16) {
       return bad("env:DATABASE_URL", "database password must be strong and not a placeholder");
@@ -83,7 +89,7 @@ function checkDatabasePassword() {
     }
     ok("env:DATABASE_URL", "database password is present and non-placeholder");
   } catch {
-    bad("env:DATABASE_URL", "must be a valid mysql/mariadb URL");
+    bad("env:DATABASE_URL", "must be a valid postgres/postgresql URL");
   }
 }
 

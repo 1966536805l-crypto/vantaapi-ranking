@@ -44,12 +44,12 @@ for (const [name, command] of Object.entries({ dev: scripts.dev, start: scripts.
   else add("warn", `script:${name}`, "does not explicitly bind to 127.0.0.1");
 }
 
-if (has(dockerCompose, "127.0.0.1:3306:3306")) add("pass", "docker:mariadb", "MariaDB is localhost-bound");
-else if (has(dockerCompose, "3306:3306")) add("fail", "docker:mariadb", "MariaDB is exposed beyond localhost");
-else add("info", "docker:mariadb", "No direct MariaDB port mapping found");
+if (has(dockerCompose, "127.0.0.1:5432:5432")) add("pass", "docker:postgres", "Postgres is localhost-bound");
+else if (has(dockerCompose, "5432:5432")) add("fail", "docker:postgres", "Postgres is exposed beyond localhost");
+else add("info", "docker:postgres", "No direct Postgres port mapping found");
 
-if (has(dockerCompose, "${MARIADB_ROOT_PASSWORD")) add("pass", "docker:secrets", "root DB password is required via env");
-else add("warn", "docker:secrets", "root DB password may be hardcoded or not required");
+if (has(dockerCompose, "${POSTGRES_PASSWORD")) add("pass", "docker:secrets", "database password is required via env");
+else add("warn", "docker:secrets", "database password may be hardcoded or not required");
 
 if (has(envExample, 'APP_ALLOWED_HOSTS="vantaapi.com,www.vantaapi.com"')) add("pass", "env:hosts", "production host allowlist is tight");
 else add("warn", "env:hosts", "APP_ALLOWED_HOSTS is missing or too broad");

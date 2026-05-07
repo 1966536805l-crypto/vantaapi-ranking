@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -11,24 +11,16 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is required");
 }
 
-function createMariaDbAdapter(url: string) {
+function createPostgresAdapter(url: string) {
   const databaseUrl = new URL(url);
-  if (databaseUrl.protocol !== "mysql:" && databaseUrl.protocol !== "mariadb:") {
-    console.warn("DATABASE_URL should start with mysql:// or mariadb:// for the MySQL/MariaDB MVP");
+  if (databaseUrl.protocol !== "postgres:" && databaseUrl.protocol !== "postgresql:") {
+    console.warn("DATABASE_URL should start with postgres:// or postgresql:// for the Vercel/Neon production setup");
   }
 
-  return new PrismaMariaDb({
-    host: databaseUrl.hostname,
-    port: Number(databaseUrl.port || 3306),
-    user: decodeURIComponent(databaseUrl.username),
-    password: decodeURIComponent(databaseUrl.password),
-    database: databaseUrl.pathname.replace(/^\//, ""),
-    connectionLimit: 5,
-    ssl: false,
-  });
+  return new PrismaPg(url);
 }
 
-const adapter = createMariaDbAdapter(connectionString);
+const adapter = createPostgresAdapter(connectionString);
 
 export const prisma =
   globalForPrisma.prisma ?? new PrismaClient({ adapter });

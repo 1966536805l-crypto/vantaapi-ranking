@@ -1,22 +1,21 @@
 services:
-  mariadb:
-    image: mariadb:11.4
-    container_name: immortal-mvp-mariadb
+  postgres:
+    image: postgres:17
+    container_name: vantaapi-postgres
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set-a-strong-root-password}
-      MARIADB_DATABASE: ${MARIADB_DATABASE:-immortal_mvp}
-      MARIADB_USER: ${MARIADB_USER:-vantaapi}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?set-a-strong-app-password}
+      POSTGRES_DB: ${POSTGRES_DB:-vantaapi}
+      POSTGRES_USER: ${POSTGRES_USER:-vantaapi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set-a-strong-app-password}
     ports:
-      # Bind database to localhost only. Never expose MySQL/MariaDB directly to LAN/Internet.
-      - "127.0.0.1:3306:3306"
+      # Bind database to localhost only. Never expose Postgres directly to LAN/Internet.
+      - "127.0.0.1:5432:5432"
     volumes:
-      - immortal_mvp_mariadb:/var/lib/mysql
+      - vantaapi_postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p\"$${MARIADB_ROOT_PASSWORD}\" --silent"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
       timeout: 5s
       retries: 10
 
 volumes:
-  immortal_mvp_mariadb:
+  vantaapi_postgres:

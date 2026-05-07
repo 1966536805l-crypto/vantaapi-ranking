@@ -1,29 +1,21 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { PrismaClient } = require("@prisma/client");
-const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
+const { PrismaPg } = require("@prisma/adapter-pg");
 const bcrypt = require("bcryptjs");
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is required");
 
-const createMariaDbAdapter = (url) => {
+const createPostgresAdapter = (url) => {
   const databaseUrl = new URL(url);
-  if (databaseUrl.protocol !== "mysql:" && databaseUrl.protocol !== "mariadb:") {
-    throw new Error("DATABASE_URL must start with mysql:// or mariadb:// for the MySQL/MariaDB MVP");
+  if (databaseUrl.protocol !== "postgres:" && databaseUrl.protocol !== "postgresql:") {
+    throw new Error("DATABASE_URL must start with postgres:// or postgresql:// for the Postgres production setup");
   }
 
-  return new PrismaMariaDb({
-    host: databaseUrl.hostname,
-    port: Number(databaseUrl.port || 3306),
-    user: decodeURIComponent(databaseUrl.username),
-    password: decodeURIComponent(databaseUrl.password),
-    database: databaseUrl.pathname.replace(/^\//, ""),
-    connectionLimit: 5,
-    ssl: false,
-  });
+  return new PrismaPg(url);
 };
 
-const prisma = new PrismaClient({ adapter: createMariaDbAdapter(connectionString) });
+const prisma = new PrismaClient({ adapter: createPostgresAdapter(connectionString) });
 
 const option = (label, content, isCorrect = false) => ({ label, content, isCorrect });
 const choice = (prompt, answer, explanation, options, difficulty = "EASY") => ({ type: "MULTIPLE_CHOICE", prompt, answer, explanation, options, difficulty });
@@ -401,14 +393,44 @@ async function main() {
       await prisma.example.deleteMany({ where: { lessonId: lesson.id } });
       await prisma.question.deleteMany({ where: { lessonId: lesson.id } });
 
-      for (const [exampleIndex, ex] of lessonData.examples.entries()) {
-        await prisma.example.create({ data: { lessonId: lesson.id, title: ex[0], content: ex[1], explanation: ex[2], sortOrder: exampleIndex } });
+      if (lessonData.examples.length) {
+        await prisma.example.createMany({
+          data: lessonData.examples.map((ex, exampleIndex) => ({
+            id: `ex_${courseData.slug}_${lessonData.slug}_${exampleIndex}`,
+            lessonId: lesson.id,
+            title: ex[0],
+            content: ex[1],
+            explanation: ex[2],
+            sortOrder: exampleIndex,
+          })),
+        });
       }
 
-      for (const [questionIndex, q] of lessonData.questions.entries()) {
-        await prisma.question.create({
-          data: { lessonId: lesson.id, type: q.type, prompt: q.prompt, codeSnippet: q.codeSnippet || null, answer: q.answer, explanation: q.explanation, difficulty: q.difficulty || "EASY", sortOrder: questionIndex, options: { create: (q.options || []).map((o, i) => ({ ...o, sortOrder: i })) } },
-        });
+      if (lessonData.questions.length) {
+        const questions = lessonData.questions.map((q, questionIndex) => ({
+          id: `q_${courseData.slug}_${lessonData.slug}_${questionIndex}`,
+          lessonId: lesson.id,
+          type: q.type,
+          prompt: q.prompt,
+          codeSnippet: q.codeSnippet || null,
+          answer: q.answer,
+          explanation: q.explanation,
+          difficulty: q.difficulty || "EASY",
+          sortOrder: questionIndex,
+        }));
+        const options = lessonData.questions.flatMap((q, questionIndex) =>
+          (q.options || []).map((o, optionIndex) => ({
+            id: `qo_${courseData.slug}_${lessonData.slug}_${questionIndex}_${optionIndex}`,
+            questionId: questions[questionIndex].id,
+            label: o.label,
+            content: o.content,
+            isCorrect: o.isCorrect,
+            sortOrder: optionIndex,
+          })),
+        );
+
+        await prisma.question.createMany({ data: questions });
+        if (options.length) await prisma.questionOption.createMany({ data: options });
       }
     }
   }

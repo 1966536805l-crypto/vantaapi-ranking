@@ -30,14 +30,14 @@ Not in the first focused version:
 - Next.js + TypeScript
 - Tailwind CSS
 - Prisma
-- MySQL / MariaDB in the current production setup
+- Postgres through Vercel/Neon in the current production setup
 
 ## Local Development
 
 1. Configure `.env`:
 
 ```bash
-DATABASE_URL="mysql://<db_user>:<strong-random-password>@127.0.0.1:3306/<db_name>"
+DATABASE_URL="postgresql://<db_user>:<strong-random-password>@<db_host>:5432/<db_name>?sslmode=require"
 JWT_SECRET="<generate-a-random-secret-at-least-32-chars>"
 ```
 

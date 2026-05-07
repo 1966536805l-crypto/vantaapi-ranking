@@ -2,7 +2,7 @@
 
 /**
  * Minimal production backup helper.
- * It never prints the database password. Run on a machine that has `mysqldump`.
+ * It never prints the database password. Run on a machine that has `pg_dump`.
  */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -28,12 +28,12 @@ let parsed;
 try {
   parsed = new URL(rawUrl);
 } catch {
-  console.error("DATABASE_URL must be a valid mysql or mariadb URL.");
+  console.error("DATABASE_URL must be a valid postgres/postgresql URL.");
   process.exit(1);
 }
 
-if (!["mysql:", "mariadb:"].includes(parsed.protocol)) {
-  console.error("Only mysql and mariadb backups are supported by this helper.");
+if (!["postgres:", "postgresql:"].includes(parsed.protocol)) {
+  console.error("Only postgres/postgresql backups are supported by this helper.");
   process.exit(1);
 }
 
@@ -48,34 +48,39 @@ fs.mkdirSync(backupDir, { recursive: true });
 
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
 const outputFile = path.join(backupDir, `${database}-${stamp}.sql`);
-const port = parsed.port || "3306";
+const port = parsed.port || "5432";
+const env = {
+  ...process.env,
+  PGPASSWORD: decodeURIComponent(parsed.password),
+};
+const sslMode = parsed.searchParams.get("sslmode");
+if (sslMode) env.PGSSLMODE = sslMode;
 
 const result = spawnSync(
-  "mysqldump",
+  "pg_dump",
   [
-    "--single-transaction",
-    "--quick",
-    "--set-gtid-purged=OFF",
+    "--no-owner",
+    "--no-privileges",
     "-h",
     parsed.hostname,
-    "-P",
+    "-p",
     port,
-    "-u",
+    "-U",
     decodeURIComponent(parsed.username),
-    `--password=${decodeURIComponent(parsed.password)}`,
+    "-d",
     database,
   ],
-  { encoding: "utf8", maxBuffer: 1024 * 1024 * 64 },
+  { encoding: "utf8", env, maxBuffer: 1024 * 1024 * 64 },
 );
 
 if (result.error) {
-  console.error(`mysqldump failed to start: ${result.error.message}`);
+  console.error(`pg_dump failed to start: ${result.error.message}`);
   process.exit(1);
 }
 
 if (result.status !== 0) {
-  console.error("mysqldump failed. Check database host, user permissions, and network access.");
-  console.error(String(result.stderr || "").replace(/--password=\S+/g, "--password=[redacted]").slice(0, 1000));
+  console.error("pg_dump failed. Check database host, user permissions, SSL mode, and network access.");
+  console.error(String(result.stderr || "").replace(/password=\S+/gi, "password=[redacted]").slice(0, 1000));
   process.exit(result.status || 1);
 }
 
