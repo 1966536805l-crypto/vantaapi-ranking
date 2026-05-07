@@ -324,6 +324,56 @@ function checkBrandResidue() {
   }
 }
 
+function checkRetiredPublicSurface() {
+  const publicEntryFiles = [
+    "app/page.tsx",
+    "app/search/page.tsx",
+    "app/sitemap.ts",
+    "components/ConsoleNav.tsx",
+    "components/layout/GlobalSearchLauncher.tsx",
+    "lib/site-search.ts",
+    "lib/tool-definitions.ts",
+  ];
+  const retiredRoutes = [
+    "/rankings",
+    "/ranking",
+    "/comments",
+    "/comment",
+    "/report",
+    "/reports",
+    "/games",
+    "/projects",
+    "/questions",
+    "/api/rankings",
+    "/api/comments",
+    "/api/report",
+    "/api/reports",
+    "/api/ai-review",
+    "/api/cpp/run",
+  ];
+  const exposed = [];
+  const wrappers = [`"`, `'`, "`"];
+
+  for (const file of publicEntryFiles) {
+    const body = read(file);
+    for (const route of retiredRoutes) {
+      const linked = wrappers.some((prefix) =>
+        [`${prefix}${route}${prefix}`, `${prefix}${route}?`, `${prefix}${route}/`, `${prefix}${route}#`].some((needle) =>
+          body.includes(needle),
+        ),
+      );
+      if (linked) exposed.push(`${file} -> ${route}`);
+    }
+  }
+
+  if (exposed.length) {
+    action("Hide retired public entries", "Remove ranking, comments, report, games, projects, questions, AI review, and C++ run links from public navigation, search, sitemap, and tool definitions.");
+    bad("surface:retired-routes", `public entry still exposes ${exposed.slice(0, 10).join(", ")}`);
+  } else {
+    ok("surface:retired-routes", "retired routes are not linked from public homepage/search/nav/sitemap/tool definitions");
+  }
+}
+
 async function main() {
   console.log("🚀 JinMing Lab prelaunch gate\n");
   if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
@@ -353,6 +403,7 @@ async function main() {
   }
 
   checkBrandResidue();
+  checkRetiredPublicSurface();
 
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (launchActions.length) {
