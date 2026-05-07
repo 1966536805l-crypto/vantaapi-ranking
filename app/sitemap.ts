@@ -2,11 +2,13 @@ import type { MetadataRoute } from "next";
 
 const baseRoutes = [
   "",
-  "/today",
   "/tools",
   "/tools/github-repo-analyzer",
   "/tools/prompt-optimizer",
+  "/tools/bug-finder",
   "/tools/api-request-generator",
+  "/tools/dev-utilities",
+  "/tools/learning-roadmap",
   "/programming",
   "/search",
   "/privacy",

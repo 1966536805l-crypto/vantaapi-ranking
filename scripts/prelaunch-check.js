@@ -441,6 +441,50 @@ function checkRetiredPageRedirects() {
   }
 }
 
+function checkFocusedSitemap() {
+  const body = read("app/sitemap.ts");
+  const requiredRoutes = [
+    "/tools",
+    "/tools/github-repo-analyzer",
+    "/tools/prompt-optimizer",
+    "/tools/bug-finder",
+    "/tools/api-request-generator",
+    "/tools/dev-utilities",
+    "/tools/learning-roadmap",
+    "/programming",
+    "/search",
+    "/privacy",
+    "/terms",
+  ];
+  const offFocusRoutes = [
+    "/today",
+    "/english",
+    "/cpp",
+    "/learn",
+    "/languages",
+    "/wrong",
+    "/dashboard",
+    "/progress",
+    "/games",
+    "/projects",
+    "/questions",
+    "/report",
+  ];
+  const missing = requiredRoutes.filter((route) => !body.includes(`"${route}"`) && !body.includes(`'${route}'`));
+  const exposed = offFocusRoutes.filter((route) => body.includes(`"${route}"`) || body.includes(`'${route}'`));
+
+  if (missing.length) {
+    bad("seo:sitemap-focus", `missing core routes: ${missing.join(", ")}`);
+    return;
+  }
+  if (exposed.length) {
+    action("Focus sitemap", "Keep sitemap focused on GitHub Launch Audit, AI tools, programming route, search, privacy, and terms. Do not include old learning or retired pages.");
+    bad("seo:sitemap-focus", `off-focus routes in sitemap: ${exposed.join(", ")}`);
+    return;
+  }
+  ok("seo:sitemap-focus", "sitemap is focused on launch audit and developer tools");
+}
+
 async function main() {
   console.log("🚀 JinMing Lab prelaunch gate\n");
   if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
@@ -473,6 +517,7 @@ async function main() {
   checkRetiredPublicSurface();
   checkRetiredApiResponses();
   checkRetiredPageRedirects();
+  checkFocusedSitemap();
 
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (launchActions.length) {
