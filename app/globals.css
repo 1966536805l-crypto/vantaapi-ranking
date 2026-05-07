@@ -1242,6 +1242,14 @@ button {
   font-size: 10px;
 }
 
+.home-version-menu summary strong {
+  max-width: 82px;
+  overflow: hidden;
+  padding: 0 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .home-language-popover {
   position: absolute;
   top: calc(100% + 8px);

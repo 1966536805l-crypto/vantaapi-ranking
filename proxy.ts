@@ -6,6 +6,7 @@ const protectedPages = ["/dashboard", "/progress", "/wrong", "/admin"];
 const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
 const allowedMethods = new Set(["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]);
 const rateBuckets = new Map<string, { count: number; resetTime: number }>();
+const penaltyBuckets = new Map<string, { blockedUntil: number; level: number; resetTime: number; reason: string }>();
 type SecurityMode = "normal" | "elevated" | "emergency";
 
 const expensiveApiRules = [
@@ -36,6 +37,24 @@ const emergencyWritableApiPrefixes = [
   "/api/auth/2fa",
   "/api/csrf",
   "/api/ai/coach",
+];
+
+const apiMethodRules = [
+  { prefix: "/api/ai/coach", methods: ["POST"] },
+  { prefix: "/api/ai/analyze-mistake", methods: ["POST"] },
+  { prefix: "/api/ai-review", methods: ["POST"] },
+  { prefix: "/api/ai", methods: ["POST"] },
+  { prefix: "/api/auth/login", methods: ["POST"] },
+  { prefix: "/api/auth/logout", methods: ["POST"] },
+  { prefix: "/api/auth/register", methods: ["POST"] },
+  { prefix: "/api/auth/me", methods: ["GET", "HEAD"] },
+  { prefix: "/api/csrf", methods: ["GET", "HEAD"] },
+  { prefix: "/api/cpp/analyze", methods: ["POST"] },
+  { prefix: "/api/cpp/run", methods: ["POST"] },
+  { prefix: "/api/quiz/submit", methods: ["POST"] },
+  { prefix: "/api/rankings/like", methods: ["POST"] },
+  { prefix: "/api/report", methods: ["POST"] },
+  { prefix: "/api/stats", methods: ["GET", "HEAD"] },
 ];
 
 function getClientIp(request: NextRequest) {
@@ -82,17 +101,62 @@ function rateLimit(key: string, maxRequests: number, windowMs: number) {
   return { allowed: true, remaining: maxRequests - current.count, resetTime: current.resetTime };
 }
 
+function cleanupPenalties(now: number) {
+  if (penaltyBuckets.size < 10_000) return;
+  for (const [key, penalty] of penaltyBuckets) {
+    if (penalty.resetTime < now && penalty.blockedUntil < now) penaltyBuckets.delete(key);
+  }
+}
+
+function rememberPenalty(ip: string, reason: string, severity = 1) {
+  const now = Date.now();
+  cleanupPenalties(now);
+  const current = penaltyBuckets.get(ip);
+  const mode = securityMode();
+  const baseMs = mode === "normal" ? 30_000 : mode === "elevated" ? 90_000 : 180_000;
+
+  if (!current || current.resetTime < now) {
+    const level = severity;
+    const blockedUntil = now + Math.min(baseMs * level, 15 * 60_000);
+    penaltyBuckets.set(ip, { blockedUntil, level, resetTime: now + 30 * 60_000, reason });
+    return { blockedUntil, level, reason };
+  }
+
+  current.level = Math.min(current.level + severity, 8);
+  current.blockedUntil = now + Math.min(baseMs * current.level, 15 * 60_000);
+  current.resetTime = now + 30 * 60_000;
+  current.reason = reason;
+  return current;
+}
+
+function penaltyGuard(request: NextRequest) {
+  const ip = getClientIp(request);
+  const penalty = penaltyBuckets.get(ip);
+  if (!penalty) return null;
+
+  const now = Date.now();
+  if (penalty.blockedUntil <= now) return null;
+
+  return jsonError("Temporarily rate limited", 429, {
+    "Retry-After": String(Math.max(1, Math.ceil((penalty.blockedUntil - now) / 1000))),
+    "X-Abuse-Protection": "penalty-box",
+  });
+}
+
 function jsonError(message: string, status: number, extraHeaders: Record<string, string> = {}) {
   const response = NextResponse.json({ message }, { status });
   for (const [key, value] of Object.entries(extraHeaders)) response.headers.set(key, value);
   return withSecurityHeaders(response);
 }
 
-function rateLimitResponse(bucket: { resetTime: number }) {
+function rateLimitResponse(bucket: { resetTime: number }, ip?: string, reason = "rate-limit") {
+  const penalty = ip ? rememberPenalty(ip, reason) : null;
+  const resetTime = penalty ? Math.max(bucket.resetTime, penalty.blockedUntil) : bucket.resetTime;
   const retryAfter = Math.max(1, Math.ceil((bucket.resetTime - Date.now()) / 1000));
   return jsonError("Too many requests", 429, {
-    "Retry-After": String(retryAfter),
-    "X-RateLimit-Reset": String(Math.ceil(bucket.resetTime / 1000)),
+    "Retry-After": String(penalty ? Math.max(retryAfter, Math.ceil((resetTime - Date.now()) / 1000)) : retryAfter),
+    "X-RateLimit-Reset": String(Math.ceil(resetTime / 1000)),
+    ...(penalty ? { "X-Abuse-Protection": "penalty-box" } : {}),
   });
 }
 
@@ -197,6 +261,23 @@ function queryShapeGuard(request: NextRequest) {
   return null;
 }
 
+function apiMethodGuard(request: NextRequest, pathname: string) {
+  if (!pathname.startsWith("/api/")) return null;
+  if (request.method === "OPTIONS") return null;
+
+  const rule = apiMethodRules.find((item) => pathname === item.prefix || pathname.startsWith(`${item.prefix}/`));
+  if (!rule) return null;
+  if (rule.methods.includes(request.method)) return null;
+
+  return jsonError("Method not allowed", 405, { Allow: rule.methods.join(", ") });
+}
+
+function adminApiCookieGuard(request: NextRequest, pathname: string) {
+  if (!pathname.startsWith("/api/admin") || pathname === "/api/admin/login") return null;
+  if (request.cookies.get(AUTH_COOKIE)?.value) return null;
+  return jsonError("Authentication required", 401);
+}
+
 function contentTypeGuard(request: NextRequest, pathname: string) {
   if (safeMethods.has(request.method)) return null;
   const expectsJson = jsonWriteApiPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
@@ -225,7 +306,7 @@ function globalRateGuard(request: NextRequest, botVerdict: BotVerdict) {
       ? mode === "normal" ? 45 : mode === "elevated" ? 25 : 12
       : mode === "normal" ? 360 : mode === "elevated" ? 180 : 72;
   const bucket = rateLimit(`global:${ip}`, maxRequests, 60_000);
-  return bucket.allowed ? null : rateLimitResponse(bucket);
+  return bucket.allowed ? null : rateLimitResponse(bucket, ip, "global-rate-limit");
 }
 
 function fingerprintRateGuard(request: NextRequest, botVerdict: BotVerdict) {
@@ -243,7 +324,7 @@ function fingerprintRateGuard(request: NextRequest, botVerdict: BotVerdict) {
     ? mode === "normal" ? 180 : mode === "elevated" ? 80 : 32
     : mode === "normal" ? 720 : mode === "elevated" ? 320 : 120;
   const bucket = rateLimit(`fingerprint:${fingerprint}:${unsafe ? "write" : "read"}`, limit, 60_000);
-  return bucket.allowed ? null : rateLimitResponse(bucket);
+  return bucket.allowed ? null : rateLimitResponse(bucket, getClientIp(request), "fingerprint-rate-limit");
 }
 
 function expensiveApiGuard(request: NextRequest, pathname: string) {
@@ -256,7 +337,7 @@ function expensiveApiGuard(request: NextRequest, pathname: string) {
   const ip = getClientIp(request);
   const maxRequests = rule[mode];
   const bucket = rateLimit(`expensive:${rule.prefix}:${ip}`, maxRequests, rule.windowMs);
-  return bucket.allowed ? null : rateLimitResponse(bucket);
+  return bucket.allowed ? null : rateLimitResponse(bucket, ip, "expensive-api-rate-limit");
 }
 
 function apiRateGuard(request: NextRequest, pathname: string) {
@@ -274,7 +355,7 @@ function apiRateGuard(request: NextRequest, pathname: string) {
   const maxRequests = mode === "normal" ? baseLimit : mode === "elevated" ? Math.ceil(baseLimit * 0.55) : Math.ceil(baseLimit * 0.28);
   const bucket = rateLimit(`api:${pathname}:${ip}`, maxRequests, windowMs);
 
-  return bucket.allowed ? null : rateLimitResponse(bucket);
+  return bucket.allowed ? null : rateLimitResponse(bucket, ip, "api-rate-limit");
 }
 
 function pageRateGuard(request: NextRequest, pathname: string, botVerdict: BotVerdict) {
@@ -294,7 +375,7 @@ function pageRateGuard(request: NextRequest, pathname: string, botVerdict: BotVe
     : mode === "normal" ? baseLimit : mode === "elevated" ? Math.ceil(baseLimit * 0.55) : Math.ceil(baseLimit * 0.25);
   const bucket = rateLimit(`page:${ip}`, maxRequests, 60_000);
 
-  return bucket.allowed ? null : rateLimitResponse(bucket);
+  return bucket.allowed ? null : rateLimitResponse(bucket, ip, "page-rate-limit");
 }
 
 export function proxy(request: NextRequest) {
@@ -311,8 +392,12 @@ export function proxy(request: NextRequest) {
 
   const botVerdict = evaluateBotRequest(request, pathname);
   if (botVerdict.action === "block" || botVerdict.action === "trap") {
+    rememberPenalty(getClientIp(request), botVerdict.reason, botVerdict.action === "trap" ? 3 : 2);
     return withSecurityHeaders(botBlockedResponse(botVerdict), botVerdict);
   }
+
+  const penaltyBlocked = penaltyGuard(request);
+  if (penaltyBlocked) return withSecurityHeaders(penaltyBlocked, botVerdict);
 
   const globalRateBlocked = globalRateGuard(request, botVerdict);
   if (globalRateBlocked) return withSecurityHeaders(globalRateBlocked, botVerdict);
@@ -328,8 +413,15 @@ export function proxy(request: NextRequest) {
 
   if (pathname.startsWith("/api/")) {
     if (botVerdict.action === "throttle") {
+      rememberPenalty(getClientIp(request), botVerdict.reason, 1);
       return withSecurityHeaders(botBlockedResponse(botVerdict), botVerdict);
     }
+
+    const methodBlocked = apiMethodGuard(request, pathname);
+    if (methodBlocked) return methodBlocked;
+
+    const adminCookieBlocked = adminApiCookieGuard(request, pathname);
+    if (adminCookieBlocked) return adminCookieBlocked;
 
     const bodyBlocked = bodySizeGuard(request, pathname);
     if (bodyBlocked) return bodyBlocked;

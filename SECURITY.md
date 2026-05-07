@@ -59,6 +59,9 @@ Additional app-layer defenses:
 - Query-shape limits for parameter floods and open-redirect probes.
 - Emergency mode write protection for non-core APIs.
 - Blocking for cloud metadata, double-encoded traversal and common injection probes.
+- Short-lived penalty box for repeat offenders after rate-limit, trap or bot-rule hits.
+- Early API method allowlists for high-risk endpoints.
+- Early authentication-cookie check for admin APIs before route code runs.
 
 ## CI gates
 
