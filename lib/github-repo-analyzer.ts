@@ -532,7 +532,7 @@ async function analyzeWithRawFallback(owner: string, repo: string) {
   const meta: GitHubRepoMeta = {
     full_name: `${owner}/${repo}`,
     html_url: `https://github.com/${owner}/${repo}`,
-    description: "Public repository launch pack generated from raw public files.",
+    description: "Public repository launch audit generated from raw public files.",
     default_branch: "HEAD",
     stargazers_count: 0,
     forks_count: 0,
@@ -552,7 +552,7 @@ async function analyzeWithRawFallback(owner: string, repo: string) {
     workflows: [],
     fileStructure: fallbackFileStructure(files),
     extraOverview: [
-      "Fast fallback mode: GitHub API metadata was unavailable, so this pack was built from public raw files only.",
+      "Fast fallback mode: GitHub API metadata was unavailable, so this audit was built from public raw files only.",
     ],
   });
 }

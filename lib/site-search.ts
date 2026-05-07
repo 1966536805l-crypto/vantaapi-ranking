@@ -71,8 +71,8 @@ const staticItems: SiteSearchItem[] = [
     title: "AI Tools Hub",
     href: "/tools/github-repo-analyzer",
     category: "AI Tools",
-    description: "GitHub launch pack prompt optimizer bug finder API generator JSON regex timestamp and roadmap tools",
-    tags: ["tools", "ai tools", "工具站", "github", "发布包", "提示词", "bug", "api", "json", "regex"],
+    description: "GitHub launch audit prompt optimizer bug finder API generator JSON regex timestamp and roadmap tools",
+    tags: ["tools", "ai tools", "工具站", "github", "上线体检", "发布检查", "提示词", "bug", "api", "json", "regex"],
   },
   {
     title: "Programming Learning Lab",
@@ -133,7 +133,7 @@ const staticItems: SiteSearchItem[] = [
 ];
 
 const toolAliases: Record<string, string[]> = {
-  "github-repo-analyzer": ["github", "仓库", "开源", "发布包", "项目交付", "pr checklist", "readme"],
+  "github-repo-analyzer": ["github", "仓库", "开源", "上线体检", "发布检查", "项目交付", "pr checklist", "readme"],
   "prompt-optimizer": ["提示词", "提示词优化", "prompt", "ai 提示"],
   "code-explainer": ["代码解释", "看代码", "讲代码", "源码解释"],
   "bug-finder": ["bug", "报错", "错误定位", "修 bug", "debug"],

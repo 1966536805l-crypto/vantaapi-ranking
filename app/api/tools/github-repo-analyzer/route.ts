@@ -24,6 +24,6 @@ export async function POST(request: NextRequest) {
     if (error instanceof GitHubRepoAnalyzerError) {
       return jsonError(error.message, error.status);
     }
-    return jsonError("Could not build repository launch pack", 500);
+    return jsonError("Could not run repository launch audit", 500);
   }
 }

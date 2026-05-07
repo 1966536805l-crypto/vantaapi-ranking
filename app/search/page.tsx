@@ -9,14 +9,14 @@ type SearchPageProps = {
 
 export const metadata: Metadata = {
   title: "AI 学习工具搜索 - 英语 编程 AI 工具 - JinMing Lab",
-  description: "搜索 JinMing Lab 的英语学习、编程训练、AI Coach、GitHub 发布包、Bug 定位、Prompt 优化和错题复盘页面。",
-  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "GitHub 发布包", "Prompt 优化"],
+  description: "搜索 JinMing Lab 的英语学习、编程训练、AI Coach、GitHub 上线体检、Bug 定位、Prompt 优化和错题复盘页面。",
+  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "GitHub 上线体检", "Prompt 优化"],
   alternates: {
     canonical: "/search",
   },
   openGraph: {
     title: "AI 学习工具搜索 - JinMing Lab",
-    description: "搜索英语学习、编程训练、AI Coach、GitHub 发布包、Bug 定位和 Prompt 优化页面。",
+    description: "搜索英语学习、编程训练、AI Coach、GitHub 上线体检、Bug 定位和 Prompt 优化页面。",
     url: "https://vantaapi.com/search",
     siteName: "JinMing Lab",
     type: "website",

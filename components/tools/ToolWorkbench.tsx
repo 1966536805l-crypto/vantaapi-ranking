@@ -320,7 +320,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
     return `Status\n${error}\n\nSupported input\nPaste a public GitHub repository URL like ${sampleRepoUrl}`;
   }
   if (!analysis) {
-    return `GitHub Launch Pack\nPaste a public GitHub repository URL and get the time consuming project handoff work in one place setup commands environment clues README gaps CI deployment checks and PR review steps.\n\nExample\n${sampleRepoUrl}`;
+    return `GitHub Launch Audit\nPaste a public GitHub repository URL and get the slow prelaunch checks in one place README gaps environment clues temporary files CI deployment signals SEO basics security notes and release steps.\n\nExample\n${sampleRepoUrl}`;
   }
 
   return [
@@ -460,12 +460,12 @@ function GitHubRepoAnalyzer() {
       });
       const data = (await response.json()) as GitHubRepoAnalyzerResponse;
       if (!response.ok || !data.success || !data.analysis) {
-        throw new Error(data.error || data.message || "Could not build repository launch pack");
+        throw new Error(data.error || data.message || "Could not run repository launch audit");
       }
       setAnalysis(data.analysis);
     } catch (caught) {
       setAnalysis(null);
-      setError(caught instanceof Error ? caught.message : "Could not build repository launch pack");
+      setError(caught instanceof Error ? caught.message : "Could not run repository launch audit");
     } finally {
       setLoading(false);
     }
@@ -474,12 +474,12 @@ function GitHubRepoAnalyzer() {
   return (
     <ToolLayout
       output={output}
-      outputTitle="Launch pack"
+      outputTitle="Launch audit"
       blocks={blocks}
       actions={
         <>
           <button type="button" className="dense-action" onClick={analyzeRepo} disabled={loading}>
-            {loading ? "Building pack" : "Build launch pack"}
+            {loading ? "Auditing repo" : "Run launch audit"}
           </button>
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
             Load sample
@@ -491,7 +491,7 @@ function GitHubRepoAnalyzer() {
       }
     >
       <p className="eyebrow">Input</p>
-      <h2>Public repository launch pack</h2>
+      <h2>Public repository launch audit</h2>
       <label className="block">
         <span className="tool-label">GitHub URL</span>
         <input
@@ -507,7 +507,7 @@ function GitHubRepoAnalyzer() {
       <div className="tool-field-grid">
         <div className="dense-row">
           <span className="text-sm font-semibold">Scope</span>
-          <span className="text-xs text-[color:var(--muted)]">Public repo handoff only</span>
+          <span className="text-xs text-[color:var(--muted)]">Public repo launch readiness only</span>
         </div>
         <div className="dense-row">
           <span className="text-sm font-semibold">Reads</span>

@@ -12,10 +12,10 @@ const fontVariables = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vantaapi.com"),
-  title: "JinMing Lab - AI 工具 GitHub 发布包 Prompt 优化 编程学习",
+  title: "JinMing Lab - GitHub 项目上线前体检 AI 工具",
   description:
-    "JinMing Lab 提供 AI 工具、GitHub 发布包、Prompt 优化、Bug 定位、API 请求生成和零基础编程学习路线。",
-  keywords: ["AI 工具", "GitHub 发布包", "Prompt 优化", "Bug 定位", "API 请求生成", "编程学习", "零基础编程"],
+    "JinMing Lab 提供 GitHub 项目上线前体检、README 检查、环境变量风险提示、部署检查、AI 工具和零基础编程学习路线。",
+  keywords: ["GitHub 项目体检", "上线前检查", "AI 工具", "README 检查", "部署检查", "Prompt 优化", "编程学习"],
 };
 
 export const viewport: Viewport = {

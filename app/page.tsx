@@ -5,10 +5,10 @@ import { localizedHref, type SiteLanguage } from "@/lib/language";
 import { worldLanguages } from "@/lib/world-language-content";
 
 export const metadata: Metadata = {
-  title: "JinMing Lab - AI 学习工具平台 英语 编程 AI 工具",
+  title: "JinMing Lab - GitHub 项目上线前体检 AI 工具",
   description:
-    "JinMing Lab 是 AI 学习工具平台，聚焦英语学习、编程训练和开发者省时工具，提供 AI Coach、GitHub 发布包、错题复盘和零基础学习路径。",
-  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "GitHub 发布包", "错题分析", "Prompt 优化"],
+    "JinMing Lab 提供 GitHub 项目上线前体检，自动整理 README、环境变量、部署、安全、SEO、CI 和发布清单，并保留英语学习与编程训练入口。",
+  keywords: ["GitHub 项目体检", "上线前检查", "AI 工具", "README 检查", "部署检查", "安全检查", "编程学习"],
 };
 
 type HomeSearchParams = Promise<{ ui?: string | string[]; lang?: string | string[] }>;
@@ -46,28 +46,28 @@ const homeCopy: Record<string, HomeCopy> = {
   chinese: {
     version: "版本",
     versions: "语言版本",
-    tools: "AI 工具",
+    tools: "发布体检",
     coding: "编程训练",
     english: "英语学习",
-    roadmap: "AI 工具",
+    roadmap: "发布清单",
     login: "登录",
     logout: "退出",
     admin: "后台",
-    eyebrow: "AI 学习工具平台",
+    eyebrow: "GitHub 项目上线前体检",
     title: "JinMing Lab",
-    description: "面向学习者和独立开发者的工具与训练台。首页只保留英语学习、编程训练和 AI 工具三条主线，把内容做深、反馈做快、路径做清楚。",
-    primaryCta: "开始英语训练",
+    description: "把 GitHub 仓库丢进来，快速得到上线前修复清单：README、环境变量、部署、CI、安全、SEO、半成品入口和发布步骤。英语学习和编程训练保留为长期训练入口。",
+    primaryCta: "检查 GitHub 项目",
     secondaryCta: "进入编程训练",
-    tertiaryCta: "打开 AI 工具",
-    focus: "核心入口",
+    tertiaryCta: "开始英语训练",
+    focus: "体检范围",
     ready: "可用",
     cards: [
       {
-        href: "/english?lang=zh",
-        eyebrow: "英语",
-        title: "英语学习",
-        body: "把背词、听写、打字和短阅读做成连续训练。每次练习只给必要提示，错题自动沉淀到复习路径。",
-        points: ["词汇训练", "打字听写", "错题复习"],
+        href: "/tools/github-repo-analyzer",
+        eyebrow: "主工具",
+        title: "GitHub 上线体检",
+        body: "检查仓库是否像正式项目：README、env 示例、临时文件、部署配置、CI、SEO、安全提示和发布 checklist。",
+        points: ["README", "env 风险", "部署清单"],
       },
       {
         href: "/programming",
@@ -77,39 +77,39 @@ const homeCopy: Record<string, HomeCopy> = {
         points: ["零基础", "分类练习", "实操复盘"],
       },
       {
-        href: "/tools",
-        eyebrow: "AI",
-        title: "AI 工具",
-        body: "只保留能节省真实时间的工具。优先做 GitHub 发布检查、Prompt 优化、Bug 定位、API 请求生成和学习路线。",
-        points: ["发布检查", "Bug 定位", "路线生成"],
+        href: "/english?lang=zh",
+        eyebrow: "长期训练",
+        title: "英语学习",
+        body: "把背词、听写、打字和短阅读做成连续训练。每次练习只给必要提示，错题自动沉淀到复习路径。",
+        points: ["词汇训练", "打字听写", "错题复习"],
       },
     ],
   },
   english: {
     version: "Version",
     versions: "Site Versions",
-    tools: "AI Tools",
+    tools: "Launch Audit",
     coding: "Coding Practice",
     english: "English Learning",
-    roadmap: "AI Tools",
+    roadmap: "Release Checklist",
     login: "Login",
     logout: "Logout",
     admin: "Admin",
-    eyebrow: "AI Learning Tools Platform",
+    eyebrow: "GitHub Launch Readiness Audit",
     title: "JinMing Lab",
-    description: "A focused learning and builder lab for English practice, coding drills, and practical AI tools. Fewer promises, sharper workflows, faster feedback.",
-    primaryCta: "Start English",
+    description: "Paste a GitHub repository and get the launch work developers usually miss: README gaps, env files, deployment clues, CI, security notes, SEO basics, unfinished entry points, and a release checklist.",
+    primaryCta: "Audit GitHub Repo",
     secondaryCta: "Start Coding Practice",
-    tertiaryCta: "Open AI Tools",
-    focus: "Home Focus",
+    tertiaryCta: "Start English",
+    focus: "Audit Scope",
     ready: "Ready",
     cards: [
       {
-        href: "/english?lang=zh",
-        eyebrow: "English",
-        title: "English Learning",
-        body: "Curated vocabulary, typing, reading, and mistake review. AI Coach explains words, sentence logic, and the next practice step.",
-        points: ["Vocabulary", "Typing", "AI Coach"],
+        href: "/tools/github-repo-analyzer",
+        eyebrow: "Main Tool",
+        title: "GitHub Launch Audit",
+        body: "Check whether a repository looks ready to ship: README, env examples, temp files, deployment, CI, security notes, SEO basics, and release steps.",
+        points: ["README", "env risk", "release list"],
       },
       {
         href: "/programming",
@@ -119,11 +119,11 @@ const homeCopy: Record<string, HomeCopy> = {
         points: ["Beginner friendly", "Classified drills", "Code explain"],
       },
       {
-        href: "/tools",
-        eyebrow: "AI",
-        title: "AI Tools",
-        body: "Prompt optimization, code explanation, bug diagnosis, API request generation, roadmaps, and developer utilities.",
-        points: ["Prompt", "Bug", "Review"],
+        href: "/english?lang=zh",
+        eyebrow: "Long Term",
+        title: "English Learning",
+        body: "Curated vocabulary, typing, reading, and mistake review. AI Coach explains words, sentence logic, and the next practice step.",
+        points: ["Vocabulary", "Typing", "Review"],
       },
     ],
   },
@@ -277,13 +277,13 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                   {copy.description}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <Link href={localizedHref("/english", siteLanguage)} className="dense-action-primary px-4 py-2.5">
+                  <Link href={localizedHref("/tools/github-repo-analyzer", siteLanguage)} className="dense-action-primary px-4 py-2.5">
                     {copy.primaryCta}
                   </Link>
                   <Link href={localizedHref("/programming", siteLanguage)} className="dense-action px-4 py-2.5">
                     {copy.secondaryCta}
                   </Link>
-                  <Link href={localizedHref("/tools/github-repo-analyzer", siteLanguage)} className="dense-action px-4 py-2.5">
+                  <Link href={localizedHref("/english", siteLanguage)} className="dense-action px-4 py-2.5">
                     {copy.tertiaryCta}
                   </Link>
                 </div>
@@ -292,7 +292,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
               <div className="rounded-[8px] border border-slate-200 bg-white/75 p-4">
                 <p className="eyebrow">{copy.focus}</p>
                 <div className="mt-3 grid gap-2">
-                  {[copy.english, copy.coding, copy.tools].map((item) => (
+                  {[copy.tools, copy.coding, copy.english].map((item) => (
                     <span key={item} className="dense-row">
                       <span className="text-sm font-semibold">{item}</span>
                       <span className="text-xs text-[color:var(--muted)]">{copy.ready}</span>

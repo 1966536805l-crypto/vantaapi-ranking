@@ -3,25 +3,25 @@ import ToolWorkbench from "@/components/tools/ToolWorkbench";
 import { toolDefinitions } from "@/lib/tool-definitions";
 
 export const metadata: Metadata = {
-  title: "AI Tools - JinMing Lab",
+  title: "GitHub Launch Audit and AI Tools - JinMing Lab",
   description:
-    "GitHub launch pack prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
+    "Audit a public GitHub repository before launch, then use prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
   alternates: {
     canonical: "/tools",
   },
   openGraph: {
-    title: "AI Tools - JinMing Lab",
+    title: "GitHub Launch Audit and AI Tools - JinMing Lab",
     description:
-      "GitHub launch pack prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
+      "GitHub launch audit prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
     url: "https://vantaapi.com/tools",
     siteName: "JinMing Lab",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "AI Tools - JinMing Lab",
+    title: "GitHub Launch Audit and AI Tools - JinMing Lab",
     description:
-      "GitHub launch pack prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
+      "GitHub launch audit prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
   },
 };
 
@@ -45,7 +45,7 @@ export default function ToolsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ToolWorkbench initialSlug="prompt-optimizer" />
+      <ToolWorkbench initialSlug="github-repo-analyzer" />
     </>
   );
 }
