@@ -60,7 +60,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
   const [mode, setMode] = useState<Mode>("mixed");
   const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState("");
-  const [message, setMessage] = useState("先听一遍 再把英文完整打出来");
+  const [message, setMessage] = useState("听音打字 拼对才能过关");
   const [showAnswer, setShowAnswer] = useState(false);
   const [stats, setStats] = useState({ correct: 0, wrong: 0, index: 0 });
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -98,10 +98,20 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     setIndex(nextIndex);
     setDraft("");
     setShowAnswer(false);
-    setMessage("听音后打字 不对不跳题");
+    setMessage("听音打字 拼对才能过关");
     persist({ ...latestStats, index: nextIndex });
     window.setTimeout(() => inputRef.current?.focus(), 0);
   }, [activeIndex, persist, safeItems.length]);
+
+  const getInputClass = useCallback(() => {
+    if (!draft || !current) return "";
+    const normalized = normalize(draft);
+    const target = normalize(current.answer);
+
+    if (normalized === target) return "typing-input-perfect";
+    if (target.startsWith(normalized)) return "typing-input-valid";
+    return "typing-input-error";
+  }, [draft, current]);
 
   const check = useCallback(() => {
     if (!current) return;
@@ -123,12 +133,12 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     });
 
     if (correct) {
-      setMessage("通过 自动下一题");
+      setMessage("✓ 通过 自动下一题");
       window.setTimeout(next, 520);
       return;
     }
 
-    setMessage("不对 再听一遍 继续打");
+    setMessage("✗ 拼写错误 再听一遍 必须打对才能过关");
     setShowAnswer(false);
     speak(current.answer);
     window.setTimeout(() => inputRef.current?.focus(), 0);
@@ -148,7 +158,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     const timer = window.setTimeout(() => {
       setDraft("");
       setShowAnswer(false);
-      setMessage("已切换题型 先听再打");
+      setMessage("已切换题型 听音拼写");
       setIndex(0);
       inputRef.current?.focus();
     }, 0);
@@ -168,19 +178,20 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
   }
 
   return (
-    <section className="typing-lab mt-6">
+    <section className="typing-lab mt-4">
       <div className="typing-lab-main dense-panel">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="eyebrow">English Typing System</p>
-            <h2 className="mt-2 text-3xl font-semibold">听音打字 不对不过关</h2>
+            <h2 className="mt-2 text-3xl font-semibold">听音拼写 拼对过关</h2>
             <div className="typing-compact-meta mt-3">
               <span>{modeLabel}</span>
               <span>{current.source}</span>
               <span>{activeIndex + 1} / {safeItems.length}</span>
               <span>剩余 {remaining}</span>
-              <span>Enter 检查</span>
-              <span>Ctrl P 发音</span>
+              <span><kbd>Enter</kbd> 检查</span>
+              <span><kbd>Ctrl P</kbd> 发音</span>
+              <span><kbd>Esc</kbd> 退出全屏</span>
             </div>
           </div>
           <div className="learning-head-actions">
@@ -192,17 +203,17 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
           </div>
         </div>
 
-        <div className="typing-mode-bar mt-5" aria-label="typing mode">
+        <div className="typing-mode-bar mt-4" aria-label="typing mode">
           {(["mixed", "word", "sentence"] as Mode[]).map((item) => (
             <button key={item} type="button" className={mode === item ? "active" : ""} onClick={() => setMode(item)}>
               {item === "mixed" ? "混合" : item === "word" ? "单词" : "句子"}
             </button>
           ))}
           <button type="button" onClick={() => speak()}>
-            记忆发音
+            发音
           </button>
           <button type="button" onClick={() => setShowAnswer((value) => !value)}>
-            {showAnswer ? "隐藏答案" : "看答案"}
+            {showAnswer ? "隐藏" : "答案"}
           </button>
         </div>
 
@@ -222,7 +233,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
 
           <div className="typing-work">
             <label>
-              <span>输入英文</span>
+              <span>输入英文 · 实时验证</span>
               <input
                 ref={inputRef}
                 value={draft}
@@ -236,29 +247,44 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
                     event.preventDefault();
                     speak();
                   }
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    if (document.fullscreenElement) {
+                      void document.exitFullscreen();
+                    }
+                  }
                 }}
                 autoCapitalize="none"
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck={false}
                 placeholder={current.type === "word" ? "type the word" : "type the sentence"}
+                className={getInputClass()}
               />
             </label>
 
             <div className="typing-command-row">
-              <button type="button" className="dense-action-primary" onClick={check}>检查 Enter</button>
-              <button type="button" className="dense-action" onClick={() => speak()}>记忆发音 Ctrl P</button>
-              <button type="button" className="dense-action" onClick={() => setShowAnswer((value) => !value)}>{showAnswer ? "隐藏答案" : "看答案"}</button>
-              <button type="button" className="dense-action" onClick={next}>下一题</button>
+              <button type="button" className="dense-action-primary" onClick={check}>
+                检查 <kbd>Enter</kbd>
+              </button>
+              <button type="button" className="dense-action" onClick={() => speak()}>
+                发音 <kbd>Ctrl P</kbd>
+              </button>
+              <button type="button" className="dense-action" onClick={() => setShowAnswer((value) => !value)}>
+                {showAnswer ? "隐藏" : "答案"}
+              </button>
+              <button type="button" className="dense-action" onClick={next}>
+                跳过
+              </button>
             </div>
 
             <p className="typing-message">{message}</p>
 
             <div className="typing-stats">
-              <span>正确 {stats.correct}</span>
-              <span>错误 {stats.wrong}</span>
-              <span>WPM {wpm}</span>
-              <span>{activeIndex + 1} / {safeItems.length}</span>
+              <span>✓ {stats.correct}</span>
+              <span>✗ {stats.wrong}</span>
+              <span>{accuracy}% 准确率</span>
+              <span>{wpm} WPM</span>
             </div>
           </div>
         </div>
