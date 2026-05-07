@@ -48,6 +48,9 @@ jobs:
       - name: Security baseline checks
         run: npm run security:check
 
+      - name: Repository security checks
+        run: npm run security:repo
+
       - name: TypeScript
         run: npm run typecheck
 
