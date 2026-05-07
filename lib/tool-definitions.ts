@@ -129,10 +129,10 @@ export const toolDefinitions: ToolDefinition[] = [
     promise: "Fast validation conversion and copyable outputs",
     inputHint: "Paste JSON regex text or timestamp",
     useCases: ["Format JSON", "Test regex", "Convert timestamps"],
-    whatItDoes: ["Validates pretty prints and minifies JSON", "Runs browser regex matches against sample text", "Converts seconds milliseconds and date strings"],
+    whatItDoes: ["Formats JSON and creates a minified version", "Runs browser regex matches against sample text", "Converts seconds milliseconds and date strings"],
     audience: ["Developers debugging payloads", "SEO and data workers checking structured data", "Anyone converting logs and timestamps"],
     inputExample: "{\"name\":\"VantaAPI\",\"ok\":true} plus a regex or timestamp",
-    outputExample: "JSON status pretty JSON minified JSON regex matches ISO local Unix and millisecond time",
+    outputExample: "JSON status formatted JSON minified JSON regex matches ISO local Unix and millisecond time",
     limitations: ["Regex uses browser JavaScript behavior", "Date strings depend on browser parsing rules", "Large payloads should still be checked in dedicated tooling"],
     faq: [
       { question: "Does invalid JSON get modified", answer: "No. The tool reports the parse error so you can fix the source." },

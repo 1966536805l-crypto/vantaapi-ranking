@@ -1096,7 +1096,7 @@ function DevUtilities() {
 
     return [
       { badge: "01", title: "JSON status", content: jsonResult.message },
-      { badge: "02", title: "Pretty JSON", content: jsonResult.ok ? jsonResult.pretty : "Fix JSON before formatting" },
+      { badge: "02", title: "Formatted JSON", content: jsonResult.ok ? jsonResult.pretty : "Fix JSON before formatting" },
       { badge: "03", title: "Minified JSON", content: jsonResult.ok ? jsonResult.minified : "Unavailable" },
       { badge: "04", title: "Regex matches", content: regexResult },
       {
