@@ -19,6 +19,7 @@ const dotenv = require("dotenv");
 const root = process.cwd();
 const envFile = ".env.vercel.production.local";
 const envPath = path.join(root, envFile);
+const appOwnedSecrets = new Set(["JWT_SECRET", "CSRF_SECRET", "ENCRYPTION_KEY"]);
 
 function run(command, args, options = {}) {
   console.log(`\n$ ${[command, ...args].join(" ")}`);
@@ -61,9 +62,30 @@ function validatePulledEnvFile() {
   console.error("\nPulled Vercel Production env contains empty required values:");
   for (const name of empty) console.error(`- ${name}`);
   console.error("\nFix in Vercel Project Settings -> Environment Variables:");
-  console.error("1. Delete or edit each empty variable above.");
+  console.error("1. Delete each empty variable above, or edit it in the Vercel dashboard.");
   console.error("2. Re-enter the real value for the Production scope.");
   console.error("3. Rerun: npm run launch:production");
+  console.error("\nCLI cleanup commands:");
+  for (const name of empty) console.error(`vercel env rm ${name} production`);
+  const generated = empty.filter((name) => appOwnedSecrets.has(name));
+  const provider = empty.filter((name) => !appOwnedSecrets.has(name));
+  if (generated.length) {
+    console.error("\nGenerate replacement values for these app-owned secrets:");
+    console.error(`- ${generated.join(", ")}`);
+    console.error("Run: npm run launch:secrets");
+  }
+  if (provider.length) {
+    console.error("\nProvider values you must copy from external dashboards:");
+    for (const name of provider) {
+      const hint =
+        name === "DATABASE_URL"
+          ? "managed Postgres provider"
+          : name === "AI_API_KEY"
+            ? "AI provider"
+            : "Cloudflare Turnstile";
+      console.error(`- ${name}: ${hint}`);
+    }
+  }
   console.error("\nThe variable names exist, but empty values are not launch-ready.");
   process.exit(1);
 }

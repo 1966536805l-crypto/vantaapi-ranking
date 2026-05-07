@@ -144,6 +144,8 @@ npm run build
 
 `launch:production` checks Vercel Production variable presence, pulls Production env into the ignored `.env.vercel.production.local` file, then validates the pulled values without printing secrets.
 
+If `launch:production` reports empty Vercel values, remove or edit those variables in Vercel Production first. For app-owned secrets, rerun `npm run launch:secrets`; for provider values, copy fresh values from Postgres, your AI provider, and Cloudflare Turnstile.
+
 Manual equivalent:
 
 ```bash
