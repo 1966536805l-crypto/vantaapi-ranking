@@ -307,6 +307,7 @@ function TopBar({ isAdmin, isSignedIn }: { isAdmin: boolean; isSignedIn: boolean
       <div className="flex flex-wrap items-center gap-2">
         <Link href="/search" className="dense-action-primary">Search</Link>
         <Link href="/tools" className="dense-action">Tools</Link>
+        <WorldLanguageMenu />
         <Link href="/languages" className="dense-action">Languages</Link>
         <Link href="/programming" className="dense-action">Coding</Link>
         <Link href="/tools/learning-roadmap" className="dense-action">Roadmap</Link>
@@ -319,5 +320,42 @@ function TopBar({ isAdmin, isSignedIn }: { isAdmin: boolean; isSignedIn: boolean
         )}
       </div>
     </header>
+  );
+}
+
+function WorldLanguageMenu() {
+  const featured = ["english", "chinese", "japanese", "korean", "spanish", "french", "arabic", "german"];
+  const featuredLanguages = worldLanguages.filter((language) => featured.includes(language.slug));
+  const restLanguages = worldLanguages.filter((language) => !featured.includes(language.slug));
+
+  return (
+    <details className="home-language-menu">
+      <summary aria-label="Open global language switcher">
+        <span>Global</span>
+        <strong>{worldLanguages.length}</strong>
+      </summary>
+      <div className="home-language-popover">
+        <div className="home-language-popover-head">
+          <span>World Languages</span>
+          <Link href="/languages">All paths</Link>
+        </div>
+        <div className="home-language-featured">
+          {featuredLanguages.map((language) => (
+            <Link key={language.slug} href={`/languages/${language.slug}`}>
+              <span>{language.name}</span>
+              <small>{language.nativeName}</small>
+            </Link>
+          ))}
+        </div>
+        <div className="home-language-scroll">
+          {restLanguages.map((language) => (
+            <Link key={language.slug} href={`/languages/${language.slug}`}>
+              <span>{language.name}</span>
+              <small>{language.nativeName}</small>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </details>
   );
 }

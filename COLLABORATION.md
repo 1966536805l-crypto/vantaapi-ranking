@@ -21,6 +21,12 @@ Already deployed to production:
 - If all AI providers fail, the built-in coach still answers quickly.
 - Admin AI provider status is being added at `/api/admin/ai-providers`
   and surfaced in `/admin/security`.
+- Admin AI event logs are being added at `/api/admin/ai-events`.
+  They store provider/status/timing only, never prompts or keys.
+- AI provider circuit breaker is being added so repeated gateway/Ollama
+  failures open a short cooldown instead of slowing every user request.
+- The circuit breaker now uses Redis when available and falls back to
+  in-memory cooldown when Redis is disabled or unavailable.
 
 Latest deployment at the time of this note:
 
@@ -35,7 +41,10 @@ Avoid editing these unless coordinating first:
 - `lib/ai-coaches.ts`
 - `components/learning/AICoachPanel.tsx`
 - `lib/ai-provider-status.ts`
+- `lib/ai-observability.ts`
+- `lib/ai-circuit-breaker.ts`
 - `app/api/admin/ai-providers/route.ts`
+- `app/api/admin/ai-events/route.ts`
 - `components/admin/AIProviderStatusPanel.tsx`
 - `.env.example`
 - `README.md`

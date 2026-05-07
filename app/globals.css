@@ -3472,15 +3472,145 @@ button {
   }
 
   .typing-lab-main {
-    padding: 14px;
+    padding: 12px;
   }
 
   .typing-work input {
     font-size: 16px;
+    min-height: 56px;
   }
 
   .typing-mask {
     font-size: 17px;
+    min-height: 56px;
+  }
+
+  /* Mobile-friendly button sizes */
+  .typing-command-row button {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .typing-mode-bar button {
+    min-height: 40px;
+    padding: 0 12px;
+  }
+
+  /* Compact meta on mobile */
+  .typing-compact-meta {
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .typing-compact-meta kbd {
+    display: none;
+  }
+
+  /* Better spacing for mobile */
+  .typing-board {
+    gap: 10px;
+  }
+
+  .typing-side,
+  .typing-work {
+    padding: 12px;
+  }
+
+  /* Larger touch targets */
+  .learning-fullscreen-button {
+    min-height: 40px;
+    min-width: 40px;
+    padding: 0 12px;
+  }
+
+  .typing-score {
+    min-width: 80px;
+  }
+
+  .typing-score span {
+    font-size: 32px;
+  }
+
+  /* Stack stats vertically on very small screens */
+  .typing-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+}
+
+/* Extra small screens (mobile portrait) */
+@media (max-width: 480px) {
+  .apple-page {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .module-hero {
+    padding: 12px 16px;
+  }
+
+  .apple-display-title {
+    font-size: 28px;
+  }
+
+  .typing-lab-main {
+    padding: 10px;
+  }
+
+  .typing-lab-main h2 {
+    font-size: 24px;
+  }
+
+  .typing-compact-meta {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .typing-compact-meta span {
+    padding: 4px 8px;
+  }
+
+  .typing-mode-bar {
+    gap: 4px;
+  }
+
+  .typing-mode-bar button {
+    font-size: 13px;
+    padding: 0 10px;
+  }
+
+  .typing-command-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .typing-command-row button {
+    width: 100%;
+  }
+
+  .typing-side h3 {
+    font-size: 18px;
+  }
+
+  .typing-message {
+    font-size: 13px;
+  }
+
+  .typing-stats span {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  /* Hide less critical info on tiny screens */
+  .eyebrow {
+    font-size: 10px;
+  }
+
+  .apple-display-subtitle {
+    font-size: 12px;
   }
 }
 

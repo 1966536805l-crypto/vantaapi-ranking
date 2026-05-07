@@ -3,6 +3,9 @@
  * 支持 DeepSeek V4 和其他兼容 OpenAI API 的模型
  */
 
+import { classifyAIReason, recordAIEvent } from "@/lib/ai-observability";
+import { resetProviderCircuit, shouldSkipProvider, tripProviderCircuit } from "@/lib/ai-circuit-breaker";
+
 type AIMessage = {
   role: "system" | "user" | "assistant";
   content: string;
@@ -27,6 +30,9 @@ type AIOptions = {
   maxTokens?: number;
   model?: string;
   timeoutMs?: number;
+  gatewayTimeoutMs?: number;
+  ollamaTimeoutMs?: number;
+  fallbackToOllama?: boolean;
 };
 
 type AIStreamResponse =
@@ -35,6 +41,7 @@ type AIStreamResponse =
       response: Response;
       model: string;
       format: "openai-sse" | "ollama-jsonl";
+      provider: "gateway" | "ollama";
     }
   | {
       success: false;
@@ -77,22 +84,51 @@ async function callOllama(
   messages: AIMessage[],
   options?: AIOptions,
 ): Promise<AIResponse> {
+  const model = options?.model || OLLAMA_MODEL;
   if (!OLLAMA_ENABLED) {
+    recordAIEvent({
+      provider: "ollama",
+      operation: "chat",
+      status: "disabled",
+      model,
+      durationMs: 0,
+      reason: "Ollama disabled",
+    });
     return {
       success: false,
       error: "Ollama 未启用",
     };
   }
 
+  const circuit = await shouldSkipProvider("ollama");
+  if (circuit.open) {
+    recordAIEvent({
+      provider: "ollama",
+      operation: "chat",
+      status: "disabled",
+      model,
+      durationMs: 0,
+      reason: `cooldown ${Math.ceil(circuit.retryInMs / 1000)}s ${circuit.reason}`,
+    });
+    return {
+      success: false,
+      error: "Ollama 暂时冷却中",
+    };
+  }
+
+  const startedAt = Date.now();
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), Math.max(options?.timeoutMs ?? 0, OLLAMA_TIMEOUT));
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    options?.ollamaTimeoutMs ?? Math.max(options?.timeoutMs ?? 0, OLLAMA_TIMEOUT),
+  );
 
   try {
     const response = await fetch(`${normalizeBaseUrl(OLLAMA_BASE_URL)}/api/chat`, {
       method: "POST",
       headers: ollamaHeaders(),
       body: JSON.stringify({
-        model: options?.model || OLLAMA_MODEL,
+        model,
         messages,
         stream: false,
         options: ollamaOptions(options),
@@ -105,6 +141,16 @@ async function callOllama(
     if (!response.ok) {
       const errorText = await response.text().catch(() => "");
       console.error("Ollama API 错误:", response.status, errorText);
+      recordAIEvent({
+        provider: "ollama",
+        operation: "chat",
+        status: classifyAIReason(undefined, response.status),
+        model,
+        durationMs: Date.now() - startedAt,
+        httpStatus: response.status,
+        reason: `HTTP ${response.status}`,
+      });
+      await tripProviderCircuit("ollama", classifyAIReason(undefined, response.status), `HTTP ${response.status}`, response.status);
       return {
         success: false,
         error: `Ollama 返回错误: ${response.status}`,
@@ -117,16 +163,40 @@ async function callOllama(
       response?: string;
     };
 
+    recordAIEvent({
+      provider: "ollama",
+      operation: "chat",
+      status: "success",
+      model,
+      durationMs: Date.now() - startedAt,
+      httpStatus: response.status,
+      reason: "completed",
+    });
+    await resetProviderCircuit("ollama");
+
     return {
       success: true,
       content: data.message?.content || data.response || "",
-      model: options?.model || OLLAMA_MODEL,
+      model,
       provider: "ollama",
     };
   } catch (error) {
     clearTimeout(timeoutId);
 
     if (error instanceof Error) {
+      recordAIEvent({
+        provider: "ollama",
+        operation: "chat",
+        status: classifyAIReason(error.name === "AbortError" ? "Ollama 请求超时" : error.message),
+        model,
+        durationMs: Date.now() - startedAt,
+        reason: error.name === "AbortError" ? "timeout" : error.message,
+      });
+      await tripProviderCircuit(
+        "ollama",
+        classifyAIReason(error.name === "AbortError" ? "Ollama 请求超时" : error.message),
+        error.name === "AbortError" ? "timeout" : error.message,
+      );
       return {
         success: false,
         error: error.name === "AbortError" ? "Ollama 请求超时" : error.message,
@@ -144,22 +214,51 @@ async function streamOllama(
   messages: AIMessage[],
   options?: AIOptions,
 ): Promise<AIStreamResponse> {
+  const model = options?.model || OLLAMA_MODEL;
   if (!OLLAMA_ENABLED) {
+    recordAIEvent({
+      provider: "ollama",
+      operation: "stream",
+      status: "disabled",
+      model,
+      durationMs: 0,
+      reason: "Ollama disabled",
+    });
     return {
       success: false,
       error: "Ollama 未启用",
     };
   }
 
+  const circuit = await shouldSkipProvider("ollama");
+  if (circuit.open) {
+    recordAIEvent({
+      provider: "ollama",
+      operation: "stream",
+      status: "disabled",
+      model,
+      durationMs: 0,
+      reason: `cooldown ${Math.ceil(circuit.retryInMs / 1000)}s ${circuit.reason}`,
+    });
+    return {
+      success: false,
+      error: "Ollama 暂时冷却中",
+    };
+  }
+
+  const startedAt = Date.now();
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), Math.max(options?.timeoutMs ?? 0, OLLAMA_TIMEOUT));
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    options?.ollamaTimeoutMs ?? Math.max(options?.timeoutMs ?? 0, OLLAMA_TIMEOUT),
+  );
 
   try {
     const response = await fetch(`${normalizeBaseUrl(OLLAMA_BASE_URL)}/api/chat`, {
       method: "POST",
       headers: ollamaHeaders(),
       body: JSON.stringify({
-        model: options?.model || OLLAMA_MODEL,
+        model,
         messages,
         stream: true,
         options: ollamaOptions(options),
@@ -172,6 +271,16 @@ async function streamOllama(
     if (!response.ok || !response.body) {
       const errorText = await response.text().catch(() => "");
       console.error("Ollama stream API 错误:", response.status, errorText);
+      recordAIEvent({
+        provider: "ollama",
+        operation: "stream",
+        status: classifyAIReason(undefined, response.status),
+        model,
+        durationMs: Date.now() - startedAt,
+        httpStatus: response.status,
+        reason: `HTTP ${response.status}`,
+      });
+      await tripProviderCircuit("ollama", classifyAIReason(undefined, response.status), `HTTP ${response.status}`, response.status);
       return {
         success: false,
         error: `Ollama 返回错误: ${response.status}`,
@@ -179,16 +288,41 @@ async function streamOllama(
       };
     }
 
+    recordAIEvent({
+      provider: "ollama",
+      operation: "stream",
+      status: "success",
+      model,
+      durationMs: Date.now() - startedAt,
+      httpStatus: response.status,
+      reason: "headers-ready",
+    });
+    await resetProviderCircuit("ollama");
+
     return {
       success: true,
       response,
-      model: options?.model || OLLAMA_MODEL,
+      model,
       format: "ollama-jsonl",
+      provider: "ollama",
     };
   } catch (error) {
     clearTimeout(timeoutId);
 
     if (error instanceof Error) {
+      recordAIEvent({
+        provider: "ollama",
+        operation: "stream",
+        status: classifyAIReason(error.name === "AbortError" ? "Ollama 请求超时" : error.message),
+        model,
+        durationMs: Date.now() - startedAt,
+        reason: error.name === "AbortError" ? "timeout" : error.message,
+      });
+      await tripProviderCircuit(
+        "ollama",
+        classifyAIReason(error.name === "AbortError" ? "Ollama 请求超时" : error.message),
+        error.name === "AbortError" ? "timeout" : error.message,
+      );
       return {
         success: false,
         error: error.name === "AbortError" ? "Ollama 请求超时" : error.message,
@@ -208,6 +342,14 @@ async function callOllamaFallback(
   primaryError: string,
   status?: number,
 ): Promise<AIResponse> {
+  if (options?.fallbackToOllama === false) {
+    return {
+      success: false,
+      error: primaryError,
+      status,
+    };
+  }
+
   const fallback = await callOllama(messages, options);
   if (fallback.success) return fallback;
 
@@ -224,6 +366,14 @@ async function streamOllamaFallback(
   primaryError: string,
   status?: number,
 ): Promise<AIStreamResponse> {
+  if (options?.fallbackToOllama === false) {
+    return {
+      success: false,
+      error: primaryError,
+      status,
+    };
+  }
+
   const fallback = await streamOllama(messages, options);
   if (fallback.success) return fallback;
 
@@ -241,12 +391,35 @@ export async function callAI(
   messages: AIMessage[],
   options?: AIOptions,
 ): Promise<AIResponse> {
+  const model = options?.model || AI_MODEL;
   if (!AI_API_KEY) {
+    recordAIEvent({
+      provider: "gateway",
+      operation: "chat",
+      status: "disabled",
+      model,
+      durationMs: 0,
+      reason: "AI_API_KEY missing",
+    });
     return callOllamaFallback(messages, options, "AI_API_KEY 未配置");
   }
 
+  const circuit = await shouldSkipProvider("gateway");
+  if (circuit.open) {
+    recordAIEvent({
+      provider: "gateway",
+      operation: "chat",
+      status: "disabled",
+      model,
+      durationMs: 0,
+      reason: `cooldown ${Math.ceil(circuit.retryInMs / 1000)}s ${circuit.reason}`,
+    });
+    return callOllamaFallback(messages, options, "AI gateway 暂时冷却中");
+  }
+
+  const startedAt = Date.now();
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), options?.timeoutMs ?? AI_TIMEOUT);
+  const timeoutId = setTimeout(() => controller.abort(), options?.gatewayTimeoutMs ?? options?.timeoutMs ?? AI_TIMEOUT);
 
   try {
     const baseUrl = normalizeBaseUrl(AI_BASE_URL);
@@ -258,7 +431,7 @@ export async function callAI(
         Authorization: `Bearer ${AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: options?.model || AI_MODEL,
+        model,
         messages,
         temperature: options?.temperature ?? 0.7,
         max_tokens: options?.maxTokens ?? 2000,
@@ -271,6 +444,16 @@ export async function callAI(
     if (!response.ok) {
       const errorText = await response.text();
       console.error("AI API 错误:", response.status, errorText);
+      recordAIEvent({
+        provider: "gateway",
+        operation: "chat",
+        status: classifyAIReason(undefined, response.status),
+        model,
+        durationMs: Date.now() - startedAt,
+        httpStatus: response.status,
+        reason: `HTTP ${response.status}`,
+      });
+      await tripProviderCircuit("gateway", classifyAIReason(undefined, response.status), `HTTP ${response.status}`, response.status);
       return callOllamaFallback(messages, options, `AI API 返回错误: ${response.status}`, response.status);
     }
 
@@ -289,16 +472,37 @@ export async function callAI(
     };
 
     if (!data.choices || data.choices.length === 0) {
+      recordAIEvent({
+        provider: "gateway",
+        operation: "chat",
+        status: "error",
+        model,
+        durationMs: Date.now() - startedAt,
+        httpStatus: response.status,
+        reason: "empty choices",
+      });
+      await tripProviderCircuit("gateway", "error", "empty choices");
       return {
         success: false,
         error: "AI 返回数据格式错误",
       };
     }
 
+    recordAIEvent({
+      provider: "gateway",
+      operation: "chat",
+      status: "success",
+      model,
+      durationMs: Date.now() - startedAt,
+      httpStatus: response.status,
+      reason: "completed",
+    });
+    await resetProviderCircuit("gateway");
+
     return {
       success: true,
       content: data.choices[0].message?.content || "",
-      model: options?.model || AI_MODEL,
+      model,
       provider: "gateway",
       usage: data.usage
         ? {
@@ -313,8 +517,26 @@ export async function callAI(
 
     if (error instanceof Error) {
       if (error.name === "AbortError") {
+        recordAIEvent({
+          provider: "gateway",
+          operation: "chat",
+          status: "timeout",
+          model,
+          durationMs: Date.now() - startedAt,
+          reason: "timeout",
+        });
+        await tripProviderCircuit("gateway", "timeout", "timeout");
         return callOllamaFallback(messages, options, "AI 请求超时");
       }
+      recordAIEvent({
+        provider: "gateway",
+        operation: "chat",
+        status: classifyAIReason(error.message),
+        model,
+        durationMs: Date.now() - startedAt,
+        reason: error.message,
+      });
+      await tripProviderCircuit("gateway", classifyAIReason(error.message), error.message);
       return callOllamaFallback(messages, options, error.message);
     }
 
@@ -329,10 +551,35 @@ export async function streamAI(
   messages: AIMessage[],
   options?: AIOptions,
 ): Promise<AIStreamResponse> {
-  if (!AI_API_KEY) return streamOllamaFallback(messages, options, "AI_API_KEY 未配置");
+  const model = options?.model || AI_MODEL;
+  if (!AI_API_KEY) {
+    recordAIEvent({
+      provider: "gateway",
+      operation: "stream",
+      status: "disabled",
+      model,
+      durationMs: 0,
+      reason: "AI_API_KEY missing",
+    });
+    return streamOllamaFallback(messages, options, "AI_API_KEY 未配置");
+  }
 
+  const circuit = await shouldSkipProvider("gateway");
+  if (circuit.open) {
+    recordAIEvent({
+      provider: "gateway",
+      operation: "stream",
+      status: "disabled",
+      model,
+      durationMs: 0,
+      reason: `cooldown ${Math.ceil(circuit.retryInMs / 1000)}s ${circuit.reason}`,
+    });
+    return streamOllamaFallback(messages, options, "AI gateway 暂时冷却中");
+  }
+
+  const startedAt = Date.now();
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), options?.timeoutMs ?? AI_TIMEOUT);
+  const timeoutId = setTimeout(() => controller.abort(), options?.gatewayTimeoutMs ?? options?.timeoutMs ?? AI_TIMEOUT);
 
   try {
     const baseUrl = normalizeBaseUrl(AI_BASE_URL);
@@ -344,7 +591,7 @@ export async function streamAI(
         Authorization: `Bearer ${AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: options?.model || AI_MODEL,
+        model,
         messages,
         temperature: options?.temperature ?? 0.4,
         max_tokens: options?.maxTokens ?? 700,
@@ -358,19 +605,54 @@ export async function streamAI(
     if (!response.ok || !response.body) {
       const errorText = await response.text().catch(() => "");
       console.error("AI stream API 错误:", response.status, errorText);
+      recordAIEvent({
+        provider: "gateway",
+        operation: "stream",
+        status: classifyAIReason(undefined, response.status),
+        model,
+        durationMs: Date.now() - startedAt,
+        httpStatus: response.status,
+        reason: `HTTP ${response.status}`,
+      });
+      await tripProviderCircuit("gateway", classifyAIReason(undefined, response.status), `HTTP ${response.status}`, response.status);
       return streamOllamaFallback(messages, options, `AI API 返回错误: ${response.status}`, response.status);
     }
+
+    recordAIEvent({
+      provider: "gateway",
+      operation: "stream",
+      status: "success",
+      model,
+      durationMs: Date.now() - startedAt,
+      httpStatus: response.status,
+      reason: "headers-ready",
+    });
+    await resetProviderCircuit("gateway");
 
     return {
       success: true,
       response,
-      model: options?.model || AI_MODEL,
+      model,
       format: "openai-sse",
+      provider: "gateway",
     };
   } catch (error) {
     clearTimeout(timeoutId);
 
     if (error instanceof Error) {
+      recordAIEvent({
+        provider: "gateway",
+        operation: "stream",
+        status: classifyAIReason(error.name === "AbortError" ? "AI 请求超时" : error.message),
+        model,
+        durationMs: Date.now() - startedAt,
+        reason: error.name === "AbortError" ? "timeout" : error.message,
+      });
+      await tripProviderCircuit(
+        "gateway",
+        classifyAIReason(error.name === "AbortError" ? "AI 请求超时" : error.message),
+        error.name === "AbortError" ? "timeout" : error.message,
+      );
       return streamOllamaFallback(messages, options, error.name === "AbortError" ? "AI 请求超时" : error.message);
     }
 
