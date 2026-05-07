@@ -60,6 +60,8 @@ Avoid editing these unless coordinating first:
 - Do not expose Ollama port `11434` publicly.
 - Do not add official exam questions or copied dictionary content.
 - Keep login/register security and bot protection intact.
+- Keep `proxy.ts` as the single Next request guard. Do not add `middleware.ts`
+  because Next 16 fails the build when both files exist.
 - Do not enable public C++ execution unless it runs in a separate hardened sandbox.
 
 ## Verification

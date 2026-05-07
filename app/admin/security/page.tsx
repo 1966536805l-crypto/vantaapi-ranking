@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AIProviderStatusPanel from "@/components/admin/AIProviderStatusPanel";
 import Admin2FAPanel from "@/components/admin/Admin2FAPanel";
 import SecurityAssistantPanel from "@/components/admin/SecurityAssistantPanel";
 import StudyShell from "@/components/layout/StudyShell";
@@ -64,6 +65,10 @@ export default async function AdminSecurityPage() {
             Set GEMINI_API_KEY to prefer Gemini free tier. Existing AI_API_KEY is used second. Without a key the page still gives built in security guidance.
           </p>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <AIProviderStatusPanel />
       </div>
 
       <div className="mt-6">
