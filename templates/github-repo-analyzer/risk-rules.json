@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "scope": "public-github-repository-mvp",
+  "riskLevels": {
+    "high": [
+      {
+        "id": "secret-or-private-key-pattern",
+        "title": "Possible committed secret or private key",
+        "recommendation": "Remove the secret from Git history if confirmed, rotate it, and keep only documented placeholder values in examples."
+      },
+      {
+        "id": "public-database-credential",
+        "title": "Possible public database credential",
+        "recommendation": "Move credentials to deployment environment variables and rotate exposed values if real."
+      },
+      {
+        "id": "unsandboxed-code-execution",
+        "title": "Possible untrusted code execution without sandbox evidence",
+        "recommendation": "Disable the feature or isolate it in a separate sandboxed worker with strict resource limits."
+      }
+    ],
+    "medium": [
+      {
+        "id": "missing-env-example",
+        "title": "Environment example file not found",
+        "recommendation": "Add .env.example with placeholder values and explain each required variable."
+      },
+      {
+        "id": "missing-rate-limit-evidence",
+        "title": "No public API rate-limit evidence found",
+        "recommendation": "Add per-IP or per-user limits for login, write, AI, and expensive endpoints."
+      },
+      {
+        "id": "missing-security-ci",
+        "title": "Security CI gates not found",
+        "recommendation": "Add dependency audit, static analysis, and secret scanning workflows."
+      },
+      {
+        "id": "broad-cors",
+        "title": "Potentially broad CORS policy",
+        "recommendation": "Restrict allowed origins, methods, and headers to known production clients."
+      }
+    ],
+    "low": [
+      {
+        "id": "missing-license",
+        "title": "LICENSE file not found",
+        "recommendation": "Add a LICENSE file so users and contributors understand usage rights."
+      },
+      {
+        "id": "incomplete-readme",
+        "title": "README setup information appears incomplete",
+        "recommendation": "Add quick start, requirements, env vars, build, test, and deployment sections."
+      },
+      {
+        "id": "missing-changelog",
+        "title": "CHANGELOG not found",
+        "recommendation": "Add a changelog if releases are expected to be consumed by users or contributors."
+      }
+    ]
+  },
+  "forbiddenCommandPatterns": [
+    "sudo ",
+    "rm -rf",
+    "curl .*\\|.*sh",
+    "wget .*\\|.*sh",
+    "chmod -R 777",
+    "printenv",
+    "env |",
+    "cat .env"
+  ]
+}

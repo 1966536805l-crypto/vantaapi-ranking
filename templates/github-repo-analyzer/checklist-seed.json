@@ -1,0 +1,38 @@
+{
+  "deploymentChecklist": [
+    "Production environment variables are configured outside Git.",
+    "Secrets are not committed to the repository.",
+    "HTTPS is enabled for the production domain.",
+    "Database or stateful services are not publicly exposed.",
+    "Build command is documented and verified.",
+    "Start command is documented and verified.",
+    "Database migrations are documented if a database is used.",
+    "Logs or error monitoring are available.",
+    "Backups are configured for stateful services.",
+    "CDN/WAF is considered for public web apps."
+  ],
+  "securityChecklist": [
+    "Authentication protects private or admin routes.",
+    "API inputs are validated before use.",
+    "Login, write, AI, and expensive endpoints are rate-limited.",
+    "Cookie-authenticated write routes use CSRF protection.",
+    "CORS is restricted to known origins.",
+    "Security headers are configured.",
+    "Secrets are stored only in environment variables or secret managers.",
+    "Dependency audit is part of CI.",
+    "Untrusted code execution is disabled or sandboxed.",
+    "Sensitive admin actions are logged when applicable."
+  ],
+  "prReviewChecklist": [
+    "Does this change authentication, authorization, API, deployment, or security behavior?",
+    "Are new environment variables documented?",
+    "Are secrets avoided in code, docs, tests, and examples?",
+    "Are user inputs validated?",
+    "Are error messages safe and non-leaky?",
+    "Do typecheck, lint, build, and tests pass?",
+    "Are database migrations included if schema changed?",
+    "Does README or deployment documentation need an update?",
+    "Does this add a new external dependency that needs review?",
+    "Does this introduce public network exposure or a new webhook endpoint?"
+  ]
+}

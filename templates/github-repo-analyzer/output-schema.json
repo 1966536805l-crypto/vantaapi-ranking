@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vantaapi.com/schemas/github-repo-analyzer-output.json",
+  "title": "GitHub Repo Analyzer Output",
+  "type": "object",
+  "required": [
+    "repository",
+    "overview",
+    "howToRun",
+    "techStack",
+    "fileStructure",
+    "securityNotes",
+    "readmeSuggestions",
+    "githubActionsSuggestions",
+    "deploymentChecklist",
+    "securityChecklist",
+    "prReviewChecklist",
+    "filesRead"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "repository": {
+      "type": "object",
+      "required": ["owner", "name", "fullName", "url", "defaultBranch", "visibility"],
+      "additionalProperties": true,
+      "properties": {
+        "owner": { "type": "string" },
+        "name": { "type": "string" },
+        "fullName": { "type": "string" },
+        "url": { "type": "string" },
+        "description": { "type": "string" },
+        "defaultBranch": { "type": "string" },
+        "stars": { "type": "number" },
+        "forks": { "type": "number" },
+        "openIssues": { "type": "number" },
+        "language": { "type": "string" },
+        "license": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["public", "private", "internal", "unknown"] },
+        "archived": { "type": "boolean" },
+        "pushedAt": { "type": "string" }
+      }
+    },
+    "overview": { "$ref": "#/$defs/sectionItems" },
+    "howToRun": { "$ref": "#/$defs/commandItems" },
+    "techStack": { "$ref": "#/$defs/findingItems" },
+    "fileStructure": { "$ref": "#/$defs/findingItems" },
+    "securityNotes": { "$ref": "#/$defs/riskItems" },
+    "readmeSuggestions": { "$ref": "#/$defs/findingItems" },
+    "githubActionsSuggestions": { "$ref": "#/$defs/findingItems" },
+    "deploymentChecklist": { "$ref": "#/$defs/checklistItems" },
+    "securityChecklist": { "$ref": "#/$defs/checklistItems" },
+    "prReviewChecklist": { "$ref": "#/$defs/checklistItems" },
+    "filesRead": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 40
+    }
+  },
+  "$defs": {
+    "sectionItems": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "maxItems": 12
+    },
+    "commandItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "command", "safe"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string" },
+          "command": { "type": "string" },
+          "safe": { "type": "boolean" },
+          "note": { "type": "string" }
+        }
+      },
+      "maxItems": 12
+    },
+    "findingItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "detail", "confidence"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string" },
+          "detail": { "type": "string" },
+          "evidence": { "type": "string" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      },
+      "maxItems": 24
+    },
+    "riskItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "title", "detail", "recommendation"],
+        "additionalProperties": false,
+        "properties": {
+          "severity": { "type": "string", "enum": ["high", "medium", "low", "info"] },
+          "title": { "type": "string" },
+          "detail": { "type": "string" },
+          "evidence": { "type": "string" },
+          "recommendation": { "type": "string" }
+        }
+      },
+      "maxItems": 24
+    },
+    "checklistItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["item", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "item": { "type": "string" },
+          "status": { "type": "string", "enum": ["pass", "review", "missing", "unknown"] },
+          "note": { "type": "string" }
+        }
+      },
+      "maxItems": 30
+    }
+  }
+}
