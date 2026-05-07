@@ -646,9 +646,11 @@ function toolDisplay(tool: ToolDefinition, language: "en" | "zh") {
 export default function ToolWorkbench({
   initialSlug = "prompt-optimizer",
   initialLanguage = "en",
+  initialRepoUrl,
 }: {
   initialSlug?: ToolSlug;
   initialLanguage?: "en" | "zh";
+  initialRepoUrl?: string;
 }) {
   const pathname = usePathname();
   const language = initialLanguage;
@@ -722,7 +724,7 @@ export default function ToolWorkbench({
           </div>
 
           <div className="mt-3">
-            {active === "github-repo-analyzer" && <GitHubRepoAnalyzer language={language} />}
+            {active === "github-repo-analyzer" && <GitHubRepoAnalyzer language={language} initialRepoUrl={initialRepoUrl} />}
             {active === "prompt-optimizer" && <PromptOptimizer />}
             {active === "code-explainer" && <CodeExplainer />}
             {active === "bug-finder" && <BugFinder />}
@@ -738,9 +740,9 @@ export default function ToolWorkbench({
   );
 }
 
-function GitHubRepoAnalyzer({ language = "en" }: { language?: "en" | "zh" }) {
+function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "en" | "zh"; initialRepoUrl?: string }) {
   const zh = language === "zh";
-  const [url, setUrl] = useState(sampleRepoUrl);
+  const [url, setUrl] = useState(initialRepoUrl?.trim() || sampleRepoUrl);
   const [analysis, setAnalysis] = useState<GitHubRepoAnalysis | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

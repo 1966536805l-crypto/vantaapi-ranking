@@ -186,8 +186,8 @@ export default function SmartAuthForm({
         <div className="auth-side">
           <div className="flex items-center justify-between gap-3">
             <Link href={localizedHref("/", language)} className="auth-brand">
-              <span className="auth-brand-mark">VA</span>
-              <span>VantaAPI</span>
+              <span className="auth-brand-mark">JM</span>
+              <span>JinMing Lab</span>
             </Link>
             <FlagLanguageToggle initialLanguage={language} />
           </div>
