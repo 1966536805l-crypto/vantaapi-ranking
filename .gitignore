@@ -37,6 +37,19 @@ yarn-error.log*
 *.db
 *.db-*
 
+# OpenClaw / local assistant workspace
+.openclaw/
+memory/
+HEARTBEAT.md
+IDENTITY.md
+SOUL.md
+TOOLS.md
+USER.md
+vantaapi-ranking.code-workspace
+
+# editor local workspace
+.vscode/
+
 # vercel
 .vercel
 
