@@ -135,6 +135,14 @@ npm run launch:secrets
 
 This prints launch-ready values for `JWT_SECRET`, `CSRF_SECRET`, and `ENCRYPTION_KEY`, plus Vercel CLI helper commands. It does not write files and does not upload anything.
 
+To automatically rotate only those three app-owned secrets in Vercel Production:
+
+```bash
+npm run launch:fix-secrets
+```
+
+This does not touch `DATABASE_URL`, `AI_API_KEY`, or Turnstile keys because those must come from external provider dashboards.
+
 Then run:
 
 ```bash
