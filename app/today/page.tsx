@@ -5,18 +5,18 @@ import { examVocabularyPacks } from "@/lib/exam-content";
 import { originalQuestionPacks, originalReadingPacks } from "@/lib/original-english-bank";
 
 export const metadata: Metadata = {
-  title: "Today Learning Plan - JinMing Lab",
+  title: "Today Learning Plan - VantaAPI",
   description:
-    "Daily English review queue for vocabulary typing reading questions streaks and local progress.",
+    "Daily English and C++ review queue for lessons vocabulary typing reading questions streaks and progress.",
   alternates: {
     canonical: "/today",
   },
   openGraph: {
-    title: "Today Learning Plan - JinMing Lab",
+    title: "Today Learning Plan - VantaAPI",
     description:
       "Open one page to see today's vocabulary review typing drill reading task and question bank.",
     url: "https://vantaapi.com/today",
-    siteName: "JinMing Lab",
+    siteName: "VantaAPI",
     type: "website",
   },
 };
