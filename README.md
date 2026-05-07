@@ -130,11 +130,21 @@ GITHUB_READ_TOKEN="..."
 Then run:
 
 ```bash
+npm run launch:vercel
 npm run launch:check
 npm run build
 ```
 
-`launch:check` does not print secret values. If it fails, it prints the next launch actions to fix in Vercel, Cloudflare, or the database provider.
+`launch:vercel` checks that required variables exist in the Vercel Production scope without printing secret values.
+
+`launch:check` validates the values available to the current shell or pulled env file. If it fails, it prints the next launch actions to fix in Vercel, Cloudflare, or the database provider.
+
+If Vercel is configured but local `launch:check` still sees stale values, pull production env into a local ignored file first:
+
+```bash
+vercel env pull .env.vercel.production.local --environment=production
+PRELAUNCH_ENV_FILE=.env.vercel.production.local npm run launch:check
+```
 
 ## Admin
 

@@ -35,6 +35,8 @@ const recommended = [
   "REDIS_URL",
 ];
 
+const nextActions = [];
+
 function runVercelEnvList() {
   try {
     const stdout = execFileSync("npx", ["vercel", "env", "ls"], {
@@ -52,30 +54,76 @@ function runVercelEnvList() {
   }
 }
 
-function hasName(output, name) {
-  return new RegExp(`^\\s*${name}\\s`, "m").test(output);
+function action(title, detail) {
+  nextActions.push({ title, detail });
 }
 
-function printGroup(title, names, output, level) {
+function parseEnvRows(output) {
+  const rows = new Map();
+  for (const line of output.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || /^name\s+/i.test(trimmed) || /^-+$/.test(trimmed)) continue;
+    const match = trimmed.match(/^([A-Z0-9_]+)\s+\S+\s+(.+?)\s+\d/);
+    if (!match) continue;
+    rows.set(match[1], {
+      raw: trimmed,
+      environments: match[2].split(",").map((item) => item.trim().toLowerCase()).filter(Boolean),
+    });
+  }
+  return rows;
+}
+
+function hasProduction(rows, name) {
+  return rows.get(name)?.environments.includes("production") ?? false;
+}
+
+function printGroup(title, names, rows, level) {
   console.log(`\n${title}`);
   for (const name of names) {
-    const found = hasName(output, name);
-    const icon = found ? "OK" : level === "warn" ? "WARN" : "FAIL";
-    console.log(`${icon} ${name}: ${found ? "configured" : "missing"}`);
+    const row = rows.get(name);
+    const found = Boolean(row);
+    const production = hasProduction(rows, name);
+    const icon = production ? "OK" : level === "warn" ? "WARN" : "FAIL";
+    const status = production ? "configured for Production" : found ? `configured for ${row.environments.join(", ")} but missing Production` : "missing";
+    console.log(`${icon} ${name}: ${status}`);
+    if (!production && level !== "warn") {
+      action(`Set ${name} in Vercel Production`, `Run: vercel env add ${name} production`);
+    }
+    if (!production && level === "warn") {
+      action(`Recommended: set ${name} in Vercel Production`, `Run: vercel env add ${name} production`);
+    }
   }
 }
 
 const output = runVercelEnvList();
-const missingCritical = critical.filter((name) => !hasName(output, name));
-const missingProvider = providerRequired.filter((name) => !hasName(output, name));
-const missingRecommended = recommended.filter((name) => !hasName(output, name));
+const rows = parseEnvRows(output);
+const missingCritical = critical.filter((name) => !hasProduction(rows, name));
+const missingProvider = providerRequired.filter((name) => !hasProduction(rows, name));
+const missingRecommended = recommended.filter((name) => !hasProduction(rows, name));
 
 console.log("Vercel production env presence check");
-printGroup("Critical", critical, output, "fail");
-printGroup("Provider security", providerRequired, output, "fail");
-printGroup("Recommended", recommended, output, "warn");
+printGroup("Critical", critical, rows, "fail");
+printGroup("Provider security", providerRequired, rows, "fail");
+printGroup("Recommended", recommended, rows, "warn");
 
 console.log(`\nSummary: critical_missing=${missingCritical.length} provider_missing=${missingProvider.length} recommended_missing=${missingRecommended.length}`);
+
+if (nextActions.length) {
+  console.log("\nNext Vercel actions:");
+  const seen = new Set();
+  nextActions
+    .filter((item) => {
+      const key = `${item.title}:${item.detail}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 12)
+    .forEach((item, index) => {
+      console.log(`${index + 1}. ${item.title}`);
+      console.log(`   ${item.detail}`);
+    });
+}
 
 if (missingCritical.length || missingProvider.length) {
   process.exit(1);
