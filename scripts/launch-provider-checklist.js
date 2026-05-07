@@ -38,10 +38,27 @@ const providers = [
     vercel: "vercel env add TURNSTILE_SECRET_KEY production",
     note: "Server-side only. Keep it private.",
   },
+  {
+    name: "REDIS_URL",
+    source: "Managed Redis",
+    examples: ["Upstash Redis", "Vercel Marketplace Redis"],
+    shape: "rediss://... or provider connection URL",
+    vercel: "vercel env add REDIS_URL production",
+    note: "Recommended for consistent rate limits across serverless instances.",
+  },
+  {
+    name: "GITHUB_READ_TOKEN",
+    source: "GitHub fine-grained token",
+    examples: ["GitHub Settings -> Developer settings -> Fine-grained tokens"],
+    shape: "github_pat_... with read-only public repository metadata scope",
+    vercel: "vercel env add GITHUB_READ_TOKEN production",
+    note: "Recommended to raise GitHub API quota for Launch Audit. Keep read-only.",
+  },
 ];
 
 console.log("JinMing Lab provider-owned launch variables\n");
-console.log("These values must come from external dashboards. This script does not generate or upload them.\n");
+console.log("These values must come from external dashboards. This script does not generate or upload them.");
+console.log("Required values must be set before public launch. Recommended values improve reliability.\n");
 
 for (const item of providers) {
   console.log(`${item.name}`);

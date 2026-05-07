@@ -37,6 +37,18 @@ const recommended = [
 
 const nextActions = [];
 
+const variableNotes = {
+  DATABASE_URL: "Provider-owned. Copy from managed Postgres. Must be a real Postgres URL, not localhost.",
+  JWT_SECRET: "App-owned. Generate with npm run launch:secrets or rotate with npm run launch:fix-secrets -- --apply.",
+  CSRF_SECRET: "App-owned hex secret. Generate with npm run launch:secrets.",
+  ENCRYPTION_KEY: "App-owned hex secret for 2FA encryption. Generate with npm run launch:secrets.",
+  AI_API_KEY: "Provider-owned. Copy from the AI provider dashboard. Server-side only.",
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: "Provider-owned. Copy from Cloudflare Turnstile. This one is public.",
+  TURNSTILE_SECRET_KEY: "Provider-owned. Copy from Cloudflare Turnstile. Server-side only.",
+  GITHUB_READ_TOKEN: "Recommended. Raises GitHub API quota for launch audits.",
+  REDIS_URL: "Recommended. Use managed Redis such as Upstash for serverless-wide rate limits.",
+};
+
 function runVercelEnvList() {
   try {
     const stdout = execFileSync("npx", ["vercel", "env", "ls"], {
@@ -86,11 +98,12 @@ function printGroup(title, names, rows, level) {
     const icon = production ? "OK" : level === "warn" ? "WARN" : "FAIL";
     const status = production ? "configured for Production" : found ? `configured for ${row.environments.join(", ")} but missing Production` : "missing";
     console.log(`${icon} ${name}: ${status}`);
+    if (!production && variableNotes[name]) console.log(`   ${variableNotes[name]}`);
     if (!production && level !== "warn") {
-      action(`Set ${name} in Vercel Production`, `Run: vercel env add ${name} production`);
+      action(`Set ${name} in Vercel Production`, `${variableNotes[name] || "Add the real value in Vercel Production."} Command: vercel env add ${name} production`);
     }
     if (!production && level === "warn") {
-      action(`Recommended: set ${name} in Vercel Production`, `Run: vercel env add ${name} production`);
+      action(`Recommended: set ${name} in Vercel Production`, `${variableNotes[name] || "Add when ready."} Command: vercel env add ${name} production`);
     }
   }
 }
@@ -102,6 +115,8 @@ const missingProvider = providerRequired.filter((name) => !hasProduction(rows, n
 const missingRecommended = recommended.filter((name) => !hasProduction(rows, name));
 
 console.log("Vercel production env presence check");
+console.log("This only checks names and Production scope. It cannot verify encrypted values are non-empty.");
+console.log("Run npm run launch:production after this to pull and validate values without printing secrets.");
 printGroup("Critical", critical, rows, "fail");
 printGroup("Provider security", providerRequired, rows, "fail");
 printGroup("Recommended", recommended, rows, "warn");
@@ -128,3 +143,6 @@ if (nextActions.length) {
 if (missingCritical.length || missingProvider.length) {
   process.exit(1);
 }
+
+console.log("\nPresence check passed. Next step:");
+console.log("npm run launch:production");
