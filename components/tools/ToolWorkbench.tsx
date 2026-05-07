@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { recordLocalActivity } from "@/lib/local-progress";
 import { toolDefinitions, type ToolDefinition, type ToolSlug } from "@/lib/tool-definitions";
 
@@ -749,6 +749,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
   const [shareStatus, setShareStatus] = useState("");
   const [actionStatus, setActionStatus] = useState("");
   const [runStatus, setRunStatus] = useState(zh ? "准备体检" : "Ready to audit");
+  const hasAutoRunRef = useRef(false);
 
   const output = useMemo(() => formatGitHubRepoOutput(analysis, error, language), [analysis, error, language]);
   const issueBundle = useMemo(() => analysis?.copyableIssues.join("\n\n---\n\n") || "", [analysis]);
@@ -779,6 +780,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
       setAnalysis(shared);
       setUrl(shared.repository.url);
       setError("");
+      hasAutoRunRef.current = true;
     }, 0);
   }, []);
 
@@ -806,7 +808,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
     }
   }
 
-  function loadSamplePreview(reason = zh ? "已加载本地样例报告" : "Local sample preview loaded") {
+  const loadSamplePreview = useCallback((reason = zh ? "已加载本地样例报告" : "Local sample preview loaded") => {
     setUrl(sampleRepoUrl);
     setAnalysis(sampleGitHubAnalysis);
     setError("");
@@ -814,9 +816,9 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
     if (typeof window !== "undefined") {
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     }
-  }
+  }, [zh]);
 
-  async function analyzeRepo(targetUrl = url) {
+  const analyzeRepo = useCallback(async (targetUrl = url) => {
     const trimmed = targetUrl.trim();
     if (!trimmed) {
       setError(zh ? "需要填写仓库地址" : "Repository URL is required");
@@ -854,11 +856,25 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
     } finally {
       setLoading(false);
     }
-  }
+  }, [loadSamplePreview, url, zh]);
 
   function runSampleAudit() {
     loadSamplePreview(zh ? "已加载本地样例报告" : "Local sample preview loaded");
   }
+
+  useEffect(() => {
+    if (hasAutoRunRef.current || !initialRepoUrl?.trim()) return;
+    hasAutoRunRef.current = true;
+    const target = initialRepoUrl.trim();
+    const timer = window.setTimeout(() => {
+      if (target === sampleRepoUrl) {
+        loadSamplePreview(zh ? "已根据首页输入生成样例报告" : "Sample report loaded from homepage input");
+        return;
+      }
+      void analyzeRepo(target);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [analyzeRepo, initialRepoUrl, loadSamplePreview, zh]);
 
   return (
     <ToolLayout
