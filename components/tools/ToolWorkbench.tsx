@@ -323,6 +323,12 @@ function numberedList(items: string[]) {
   return items.length ? items.map((item, index) => `${index + 1}. ${item}`).join("\n") : "1. No action detected";
 }
 
+function riskTone(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"]) {
+  if (riskLevel === "Low") return "low";
+  if (riskLevel === "Medium") return "medium";
+  return "high";
+}
+
 function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: string) {
   if (error) {
     return `Status\n${error}\n\nSupported input\nPaste a public GitHub repository URL like ${sampleRepoUrl}`;
@@ -445,7 +451,7 @@ function GitHubRepoAnalyzer() {
   const blocks = useMemo<OutputBlock[]>(() => {
     if (!analysis) return [];
     return [
-      { badge: `${analysis.launchScore.score}`, title: `${analysis.launchScore.riskLevel} risk`, content: analysis.launchScore.summary },
+      { badge: `${analysis.launchScore.score}`, title: `${analysis.launchScore.riskLevel} risk verdict`, content: analysis.launchScore.summary },
       { badge: "01", title: "Must fix", content: numberedList(analysis.mustFix) },
       { badge: "02", title: "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
       { badge: "03", title: "Release checklist", content: numberedList(analysis.releaseChecklist) },
@@ -487,11 +493,11 @@ function GitHubRepoAnalyzer() {
   return (
     <ToolLayout
       output={output}
-      outputTitle="Launch audit"
+      outputTitle={analysis ? `${analysis.launchScore.score}/100 launch audit` : "Launch audit"}
       blocks={blocks}
       actions={
         <>
-          <button type="button" className="dense-action" onClick={analyzeRepo} disabled={loading}>
+          <button type="button" className="dense-action-primary" onClick={analyzeRepo} disabled={loading}>
             {loading ? "Auditing repo" : "Run launch audit"}
           </button>
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
@@ -505,6 +511,31 @@ function GitHubRepoAnalyzer() {
     >
       <p className="eyebrow">Input</p>
       <h2>Public repository launch audit</h2>
+      {analysis ? (
+        <section className={`repo-verdict repo-verdict-${riskTone(analysis.launchScore.riskLevel)}`}>
+          <div>
+            <p className="eyebrow">Verdict</p>
+            <strong>{analysis.launchScore.riskLevel} risk</strong>
+            <span>{analysis.launchScore.summary}</span>
+          </div>
+          <div className="repo-score">
+            <strong>{analysis.launchScore.score}</strong>
+            <span>/100</span>
+          </div>
+          <div className="repo-next-step">
+            <p className="eyebrow">Next Fix</p>
+            <span>{analysis.mustFix[0]}</span>
+          </div>
+        </section>
+      ) : (
+        <section className="repo-verdict repo-verdict-empty">
+          <div>
+            <p className="eyebrow">Report Shape</p>
+            <strong>Score risk blockers issues</strong>
+            <span>Paste a public repo and get a launch verdict, must-fix list, GitHub issue drafts, and release checklist.</span>
+          </div>
+        </section>
+      )}
       <label className="block">
         <span className="tool-label">GitHub URL</span>
         <input

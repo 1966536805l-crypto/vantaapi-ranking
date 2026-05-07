@@ -1584,6 +1584,83 @@ body:has(.home-core-page) .global-search-trigger {
   border-top: 1px solid var(--hair);
 }
 
+.repo-verdict {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  margin: 14px 0;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 12px;
+}
+
+.repo-verdict > div:first-child {
+  min-width: 0;
+}
+
+.repo-verdict strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.repo-verdict span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.repo-score {
+  display: grid;
+  min-width: 86px;
+  place-items: center;
+  border-radius: 8px;
+  background: #0f172a;
+  color: white;
+  padding: 12px;
+}
+
+.repo-score strong {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.repo-score span {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.70);
+}
+
+.repo-next-step {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--hair);
+  padding-top: 10px;
+}
+
+.repo-verdict-low {
+  border-color: rgba(22, 163, 74, 0.26);
+  background: rgba(240, 253, 244, 0.72);
+}
+
+.repo-verdict-medium {
+  border-color: rgba(217, 119, 6, 0.30);
+  background: rgba(255, 251, 235, 0.76);
+}
+
+.repo-verdict-high {
+  border-color: rgba(220, 38, 38, 0.25);
+  background: rgba(254, 242, 242, 0.78);
+}
+
+.repo-verdict-empty {
+  grid-template-columns: 1fr;
+}
+
 .tool-output pre {
   flex: 1;
   overflow: auto;
@@ -1800,8 +1877,14 @@ body:has(.home-core-page) .global-search-trigger {
   }
 
   .tool-proof-grid,
-  .tool-field-grid {
+  .tool-field-grid,
+  .repo-verdict {
     grid-template-columns: 1fr;
+  }
+
+  .repo-score {
+    min-width: 0;
+    justify-items: start;
   }
 
   .tool-proof-grid {
