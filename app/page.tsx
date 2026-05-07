@@ -4,10 +4,27 @@ import RepoAuditForm from "@/components/home/RepoAuditForm";
 import { localizedHref, type SiteLanguage } from "@/lib/language";
 
 export const metadata: Metadata = {
-  title: "JinMing Lab - GitHub Launch Readiness Audit",
+  title: "GitHub Launch Audit - Repo Readiness Checker | JinMing Lab",
   description:
-    "Paste a GitHub repository and get a launch-readiness audit with score, blockers, GitHub issues, and a fix checklist.",
-  keywords: ["GitHub launch audit", "GitHub 项目体检", "launch readiness", "release checklist", "GitHub issue template"],
+    "Paste a public GitHub repository and get a launch-readiness audit with scorecard, P0/P1/P2 blockers, evidence, GitHub issue drafts, PR description, and release checklist.",
+  keywords: ["GitHub launch audit", "repo readiness checker", "release checklist", "GitHub issue template", "PR description generator", "GitHub 项目体检"],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "GitHub Launch Audit - JinMing Lab",
+    description:
+      "Audit a public GitHub repository before launch with scorecard, evidence, blockers, issue drafts, PR description, and release checklist.",
+    url: "https://vantaapi.com",
+    siteName: "JinMing Lab",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "GitHub Launch Audit - JinMing Lab",
+    description:
+      "Paste a GitHub repo and get a launch-readiness report with score, evidence, blockers, and PR-ready output.",
+  },
 };
 
 type HomeSearchParams = Promise<{ ui?: string | string[]; lang?: string | string[] }>;

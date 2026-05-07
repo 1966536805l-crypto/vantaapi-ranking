@@ -8,14 +8,14 @@ import { searchSite, siteSearchItems, type SiteSearchItem } from "@/lib/site-sea
 
 const RECENT_STORAGE_KEY = "vantaapi-search-recents-v1";
 const defaultHrefs = [
+  "/tools/github-repo-analyzer",
+  "/tools",
+  "/tools/api-request-generator",
+  "/tools/prompt-optimizer",
+  "/programming",
+  "/programming/python",
   "/today",
   "/english/vocabulary/custom?lang=zh",
-  "/english/typing?lang=zh",
-  "/tools",
-  "/programming",
-  "/languages",
-  "/tools/prompt-optimizer",
-  "/programming/python",
 ];
 
 function targetIsEditable(target: EventTarget | null) {

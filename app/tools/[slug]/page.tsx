@@ -87,23 +87,31 @@ export async function generateMetadata({ params }: ToolRouteProps): Promise<Meta
   const { slug } = await params;
   const tool = getToolDefinition(slug);
   return {
-    title: `${tool.title} - JinMing Lab`,
-    description: `${tool.description}. ${tool.promise}.`,
+    title: tool.slug === "github-repo-analyzer"
+      ? "GitHub Launch Audit - Repo Readiness Report | JinMing Lab"
+      : `${tool.title} - JinMing Lab`,
+    description: tool.slug === "github-repo-analyzer"
+      ? "Generate a launch-readiness report for a public GitHub repository with scorecard, P0/P1/P2 blockers, evidence, GitHub issue drafts, PR description, and release checklist."
+      : `${tool.description}. ${tool.promise}.`,
     keywords: toolKeywords(tool),
     alternates: {
       canonical: `/tools/${tool.slug}`,
     },
     openGraph: {
-      title: `${tool.title} - JinMing Lab`,
-      description: `${tool.description}. ${tool.promise}.`,
+      title: tool.slug === "github-repo-analyzer" ? "GitHub Launch Audit - JinMing Lab" : `${tool.title} - JinMing Lab`,
+      description: tool.slug === "github-repo-analyzer"
+        ? "Audit a public GitHub repository before launch with scorecard, evidence, blockers, issue drafts, PR description, and release checklist."
+        : `${tool.description}. ${tool.promise}.`,
       url: toolUrl(tool),
       siteName: "JinMing Lab",
       type: "website",
     },
     twitter: {
       card: "summary",
-      title: `${tool.title} - JinMing Lab`,
-      description: `${tool.description}. ${tool.promise}.`,
+      title: tool.slug === "github-repo-analyzer" ? "GitHub Launch Audit - JinMing Lab" : `${tool.title} - JinMing Lab`,
+      description: tool.slug === "github-repo-analyzer"
+        ? "Paste a GitHub repo and get a launch-readiness report with score, evidence, blockers, and PR-ready output."
+        : `${tool.description}. ${tool.promise}.`,
     },
   };
 }
