@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import EnglishTypingTrainer, { type EnglishTypingItem } from "@/components/learning/EnglishTypingTrainer";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
 import { examVocabularyPacks } from "@/lib/exam-content";
@@ -55,14 +54,8 @@ export default async function EnglishTypingPage({
   const items = buildTypingItems();
 
   return (
-    <main className="apple-page pb-12 pt-4">
-      <AppleStudyHeader language={language} />
-      <section className="study-fullscreen-shell py-4">
-        <div className="module-hero learning-compact-hero typing-page-hero px-5 py-3">
-          <p className="eyebrow">英文拼写训练系统</p>
-          <h1 className="apple-display-title mt-1 max-w-4xl text-3xl sm:text-4xl">English Typing System</h1>
-        </div>
-
+    <main className="typing-fullscreen-page">
+      <section className="study-fullscreen-shell">
         <EnglishTypingTrainer items={items} />
       </section>
     </main>

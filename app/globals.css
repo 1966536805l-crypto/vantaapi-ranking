@@ -502,6 +502,41 @@ button {
   min-height: auto;
 }
 
+body:has(.typing-fullscreen-page) .global-search-trigger {
+  display: none;
+}
+
+.typing-fullscreen-page {
+  min-height: 100dvh;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.96), rgba(241,245,249,0.92)),
+    radial-gradient(circle at 50% 0%, rgba(14,165,233,0.10), transparent 42%);
+  padding: 8px;
+}
+
+.typing-fullscreen-page .study-fullscreen-shell {
+  min-height: calc(100dvh - 16px);
+  width: min(1600px, 100%);
+  padding: 0;
+}
+
+.typing-fullscreen-page .typing-lab {
+  margin-top: 0;
+  min-height: calc(100dvh - 16px);
+}
+
+.typing-fullscreen-page .typing-lab-main {
+  min-height: calc(100dvh - 16px);
+  display: flex;
+  flex-direction: column;
+}
+
+.typing-fullscreen-page .typing-board {
+  flex: 1;
+  min-height: 0;
+}
+
 .learning-head-actions {
   display: flex;
   flex-wrap: wrap;
