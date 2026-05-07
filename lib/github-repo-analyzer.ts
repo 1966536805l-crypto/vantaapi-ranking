@@ -1,5 +1,3 @@
-import { Buffer } from "node:buffer";
-
 export type GitHubRepoInput = {
   url: string;
 };
@@ -59,9 +57,29 @@ type GitHubContentItem = {
   encoding?: string;
 };
 
-const REQUEST_TIMEOUT_MS = 7000;
+type GitHubTreeItem = {
+  path: string;
+  type: "blob" | "tree" | string;
+  size?: number;
+};
+
+type GitHubTreeResponse = {
+  tree: GitHubTreeItem[];
+  truncated?: boolean;
+};
+
+type CachedAnalysis = {
+  expiresAt: number;
+  value: GitHubRepoAnalysis;
+};
+
+const REQUEST_TIMEOUT_MS = 5000;
+const RAW_FILE_TIMEOUT_MS = 4500;
+const ANALYSIS_CACHE_TTL_MS = 10 * 60_000;
+const ANALYSIS_CACHE_MAX = 40;
 const MAX_FILE_BYTES = 180_000;
 const OWNER_REPO_RE = /^[A-Za-z0-9_.-]+$/;
+const analysisCache = new Map<string, CachedAnalysis>();
 
 const candidateFiles = [
   "README.md",
@@ -131,12 +149,17 @@ function githubApiUrl(path: string) {
   return `https://api.github.com${path}`;
 }
 
+function rawGitHubUrl(owner: string, repo: string, branch: string, path: string) {
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+  return `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(branch)}/${encodedPath}`;
+}
+
 function githubHeaders() {
   const token = process.env.GITHUB_READ_TOKEN || "";
   return {
     Accept: "application/vnd.github+json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    "User-Agent": "JinMingLab-Repo-Analyzer",
+    "User-Agent": "VantaAPI-Repo-Analyzer",
     "X-GitHub-Api-Version": "2022-11-28",
   };
 }
@@ -170,28 +193,72 @@ async function fetchGitHubJson<T>(path: string): Promise<T> {
 
 async function readRepoFile(owner: string, repo: string, path: string, branch: string) {
   try {
-    const data = await fetchGitHubJson<GitHubContentItem | GitHubContentItem[]>(
-      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path).replace(/%2F/g, "/")}?ref=${encodeURIComponent(branch)}`
-    );
-    if (Array.isArray(data) || data.type !== "file" || !data.content || data.encoding !== "base64") return null;
-    if ((data.size ?? 0) > MAX_FILE_BYTES) return null;
-    return Buffer.from(data.content, "base64").toString("utf8").slice(0, MAX_FILE_BYTES);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), RAW_FILE_TIMEOUT_MS);
+    try {
+      const response = await fetch(rawGitHubUrl(owner, repo, branch, path), {
+        headers: { Accept: "text/plain", "User-Agent": "VantaAPI-Repo-Analyzer" },
+        signal: controller.signal,
+      });
+      if (!response.ok) return null;
+      return (await response.text()).slice(0, MAX_FILE_BYTES);
+    } finally {
+      clearTimeout(timeout);
+    }
   } catch {
     return null;
   }
 }
 
-async function readWorkflowNames(owner: string, repo: string, branch: string) {
-  try {
-    const data = await fetchGitHubJson<GitHubContentItem[]>(
-      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/.github/workflows?ref=${encodeURIComponent(branch)}`
-    );
-    return Array.isArray(data)
-      ? data.filter((item) => item.type === "file").map((item) => item.name).slice(0, 8)
-      : [];
-  } catch {
-    return [];
+function readWorkflowNames(tree: GitHubTreeItem[]) {
+  return tree
+    .filter((item) => item.type === "blob" && item.path.startsWith(".github/workflows/"))
+    .map((item) => item.path.split("/").pop())
+    .filter((name): name is string => Boolean(name))
+    .slice(0, 8);
+}
+
+function rootStructureFromTree(tree: GitHubTreeItem[]) {
+  const rootItems: GitHubContentItem[] = tree
+    .filter((item) => !item.path.includes("/"))
+    .map((item) => ({
+      name: item.path,
+      path: item.path,
+      type: item.type === "tree" ? "dir" : "file",
+      size: item.size,
+    }));
+  return rootStructure(rootItems);
+}
+
+function fallbackFileStructure(files: Map<string, string | null>) {
+  const entries = new Set<string>();
+  for (const path of files.keys()) {
+    const [root] = path.split("/");
+    entries.add(path.includes("/") ? `dir ${root}` : `file ${path}`);
   }
+  return Array.from(entries).slice(0, 32);
+}
+
+function cacheKey(owner: string, repo: string) {
+  return `${owner.toLowerCase()}/${repo.toLowerCase()}`;
+}
+
+function getCachedAnalysis(key: string) {
+  const cached = analysisCache.get(key);
+  if (!cached) return null;
+  if (cached.expiresAt <= Date.now()) {
+    analysisCache.delete(key);
+    return null;
+  }
+  return cached.value;
+}
+
+function setCachedAnalysis(key: string, value: GitHubRepoAnalysis) {
+  if (analysisCache.size >= ANALYSIS_CACHE_MAX) {
+    const oldestKey = analysisCache.keys().next().value;
+    if (oldestKey) analysisCache.delete(oldestKey);
+  }
+  analysisCache.set(key, { expiresAt: Date.now() + ANALYSIS_CACHE_TTL_MS, value });
 }
 
 function parsePackageJson(raw: string | null) {
@@ -347,30 +414,28 @@ function issueLabelPlan(stack: string[], workflows: string[]) {
   return labels.map((label) => `Create label: ${label}`);
 }
 
-export async function analyzeGitHubRepository(input: GitHubRepoInput): Promise<GitHubRepoAnalysis> {
-  const { owner, repo } = parseGitHubRepoUrl(input.url);
-  const meta = await fetchGitHubJson<GitHubRepoMeta>(
-    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`
-  );
-  const rootItems = await fetchGitHubJson<GitHubContentItem[]>(
-    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents?ref=${encodeURIComponent(meta.default_branch)}`
-  );
-
-  const files = new Map<string, string | null>();
-  await Promise.all(
-    candidateFiles.map(async (path) => {
-      if (path === ".github/workflows") return;
-      const content = await readRepoFile(owner, repo, path, meta.default_branch);
-      if (content !== null) files.set(path, content);
-    })
-  );
-  const workflows = await readWorkflowNames(owner, repo, meta.default_branch);
+function buildAnalysis({
+  owner,
+  repo,
+  meta,
+  files,
+  workflows,
+  fileStructure,
+  extraOverview = [],
+}: {
+  owner: string;
+  repo: string;
+  meta: GitHubRepoMeta;
+  files: Map<string, string | null>;
+  workflows: string[];
+  fileStructure: string[];
+  extraOverview?: string[];
+}) {
   const readme = files.get("README.md") ?? files.get("README") ?? null;
   const packageJson = parsePackageJson(files.get("package.json") ?? null);
   const packageManager = detectPackageManager(files, packageJson);
   const stack = detectStack(files, packageJson, meta.language);
   const commands = runCommands(packageManager, packageJson);
-  const fileStructure = rootStructure(rootItems);
 
   return {
     repository: {
@@ -390,6 +455,7 @@ export async function analyzeGitHubRepository(input: GitHubRepoInput): Promise<G
       pushedAt: meta.pushed_at,
     },
     overview: [
+      ...extraOverview,
       meta.description ?? "No description was provided by the repository.",
       `Primary language signal: ${meta.language ?? "unknown"}.`,
       `Default branch: ${meta.default_branch}. Recent push: ${meta.pushed_at}.`,
@@ -419,4 +485,96 @@ export async function analyzeGitHubRepository(input: GitHubRepoInput): Promise<G
     ],
     filesRead: Array.from(files.keys()).concat(workflows.length ? [".github/workflows"] : []),
   };
+}
+
+async function analyzeWithGitHubApi(owner: string, repo: string) {
+  const meta = await fetchGitHubJson<GitHubRepoMeta>(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`
+  );
+  const treeResponse = await fetchGitHubJson<GitHubTreeResponse>(
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees/${encodeURIComponent(meta.default_branch)}?recursive=1`
+  );
+  const tree = Array.isArray(treeResponse.tree) ? treeResponse.tree : [];
+  const availableFiles = new Map(
+    tree.filter((item) => item.type === "blob" && (item.size ?? 0) <= MAX_FILE_BYTES).map((item) => [item.path, item])
+  );
+
+  const files = new Map<string, string | null>();
+  await Promise.all(
+    candidateFiles.map(async (path) => {
+      if (path === ".github/workflows") return;
+      if (!availableFiles.has(path)) return;
+      const content = await readRepoFile(owner, repo, path, meta.default_branch);
+      if (content !== null) files.set(path, content);
+    })
+  );
+
+  return buildAnalysis({
+    owner,
+    repo,
+    meta,
+    files,
+    workflows: readWorkflowNames(tree),
+    fileStructure: rootStructureFromTree(tree),
+  });
+}
+
+async function analyzeWithRawFallback(owner: string, repo: string) {
+  const files = new Map<string, string | null>();
+  await Promise.all(
+    candidateFiles.map(async (path) => {
+      if (path === ".github/workflows") return;
+      const content = await readRepoFile(owner, repo, path, "HEAD");
+      if (content !== null) files.set(path, content);
+    })
+  );
+
+  const meta: GitHubRepoMeta = {
+    full_name: `${owner}/${repo}`,
+    html_url: `https://github.com/${owner}/${repo}`,
+    description: "Public repository launch pack generated from raw public files.",
+    default_branch: "HEAD",
+    stargazers_count: 0,
+    forks_count: 0,
+    open_issues_count: 0,
+    language: null,
+    license: null,
+    visibility: "public",
+    archived: false,
+    pushed_at: "unknown",
+  };
+
+  return buildAnalysis({
+    owner,
+    repo,
+    meta,
+    files,
+    workflows: [],
+    fileStructure: fallbackFileStructure(files),
+    extraOverview: [
+      "Fast fallback mode: GitHub API metadata was unavailable, so this pack was built from public raw files only.",
+    ],
+  });
+}
+
+function canUseRawFallback(error: GitHubRepoAnalyzerError) {
+  return error.status === 429 || error.status === 502 || error.status === 504;
+}
+
+export async function analyzeGitHubRepository(input: GitHubRepoInput): Promise<GitHubRepoAnalysis> {
+  const { owner, repo } = parseGitHubRepoUrl(input.url);
+  const key = cacheKey(owner, repo);
+  const cached = getCachedAnalysis(key);
+  if (cached) return cached;
+
+  let analysis: GitHubRepoAnalysis;
+  try {
+    analysis = await analyzeWithGitHubApi(owner, repo);
+  } catch (error) {
+    if (!(error instanceof GitHubRepoAnalyzerError) || !canUseRawFallback(error)) throw error;
+    analysis = await analyzeWithRawFallback(owner, repo);
+  }
+
+  setCachedAnalysis(key, analysis);
+  return analysis;
 }
