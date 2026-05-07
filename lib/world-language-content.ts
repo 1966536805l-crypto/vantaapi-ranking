@@ -9,6 +9,89 @@ export type WorldLanguage = {
   firstLesson: string[];
 };
 
+export type SurvivalPhraseKey =
+  | "greeting"
+  | "thanks"
+  | "selfIntro"
+  | "need"
+  | "confusion"
+  | "repeat"
+  | "direction"
+  | "price";
+
+export const worldLanguageSurvivalPhrases: Partial<Record<string, Record<SurvivalPhraseKey, string>>> = {
+  chinese: {
+    greeting: "你好",
+    thanks: "谢谢",
+    selfIntro: "我在学中文",
+    need: "我想要水",
+    confusion: "我听不懂",
+    repeat: "请再说一遍",
+    direction: "这里是哪里",
+    price: "多少钱",
+  },
+  english: {
+    greeting: "Hello",
+    thanks: "Thank you",
+    selfIntro: "I am learning English",
+    need: "I want water",
+    confusion: "I do not understand",
+    repeat: "Please say it again",
+    direction: "Where is this place",
+    price: "How much is it",
+  },
+  japanese: {
+    greeting: "こんにちは",
+    thanks: "ありがとうございます",
+    selfIntro: "日本語を勉強しています",
+    need: "水がほしいです",
+    confusion: "わかりません",
+    repeat: "もう一度言ってください",
+    direction: "ここはどこですか",
+    price: "いくらですか",
+  },
+  korean: {
+    greeting: "안녕하세요",
+    thanks: "감사합니다",
+    selfIntro: "한국어를 배우고 있어요",
+    need: "물을 원해요",
+    confusion: "이해하지 못했어요",
+    repeat: "다시 말해 주세요",
+    direction: "여기가 어디예요",
+    price: "얼마예요",
+  },
+  spanish: {
+    greeting: "Hola",
+    thanks: "Gracias",
+    selfIntro: "Estoy aprendiendo español",
+    need: "Quiero agua",
+    confusion: "No entiendo",
+    repeat: "Por favor repítelo",
+    direction: "Dónde está este lugar",
+    price: "Cuánto cuesta",
+  },
+  french: {
+    greeting: "Bonjour",
+    thanks: "Merci",
+    selfIntro: "J'apprends le français",
+    need: "Je veux de l'eau",
+    confusion: "Je ne comprends pas",
+    repeat: "Répétez s'il vous plaît",
+    direction: "Où est cet endroit",
+    price: "Combien ça coûte",
+  },
+  german: {
+    greeting: "Hallo",
+    thanks: "Danke",
+    selfIntro: "Ich lerne Deutsch",
+    need: "Ich möchte Wasser",
+    confusion: "Ich verstehe nicht",
+    repeat: "Bitte sagen Sie es noch einmal",
+    direction: "Wo ist dieser Ort",
+    price: "Wie viel kostet es",
+  },
+};
+
 export const worldLanguages: WorldLanguage[] = [
   { slug: "english", name: "English", nativeName: "English", family: "Germanic", region: "Global", script: "Latin", starterGoal: "daily conversation exams and work", firstLesson: ["hello", "thank you", "I am learning English"] },
   { slug: "spanish", name: "Spanish", nativeName: "Español", family: "Romance", region: "Europe Americas", script: "Latin", starterGoal: "travel daily speech and culture", firstLesson: ["hola", "gracias", "estoy aprendiendo español"] },
