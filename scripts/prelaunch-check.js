@@ -520,6 +520,27 @@ function checkFocusedRobots() {
   ok("seo:robots-focus", "robots disallows off-focus surfaces and points to sitemap");
 }
 
+function checkLaunchDocs() {
+  const body = read("README.md");
+  const requiredCommands = [
+    "npm run launch:providers",
+    "npm run launch:secrets",
+    "npm run launch:production",
+    "npm run build",
+    "npm run launch:smoke",
+  ];
+  const missing = requiredCommands.filter((command) => !body.includes(command));
+  if (missing.length) {
+    bad("docs:launch-path", `README missing launch commands: ${missing.join(", ")}`);
+    return;
+  }
+  if (!body.includes("Use this short launch path")) {
+    action("Clarify README launch path", "Keep README launch instructions focused on the short production path before manual fallback details.");
+    return bad("docs:launch-path", "README must clearly mark the short launch path");
+  }
+  ok("docs:launch-path", "README contains the focused launch command path");
+}
+
 async function main() {
   console.log("🚀 JinMing Lab prelaunch gate\n");
   if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
@@ -554,6 +575,7 @@ async function main() {
   checkRetiredPageRedirects();
   checkFocusedSitemap();
   checkFocusedRobots();
+  checkLaunchDocs();
 
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (launchActions.length) {

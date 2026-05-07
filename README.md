@@ -102,7 +102,7 @@ npm run build
 npx prisma validate
 ```
 
-## Production Launch Gate
+## Production Launch
 
 Before public launch, configure these in Vercel Production environment variables:
 
@@ -127,6 +127,34 @@ ENABLE_REDIS_RATE_LIMITS="true"
 GITHUB_READ_TOKEN="..."
 ```
 
+Use this short launch path:
+
+```bash
+npm run launch:providers
+npm run launch:secrets
+npm run launch:production
+npm run build
+```
+
+Deploy after those pass. Then verify the live URL:
+
+```bash
+npm run launch:smoke
+```
+
+To check a preview deployment instead of the production domain:
+
+```bash
+npm run launch:smoke -- --base=https://your-preview-url.vercel.app
+```
+
+What the commands do:
+
+- `launch:providers` tells you where to copy provider-owned values from: database, AI provider, GitHub, Turnstile, Redis.
+- `launch:secrets` prints fresh app-owned secrets for `JWT_SECRET`, `CSRF_SECRET`, and `ENCRYPTION_KEY`.
+- `launch:production` checks Vercel Production variables, pulls them into an ignored local env file, and validates them without printing secrets.
+- `launch:smoke` checks the deployed site, robots, sitemap, retired API responses, and the GitHub Audit endpoint.
+
 Generate the app-owned secrets locally:
 
 ```bash
@@ -149,25 +177,6 @@ For those provider-owned values, print the source checklist:
 
 ```bash
 npm run launch:providers
-```
-
-Then run:
-
-```bash
-npm run launch:production
-npm run build
-```
-
-After deployment, run a public smoke check:
-
-```bash
-npm run launch:smoke
-```
-
-To check a preview deployment instead of the production domain:
-
-```bash
-npm run launch:smoke -- --base=https://your-preview-url.vercel.app
 ```
 
 `launch:production` checks Vercel Production variable presence, pulls Production env into the ignored `.env.vercel.production.local` file, then validates the pulled values without printing secrets.
