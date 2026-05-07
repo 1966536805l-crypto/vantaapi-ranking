@@ -567,6 +567,11 @@ function impactLabel(score: number) {
   return "Launch blocked";
 }
 
+function issueTitle(issue: string, index: number) {
+  const firstLine = issue.split(/\r?\n/).find((line) => line.trim());
+  return firstLine?.replace(/^#+\s*/, "").trim() || `GitHub issue ${index + 1}`;
+}
+
 export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { initialSlug?: ToolSlug }) {
   const pathname = usePathname();
   const active = useMemo<ToolSlug>(() => {
@@ -908,6 +913,65 @@ function GitHubRepoAnalyzer() {
                 <span className="text-sm font-semibold">{String(index + 1).padStart(2, "0")}</span>
                 <span className="truncate text-xs text-[color:var(--muted)]">{item}</span>
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+      {analysis && (
+        <section className="repo-report-board">
+          <div className="repo-report-head">
+            <div>
+              <p className="eyebrow">Professional Report</p>
+              <h3>Launch readiness report</h3>
+              <span>{analysis.repository.fullName} · {analysis.launchScore.riskLevel} risk · {analysis.copyableIssues.length} issue drafts</span>
+            </div>
+            <div className="repo-report-score">
+              <strong>{analysis.launchScore.score}</strong>
+              <span>Launch Score</span>
+            </div>
+          </div>
+
+          <div className="repo-report-grid">
+            <div className="repo-report-section repo-report-section-primary">
+              <div className="repo-report-section-head">
+                <p className="eyebrow">Must Fix First</p>
+                <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), "Must fix copied")}>
+                  Copy
+                </button>
+              </div>
+              <ol className="repo-check-list">
+                {analysis.mustFix.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="repo-report-section">
+              <div className="repo-report-section-head">
+                <p className="eyebrow">Release Checklist</p>
+                <button type="button" onClick={() => copyAuditText(releaseBundle, "Release checklist copied")}>
+                  Copy
+                </button>
+              </div>
+              <ol className="repo-check-list">
+                {analysis.releaseChecklist.slice(0, 6).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          <div className="repo-issue-grid">
+            {analysis.copyableIssues.slice(0, 3).map((issue, index) => (
+              <article key={issue} className="repo-issue-card">
+                <div>
+                  <p className="eyebrow">Issue {String(index + 1).padStart(2, "0")}</p>
+                  <h4>{issueTitle(issue, index)}</h4>
+                </div>
+                <button type="button" onClick={() => copyAuditText(issue, `Issue ${index + 1} copied`)}>
+                  Copy Issue
+                </button>
+              </article>
             ))}
           </div>
         </section>
