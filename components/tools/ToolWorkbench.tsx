@@ -515,7 +515,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
     return `Status\n${error}\n\nSupported input\nPaste a public GitHub repository URL like ${sampleRepoUrl}`;
   }
   if (!analysis) {
-    return `GitHub Launch Audit\nPaste a public GitHub repository URL and get the slow prelaunch checks in one place README gaps environment clues temporary files CI deployment signals SEO basics security notes and release steps.\n\nExample\n${sampleRepoUrl}`;
+    return `GitHub Launch Audit\nPaste a public repo URL. Get score blockers GitHub issue drafts README env CI deploy security and release checklist.\n\nExample\n${sampleRepoUrl}`;
   }
 
   return [
@@ -782,13 +782,13 @@ function GitHubRepoAnalyzer() {
       actions={
         <>
           <button type="button" className="dense-action-primary" onClick={() => void analyzeRepo()} disabled={loading}>
-            {loading ? "Auditing repo" : "Run launch audit"}
+            {loading ? "Auditing repo" : "Audit repo"}
           </button>
           <button type="button" className="dense-action" onClick={runSampleAudit} disabled={loading}>
-            Try sample audit
+            Preview report
           </button>
           <button type="button" className="dense-action" onClick={() => void analyzeRepo(sampleRepoUrl)} disabled={loading}>
-            Run live sample
+            Live sample
           </button>
           {analysis && (
             <>
@@ -799,10 +799,10 @@ function GitHubRepoAnalyzer() {
                 Open share
               </a>
               <button type="button" className="dense-action" onClick={() => copyAuditText(issueBundle, "Issues copied")}>
-                Copy issues
+                Copy GitHub issues
               </button>
               <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, "Checklist copied")}>
-                Copy checklist
+                Copy release checklist
               </button>
               <a className="dense-action" href={analysis.repository.url} target="_blank" rel="noreferrer">
                 Open repo
@@ -810,7 +810,7 @@ function GitHubRepoAnalyzer() {
             </>
           )}
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
-            Load sample
+            Reset sample
           </button>
           <button type="button" className="dense-action" onClick={() => { setUrl(""); setAnalysis(null); setError(""); }}>
             Clear
@@ -818,8 +818,8 @@ function GitHubRepoAnalyzer() {
         </>
       }
     >
-      <p className="eyebrow">Input</p>
-      <h2>Public repository launch audit</h2>
+      <p className="eyebrow">Repo URL</p>
+      <h2>Audit launch blockers</h2>
       {analysis ? (
         <section className={`repo-verdict repo-verdict-${riskTone(analysis.launchScore.riskLevel)}`}>
           <div>
@@ -840,8 +840,8 @@ function GitHubRepoAnalyzer() {
         <section className="repo-verdict repo-verdict-empty">
           <div>
             <p className="eyebrow">Report Shape</p>
-            <strong>Score risk blockers issues</strong>
-            <span>Paste a public repo and get a launch verdict, must-fix list, GitHub issue drafts, and release checklist.</span>
+            <strong>Score blockers issues checklist</strong>
+            <span>Paste a public repo. Get the boring launch work turned into tasks.</span>
           </div>
         </section>
       )}
@@ -887,11 +887,11 @@ function GitHubRepoAnalyzer() {
       <div className="tool-field-grid">
         <div className="dense-row">
           <span className="text-sm font-semibold">Scope</span>
-          <span className="text-xs text-[color:var(--muted)]">Public repo launch readiness only</span>
+          <span className="text-xs text-[color:var(--muted)]">Public repo only</span>
         </div>
         <div className="dense-row">
           <span className="text-sm font-semibold">Reads</span>
-          <span className="text-xs text-[color:var(--muted)]">README package env CI deploy clues</span>
+          <span className="text-xs text-[color:var(--muted)]">README env CI deploy clues</span>
         </div>
         {analysis && (
           <div className="dense-row">
