@@ -37,6 +37,8 @@ type GitHubRepoAnalysis = {
   securityNotes: string[];
   readmeSuggestions: string[];
   githubActions: string[];
+  envChecklist: string[];
+  issueLabelPlan: string[];
   deploymentChecklist: string[];
   prReviewChecklist: string[];
   filesRead: string[];
@@ -318,7 +320,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
     return `Status\n${error}\n\nSupported input\nPaste a public GitHub repository URL like ${sampleRepoUrl}`;
   }
   if (!analysis) {
-    return `GitHub Repo Analyzer\nPaste a public GitHub repository URL and analyze setup commands tech stack security notes deployment checks and PR review steps.\n\nExample\n${sampleRepoUrl}`;
+    return `GitHub Launch Pack\nPaste a public GitHub repository URL and get the time consuming project handoff work in one place setup commands environment clues README gaps CI deployment checks and PR review steps.\n\nExample\n${sampleRepoUrl}`;
   }
 
   return [
@@ -326,7 +328,12 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
     `Overview\n${bulletList(analysis.overview)}`,
     `Tech stack\n${bulletList(analysis.techStack)}`,
     `How to run\n${numberedList(analysis.howToRun)}`,
+    `Environment checklist\n${bulletList(analysis.envChecklist)}`,
+    `Project handoff\n${bulletList(analysis.fileStructure)}`,
+    `Issue label plan\n${bulletList(analysis.issueLabelPlan)}`,
     `Security notes\n${bulletList(analysis.securityNotes)}`,
+    `README fixes\n${bulletList(analysis.readmeSuggestions)}`,
+    `CI suggestions\n${bulletList(analysis.githubActions)}`,
     `Deployment checklist\n${numberedList(analysis.deploymentChecklist)}`,
     `PR review checklist\n${numberedList(analysis.prReviewChecklist)}`,
     `Files read\n${bulletList(analysis.filesRead)}`,
@@ -427,9 +434,9 @@ function GitHubRepoAnalyzer() {
     if (!analysis) return [];
     return [
       { badge: "01", title: "Run commands", content: numberedList(analysis.howToRun) },
-      { badge: "02", title: "Security notes", content: bulletList(analysis.securityNotes) },
+      { badge: "02", title: "Environment checklist", content: bulletList(analysis.envChecklist) },
       { badge: "03", title: "README upgrades", content: bulletList(analysis.readmeSuggestions) },
-      { badge: "04", title: "CI suggestions", content: bulletList(analysis.githubActions) },
+      { badge: "04", title: "Issue labels", content: bulletList(analysis.issueLabelPlan) },
       { badge: "05", title: "Deployment checklist", content: numberedList(analysis.deploymentChecklist) },
       { badge: "06", title: "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
     ];
@@ -453,12 +460,12 @@ function GitHubRepoAnalyzer() {
       });
       const data = (await response.json()) as GitHubRepoAnalyzerResponse;
       if (!response.ok || !data.success || !data.analysis) {
-        throw new Error(data.error || data.message || "Repository analysis failed");
+        throw new Error(data.error || data.message || "Could not build repository launch pack");
       }
       setAnalysis(data.analysis);
     } catch (caught) {
       setAnalysis(null);
-      setError(caught instanceof Error ? caught.message : "Repository analysis failed");
+      setError(caught instanceof Error ? caught.message : "Could not build repository launch pack");
     } finally {
       setLoading(false);
     }
@@ -467,12 +474,12 @@ function GitHubRepoAnalyzer() {
   return (
     <ToolLayout
       output={output}
-      outputTitle="Repository analysis"
+      outputTitle="Launch pack"
       blocks={blocks}
       actions={
         <>
           <button type="button" className="dense-action" onClick={analyzeRepo} disabled={loading}>
-            {loading ? "Analyzing" : "Analyze repo"}
+            {loading ? "Building pack" : "Build launch pack"}
           </button>
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
             Load sample
@@ -484,7 +491,7 @@ function GitHubRepoAnalyzer() {
       }
     >
       <p className="eyebrow">Input</p>
-      <h2>Public repository</h2>
+      <h2>Public repository launch pack</h2>
       <label className="block">
         <span className="tool-label">GitHub URL</span>
         <input
@@ -500,11 +507,11 @@ function GitHubRepoAnalyzer() {
       <div className="tool-field-grid">
         <div className="dense-row">
           <span className="text-sm font-semibold">Scope</span>
-          <span className="text-xs text-[color:var(--muted)]">Public repos only</span>
+          <span className="text-xs text-[color:var(--muted)]">Public repo handoff only</span>
         </div>
         <div className="dense-row">
           <span className="text-sm font-semibold">Reads</span>
-          <span className="text-xs text-[color:var(--muted)]">Metadata root files CI config</span>
+          <span className="text-xs text-[color:var(--muted)]">README package env CI deploy clues</span>
         </div>
       </div>
     </ToolLayout>

@@ -1,16 +1,17 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getServerUser } from "@/lib/server-auth";
+import { localizedHref, type SiteLanguage } from "@/lib/language";
 import { worldLanguages } from "@/lib/world-language-content";
 
 export const metadata: Metadata = {
   title: "JinMing Lab - AI 学习工具平台 英语 编程 AI 工具",
   description:
-    "JinMing Lab 是 AI 学习工具平台，聚焦英语学习、编程训练和 AI 工具，提供 AI Coach、代码解释、错题复盘和零基础学习路径。",
-  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "代码解释", "错题分析", "Prompt 优化"],
+    "JinMing Lab 是 AI 学习工具平台，聚焦英语学习、编程训练和开发者省时工具，提供 AI Coach、GitHub 发布包、错题复盘和零基础学习路径。",
+  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "GitHub 发布包", "错题分析", "Prompt 优化"],
 };
 
-type HomeSearchParams = Promise<{ ui?: string | string[] }>;
+type HomeSearchParams = Promise<{ ui?: string | string[]; lang?: string | string[] }>;
 
 type HomeCopy = {
   version: string;
@@ -54,7 +55,7 @@ const homeCopy: Record<string, HomeCopy> = {
     admin: "后台",
     eyebrow: "AI 学习工具平台",
     title: "JinMing Lab",
-    description: "一句话讲清楚：这是一个把英语学习、编程训练和 AI 工具放在一起的学习平台。先做少量精品内容，再用 AI Coach、代码解释和错题复盘把学习闭环做深。",
+    description: "一句话讲清楚：这是一个把英语学习、编程训练和开发者省时工具放在一起的学习平台。先做少量精品内容，再用 AI Coach、GitHub 发布包和错题复盘把学习闭环做深。",
     primaryCta: "进入英语学习",
     secondaryCta: "进入编程训练",
     tertiaryCta: "打开 AI 工具",
@@ -72,15 +73,15 @@ const homeCopy: Record<string, HomeCopy> = {
         href: "/programming",
         eyebrow: "训练",
         title: "编程训练",
-        body: "把 Python、JavaScript、C++ 等核心语言做成可坚持的练习台。题型先分类，再配提示、答案和代码解释。",
-        points: ["零基础友好", "分类题库", "代码解释"],
+        body: "把 Python、JavaScript、C++ 等核心语言做成可坚持的练习台。题型先分类，再配提示、答案和实操任务。",
+        points: ["零基础友好", "分类题库", "实操任务"],
       },
       {
         href: "/tools",
         eyebrow: "AI",
         title: "AI 工具",
-        body: "保留真正有用的工具：Prompt 优化、代码解释、Bug 定位、API 请求生成、学习路线和开发常用工具。",
-        points: ["Prompt 优化", "Bug 定位", "错题复盘"],
+        body: "保留真正省时间的工具：GitHub 发布包、Prompt 优化、Bug 定位、API 请求生成、学习路线和开发常用工具。",
+        points: ["GitHub 发布包", "Bug 定位", "路线生成"],
       },
     ],
   },
@@ -233,20 +234,28 @@ function getSelectedUi(rawUi: string | string[] | undefined) {
   return ui && siteVersionSlugs.includes(ui) ? ui : "chinese";
 }
 
+function getSiteLanguage(selectedUi: string, rawLanguage?: string | string[]): SiteLanguage {
+  const language = firstParam(rawLanguage);
+  if (language === "zh" || language === "en") return language;
+  return selectedUi === "chinese" ? "zh" : "en";
+}
+
 function homeHref(ui: string) {
-  return ui === "chinese" ? "/" : `/?ui=${ui}`;
+  const language = ui === "chinese" ? "zh" : "en";
+  return ui === "chinese" ? "/?lang=zh" : `/?ui=${ui}&lang=${language}`;
 }
 
 export default async function HomePage({ searchParams }: { searchParams: HomeSearchParams }) {
   const user = await getServerUser();
   const params = await searchParams;
   const selectedUi = getSelectedUi(params?.ui);
+  const siteLanguage = getSiteLanguage(selectedUi, params?.lang);
   const copy = homeCopy[selectedUi] ?? homeCopy.chinese;
 
   return (
     <main className="apple-page home-core-page">
       <div className="study-desk-shell grid min-h-screen grid-cols-[76px_minmax(0,1fr)] gap-3 py-5 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[152px_minmax(0,1fr)] lg:gap-4">
-        <HomeRail copy={copy} isAdmin={user?.role === "ADMIN"} />
+        <HomeRail copy={copy} isAdmin={user?.role === "ADMIN"} language={siteLanguage} />
 
         <section className="min-w-0">
           <TopBar
@@ -254,6 +263,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
             isAdmin={user?.role === "ADMIN"}
             isSignedIn={Boolean(user)}
             selectedUi={selectedUi}
+            language={siteLanguage}
           />
 
           <section className="mt-3 dense-panel overflow-hidden p-5 sm:p-7">
@@ -267,13 +277,13 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                   {copy.description}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <Link href="/english?lang=zh" className="dense-action-primary px-4 py-2.5">
+                  <Link href={localizedHref("/english", siteLanguage)} className="dense-action-primary px-4 py-2.5">
                     {copy.primaryCta}
                   </Link>
-                  <Link href="/programming" className="dense-action px-4 py-2.5">
+                  <Link href={localizedHref("/programming", siteLanguage)} className="dense-action px-4 py-2.5">
                     {copy.secondaryCta}
                   </Link>
-                  <Link href="/tools" className="dense-action px-4 py-2.5">
+                  <Link href={localizedHref("/tools/github-repo-analyzer", siteLanguage)} className="dense-action px-4 py-2.5">
                     {copy.tertiaryCta}
                   </Link>
                 </div>
@@ -295,7 +305,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
 
           <section className="mt-3 grid gap-3 lg:grid-cols-3">
             {copy.cards.map((card) => (
-              <Link key={card.href} href={card.href} className="dense-card p-5 transition hover:-translate-y-0.5 hover:border-slate-300">
+              <Link key={card.href} href={localizedHref(card.href, siteLanguage)} className="dense-card p-5 transition hover:-translate-y-0.5 hover:border-slate-300">
                 <p className="eyebrow">{card.eyebrow}</p>
                 <h2 className="mt-2 text-2xl font-semibold">{card.title}</h2>
                 <p className="mt-3 min-h-24 text-sm leading-6 text-[color:var(--muted)]">{card.body}</p>
@@ -315,18 +325,18 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
   );
 }
 
-function HomeRail({ copy, isAdmin }: { copy: HomeCopy; isAdmin: boolean }) {
+function HomeRail({ copy, isAdmin, language }: { copy: HomeCopy; isAdmin: boolean; language: SiteLanguage }) {
   const items = [
-    { href: "/tools", code: "AI", label: copy.tools },
-    { href: "/english?lang=zh", code: "E", label: copy.english },
-    { href: "/programming", code: "C", label: copy.coding },
-    ...(isAdmin ? [{ href: "/admin", code: "A", label: copy.admin }] : []),
+    { href: localizedHref("/tools/github-repo-analyzer", language), code: "GH", label: copy.tools },
+    { href: localizedHref("/english", language), code: "E", label: copy.english },
+    { href: localizedHref("/programming", language), code: "C", label: copy.coding },
+    ...(isAdmin ? [{ href: localizedHref("/admin", language), code: "A", label: copy.admin }] : []),
   ];
 
   return (
     <aside className="study-rail sticky top-5 flex h-[calc(100vh-40px)] flex-col p-2">
-      <Link href="/" className="mb-3 flex items-center gap-2 rounded-[8px] px-2 py-2">
-        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">VA</span>
+      <Link href={localizedHref("/", language)} className="mb-3 flex items-center gap-2 rounded-[8px] px-2 py-2">
+        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">JM</span>
         <span className="hidden text-sm font-semibold leading-tight sm:block">JinMing Lab</span>
       </Link>
 
@@ -349,11 +359,13 @@ function TopBar({
   isAdmin,
   isSignedIn,
   selectedUi,
+  language,
 }: {
   copy: HomeCopy;
   isAdmin: boolean;
   isSignedIn: boolean;
   selectedUi: string;
+  language: SiteLanguage;
 }) {
   return (
     <header className="dense-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
@@ -365,16 +377,16 @@ function TopBar({
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <SiteVersionMenu copy={copy} selectedUi={selectedUi} />
-        <Link href="/english?lang=zh" className="dense-action">{copy.english}</Link>
-        <Link href="/tools" className="dense-action">{copy.tools}</Link>
-        <Link href="/programming" className="dense-action">{copy.coding}</Link>
-        {isAdmin && <Link href="/admin" className="dense-action">{copy.admin}</Link>}
+        <Link href={localizedHref("/english", language)} className="dense-action">{copy.english}</Link>
+        <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action">{copy.tools}</Link>
+        <Link href={localizedHref("/programming", language)} className="dense-action">{copy.coding}</Link>
+        {isAdmin && <Link href={localizedHref("/admin", language)} className="dense-action">{copy.admin}</Link>}
         {isSignedIn ? (
           <form action="/api/auth/logout" method="post">
             <button className="dense-action">{copy.logout}</button>
           </form>
         ) : (
-          <Link href="/login" className="dense-action">{copy.login}</Link>
+          <Link href={localizedHref("/login", language)} className="dense-action">{copy.login}</Link>
         )}
       </div>
     </header>

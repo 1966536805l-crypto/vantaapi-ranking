@@ -5,14 +5,14 @@ import { toolDefinitions } from "@/lib/tool-definitions";
 export const metadata: Metadata = {
   title: "AI Tools - JinMing Lab",
   description:
-    "Prompt optimizer code explainer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
+    "GitHub launch pack prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
   alternates: {
     canonical: "/tools",
   },
   openGraph: {
     title: "AI Tools - JinMing Lab",
     description:
-      "Prompt optimizer code explainer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
+      "GitHub launch pack prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
     url: "https://vantaapi.com/tools",
     siteName: "JinMing Lab",
     type: "website",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "AI Tools - JinMing Lab",
     description:
-      "Prompt optimizer code explainer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
+      "GitHub launch pack prompt optimizer bug finder API request generator JSON regex timestamp utilities and coding roadmap tools.",
   },
 };
 

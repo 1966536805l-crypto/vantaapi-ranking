@@ -8,6 +8,9 @@ const allowedMethods = new Set(["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH"
 const rateBuckets = new Map<string, { count: number; resetTime: number }>();
 const penaltyBuckets = new Map<string, { blockedUntil: number; level: number; resetTime: number; reason: string }>();
 type SecurityMode = "normal" | "elevated" | "emergency";
+type SiteLanguage = "en" | "zh";
+
+const languageCookieNames = ["jinming_language", "vantaapi-language"];
 
 const expensiveApiRules = [
   { prefix: "/api/ai/coach", normal: 24, elevated: 12, emergency: 6, windowMs: 60_000 },
@@ -176,6 +179,51 @@ function withSecurityHeaders(response: NextResponse, botVerdict?: BotVerdict) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
   }
   return withBotHeaders(response, botVerdict);
+}
+
+function readLanguageCookie(request: NextRequest): SiteLanguage | null {
+  for (const name of languageCookieNames) {
+    const value = request.cookies.get(name)?.value;
+    if (value === "zh" || value === "en") return value;
+  }
+  return null;
+}
+
+function writeLanguageCookies(response: NextResponse, language: SiteLanguage) {
+  const options = {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production",
+  };
+  for (const name of languageCookieNames) {
+    response.cookies.set(name, language, options);
+  }
+  return response;
+}
+
+function withLanguagePreference(response: NextResponse, request: NextRequest) {
+  const language = request.nextUrl.searchParams.get("lang");
+  if (language === "zh" || language === "en") {
+    return writeLanguageCookies(response, language);
+  }
+  return response;
+}
+
+function languageRedirectGuard(request: NextRequest, pathname: string) {
+  if (!safeMethods.has(request.method) || pathname.startsWith("/api/")) return null;
+  if (pathname === "/robots.txt" || pathname === "/sitemap.xml") return null;
+  if (/\.[A-Za-z0-9]{2,8}$/.test(pathname)) return null;
+
+  const explicitLanguage = request.nextUrl.searchParams.get("lang");
+  if (explicitLanguage === "zh" || explicitLanguage === "en") return null;
+
+  const preferredLanguage = readLanguageCookie(request);
+  if (preferredLanguage !== "zh") return null;
+
+  const url = request.nextUrl.clone();
+  url.searchParams.set("lang", "zh");
+  return NextResponse.redirect(url);
 }
 
 function isAllowedHost(host: string | null) {
@@ -413,6 +461,9 @@ export function proxy(request: NextRequest) {
   const pageRateBlocked = pageRateGuard(request, pathname, botVerdict);
   if (pageRateBlocked) return pageRateBlocked;
 
+  const languageRedirect = languageRedirectGuard(request, pathname);
+  if (languageRedirect) return withSecurityHeaders(languageRedirect, botVerdict);
+
   if (pathname.startsWith("/api/")) {
     if (botVerdict.action === "throttle") {
       rememberPenalty(getClientIp(request), botVerdict.reason, 1);
@@ -451,7 +502,7 @@ export function proxy(request: NextRequest) {
     return withSecurityHeaders(NextResponse.redirect(loginUrl), botVerdict);
   }
 
-  return withSecurityHeaders(NextResponse.next(), botVerdict);
+  return withLanguagePreference(withSecurityHeaders(NextResponse.next(), botVerdict), request);
 }
 
 export const config = {

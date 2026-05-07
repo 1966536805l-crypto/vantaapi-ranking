@@ -69,10 +69,10 @@ const staticItems: SiteSearchItem[] = [
   },
   {
     title: "AI Tools Hub",
-    href: "/tools",
+    href: "/tools/github-repo-analyzer",
     category: "AI Tools",
-    description: "Prompt optimizer code explainer bug finder API generator JSON regex timestamp and roadmap tools",
-    tags: ["tools", "ai tools", "工具站", "提示词", "代码解释", "bug", "api", "json", "regex"],
+    description: "GitHub launch pack prompt optimizer bug finder API generator JSON regex timestamp and roadmap tools",
+    tags: ["tools", "ai tools", "工具站", "github", "发布包", "提示词", "bug", "api", "json", "regex"],
   },
   {
     title: "Programming Learning Lab",
@@ -133,6 +133,7 @@ const staticItems: SiteSearchItem[] = [
 ];
 
 const toolAliases: Record<string, string[]> = {
+  "github-repo-analyzer": ["github", "仓库", "开源", "发布包", "项目交付", "pr checklist", "readme"],
   "prompt-optimizer": ["提示词", "提示词优化", "prompt", "ai 提示"],
   "code-explainer": ["代码解释", "看代码", "讲代码", "源码解释"],
   "bug-finder": ["bug", "报错", "错误定位", "修 bug", "debug"],
@@ -152,7 +153,7 @@ const programmingAliases: Record<string, string[]> = {
 };
 
 const publicVocabularySlugs = new Set(["middle-school-core", "high-school-core", "ielts-5000", "toefl-5000"]);
-const publicProgrammingSlugs = new Set(["python", "javascript", "typescript", "cpp", "sql", "bash"]);
+const publicProgrammingSlugs = new Set(programmingLanguages.map((language) => language.slug));
 
 export const siteSearchItems: SiteSearchItem[] = [
   ...staticItems,

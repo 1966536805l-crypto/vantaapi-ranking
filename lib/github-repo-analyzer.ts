@@ -28,6 +28,8 @@ export type GitHubRepoAnalysis = {
   securityNotes: string[];
   readmeSuggestions: string[];
   githubActions: string[];
+  envChecklist: string[];
+  issueLabelPlan: string[];
   deploymentChecklist: string[];
   prReviewChecklist: string[];
   filesRead: string[];
@@ -305,6 +307,46 @@ function githubActionsSuggestions(packageJson: ReturnType<typeof parsePackageJso
   return suggestions;
 }
 
+function environmentChecklist(files: Map<string, string | null>) {
+  const envExample = files.get(".env.example");
+  if (!envExample) {
+    return [
+      "Add .env.example before accepting outside contributors.",
+      "List required keys optional keys and production-only keys separately.",
+      "Keep real secrets only in the hosting provider or local untracked files.",
+    ];
+  }
+
+  const keys = Array.from(envExample.matchAll(/^([A-Z0-9_]+)=/gm)).map((match) => match[1]);
+  if (keys.length === 0) {
+    return [
+      ".env.example exists but no uppercase KEY= entries were detected.",
+      "Rewrite it as copyable placeholders without real values.",
+    ];
+  }
+
+  return [
+    `Detected env template keys: ${keys.slice(0, 12).join(", ")}${keys.length > 12 ? "..." : ""}`,
+    "Mark which keys are required for local dev, preview, and production.",
+    "Confirm no template value is a real token password or private URL.",
+  ];
+}
+
+function issueLabelPlan(stack: string[], workflows: string[]) {
+  const labels = [
+    "good first issue",
+    "docs",
+    "bug",
+    "security",
+    "release-blocker",
+    "needs reproduction",
+  ];
+  if (stack.some((item) => /next|react|vue|vite|frontend/i.test(item))) labels.push("frontend");
+  if (stack.some((item) => /node|go|rust|python|backend|prisma/i.test(item))) labels.push("backend");
+  if (workflows.length) labels.push("ci");
+  return labels.map((label) => `Create label: ${label}`);
+}
+
 export async function analyzeGitHubRepository(input: GitHubRepoInput): Promise<GitHubRepoAnalysis> {
   const { owner, repo } = parseGitHubRepoUrl(input.url);
   const meta = await fetchGitHubJson<GitHubRepoMeta>(
@@ -359,6 +401,8 @@ export async function analyzeGitHubRepository(input: GitHubRepoInput): Promise<G
     securityNotes: securityNotes(meta, files, packageJson, workflows),
     readmeSuggestions: readmeQuality(readme, files),
     githubActions: githubActionsSuggestions(packageJson, workflows),
+    envChecklist: environmentChecklist(files),
+    issueLabelPlan: issueLabelPlan(stack, workflows),
     deploymentChecklist: [
       "Confirm required environment variables are documented and set in the deployment platform.",
       "Run install build lint and tests in a clean environment.",

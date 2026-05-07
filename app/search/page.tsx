@@ -8,14 +8,14 @@ type SearchPageProps = {
 
 export const metadata: Metadata = {
   title: "AI 学习工具搜索 - 英语 编程 AI 工具 - JinMing Lab",
-  description: "搜索 JinMing Lab 的英语学习、编程训练、AI Coach、代码解释、Bug 定位、Prompt 优化和错题复盘页面。",
-  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "代码解释", "Prompt 优化"],
+  description: "搜索 JinMing Lab 的英语学习、编程训练、AI Coach、GitHub 发布包、Bug 定位、Prompt 优化和错题复盘页面。",
+  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "GitHub 发布包", "Prompt 优化"],
   alternates: {
     canonical: "/search",
   },
   openGraph: {
     title: "AI 学习工具搜索 - JinMing Lab",
-    description: "搜索英语学习、编程训练、AI Coach、代码解释、Bug 定位和 Prompt 优化页面。",
+    description: "搜索英语学习、编程训练、AI Coach、GitHub 发布包、Bug 定位和 Prompt 优化页面。",
     url: "https://vantaapi.com/search",
     siteName: "JinMing Lab",
     type: "website",
@@ -38,10 +38,9 @@ const priorityHrefs = [
   "/english/vocabulary/custom?lang=zh",
   "/english/typing?lang=zh",
   "/english?lang=zh",
-  "/tools",
+  "/tools/github-repo-analyzer",
   "/programming",
   "/tools/prompt-optimizer",
-  "/tools/code-explainer",
   "/tools/bug-finder",
   "/programming/python",
   "/english/question-bank?lang=zh",
@@ -106,7 +105,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               name="q"
               defaultValue={query}
               className="min-h-11 min-w-0 flex-1 rounded-[8px] border border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition focus:border-slate-500"
-              placeholder="搜索 英语 AI Coach 代码解释 prompt bug python 错题"
+              placeholder="搜索 英语 AI Coach GitHub prompt bug python 错题"
               autoFocus
             />
             <button className="dense-action-primary px-5 py-2.5" type="submit">
@@ -160,7 +159,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <div className="dense-card p-5">
                 <h3 className="text-xl font-semibold">No match yet</h3>
                 <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
-                  试试更短的词 比如 英语 打字 prompt python bug 代码解释 错题
+                  试试更短的词 比如 英语 打字 prompt python bug GitHub 错题
                 </p>
               </div>
             ) : (

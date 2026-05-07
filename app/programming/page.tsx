@@ -41,7 +41,7 @@ const groups: Array<{
     zh: "网页和产品",
     summary: "Make pages · Tools · APIs · Product interfaces",
     summaryZh: "做网页 · 工具 · API · 产品界面",
-    slugs: ["html-css", "javascript", "typescript", "php", "ruby"],
+    slugs: ["html-css", "javascript", "typescript", "php", "ruby", "elm"],
   },
   {
     key: "backend",
@@ -49,7 +49,7 @@ const groups: Array<{
     zh: "后端和云服务",
     summary: "Build services · Databases · CLIs · Reliable APIs",
     summaryZh: "做服务 · 数据库 · 命令行 · 稳定 API",
-    slugs: ["python", "java", "go", "csharp", "sql", "bash"],
+    slugs: ["python", "java", "go", "csharp", "sql", "bash", "groovy", "powershell"],
   },
   {
     key: "mobile",
@@ -65,7 +65,7 @@ const groups: Array<{
     zh: "系统和性能",
     summary: "Understand memory · Speed · Compilers · Low-level code",
     summaryZh: "理解内存 · 性能 · 编译器 · 底层代码",
-    slugs: ["c", "cpp", "rust", "assembly"],
+    slugs: ["c", "cpp", "rust", "zig", "nim", "d", "v", "assembly"],
   },
   {
     key: "data",
@@ -73,7 +73,7 @@ const groups: Array<{
     zh: "数据和科学计算",
     summary: "Analyze data · Model numbers · Research workflows",
     summaryZh: "分析数据 · 建模 · 数值处理 · 研究流程",
-    slugs: ["python", "r", "julia", "matlab", "scala"],
+    slugs: ["python", "r", "julia", "matlab", "scala", "fortran"],
   },
   {
     key: "functional",
@@ -81,7 +81,7 @@ const groups: Array<{
     zh: "函数式和语言设计",
     summary: "Learn types · Transformations · Concurrency · Compiler thinking",
     summaryZh: "学习类型 · 转换 · 并发 · 编译器思维",
-    slugs: ["haskell", "clojure", "elixir", "erlang", "fsharp", "ocaml"],
+    slugs: ["haskell", "clojure", "elixir", "erlang", "fsharp", "ocaml", "racket", "scheme", "gleam", "common-lisp", "prolog"],
   },
   {
     key: "scripting",
@@ -89,7 +89,7 @@ const groups: Array<{
     zh: "脚本和自动化",
     summary: "Automate files · Text · Games · Plugins · Daily workflows",
     summaryZh: "自动化文件 · 文本 · 游戏 · 插件 · 日常流程",
-    slugs: ["bash", "python", "lua", "perl", "ruby"],
+    slugs: ["bash", "python", "lua", "perl", "ruby", "powershell", "tcl"],
   },
   {
     key: "blockchain",
@@ -98,6 +98,14 @@ const groups: Array<{
     summary: "Study state · Permissions · Transactions · Secure code review",
     summaryZh: "学习状态 · 权限 · 交易 · 安全代码审查",
     slugs: ["solidity", "javascript", "typescript", "rust"],
+  },
+  {
+    key: "enterprise",
+    title: "Enterprise And Legacy",
+    zh: "企业和经典系统",
+    summary: "Maintain SAP · Finance · Desktop apps · Classic business systems",
+    summaryZh: "维护 SAP · 金融系统 · 桌面应用 · 经典业务代码",
+    slugs: ["cobol", "abap", "delphi", "pascal", "visual-basic", "smalltalk", "crystal"],
   },
 ];
 
