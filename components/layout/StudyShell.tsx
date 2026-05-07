@@ -3,6 +3,7 @@ import { getServerUser } from "@/lib/server-auth";
 
 const navItems = [
   { href: "/", label: "Home" },
+  { href: "/today", label: "Today" },
   { href: "/english", label: "English" },
   { href: "/cpp", label: "C++" },
   { href: "/dashboard", label: "Dashboard" },

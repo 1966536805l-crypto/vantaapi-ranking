@@ -1,0 +1,16 @@
+# local-only files
+.env
+.env.*
+*.db
+*.db-*
+prisma/*.db
+
+# build/cache artifacts
+.next
+node_modules
+.vercel
+*.tsbuildinfo
+
+# OS/editor
+.DS_Store
+.vscode

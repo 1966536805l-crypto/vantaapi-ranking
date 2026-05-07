@@ -1,0 +1,323 @@
+export type ExamVocabularyWord = {
+  word: string;
+  phonetic?: string;
+  meaningZh: string;
+  meaningEn: string;
+  collocation: string;
+  sentence: string;
+  examNote: string;
+};
+
+export type ExamVocabularyPack = {
+  slug: string;
+  title: string;
+  shortTitle: string;
+  targetCount: number;
+  level: string;
+  route: string;
+  focus: string[];
+  priorityWords: ExamVocabularyWord[];
+  writingFrames?: string[];
+  readingLogicWords?: string[];
+};
+
+const ieltsPriorityWords: ExamVocabularyWord[] = [
+  { word: "allocate", phonetic: "/ˈæləkeɪt/", meaningZh: "分配；拨出", meaningEn: "to give resources, time, or money for a purpose", collocation: "allocate funding/resources", sentence: "Governments should allocate more funding to public transport.", examNote: "写作 Task 2 政府责任、资源分配高频动词。" },
+  { word: "sustainable", phonetic: "/səˈsteɪnəbl/", meaningZh: "可持续的", meaningEn: "able to continue without causing long-term damage", collocation: "sustainable development", sentence: "A sustainable city reduces waste and protects green space.", examNote: "环境、城市、能源话题核心形容词。" },
+  { word: "detrimental", phonetic: "/ˌdetrɪˈmentl/", meaningZh: "有害的", meaningEn: "causing harm or damage", collocation: "detrimental impact/effect", sentence: "Excessive screen time can be detrimental to sleep quality.", examNote: "替代 bad/harmful，适合论证负面影响。" },
+  { word: "mitigate", phonetic: "/ˈmɪtɪɡeɪt/", meaningZh: "缓解；减轻", meaningEn: "to make a problem less severe", collocation: "mitigate risks/problems", sentence: "Urban planning can mitigate traffic congestion.", examNote: "解决方案段落常用动词。" },
+  { word: "cohesive", phonetic: "/koʊˈhiːsɪv/", meaningZh: "连贯的；有凝聚力的", meaningEn: "well connected and forming a whole", collocation: "a cohesive essay/community", sentence: "A cohesive essay links every paragraph to the main argument.", examNote: "写作评分标准 cohesion/coherence 相关词。" },
+  { word: "inevitable", phonetic: "/ɪnˈevɪtəbl/", meaningZh: "不可避免的", meaningEn: "certain to happen", collocation: "an inevitable consequence", sentence: "Some job changes are inevitable as technology improves.", examNote: "科技、就业类趋势判断常用。" },
+  { word: "infrastructure", phonetic: "/ˈɪnfrəstrʌktʃər/", meaningZh: "基础设施", meaningEn: "basic systems such as roads, transport, and power", collocation: "urban infrastructure", sentence: "Reliable infrastructure is essential for economic growth.", examNote: "城市化、交通、发展类必备名词。" },
+  { word: "emission", phonetic: "/ɪˈmɪʃn/", meaningZh: "排放；排放物", meaningEn: "gas or substance released into the air", collocation: "carbon emissions", sentence: "Public transport can help reduce carbon emissions.", examNote: "环境类小作文/大作文都高频。" },
+  { word: "accommodate", phonetic: "/əˈkɑːmədeɪt/", meaningZh: "容纳；适应", meaningEn: "to provide space for or adapt to something", collocation: "accommodate demand", sentence: "Cities must accommodate the needs of an ageing population.", examNote: "人口、住房、教育资源话题常见。" },
+  { word: "attain", phonetic: "/əˈteɪn/", meaningZh: "获得；达到", meaningEn: "to achieve something after effort", collocation: "attain a goal/standard", sentence: "Students need support to attain their academic goals.", examNote: "替代 achieve，用于教育类。" },
+  { word: "disparity", phonetic: "/dɪˈspærəti/", meaningZh: "差距；不平等", meaningEn: "a noticeable and often unfair difference", collocation: "income disparity", sentence: "Income disparity can limit access to quality education.", examNote: "社会公平、贫富差距高分词。" },
+  { word: "adverse", phonetic: "/ˈædvɜːrs/", meaningZh: "不利的；负面的", meaningEn: "negative or harmful", collocation: "adverse effects", sentence: "Air pollution has adverse effects on public health.", examNote: "正式替代 negative。" },
+  { word: "compulsory", phonetic: "/kəmˈpʌlsəri/", meaningZh: "强制的；义务的", meaningEn: "required by rule or law", collocation: "compulsory education", sentence: "Some argue that physical education should be compulsory.", examNote: "教育、政策类 yes/no 题常用。" },
+  { word: "preserve", phonetic: "/prɪˈzɜːrv/", meaningZh: "保护；保存", meaningEn: "to keep something in good condition", collocation: "preserve cultural heritage", sentence: "Museums help preserve cultural heritage for future generations.", examNote: "文化、传统、旅游话题核心动词。" },
+  { word: "innovation", phonetic: "/ˌɪnəˈveɪʃn/", meaningZh: "创新", meaningEn: "a new idea, method, or product", collocation: "technological innovation", sentence: "Innovation can improve productivity across industries.", examNote: "科技、商业、教育改革常用。" },
+  { word: "obesity", phonetic: "/oʊˈbiːsəti/", meaningZh: "肥胖", meaningEn: "a medical condition of being very overweight", collocation: "childhood obesity", sentence: "Childhood obesity is linked to poor diet and inactivity.", examNote: "健康类高频话题词。" },
+  { word: "urbanization", phonetic: "/ˌɜːrbənəˈzeɪʃn/", meaningZh: "城市化", meaningEn: "the process of more people living in cities", collocation: "rapid urbanization", sentence: "Rapid urbanization creates pressure on housing and transport.", examNote: "发展类、城市类题目常见背景词。" },
+  { word: "accountable", phonetic: "/əˈkaʊntəbl/", meaningZh: "负有责任的", meaningEn: "responsible for decisions and expected to explain them", collocation: "be accountable for", sentence: "Public officials should be accountable for their decisions.", examNote: "政府监管、媒体监督话题可用。" },
+  { word: "feasible", phonetic: "/ˈfiːzəbl/", meaningZh: "可行的", meaningEn: "possible and practical to do", collocation: "a feasible solution", sentence: "Subsidising buses is a feasible solution in many cities.", examNote: "解决方案评价必备。" },
+  { word: "profound", phonetic: "/prəˈfaʊnd/", meaningZh: "深远的；深刻的", meaningEn: "very great or deep", collocation: "profound influence", sentence: "The internet has had a profound influence on communication.", examNote: "替代 great/important，适合总结句。" },
+];
+
+const toeflPriorityWords: ExamVocabularyWord[] = [
+  { word: "hypothesis", phonetic: "/haɪˈpɑːθəsɪs/", meaningZh: "假设", meaningEn: "an idea that can be tested by evidence", collocation: "test a hypothesis", sentence: "The researcher proposed a hypothesis about climate patterns.", examNote: "听力 lecture 科研流程高频。" },
+  { word: "derive", phonetic: "/dɪˈraɪv/", meaningZh: "获得；源自", meaningEn: "to get something from a source", collocation: "derive from evidence", sentence: "The conclusion is derived from several experiments.", examNote: "阅读同义替换：come from/originate from。" },
+  { word: "phenomenon", phonetic: "/fəˈnɑːmɪnən/", meaningZh: "现象", meaningEn: "an observable event or fact", collocation: "natural phenomenon", sentence: "Migration is a phenomenon studied in biology and history.", examNote: "自然科学、人文社科讲座常见。" },
+  { word: "subsequent", phonetic: "/ˈsʌbsɪkwənt/", meaningZh: "随后的", meaningEn: "happening after something else", collocation: "subsequent research", sentence: "Subsequent studies produced more reliable results.", examNote: "时间顺序题标志词。" },
+  { word: "accumulate", phonetic: "/əˈkjuːmjəleɪt/", meaningZh: "积累；堆积", meaningEn: "to gather over time", collocation: "accumulate data/sediment", sentence: "Sediment can accumulate at the bottom of a lake.", examNote: "地质、生物、研究数据类高频。" },
+  { word: "contradict", phonetic: "/ˌkɑːntrəˈdɪkt/", meaningZh: "反驳；与……矛盾", meaningEn: "to show the opposite of a claim", collocation: "contradict a theory", sentence: "The new evidence may contradict the earlier theory.", examNote: "观点态度和证据关系题常见。" },
+  { word: "constitute", phonetic: "/ˈkɑːnstɪtuːt/", meaningZh: "构成；被视为", meaningEn: "to form or be considered as something", collocation: "constitute evidence", sentence: "These findings constitute strong evidence for the theory.", examNote: "学术阅读高频正式动词。" },
+  { word: "simulate", phonetic: "/ˈsɪmjuleɪt/", meaningZh: "模拟", meaningEn: "to imitate conditions or processes", collocation: "simulate conditions", sentence: "The model simulates the movement of ocean currents.", examNote: "实验方法、计算机模型场景常见。" },
+  { word: "preliminary", phonetic: "/prɪˈlɪmɪneri/", meaningZh: "初步的", meaningEn: "coming before the main stage", collocation: "preliminary results", sentence: "Preliminary results suggest a connection between diet and memory.", examNote: "听力中提示结论不确定。" },
+  { word: "attribute", phonetic: "/əˈtrɪbjuːt/", meaningZh: "归因于", meaningEn: "to regard something as caused by something", collocation: "attribute A to B", sentence: "Scientists attribute the decline to habitat loss.", examNote: "因果题核心表达。" },
+  { word: "migration", phonetic: "/maɪˈɡreɪʃn/", meaningZh: "迁徙；迁移", meaningEn: "movement from one place to another", collocation: "seasonal migration", sentence: "Bird migration depends on climate and food supply.", examNote: "生物学讲座高频主题词。" },
+  { word: "artifact", phonetic: "/ˈɑːrtɪfækt/", meaningZh: "人工制品；文物", meaningEn: "an object made by humans, often historical", collocation: "ancient artifact", sentence: "The artifact reveals how the community traded with neighbors.", examNote: "考古、人类学阅读听力常见。" },
+  { word: "reinforce", phonetic: "/ˌriːɪnˈfɔːrs/", meaningZh: "加强；强化", meaningEn: "to strengthen an idea or structure", collocation: "reinforce an argument", sentence: "The professor uses the example to reinforce her main point.", examNote: "听力 function/purpose 题高频。" },
+  { word: "extract", phonetic: "/ɪkˈstrækt/", meaningZh: "提取", meaningEn: "to remove or obtain something from a source", collocation: "extract information", sentence: "Researchers extract DNA from preserved samples.", examNote: "实验步骤类动词。" },
+  { word: "distinct", phonetic: "/dɪˈstɪŋkt/", meaningZh: "不同的；清楚的", meaningEn: "clearly different or separate", collocation: "distinct features", sentence: "The species has several distinct features.", examNote: "分类、对比题常见。" },
+  { word: "dimension", phonetic: "/daɪˈmenʃn/", meaningZh: "维度；方面", meaningEn: "an aspect or measurement of something", collocation: "social dimension", sentence: "The issue has both economic and cultural dimensions.", examNote: "综合类阅读抽象名词。" },
+  { word: "valid", phonetic: "/ˈvælɪd/", meaningZh: "有效的；有根据的", meaningEn: "based on truth or logic", collocation: "valid explanation", sentence: "The data support a valid explanation of the pattern.", examNote: "推理论证题核心形容词。" },
+  { word: "spatial", phonetic: "/ˈspeɪʃl/", meaningZh: "空间的", meaningEn: "related to space and position", collocation: "spatial distribution", sentence: "Maps reveal the spatial distribution of ancient settlements.", examNote: "地理、考古、认知科学常见。" },
+  { word: "adaptation", phonetic: "/ˌædæpˈteɪʃn/", meaningZh: "适应；改编", meaningEn: "a change that helps survival or fit", collocation: "biological adaptation", sentence: "Thick fur is an adaptation to cold environments.", examNote: "生物进化主题高频。" },
+  { word: "cite", phonetic: "/saɪt/", meaningZh: "引用；提及", meaningEn: "to mention as evidence", collocation: "cite an example", sentence: "The lecturer cites a study to support the claim.", examNote: "听力主旨/细节题常考信号。" },
+];
+
+const cet4PriorityWords: ExamVocabularyWord[] = [
+  { word: "benefit", phonetic: "/ˈbenɪfɪt/", meaningZh: "好处；受益", meaningEn: "an advantage or good result", collocation: "bring benefits", sentence: "Regular reading brings long-term benefits to students.", examNote: "CET4 作文万能名词，替代 good thing。" },
+  { word: "afford", phonetic: "/əˈfɔːrd/", meaningZh: "负担得起；抽得出", meaningEn: "to have enough money or time", collocation: "afford to do", sentence: "Many students cannot afford expensive software.", examNote: "阅读、翻译常见动词。" },
+  { word: "concern", phonetic: "/kənˈsɜːrn/", meaningZh: "担忧；涉及", meaningEn: "a worry or important matter", collocation: "public concern", sentence: "Air quality is a major concern in large cities.", examNote: "作文社会问题类高频。" },
+  { word: "efficient", phonetic: "/ɪˈfɪʃnt/", meaningZh: "高效的", meaningEn: "working well with little waste", collocation: "efficient method", sentence: "An efficient plan saves both time and energy.", examNote: "学习、工作、科技类常用。" },
+  { word: "involve", phonetic: "/ɪnˈvɑːlv/", meaningZh: "涉及；包含", meaningEn: "to include as a part", collocation: "involve students", sentence: "The project involves research and presentation.", examNote: "长句理解中常见谓语动词。" },
+  { word: "maintain", phonetic: "/meɪnˈteɪn/", meaningZh: "维持；保养", meaningEn: "to keep in good condition", collocation: "maintain balance", sentence: "Learners need to maintain a steady review routine.", examNote: "翻译和作文常用。" },
+  { word: "available", phonetic: "/əˈveɪləbl/", meaningZh: "可获得的；有空的", meaningEn: "able to be used or obtained", collocation: "available resources", sentence: "Online courses are available to students in remote areas.", examNote: "听力场景词。" },
+  { word: "community", phonetic: "/kəˈmjuːnəti/", meaningZh: "社区；群体", meaningEn: "people living in one area or sharing interests", collocation: "local community", sentence: "Volunteers can make a difference in the local community.", examNote: "作文志愿服务、社会责任常用。" },
+  { word: "experience", phonetic: "/ɪkˈspɪriəns/", meaningZh: "经历；经验", meaningEn: "knowledge or events gained through life", collocation: "gain experience", sentence: "Part-time jobs help students gain practical experience.", examNote: "校园类作文高频。" },
+  { word: "improve", phonetic: "/ɪmˈpruːv/", meaningZh: "提高；改善", meaningEn: "to become or make better", collocation: "improve skills", sentence: "Daily practice can improve listening skills.", examNote: "基础高频动词，注意搭配。" },
+  { word: "opportunity", phonetic: "/ˌɑːpərˈtuːnəti/", meaningZh: "机会", meaningEn: "a chance to do something", collocation: "provide an opportunity", sentence: "The competition provides an opportunity to build confidence.", examNote: "作文积极影响类常用。" },
+  { word: "responsible", phonetic: "/rɪˈspɑːnsəbl/", meaningZh: "负责任的；负责的", meaningEn: "having a duty or showing good judgment", collocation: "be responsible for", sentence: "Everyone is responsible for protecting the environment.", examNote: "翻译固定搭配高频。" },
+  { word: "reduce", phonetic: "/rɪˈduːs/", meaningZh: "减少", meaningEn: "to make something smaller", collocation: "reduce pressure", sentence: "Exercise can reduce stress before exams.", examNote: "图表、问题解决类常用。" },
+  { word: "increase", phonetic: "/ɪnˈkriːs/", meaningZh: "增加", meaningEn: "to become or make greater", collocation: "increase awareness", sentence: "Schools should increase students' awareness of safety.", examNote: "与 reduce 成对掌握。" },
+  { word: "challenge", phonetic: "/ˈtʃælɪndʒ/", meaningZh: "挑战", meaningEn: "a difficult task or problem", collocation: "face a challenge", sentence: "Freshmen often face the challenge of managing time.", examNote: "校园生活、成长类高频。" },
+  { word: "convenient", phonetic: "/kənˈviːniənt/", meaningZh: "方便的", meaningEn: "easy and suitable to use", collocation: "convenient access", sentence: "Mobile payment is convenient for daily shopping.", examNote: "科技生活类作文常用。" },
+  { word: "environment", phonetic: "/ɪnˈvaɪrənmənt/", meaningZh: "环境", meaningEn: "the natural world or surrounding conditions", collocation: "protect the environment", sentence: "Small actions can help protect the environment.", examNote: "CET4 高频主题词。" },
+  { word: "habit", phonetic: "/ˈhæbɪt/", meaningZh: "习惯", meaningEn: "something done regularly", collocation: "develop a habit", sentence: "Students should develop the habit of reviewing notes.", examNote: "学习建议类作文核心。" },
+  { word: "quality", phonetic: "/ˈkwɑːləti/", meaningZh: "质量；品质", meaningEn: "how good something is", collocation: "quality of life", sentence: "Better public services improve the quality of life.", examNote: "翻译、阅读常见抽象名词。" },
+  { word: "support", phonetic: "/səˈpɔːrt/", meaningZh: "支持；支撑", meaningEn: "to help or provide evidence for", collocation: "support a view", sentence: "The survey results support this view.", examNote: "阅读观点证据关系词。" },
+];
+
+const cet6PriorityWords: ExamVocabularyWord[] = [
+  { word: "substantial", phonetic: "/səbˈstænʃl/", meaningZh: "大量的；重要的", meaningEn: "large or important", collocation: "substantial change", sentence: "The policy produced substantial improvements in safety.", examNote: "CET6 阅读同义替换：considerable/significant。" },
+  { word: "exposure", phonetic: "/ɪkˈspoʊʒər/", meaningZh: "接触；暴露", meaningEn: "contact with an influence or risk", collocation: "media exposure", sentence: "More exposure to authentic texts improves reading speed.", examNote: "教育、媒体、健康话题高频。" },
+  { word: "facilitate", phonetic: "/fəˈsɪlɪteɪt/", meaningZh: "促进；使便利", meaningEn: "to make a process easier", collocation: "facilitate learning", sentence: "Clear feedback can facilitate independent learning.", examNote: "替代 help，高级写作动词。" },
+  { word: "implement", phonetic: "/ˈɪmplɪment/", meaningZh: "实施", meaningEn: "to put a plan into action", collocation: "implement a policy", sentence: "The school will implement a new assessment system.", examNote: "政策、管理类常见。" },
+  { word: "comprehensive", phonetic: "/ˌkɑːmprɪˈhensɪv/", meaningZh: "全面的", meaningEn: "including many parts", collocation: "comprehensive plan", sentence: "A comprehensive review covers vocabulary, grammar and reading.", examNote: "CET6 作文高分形容词。" },
+  { word: "fluctuate", phonetic: "/ˈflʌktʃueɪt/", meaningZh: "波动", meaningEn: "to rise and fall irregularly", collocation: "fluctuate sharply", sentence: "Energy prices may fluctuate during winter.", examNote: "图表/经济阅读高频。" },
+  { word: "paradox", phonetic: "/ˈpærədɑːks/", meaningZh: "悖论；矛盾现象", meaningEn: "a situation that seems contradictory but may be true", collocation: "a modern paradox", sentence: "It is a paradox that more choices can make people less satisfied.", examNote: "阅读主旨和态度题常见抽象词。" },
+  { word: "prevalent", phonetic: "/ˈprevələnt/", meaningZh: "普遍的；流行的", meaningEn: "common in a place or time", collocation: "prevalent belief", sentence: "Online learning has become increasingly prevalent.", examNote: "替代 common。" },
+  { word: "incentive", phonetic: "/ɪnˈsentɪv/", meaningZh: "激励；诱因", meaningEn: "something that encourages action", collocation: "financial incentive", sentence: "Tax benefits can provide an incentive for innovation.", examNote: "经济、政策类阅读高频。" },
+  { word: "constraint", phonetic: "/kənˈstreɪnt/", meaningZh: "限制；约束", meaningEn: "a limit or restriction", collocation: "budget constraint", sentence: "Time constraints often affect the quality of decisions.", examNote: "替代 limitation。" },
+  { word: "persuasive", phonetic: "/pərˈsweɪsɪv/", meaningZh: "有说服力的", meaningEn: "able to convince people", collocation: "persuasive evidence", sentence: "The author provides persuasive evidence for the claim.", examNote: "阅读评价作者论证强弱。" },
+  { word: "integrate", phonetic: "/ˈɪntɪɡreɪt/", meaningZh: "整合；融入", meaningEn: "to combine into a whole", collocation: "integrate technology", sentence: "Teachers can integrate technology into classroom activities.", examNote: "教育科技类高频。" },
+  { word: "ambiguous", phonetic: "/æmˈbɪɡjuəs/", meaningZh: "模糊的；有歧义的", meaningEn: "having more than one possible meaning", collocation: "ambiguous results", sentence: "The evidence remains ambiguous and requires further study.", examNote: "研究结论不确定性词。" },
+  { word: "dimension", phonetic: "/daɪˈmenʃn/", meaningZh: "方面；维度", meaningEn: "an aspect or measurement", collocation: "ethical dimension", sentence: "Artificial intelligence has an ethical dimension.", examNote: "CET6 抽象论述常用。" },
+  { word: "advocate", phonetic: "/ˈædvəkeɪt/", meaningZh: "主张；倡导", meaningEn: "to publicly support an idea", collocation: "advocate reform", sentence: "Some experts advocate shorter working hours.", examNote: "观点态度题常见。" },
+  { word: "vulnerable", phonetic: "/ˈvʌlnərəbl/", meaningZh: "脆弱的；易受伤害的", meaningEn: "easily harmed or affected", collocation: "vulnerable groups", sentence: "Children are vulnerable to misleading online content.", examNote: "社会弱势群体、风险话题高频。" },
+  { word: "empirical", phonetic: "/ɪmˈpɪrɪkl/", meaningZh: "经验的；实证的", meaningEn: "based on observation or experiment", collocation: "empirical evidence", sentence: "Empirical evidence is needed to support the theory.", examNote: "学术阅读高频证据词。" },
+  { word: "disrupt", phonetic: "/dɪsˈrʌpt/", meaningZh: "扰乱；颠覆", meaningEn: "to interrupt or radically change", collocation: "disrupt traditional industries", sentence: "Automation may disrupt traditional industries.", examNote: "科技影响类常用。" },
+  { word: "resilient", phonetic: "/rɪˈzɪliənt/", meaningZh: "有韧性的；能恢复的", meaningEn: "able to recover after difficulty", collocation: "resilient economy", sentence: "A resilient economy can recover quickly from crises.", examNote: "经济、心理、社会系统话题高级词。" },
+  { word: "equivalent", phonetic: "/ɪˈkwɪvələnt/", meaningZh: "等同的；相当的", meaningEn: "equal in value, meaning, or effect", collocation: "be equivalent to", sentence: "Online interaction is not always equivalent to face-to-face communication.", examNote: "比较、替换、阅读细节题高频。" },
+];
+
+const postgraduatePriorityWords: ExamVocabularyWord[] = [
+  { word: "acknowledge", phonetic: "/əkˈnɑːlɪdʒ/", meaningZh: "承认；认可", meaningEn: "to accept that something is true", collocation: "acknowledge a problem", sentence: "The author acknowledges the limits of the study.", examNote: "考研阅读作者态度题高频。" },
+  { word: "interpret", phonetic: "/ɪnˈtɜːrprət/", meaningZh: "解释；理解", meaningEn: "to explain the meaning of something", collocation: "interpret evidence", sentence: "Readers must interpret the sentence in context.", examNote: "长难句和推断题核心动词。" },
+  { word: "perspective", phonetic: "/pərˈspektɪv/", meaningZh: "视角；观点", meaningEn: "a way of considering a subject", collocation: "from a perspective", sentence: "The passage presents a historical perspective on education.", examNote: "阅读主旨题常见抽象名词。" },
+  { word: "underlying", phonetic: "/ˌʌndərˈlaɪɪŋ/", meaningZh: "潜在的；根本的", meaningEn: "basic but not immediately obvious", collocation: "underlying reason", sentence: "The underlying cause is often economic pressure.", examNote: "因果分析、深层含义题常见。" },
+  { word: "whereas", phonetic: "/werˈæz/", meaningZh: "然而；鉴于", meaningEn: "used to compare two different facts", collocation: "whereas clause", sentence: "Some readers focus on details whereas others look for structure.", examNote: "长难句对比逻辑标志。" },
+  { word: "conventional", phonetic: "/kənˈvenʃənl/", meaningZh: "传统的；常规的", meaningEn: "usual or traditional", collocation: "conventional wisdom", sentence: "The article challenges conventional views of success.", examNote: "阅读中常与 challenge/question 搭配。" },
+  { word: "assumption", phonetic: "/əˈsʌmpʃn/", meaningZh: "假设；前提", meaningEn: "something accepted as true without proof", collocation: "basic assumption", sentence: "The argument rests on a questionable assumption.", examNote: "论证漏洞、作者观点题高频。" },
+  { word: "derive", phonetic: "/dɪˈraɪv/", meaningZh: "源于；获得", meaningEn: "to come from or get from a source", collocation: "derive meaning from context", sentence: "The meaning of the word can be derived from context.", examNote: "词义猜测题常用表达。" },
+  { word: "contradiction", phonetic: "/ˌkɑːntrəˈdɪkʃn/", meaningZh: "矛盾", meaningEn: "a conflict between ideas or statements", collocation: "internal contradiction", sentence: "The paragraph reveals a contradiction in modern consumer culture.", examNote: "阅读主旨和批判类文章常见。" },
+  { word: "marginal", phonetic: "/ˈmɑːrdʒɪnl/", meaningZh: "边缘的；微小的", meaningEn: "small or not central", collocation: "marginal improvement", sentence: "The reform produced only marginal improvements.", examNote: "熟词僻义：不是 margin，而是小/边缘。" },
+  { word: "notion", phonetic: "/ˈnoʊʃn/", meaningZh: "观念；概念", meaningEn: "an idea or belief", collocation: "the notion that", sentence: "The notion that success depends only on talent is misleading.", examNote: "the notion that 是阅读高频结构。" },
+  { word: "legitimate", phonetic: "/lɪˈdʒɪtɪmət/", meaningZh: "合法的；合理的", meaningEn: "allowed, reasonable, or valid", collocation: "legitimate concern", sentence: "Privacy is a legitimate concern in the digital age.", examNote: "态度题中常表示认可。" },
+  { word: "obscure", phonetic: "/əbˈskjʊr/", meaningZh: "模糊的；使难懂", meaningEn: "not clear or difficult to understand", collocation: "obscure meaning", sentence: "Complex wording can obscure the author's real intention.", examNote: "长难句理解、语义遮蔽。" },
+  { word: "preclude", phonetic: "/prɪˈkluːd/", meaningZh: "阻止；排除", meaningEn: "to prevent something from happening", collocation: "preclude the possibility", sentence: "Lack of evidence does not preclude further investigation.", examNote: "考研高频难词，注意否定搭配。" },
+  { word: "undermine", phonetic: "/ˌʌndərˈmaɪn/", meaningZh: "削弱；破坏", meaningEn: "to make something weaker", collocation: "undermine confidence", sentence: "Misinformation can undermine public trust in science.", examNote: "批判性阅读高频动词。" },
+  { word: "concede", phonetic: "/kənˈsiːd/", meaningZh: "承认；让步", meaningEn: "to admit something is true reluctantly", collocation: "concede that", sentence: "The author concedes that the policy has some benefits.", examNote: "让步转折结构常用。" },
+  { word: "premise", phonetic: "/ˈpremɪs/", meaningZh: "前提", meaningEn: "a statement on which an argument is based", collocation: "false premise", sentence: "The conclusion is based on a false premise.", examNote: "论证结构题核心。" },
+  { word: "analogous", phonetic: "/əˈnæləɡəs/", meaningZh: "类似的", meaningEn: "similar in some way", collocation: "be analogous to", sentence: "The brain is sometimes described as analogous to a computer.", examNote: "类比论证常见。" },
+  { word: "scrutiny", phonetic: "/ˈskruːtəni/", meaningZh: "仔细审查", meaningEn: "careful and detailed examination", collocation: "under scrutiny", sentence: "Scientific claims should be subject to public scrutiny.", examNote: "媒体、科学、政策类阅读常见。" },
+  { word: "plausible", phonetic: "/ˈplɔːzəbl/", meaningZh: "似乎合理的", meaningEn: "seeming reasonable or likely", collocation: "plausible explanation", sentence: "The author offers a plausible explanation for the trend.", examNote: "态度题中常表示谨慎认可。" },
+];
+
+const middleSchoolPriorityWords: ExamVocabularyWord[] = [
+  { word: "daily", phonetic: "/ˈdeɪli/", meaningZh: "每日的；日常的", meaningEn: "happening every day", collocation: "daily routine", sentence: "A daily reading habit makes English easier to remember.", examNote: "初中写作常用于生活习惯和学习计划。" },
+  { word: "healthy", phonetic: "/ˈhelθi/", meaningZh: "健康的", meaningEn: "good for your body or mind", collocation: "healthy food", sentence: "Healthy food and enough sleep help students learn well.", examNote: "健康饮食、校园生活高频形容词。" },
+  { word: "borrow", phonetic: "/ˈbɑːroʊ/", meaningZh: "借入", meaningEn: "to take and use something that belongs to someone else", collocation: "borrow a book", sentence: "I borrowed a storybook from the school library.", examNote: "注意 borrow from 和 lend to 的区别。" },
+  { word: "invite", phonetic: "/ɪnˈvaɪt/", meaningZh: "邀请", meaningEn: "to ask someone to come or join", collocation: "invite a friend", sentence: "We invited our teacher to the class party.", examNote: "书面表达邀请信常用。" },
+  { word: "practice", phonetic: "/ˈpræktɪs/", meaningZh: "练习；实践", meaningEn: "to do something again to improve", collocation: "practice speaking", sentence: "You need to practice speaking English every morning.", examNote: "practice doing 是初中高频搭配。" },
+  { word: "careful", phonetic: "/ˈkerfl/", meaningZh: "小心的；仔细的", meaningEn: "paying attention to avoid mistakes", collocation: "be careful with", sentence: "Be careful with the spelling of new words.", examNote: "祈使句和学习建议常用。" },
+  { word: "improve", phonetic: "/ɪmˈpruːv/", meaningZh: "提高；改善", meaningEn: "to become better", collocation: "improve English", sentence: "Reading aloud can improve pronunciation.", examNote: "学习方法类作文核心动词。" },
+  { word: "environment", phonetic: "/ɪnˈvaɪrənmənt/", meaningZh: "环境", meaningEn: "the natural world or the conditions around people", collocation: "protect the environment", sentence: "Everyone should do small things to protect the environment.", examNote: "环保主题高频词。" },
+  { word: "information", phonetic: "/ˌɪnfərˈmeɪʃn/", meaningZh: "信息", meaningEn: "facts or details about something", collocation: "useful information", sentence: "The notice gives useful information about the trip.", examNote: "不可数名词，不加 s。" },
+  { word: "experience", phonetic: "/ɪkˈspɪriəns/", meaningZh: "经历；经验", meaningEn: "something that happens to you or knowledge from doing things", collocation: "learning experience", sentence: "The volunteer activity was a special experience.", examNote: "作文中用于活动经历。" },
+  { word: "choice", phonetic: "/tʃɔɪs/", meaningZh: "选择", meaningEn: "an option or the act of choosing", collocation: "make a choice", sentence: "Students should make a wise choice about screen time.", examNote: "make a choice 是高频搭配。" },
+  { word: "necessary", phonetic: "/ˈnesəseri/", meaningZh: "必要的", meaningEn: "needed for a purpose", collocation: "it is necessary to", sentence: "It is necessary to review new words after class.", examNote: "It is necessary to do 句型常考。" },
+  { word: "prepare", phonetic: "/prɪˈper/", meaningZh: "准备", meaningEn: "to get ready for something", collocation: "prepare for an exam", sentence: "She prepares for the test by making word cards.", examNote: "prepare for 固定搭配。" },
+  { word: "achieve", phonetic: "/əˈtʃiːv/", meaningZh: "实现；达到", meaningEn: "to succeed in doing something", collocation: "achieve a goal", sentence: "Small steps help us achieve big goals.", examNote: "目标和成长主题常用。" },
+  { word: "creative", phonetic: "/kriˈeɪtɪv/", meaningZh: "有创造力的", meaningEn: "able to make new ideas or things", collocation: "creative idea", sentence: "A creative idea can make a school project interesting.", examNote: "人物品质和活动介绍常用。" },
+  { word: "friendly", phonetic: "/ˈfrendli/", meaningZh: "友好的", meaningEn: "kind and pleasant", collocation: "be friendly to", sentence: "Our new classmate is friendly to everyone.", examNote: "be friendly to 固定搭配。" },
+  { word: "culture", phonetic: "/ˈkʌltʃər/", meaningZh: "文化", meaningEn: "the customs ideas and arts of a group", collocation: "traditional culture", sentence: "Festivals help us learn about traditional culture.", examNote: "节日、旅游、传统文化主题核心词。" },
+  { word: "decision", phonetic: "/dɪˈsɪʒn/", meaningZh: "决定", meaningEn: "a choice after thinking", collocation: "make a decision", sentence: "He made a decision to study for thirty minutes every day.", examNote: "make a decision 与 decide 同义转换。" },
+  { word: "explain", phonetic: "/ɪkˈspleɪn/", meaningZh: "解释", meaningEn: "to make something clear", collocation: "explain the reason", sentence: "The teacher explained the grammar point with examples.", examNote: "课堂场景和阅读细节常见。" },
+  { word: "progress", phonetic: "/ˈprɑːɡres/", meaningZh: "进步；进展", meaningEn: "improvement over time", collocation: "make progress", sentence: "You will make progress if you keep reviewing.", examNote: "make progress 是学习类作文高频表达。" },
+];
+
+const highSchoolPriorityWords: ExamVocabularyWord[] = [
+  { word: "accurate", phonetic: "/ˈækjərət/", meaningZh: "准确的", meaningEn: "correct and without mistakes", collocation: "accurate information", sentence: "Accurate information helps readers make better decisions.", examNote: "阅读事实判断和写作论证常用。" },
+  { word: "analyze", phonetic: "/ˈænəlaɪz/", meaningZh: "分析", meaningEn: "to examine something carefully", collocation: "analyze a problem", sentence: "Students should analyze the problem before choosing an answer.", examNote: "高中阅读和任务型写作常用动词。" },
+  { word: "approach", phonetic: "/əˈproʊtʃ/", meaningZh: "方法；接近", meaningEn: "a way of dealing with something", collocation: "a practical approach", sentence: "A practical approach is to review words in short sessions.", examNote: "替代 way，表达更正式。" },
+  { word: "available", phonetic: "/əˈveɪləbl/", meaningZh: "可获得的；有空的", meaningEn: "able to be used or obtained", collocation: "available resources", sentence: "Many learning resources are available online.", examNote: "阅读和听力场景高频。" },
+  { word: "beneficial", phonetic: "/ˌbenɪˈfɪʃl/", meaningZh: "有益的", meaningEn: "helpful or good for someone", collocation: "be beneficial to", sentence: "Regular exercise is beneficial to both memory and health.", examNote: "be beneficial to 是作文升级表达。" },
+  { word: "complex", phonetic: "/ˈkɑːmpleks/", meaningZh: "复杂的", meaningEn: "having many connected parts", collocation: "complex issue", sentence: "Climate change is a complex issue that needs cooperation.", examNote: "社会议题和说明文常用。" },
+  { word: "confidence", phonetic: "/ˈkɑːnfɪdəns/", meaningZh: "信心", meaningEn: "belief in your ability", collocation: "build confidence", sentence: "Speaking practice can build confidence over time.", examNote: "成长、学习方法、演讲主题常用。" },
+  { word: "consequence", phonetic: "/ˈkɑːnsəkwens/", meaningZh: "结果；后果", meaningEn: "a result of an action", collocation: "serious consequence", sentence: "Ignoring small mistakes may lead to serious consequences.", examNote: "因果逻辑核心名词。" },
+  { word: "considerable", phonetic: "/kənˈsɪdərəbl/", meaningZh: "相当大的", meaningEn: "large in amount or degree", collocation: "considerable progress", sentence: "She made considerable progress through consistent practice.", examNote: "替代 big/great 的正式表达。" },
+  { word: "contribute", phonetic: "/kənˈtrɪbjuːt/", meaningZh: "贡献；促成", meaningEn: "to help cause or provide something", collocation: "contribute to society", sentence: "Young people can contribute to their community in many ways.", examNote: "contribute to 表示促成或贡献。" },
+  { word: "demonstrate", phonetic: "/ˈdemənstreɪt/", meaningZh: "展示；证明", meaningEn: "to show clearly", collocation: "demonstrate ability", sentence: "The project demonstrates how technology can support learning.", examNote: "写作和阅读论证高频动词。" },
+  { word: "efficient", phonetic: "/ɪˈfɪʃnt/", meaningZh: "高效的", meaningEn: "working well without wasting time or energy", collocation: "efficient strategy", sentence: "An efficient strategy saves time during exam preparation.", examNote: "学习策略类高频。" },
+  { word: "evidence", phonetic: "/ˈevɪdəns/", meaningZh: "证据", meaningEn: "facts that support a belief", collocation: "strong evidence", sentence: "The passage provides strong evidence for the author's view.", examNote: "阅读论证和写作支撑句必备。" },
+  { word: "expand", phonetic: "/ɪkˈspænd/", meaningZh: "扩大；扩展", meaningEn: "to become or make larger", collocation: "expand knowledge", sentence: "Reading widely can expand vocabulary and background knowledge.", examNote: "学习成长和科技发展话题常用。" },
+  { word: "factor", phonetic: "/ˈfæktər/", meaningZh: "因素", meaningEn: "one thing that affects a result", collocation: "key factor", sentence: "Motivation is a key factor in language learning.", examNote: "因果分析中非常常见。" },
+  { word: "maintain", phonetic: "/meɪnˈteɪn/", meaningZh: "保持；维持", meaningEn: "to keep something at the same level", collocation: "maintain balance", sentence: "Students should maintain a balance between study and rest.", examNote: "生活方式和学习规划类核心动词。" },
+  { word: "perspective", phonetic: "/pərˈspektɪv/", meaningZh: "视角；观点", meaningEn: "a way of thinking about something", collocation: "from another perspective", sentence: "From another perspective, mistakes are useful feedback.", examNote: "读后续写和议论文表达常用。" },
+  { word: "potential", phonetic: "/pəˈtenʃl/", meaningZh: "潜在的；潜力", meaningEn: "possible in the future", collocation: "potential benefit", sentence: "AI tools have potential benefits when used responsibly.", examNote: "科技和教育话题高频。" },
+  { word: "significant", phonetic: "/sɪɡˈnɪfɪkənt/", meaningZh: "重要的；显著的", meaningEn: "important or noticeable", collocation: "significant change", sentence: "Daily review can bring significant improvement.", examNote: "替代 important/big 的高频词。" },
+  { word: "strategy", phonetic: "/ˈstrætədʒi/", meaningZh: "策略", meaningEn: "a plan for achieving a goal", collocation: "learning strategy", sentence: "A clear learning strategy makes review more effective.", examNote: "学习方法类写作核心名词。" },
+];
+
+export const keySentenceFrames = [
+  { label: "观点引入", sentence: "It is widely acknowledged that ...", usageZh: "用于作文开头，替代 people think。" },
+  { label: "让步转折", sentence: "Admittedly, ..., but this does not necessarily mean that ...", usageZh: "用于 IELTS/考研/CET6 平衡论证。" },
+  { label: "因果分析", sentence: "This phenomenon can be largely attributed to ...", usageZh: "用于解释社会、教育、科技类原因。" },
+  { label: "证据支撑", sentence: "Empirical evidence suggests that ...", usageZh: "用于 TOEFL/IELTS 学术写作。" },
+  { label: "阅读推断", sentence: "The author implies rather than explicitly states that ...", usageZh: "用于阅读推断题解析。" },
+  { label: "对比总结", sentence: "The key distinction lies not in ..., but in ...", usageZh: "用于长难句和段落主旨。" },
+];
+
+export const commonReadingLogicWords = [
+  "however / nevertheless 然而",
+  "therefore / thus 因此",
+  "whereas / while 然而、对比",
+  "moreover / furthermore 此外",
+  "in contrast 相比之下",
+  "as a result 结果",
+  "provided that 如果、只要",
+  "rather than 而不是",
+  "namely / that is 即、也就是说",
+  "despite / notwithstanding 尽管",
+  "consequently 因而",
+  "in terms of 就……而言",
+];
+
+const sharedWritingFrames = keySentenceFrames.map((frame) => `${frame.sentence} — ${frame.usageZh}`);
+
+export const examVocabularyPacks: ExamVocabularyPack[] = [
+  {
+    slug: "middle-school-core",
+    title: "Middle School Core Vocabulary",
+    shortTitle: "Middle School",
+    targetCount: 1800,
+    level: "Grade 7 to 9",
+    route: "/english/vocabulary/middle-school-core",
+    focus: ["校园生活", "基础写作", "中考阅读", "高频搭配"],
+    priorityWords: middleSchoolPriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "high-school-core",
+    title: "High School Core Vocabulary",
+    shortTitle: "High School",
+    targetCount: 3500,
+    level: "Grade 10 to 12",
+    route: "/english/vocabulary/high-school-core",
+    focus: ["高中阅读", "议论文写作", "读后续写", "核心搭配"],
+    priorityWords: highSchoolPriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "ielts-5000",
+    title: "IELTS 5000 Vocabulary",
+    shortTitle: "IELTS 5000",
+    targetCount: 5000,
+    level: "Band 6 to 8",
+    route: "/english/vocabulary/ielts-5000",
+    focus: ["话题词汇", "学术搭配", "Task 2 写作", "口语精准表达"],
+    priorityWords: ieltsPriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "toefl-5000",
+    title: "TOEFL 5000 Vocabulary",
+    shortTitle: "TOEFL 5000",
+    targetCount: 5000,
+    level: "iBT Academic",
+    route: "/english/vocabulary/toefl-5000",
+    focus: ["lecture verbs", "校园阅读", "学术名词", "证据与推断"],
+    priorityWords: toeflPriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "cet-4-core",
+    title: "CET 4 Core Vocabulary",
+    shortTitle: "CET 4",
+    targetCount: 4500,
+    level: "College English Band 4",
+    route: "/english/vocabulary/cet-4-core",
+    focus: ["基础高频", "阅读关键词", "翻译搭配", "听力识别"],
+    priorityWords: cet4PriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "cet-6-core",
+    title: "CET 6 Advanced Vocabulary",
+    shortTitle: "CET 6",
+    targetCount: 6000,
+    level: "College English Band 6",
+    route: "/english/vocabulary/cet-6-core",
+    focus: ["抽象名词", "论证动词", "高级阅读", "写作过渡"],
+    priorityWords: cet6PriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "postgraduate-core",
+    title: "Postgraduate Entrance Vocabulary",
+    shortTitle: "考研英语",
+    targetCount: 5500,
+    level: "China Postgraduate English",
+    route: "/english/vocabulary/postgraduate-core",
+    focus: ["长难句", "学术论证", "翻译块", "写作框架"],
+    priorityWords: postgraduatePriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+];
+
+export const cppQuestionBank = {
+  title: "C++ 1000 Question Bank",
+  targetCount: 1000,
+  route: "/cpp/quiz/mega-1000",
+  questionsPerCategory: 125,
+  categoryPlan: [
+    { slug: "syntax-types", title: "Syntax And Types", zh: "语法与类型", count: 125, focus: ["变量", "类型转换", "运算符", "自增自减"] },
+    { slug: "control-flow", title: "Control Flow", zh: "条件循环与函数", count: 125, focus: ["if/else", "for/while", "break/continue", "return"] },
+    { slug: "arrays-strings", title: "Arrays And Strings", zh: "数组与字符串", count: 125, focus: ["下标", "size", "遍历", "字符串拼接"] },
+    { slug: "pointers-references", title: "Pointers And References", zh: "指针与引用", count: 125, focus: ["地址", "解引用", "引用修改", "const"] },
+    { slug: "oop", title: "Object Oriented Programming", zh: "面向对象", count: 125, focus: ["class", "public/private", "constructor", "inheritance"] },
+    { slug: "stl", title: "STL Containers", zh: "STL 容器", count: 125, focus: ["vector", "map", "set", "queue", "stack"] },
+    { slug: "algorithms", title: "Algorithms", zh: "基础算法", count: 125, focus: ["sort", "search", "two pointers", "prefix sum", "recursion"] },
+    { slug: "code-reading-output", title: "Code Reading And Output", zh: "代码阅读与输出预测", count: 125, focus: ["状态追踪", "嵌套循环", "函数调用", "容器变化"] },
+  ],
+  typeMix: ["MULTIPLE_CHOICE 40%", "FILL_BLANK 25%", "CODE_READING 35%"],
+  difficultyMix: ["EASY 55%", "MEDIUM 35%", "HARD 10%"],
+};
+
+export function getVocabularyPack(slug: string) {
+  return examVocabularyPacks.find((pack) => pack.slug === slug);
+}
+
+export function getCppCategory(slug: string) {
+  return cppQuestionBank.categoryPlan.find((category) => category.slug === slug);
+}

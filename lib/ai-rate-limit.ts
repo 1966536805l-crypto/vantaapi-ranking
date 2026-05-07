@@ -3,7 +3,7 @@
  * 使用 Redis 存储每日调用次数
  */
 
-import redis from "./redis";
+import { getRedisClient } from "./redis";
 
 const DAILY_LIMIT_NORMAL = 30; // 普通用户每天30次
 const DAILY_LIMIT_ADMIN = 300; // 管理员每天300次
@@ -27,6 +27,11 @@ export async function checkAIRateLimit(
   const key = `ai:rate_limit:${userId}:${today}`;
 
   try {
+    const redis = getRedisClient();
+    if (!redis) {
+      return { allowed: true, remaining: limit, limit, resetAt: new Date() };
+    }
+
     // 获取当前计数
     const currentCount = await redis.get(key);
     const count = currentCount ? parseInt(currentCount, 10) : 0;
@@ -70,10 +75,14 @@ export async function incrementAIUsage(
   userId: string,
   isAdmin: boolean = false
 ): Promise<void> {
+  void isAdmin;
   const today = new Date().toISOString().split("T")[0];
   const key = `ai:rate_limit:${userId}:${today}`;
 
   try {
+    const redis = getRedisClient();
+    if (!redis) return;
+
     const count = await redis.incr(key);
 
     // 第一次调用时设置过期时间（48小时，留一些余量）
@@ -98,6 +107,9 @@ export async function getAIRemainingCalls(
   const key = `ai:rate_limit:${userId}:${today}`;
 
   try {
+    const redis = getRedisClient();
+    if (!redis) return limit;
+
     const currentCount = await redis.get(key);
     const count = currentCount ? parseInt(currentCount, 10) : 0;
     return Math.max(0, limit - count);

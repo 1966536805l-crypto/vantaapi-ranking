@@ -12,6 +12,7 @@ type AIResponse = {
   success: boolean;
   content?: string;
   error?: string;
+  status?: number;
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -19,10 +20,22 @@ type AIResponse = {
   };
 };
 
+type AIStreamResponse =
+  | {
+      success: true;
+      response: Response;
+      model: string;
+    }
+  | {
+      success: false;
+      error: string;
+      status?: number;
+    };
+
 const AI_BASE_URL = process.env.AI_BASE_URL || "https://api.deepseek.com/v1";
 const AI_API_KEY = process.env.AI_API_KEY || "";
 const AI_MODEL = process.env.AI_MODEL || "deepseek-chat";
-const AI_TIMEOUT = parseInt(process.env.AI_TIMEOUT || "30000", 10);
+const AI_TIMEOUT = parseInt(process.env.AI_TIMEOUT || "12000", 10);
 
 /**
  * 调用 AI 模型
@@ -33,6 +46,7 @@ export async function callAI(
     temperature?: number;
     maxTokens?: number;
     model?: string;
+    timeoutMs?: number;
   }
 ): Promise<AIResponse> {
   if (!AI_API_KEY) {
@@ -43,13 +57,15 @@ export async function callAI(
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT);
+  const timeoutId = setTimeout(() => controller.abort(), options?.timeoutMs ?? AI_TIMEOUT);
 
   try {
-    const response = await fetch(`${AI_BASE_URL}/chat/completions`, {
+    const baseUrl = AI_BASE_URL.replace(/\/+$/, "");
+    const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Accept-Language": "en-US,en",
         Authorization: `Bearer ${AI_API_KEY}`,
       },
       body: JSON.stringify({
@@ -69,10 +85,23 @@ export async function callAI(
       return {
         success: false,
         error: `AI API 返回错误: ${response.status}`,
+        status: response.status,
       };
     }
 
-    const data = await response.json();
+    const data = await response.json() as {
+      choices?: {
+        message?: {
+          content?: string;
+          reasoning_content?: string;
+        };
+      }[];
+      usage?: {
+        prompt_tokens?: number;
+        completion_tokens?: number;
+        total_tokens?: number;
+      };
+    };
 
     if (!data.choices || data.choices.length === 0) {
       return {
@@ -83,12 +112,12 @@ export async function callAI(
 
     return {
       success: true,
-      content: data.choices[0].message.content,
+      content: data.choices[0].message?.content || "",
       usage: data.usage
         ? {
-            promptTokens: data.usage.prompt_tokens,
-            completionTokens: data.usage.completion_tokens,
-            totalTokens: data.usage.total_tokens,
+            promptTokens: data.usage.prompt_tokens ?? 0,
+            completionTokens: data.usage.completion_tokens ?? 0,
+            totalTokens: data.usage.total_tokens ?? 0,
           }
         : undefined,
     };
@@ -105,6 +134,78 @@ export async function callAI(
       return {
         success: false,
         error: error.message,
+      };
+    }
+
+    return {
+      success: false,
+      error: "未知错误",
+    };
+  }
+}
+
+export async function streamAI(
+  messages: AIMessage[],
+  options?: {
+    temperature?: number;
+    maxTokens?: number;
+    model?: string;
+    timeoutMs?: number;
+  }
+): Promise<AIStreamResponse> {
+  if (!AI_API_KEY) {
+    return {
+      success: false,
+      error: "AI_API_KEY 未配置",
+    };
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), options?.timeoutMs ?? AI_TIMEOUT);
+
+  try {
+    const baseUrl = AI_BASE_URL.replace(/\/+$/, "");
+    const response = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept-Language": "en-US,en",
+        Authorization: `Bearer ${AI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: options?.model || AI_MODEL,
+        messages,
+        temperature: options?.temperature ?? 0.4,
+        max_tokens: options?.maxTokens ?? 700,
+        stream: true,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok || !response.body) {
+      const errorText = await response.text().catch(() => "");
+      console.error("AI stream API 错误:", response.status, errorText);
+      return {
+        success: false,
+        error: `AI API 返回错误: ${response.status}`,
+        status: response.status,
+      };
+    }
+
+    return {
+      success: true,
+      response,
+      model: options?.model || AI_MODEL,
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error instanceof Error) {
+      return {
+        success: false,
+        error: error.name === "AbortError" ? "AI 请求超时" : error.message,
       };
     }
 

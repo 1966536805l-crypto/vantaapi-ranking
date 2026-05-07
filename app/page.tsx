@@ -1,329 +1,323 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import ConsolePage from "@/components/ConsolePage";
-import { ProgressChart, TrendChart, KnowledgeRadar } from "@/components/Charts";
-import { StatCard, Tabs, Badge, ProgressBar } from "@/components/UIComponents";
+import type { Metadata } from "next";
+import QuickStartPanel from "@/components/home/QuickStartPanel";
+import { getServerUser } from "@/lib/server-auth";
+import { programmingLanguages } from "@/lib/programming-content";
+import { toolDefinitions } from "@/lib/tool-definitions";
+import { worldLanguages } from "@/lib/world-language-content";
 
-type DashboardState = {
-  goal: string;
-  focus: string;
-  project: string;
-  learnMath: number;
-  learnPhysics: number;
-  learnEnglish: number;
-  learnCode: number;
-  topPriority: string;
+export const metadata: Metadata = {
+  title: "JinMing Lab - AI Tools Coding Lab and World Languages",
+  description:
+    "A clean AI tools programming practice and world language learning platform for prompts code debugging roadmaps and zero foundation language paths.",
 };
 
-const defaultState: DashboardState = {
-  goal: "完成 2 小时数学复盘，修复 VantaAPI 一个页面问题",
-  focus: "先学习，再项目，晚上做错题回顾",
-  project: "VantaAPI 个人控制台改版",
-  learnMath: 35,
-  learnPhysics: 20,
-  learnEnglish: 45,
-  learnCode: 60,
-  topPriority: "数学：因式分解 - 提公因式法还不熟练",
-};
+const railItems = [
+  { href: "/", code: "JM", label: "Home" },
+  { href: "/today", code: "TD", label: "Today" },
+  { href: "/search", code: "S", label: "Search" },
+  { href: "/tools", code: "T", label: "Tools" },
+  { href: "/languages", code: "W", label: "Languages" },
+  { href: "/programming", code: "C", label: "Coding" },
+  { href: "/tools/learning-roadmap", code: "R", label: "Roadmap" },
+  { href: "/dashboard", code: "D", label: "Dashboard" },
+];
 
-export default function Home() {
-  const [state, setState] = useState<DashboardState>(defaultState);
+const heroPills = [
+  "Search first",
+  "Today plan",
+  "AI tools",
+  "Coding lab",
+  "English training",
+  "World languages",
+];
 
-  useEffect(() => {
-    const saved = localStorage.getItem("immortal-dashboard");
-    if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setState({ ...defaultState, ...JSON.parse(saved) });
-    }
-  }, []);
+const productCards = [
+  {
+    title: "Today",
+    href: "/today",
+    eyebrow: "Start",
+    body: "Daily review new words typing reading and questions in one short queue.",
+    points: ["One page", "Local streak", "No login"],
+  },
+  {
+    title: "AI Tools",
+    href: "/tools",
+    eyebrow: "Core",
+    body: "Prompt polish code explanation bug diagnosis API requests and developer utilities.",
+    points: ["Prompt", "Code", "Bug"],
+  },
+  {
+    title: "Coding",
+    href: "/programming",
+    eyebrow: "Practice",
+    body: "Zero foundation programming paths with tutorials drills hints and answers.",
+    points: ["Python", "JavaScript", "C++"],
+  },
+  {
+    title: "English",
+    href: "/english?lang=zh",
+    eyebrow: "Training",
+    body: "Vocabulary typing reading grammar question bank and personal wordbook.",
+    points: ["Typing", "Wordbook", "Review"],
+  },
+  {
+    title: "World Languages",
+    href: "/languages",
+    eyebrow: "Zero",
+    body: "Sound script first phrases sentence slots and daily review for world languages.",
+    points: ["Sound", "Script", "Review"],
+  },
+];
 
-  const updateState = <K extends keyof DashboardState>(
-    key: K,
-    value: DashboardState[K]
-  ) => {
-    const next = { ...state, [key]: value };
-    setState(next);
-    localStorage.setItem("immortal-dashboard", JSON.stringify(next));
-  };
+const featuredCodingSlugs = ["python", "javascript", "typescript", "cpp", "sql", "bash"];
+const featuredCodingTracks = programmingLanguages.filter((language) =>
+  featuredCodingSlugs.includes(language.slug)
+);
 
-  const progress = [
-    ["数学", state.learnMath],
-    ["物理", state.learnPhysics],
-    ["英语", state.learnEnglish],
-    ["编程", state.learnCode],
-  ] as const;
+const featuredWorldSlugs = ["english", "japanese", "spanish", "french", "korean", "arabic"];
+const featuredWorldTracks = worldLanguages.filter((language) =>
+  featuredWorldSlugs.includes(language.slug)
+);
 
-  const recentActivities = [
-    { type: "cpp", title: "C++ 运行错误", time: "2小时前", status: "待分析" },
-    { type: "mistake", title: "因式分解错题", time: "昨天", status: "已记录" },
-    { type: "project", title: "控制台改版", time: "3天前", status: "进行中" },
-  ];
+const quietLinks = [
+  { href: "/english/vocabulary/custom?lang=zh", label: "My Wordbook", meta: "Import tag train" },
+  { href: "/english/typing?lang=zh", label: "English Typing", meta: "Listen type retry" },
+  { href: "/english/question-bank?lang=zh", label: "English Questions", meta: "Choice fill blank" },
+  { href: "/cpp/quiz/mega-1000", label: "C++ Bank", meta: "Classified drills" },
+  { href: "/wrong", label: "Review", meta: "Saved mistakes" },
+  { href: "/dashboard", label: "Dashboard", meta: "Progress panel" },
+];
 
-  // 学习趋势数据（最近7天）
-  const trendData = [
-    { date: "周一", value: 120 },
-    { date: "周二", value: 150 },
-    { date: "周三", value: 90 },
-    { date: "周四", value: 180 },
-    { date: "周五", value: 160 },
-    { date: "周六", value: 200 },
-    { date: "周日", value: 140 },
-  ];
-
-  // 知识点掌握雷达图数据
-  const radarData = [
-    { subject: "数学", value: state.learnMath, fullMark: 100 },
-    { subject: "物理", value: state.learnPhysics, fullMark: 100 },
-    { subject: "英语", value: state.learnEnglish, fullMark: 100 },
-    { subject: "编程", value: state.learnCode, fullMark: 100 },
-  ];
-
-  // 统计数据
-  const stats = {
-    totalTime: 850, // 总学习时长（分钟）
-    todayTime: 140, // 今日学习时长
-    mistakeCount: 23, // 错题数量
-    solvedCount: 18, // 已解决错题
-  };
+export default async function HomePage() {
+  const user = await getServerUser();
 
   return (
-    <ConsolePage
-      eyebrow="Dashboard"
-      title="把每天当成一场训练赛。"
-      description="这里是你的个人学习控制台：只记录自己的目标、进度、错题和项目，不展示他人信息，不做公开对比。"
-    >
-      {/* 统计卡片 */}
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="本周学习时长"
-          value={`${Math.floor(stats.totalTime / 60)}h ${stats.totalTime % 60}m`}
-          change="+12% vs 上周"
-          trend="up"
-          icon="📚"
-        />
-        <StatCard
-          title="今日学习时长"
-          value={`${Math.floor(stats.todayTime / 60)}h ${stats.todayTime % 60}m`}
-          change="目标: 3h"
-          trend="neutral"
-          icon="⏱️"
-        />
-        <StatCard
-          title="错题总数"
-          value={stats.mistakeCount}
-          change={`已解决 ${stats.solvedCount}`}
-          trend="down"
-          icon="📝"
-        />
-        <StatCard
-          title="完成率"
-          value={`${Math.round((stats.solvedCount / stats.mistakeCount) * 100)}%`}
-          change="+5% vs 上周"
-          trend="up"
-          icon="✅"
-        />
-      </section>
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-slate-900/40">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
-              Today Contest
-            </h2>
-            <span className="border border-emerald-500/30 bg-emerald-950/50 px-3 py-1 font-mono text-[11px] uppercase text-emerald-400">
-              local only
-            </span>
-          </div>
-          <div className="mb-4 flex items-center gap-3">
-            <span className="h-6 w-6 rounded-full bg-blue-500/20 ring-1 ring-blue-400/50" />
-            <span className="h-0 w-0 border-l-[14px] border-r-[14px] border-b-[24px] border-l-transparent border-r-transparent border-b-blue-500" />
-            <span className="h-4 w-4 rounded-full bg-amber-400" />
-          </div>
-          <textarea
-            value={state.goal}
-            onChange={(event) => updateState("goal", event.target.value)}
-            rows={4}
-            className="w-full border border-slate-700 bg-slate-900 px-4 py-3 text-sm leading-6 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          />
-          <label className="mt-4 block font-mono text-xs uppercase tracking-[0.16em] text-slate-400">
-            Strategy
-          </label>
-          <input
-            value={state.focus}
-            onChange={(event) => updateState("focus", event.target.value)}
-            className="mt-2 w-full border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+    <main className="apple-page">
+      <div className="study-desk-shell grid min-h-screen grid-cols-[76px_minmax(0,1fr)] gap-3 py-5 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[152px_minmax(0,1fr)] lg:gap-4">
+        <HomeRail isAdmin={user?.role === "ADMIN"} />
 
-        <div className="border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-slate-900/40">
-          <h2 className="font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
-            Active Build
-          </h2>
-          <input
-            value={state.project}
-            onChange={(event) => updateState("project", event.target.value)}
-            className="mt-4 w-full border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          />
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <Link className="border border-blue-600 bg-blue-600 px-4 py-3 text-center font-mono text-xs font-black uppercase tracking-[0.16em] text-white transition hover:bg-blue-700" href="/projects">
-              Build
-            </Link>
-            <Link className="border border-slate-700 bg-slate-900 px-4 py-3 text-center font-mono text-xs font-black uppercase tracking-[0.16em] text-slate-300 transition hover:border-slate-600 hover:bg-slate-800" href="/ai">
-              AI Coach
-            </Link>
-          </div>
-        </div>
-      </section>
+        <section className="min-w-0">
+          <TopBar isAdmin={user?.role === "ADMIN"} isSignedIn={Boolean(user)} />
 
-      {/* 今日最该解决的问题 */}
-      <section className="mt-4 border border-red-900/50 bg-gradient-to-br from-red-950/80 to-slate-950 p-5 shadow-xl shadow-red-900/20">
-        <div className="mb-4 flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500/20 ring-2 ring-red-500/50">
-            <span className="text-lg">⚠️</span>
-          </span>
-          <h2 className="font-mono text-sm font-black uppercase tracking-[0.18em] text-red-400">
-            Top Priority
-          </h2>
-        </div>
-        <textarea
-          value={state.topPriority}
-          onChange={(event) => updateState("topPriority", event.target.value)}
-          rows={2}
-          className="w-full border border-red-900/50 bg-slate-900/80 px-4 py-3 text-sm leading-6 text-slate-100 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-          placeholder="今天最该解决的问题..."
-        />
-        <div className="mt-3 flex gap-2">
-          <Link href="/mistakes" className="border border-red-600 bg-red-600 px-4 py-2 font-mono text-xs uppercase tracking-wider text-white transition hover:bg-red-700">
-            查看错题本
-          </Link>
-          <Link href="/cpp" className="border border-slate-700 bg-slate-900 px-4 py-2 font-mono text-xs uppercase tracking-wider text-slate-300 transition hover:border-slate-600">
-            C++ 训练
-          </Link>
-        </div>
-      </section>
+          <section className="mt-3 dense-panel overflow-hidden p-5 sm:p-6">
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
+              <div>
+                <p className="eyebrow">AI Tools Coding Lab World Languages</p>
+                <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-[1.04] tracking-normal sm:text-4xl lg:text-5xl">
+                  JinMing Lab
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--muted)]">
+                  Search first then start the exact tool lesson drill or review page you need.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <Link href="/search" className="dense-action-primary px-4 py-2.5">
+                    Search
+                  </Link>
+                  <Link href="/today" className="dense-action px-4 py-2.5">
+                    Start Today
+                  </Link>
+                  <Link href="/tools" className="dense-action px-4 py-2.5">
+                    AI Tools
+                  </Link>
+                  <Link href="/english/vocabulary/custom?lang=zh" className="dense-action px-4 py-2.5">
+                    My Wordbook
+                  </Link>
+                  <Link href="/programming" className="dense-action px-4 py-2.5">
+                    Coding
+                  </Link>
+                </div>
+                <form action="/search" className="mt-4 flex max-w-2xl flex-col gap-2 rounded-[8px] border border-slate-200 bg-white/80 p-2 sm:flex-row">
+                  <input
+                    name="q"
+                    className="min-h-11 min-w-0 flex-1 rounded-[8px] border border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition focus:border-slate-500"
+                    placeholder="Search wordbook typing prompt python IELTS regex"
+                  />
+                  <button className="dense-action-primary px-5 py-2.5" type="submit">
+                    Search
+                  </button>
+                </form>
+              </div>
 
-      {/* 最近记录 */}
-      <section className="mt-4 border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-slate-900/40">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
-            Recent Activity
-          </h2>
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500">
-            Last 7 days
-          </span>
-        </div>
-        <div className="space-y-3">
-          {recentActivities.map((activity, index) => (
-            <div key={index} className="flex items-center justify-between border border-slate-800 bg-slate-900/50 p-4">
-              <div className="flex items-center gap-3">
-                <span className={`h-2 w-2 rounded-full ${
-                  activity.type === "cpp" ? "bg-blue-500" :
-                  activity.type === "mistake" ? "bg-amber-500" :
-                  "bg-emerald-500"
-                }`} />
-                <div>
-                  <p className="text-sm text-slate-200">{activity.title}</p>
-                  <p className="mt-1 font-mono text-xs text-slate-500">{activity.time}</p>
+              <div className="rounded-[8px] border border-slate-200 bg-white/75 p-4">
+                <p className="eyebrow">Focus</p>
+                <div className="mt-3 grid gap-2">
+                  {heroPills.map((item) => (
+                    <span key={item} className="dense-row">
+                      <span className="text-sm font-semibold">{item}</span>
+                      <span className="text-xs text-[color:var(--muted)]">Ready</span>
+                    </span>
+                  ))}
                 </div>
               </div>
-              <span className={`border px-3 py-1 font-mono text-[10px] uppercase tracking-wider ${
-                activity.status === "待分析" ? "border-amber-700 bg-amber-950/50 text-amber-400" :
-                activity.status === "已记录" ? "border-blue-700 bg-blue-950/50 text-blue-400" :
-                "border-emerald-700 bg-emerald-950/50 text-emerald-400"
-              }`}>
-                {activity.status}
-              </span>
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      {/* 学习数据可视化 */}
-      <section className="mt-4 border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-slate-900/40">
-        <Tabs
-          tabs={[
-            { id: "progress", label: "学科进度", icon: "📊" },
-            { id: "trend", label: "学习趋势", icon: "📈" },
-            { id: "radar", label: "知识雷达", icon: "🎯" },
-          ]}
-          defaultTab="progress"
-        >
-          {(activeTab) => (
-            <>
-              {activeTab === "progress" && (
-                <div>
-                  <div className="mb-4 flex items-center justify-between">
-                    <h3 className="font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
-                      Division Progress
-                    </h3>
-                    <Link href="/learn" className="font-mono text-xs uppercase tracking-[0.14em] text-blue-400 hover:text-blue-300">
-                      edit route
-                    </Link>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {progress.map(([label, value]) => (
-                      <div key={label} className="border border-slate-800 bg-slate-900/50 p-4">
-                        <div className="mb-3 flex items-center justify-between">
-                          <span className="text-sm text-slate-300">{label}</span>
-                          <Badge variant={value >= 60 ? "success" : value >= 40 ? "warning" : "error"}>
-                            {value >= 60 ? "良好" : value >= 40 ? "进行中" : "需加强"}
-                          </Badge>
-                        </div>
-                        <ProgressBar value={value} max={100} showLabel={true} />
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={value}
-                          onChange={(event) =>
-                            updateState(
-                              `learn${label === "数学" ? "Math" : label === "物理" ? "Physics" : label === "英语" ? "English" : "Code"}` as keyof DashboardState,
-                              Number(event.target.value) as never
-                            )
-                          }
-                          className="mt-3 w-full accent-blue-500"
-                        />
-                      </div>
-                    ))}
-                  </div>
+          <QuickStartPanel />
+
+          <section className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            {productCards.map((card) => (
+              <Link key={card.href} href={card.href} className="dense-card p-4 transition hover:-translate-y-0.5 hover:border-slate-300">
+                <p className="eyebrow">{card.eyebrow}</p>
+                <h2 className="mt-2 text-xl font-semibold">{card.title}</h2>
+                <p className="mt-2 min-h-16 text-sm leading-6 text-[color:var(--muted)]">{card.body}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {card.points.map((point) => (
+                    <span key={point} className="dense-status">
+                      {point}
+                    </span>
+                  ))}
                 </div>
-              )}
-              {activeTab === "trend" && (
+              </Link>
+            ))}
+          </section>
+
+          <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)_minmax(320px,0.9fr)]">
+            <div className="dense-panel p-5">
+              <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <h3 className="mb-4 font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
-                    本周学习时长趋势
-                  </h3>
-                  <div className="rounded-lg bg-white p-4">
-                    <TrendChart data={trendData} color="#3b82f6" />
-                  </div>
-                  <p className="mt-3 text-sm text-slate-400">
-                    本周平均每天学习 {Math.round(trendData.reduce((sum, d) => sum + d.value, 0) / trendData.length)} 分钟
-                  </p>
+                  <p className="eyebrow">AI Tools</p>
+                  <h2 className="mt-2 text-2xl font-semibold">Six practical tools</h2>
                 </div>
-              )}
-              {activeTab === "radar" && (
+                <Link href="/tools" className="dense-action-primary">
+                  View all
+                </Link>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {toolDefinitions.map((tool) => (
+                  <Link key={tool.slug} href={`/tools/${tool.slug}`} className="dense-mini">
+                    <span className="font-semibold">{tool.title}</span>
+                    <span className="truncate text-[color:var(--muted)]">{tool.description}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="dense-panel p-5">
+              <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <h3 className="mb-4 font-mono text-sm font-black uppercase tracking-[0.18em] text-slate-100">
-                    知识点掌握程度
-                  </h3>
-                  <div className="rounded-lg bg-white p-4">
-                    <KnowledgeRadar data={radarData} />
-                  </div>
-                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {radarData.map((item) => (
-                      <div key={item.subject} className="border border-slate-800 bg-slate-900/50 p-3 text-center">
-                        <p className="text-xs text-slate-400">{item.subject}</p>
-                        <p className="mt-1 font-mono text-lg font-bold text-blue-400">{item.value}%</p>
-                      </div>
-                    ))}
-                  </div>
+                  <p className="eyebrow">World Languages</p>
+                  <h2 className="mt-2 text-2xl font-semibold">Start from zero</h2>
                 </div>
+                <Link href="/languages" className="dense-action-primary">
+                  View paths
+                </Link>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+                {featuredWorldTracks.map((language) => (
+                  <Link key={language.slug} href={`/languages/${language.slug}`} className="dense-mini">
+                    <span className="font-semibold">{language.name}</span>
+                    <span className="truncate text-[color:var(--muted)]">{language.nativeName} · {language.script}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="dense-panel dense-grid-bg p-5">
+              <div className="mb-4">
+                <p className="eyebrow text-slate-400">Coding Lab</p>
+                <h2 className="mt-2 text-2xl font-semibold text-white">Start with one language</h2>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {featuredCodingTracks.map((language) => (
+                  <Link
+                    key={language.slug}
+                    href={`/programming/${language.slug}`}
+                    className="rounded-[8px] border border-white/10 bg-white/[0.07] p-3 text-white transition hover:border-sky-200/50"
+                  >
+                    <p className="text-sm font-semibold">{language.shortTitle}</p>
+                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-300">{language.role}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-3 dense-panel p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="eyebrow">Direct Links</p>
+                <h2 className="mt-2 text-xl font-semibold">Frequently used study doors</h2>
+              </div>
+              {user ? (
+                <Link href="/dashboard" className="dense-action">
+                  Dashboard
+                </Link>
+              ) : (
+                <Link href="/login" className="dense-action">
+                  Sign in
+                </Link>
               )}
-            </>
-          )}
-        </Tabs>
-      </section>
-    </ConsolePage>
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {quietLinks.map((item) => (
+                <Link key={item.href} href={item.href} className="dense-row">
+                  <span className="text-sm font-semibold">{item.label}</span>
+                  <span className="truncate text-xs text-[color:var(--muted)]">{item.meta}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function HomeRail({ isAdmin }: { isAdmin: boolean }) {
+  const items = isAdmin ? [...railItems, { href: "/admin", code: "A", label: "Admin" }] : railItems;
+
+  return (
+    <aside className="study-rail sticky top-5 flex h-[calc(100vh-40px)] flex-col p-2">
+      <Link href="/" className="mb-3 flex items-center gap-2 rounded-[8px] px-2 py-2">
+        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">JM</span>
+        <span className="hidden text-sm font-semibold leading-tight sm:block">JinMing Lab</span>
+      </Link>
+
+      <nav className="grid gap-1">
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`rail-link ${item.href === "/" ? "rail-link-active" : ""}`}
+          >
+            <span className="grid h-7 w-7 place-items-center rounded-[8px] bg-white/70 text-xs font-semibold text-slate-700">
+              {item.code}
+            </span>
+            <span className="hidden text-xs font-semibold sm:inline lg:text-sm">{item.label}</span>
+          </Link>
+        ))}
+      </nav>
+    </aside>
+  );
+}
+
+function TopBar({ isAdmin, isSignedIn }: { isAdmin: boolean; isSignedIn: boolean }) {
+  return (
+    <header className="dense-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        <span className="dense-status">JinMing Lab</span>
+        <span className="dense-status">Search</span>
+        <span className="dense-status">AI tools</span>
+        <span className="dense-status">World languages</span>
+        <span className="dense-status">Coding lab</span>
+        <span className="dense-status">Roadmaps</span>
+        {isAdmin && <span className="dense-status">Admin</span>}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href="/search" className="dense-action-primary">Search</Link>
+        <Link href="/tools" className="dense-action">Tools</Link>
+        <Link href="/languages" className="dense-action">Languages</Link>
+        <Link href="/programming" className="dense-action">Coding</Link>
+        <Link href="/tools/learning-roadmap" className="dense-action">Roadmap</Link>
+        {isSignedIn ? (
+          <form action="/api/auth/logout" method="post">
+            <button className="dense-action">Logout</button>
+          </form>
+        ) : (
+          <Link href="/login" className="dense-action">Login</Link>
+        )}
+      </div>
+    </header>
   );
 }

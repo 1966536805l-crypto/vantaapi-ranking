@@ -1,5 +1,2 @@
 import { redirect } from "next/navigation";
-
-export default function OldCategoryPage() {
-  redirect("/projects");
-}
+export default function CategoryPage() { redirect("/"); }

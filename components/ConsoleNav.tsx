@@ -1,44 +1,74 @@
 import Link from "next/link";
-import { ThemeToggle } from "./ThemeToggle";
 
-const navItems = [
-  { href: "/", label: "Dashboard" },
-  { href: "/cpp", label: "C++ Run" },
-  { href: "/learn", label: "Training" },
-  { href: "/mistakes", label: "Wrong Set" },
-  { href: "/questions", label: "Questions" },
-  { href: "/projects", label: "Build" },
-  { href: "/status", label: "Status" },
-  { href: "/games", label: "Drills" },
-  { href: "/ai", label: "AI Coach" },
-];
+type Lang = "en" | "zh";
 
-export default function ConsoleNav() {
+const labels = {
+  en: {
+    brand: "JinMing AI Coding Lab",
+    switchLabel: "中文",
+    switchHref: "/?lang=zh",
+    items: [
+      ["/", "Home"],
+      ["/today", "Today"],
+      ["/learn", "Subjects"],
+      ["/questions", "Problems"],
+      ["/mistakes", "Mistakes"],
+      ["/cpp", "C++ Lab"],
+      ["/ai", "AI Coach"],
+      ["/projects", "Projects"],
+      ["/status", "Progress"],
+    ],
+  },
+  zh: {
+    brand: "金明 AI 编程实验室",
+    switchLabel: "EN",
+    switchHref: "/",
+    items: [
+      ["/?lang=zh", "首页"],
+      ["/today?lang=zh", "今日"],
+      ["/learn?lang=zh", "科目"],
+      ["/questions?lang=zh", "题库"],
+      ["/mistakes?lang=zh", "错题"],
+      ["/cpp?lang=zh", "C++ 实验"],
+      ["/ai?lang=zh", "AI 教练"],
+      ["/projects?lang=zh", "项目"],
+      ["/status?lang=zh", "进度"],
+    ],
+  },
+} satisfies Record<Lang, { brand: string; switchLabel: string; switchHref: string; items: string[][] }>;
+
+export default function ConsoleNav({ lang = "en" }: { lang?: Lang }) {
+  const copy = labels[lang];
+
   return (
-    <nav className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
-      <Link href="/" className="flex items-center gap-3">
-        <span className="relative grid h-12 w-12 place-items-center border border-blue-200 bg-white shadow-sm dark:border-blue-700 dark:bg-slate-800">
-          <span className="h-0 w-0 border-l-[10px] border-r-[10px] border-b-[18px] border-l-transparent border-r-transparent border-b-blue-700 dark:border-b-blue-400" />
-          <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-amber-400" />
-        </span>
-        <div>
-          <p className="font-mono text-lg font-black tracking-[0.14em] text-slate-950 dark:text-slate-100">IMMORTAL</p>
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue-700 dark:text-blue-400">
-            Contest Console
-          </p>
-        </div>
-      </Link>
-      <div className="flex flex-wrap gap-2 font-mono text-xs items-center">
-        {navItems.map((item) => (
+    <nav className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <Link href={lang === "zh" ? "/?lang=zh" : "/"} className="flex items-baseline gap-3">
+          <span className="font-serif text-[25px] leading-none tracking-tight text-slate-950">
+            JinMing Lab
+          </span>
+          <span className="eyebrow hidden sm:inline">{copy.brand}</span>
+        </Link>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px]">
+            {copy.items.map(([href, label]) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className="text-slate-700 transition-colors hover:text-[color:var(--accent-link)]"
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
           <Link
-            key={item.href}
-            href={item.href}
-            className="border border-slate-200 bg-white px-3 py-2 text-slate-600 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-blue-600 dark:hover:bg-slate-700 dark:hover:text-blue-400"
+            href={copy.switchHref}
+            className="border border-slate-300 px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-slate-600 hover:border-slate-500 hover:text-slate-950"
           >
-            {item.label}
+            {copy.switchLabel}
           </Link>
-        ))}
-        <ThemeToggle />
+        </div>
       </div>
     </nav>
   );

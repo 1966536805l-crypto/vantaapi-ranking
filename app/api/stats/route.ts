@@ -1,52 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import redis from "@/lib/redis";
-
-type DailyTrendItem = {
-  date: string;
-  views: number;
-  likes: number;
-};
+import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
+import { guardedJson } from "@/lib/api-guard";
 
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const days = parseInt(searchParams.get("days") || "7");
+  const { response } = await requireAdmin(request);
+  if (response) return response;
 
-    const stats = {
-      totalProjects: 0,
-      totalViews: 0,
-      totalLikes: 0,
-      totalComments: 0,
-      categoryStats: [] as Array<{ category: string; count: number }>,
-      dailyTrend: [] as DailyTrendItem[],
-    };
+  const [courses, englishCourses, cppCourses, lessons, questions, progress, wrongQuestions] = await Promise.all([
+    prisma.course.count(),
+    prisma.course.count({ where: { direction: "ENGLISH" } }),
+    prisma.course.count({ where: { direction: "CPP" } }),
+    prisma.lesson.count(),
+    prisma.question.count(),
+    prisma.userProgress.count(),
+    prisma.wrongQuestion.count(),
+  ]);
 
-    const projectCount = await redis.get("stats:projects:total");
-    stats.totalProjects = parseInt(projectCount || "0");
+  return guardedJson({ courses, englishCourses, cppCourses, lessons, questions, progress, wrongQuestions });
+}
 
-    const viewsCount = await redis.get("stats:views:total");
-    stats.totalViews = parseInt(viewsCount || "0");
-
-    const likesCount = await redis.zcard("ranking:likes");
-    stats.totalLikes = likesCount;
-
-    for (let i = 0; i < days; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dateKey = date.toISOString().split("T")[0];
-
-      const views = await redis.get(`stats:views:${dateKey}`);
-      const likes = await redis.get(`stats:likes:${dateKey}`);
-
-      stats.dailyTrend.unshift({
-        date: dateKey,
-        views: parseInt(views || "0"),
-        likes: parseInt(likes || "0"),
-      });
-    }
-
-    return NextResponse.json(stats);
-  } catch (error) {
-    return NextResponse.json({ message: "获取统计失败" }, { status: 500 });
-  }
+export async function POST() {
+  return NextResponse.json({ message: "Method not allowed" }, { status: 405, headers: { Allow: "GET", "Cache-Control": "no-store" } });
 }

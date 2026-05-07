@@ -14,7 +14,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 
@@ -92,7 +91,7 @@ export function KnowledgeRadar({ data }: KnowledgeRadarProps) {
         <PolarAngleAxis dataKey="subject" stroke="#64748b" />
         <PolarRadiusAxis stroke="#64748b" />
         <Radar
-          name="掌握程度"
+          name="Mastery"
           dataKey="value"
           stroke="#3b82f6"
           fill="#3b82f6"
@@ -116,7 +115,7 @@ type HeatmapProps = {
 
 export function StudyHeatmap({ data }: HeatmapProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const getColor = (value: number) => {
     if (value === 0) return "#f1f5f9";
@@ -154,7 +153,7 @@ export function StudyHeatmap({ data }: HeatmapProps) {
                   key={`${day}-${hour}`}
                   className="w-6 h-6 rounded-sm cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
                   style={{ backgroundColor: getColor(value) }}
-                  title={`${day} ${hour}:00 - ${value}分钟`}
+                  title={`${day} ${hour}:00 - ${value}min`}
                 />
               );
             })}
@@ -162,7 +161,7 @@ export function StudyHeatmap({ data }: HeatmapProps) {
         ))}
       </div>
       <div className="mt-4 flex items-center gap-2 text-xs text-slate-600">
-        <span>少</span>
+        <span>Less</span>
         <div className="flex gap-1">
           {[0, 30, 60, 90, 120].map((val) => (
             <div
@@ -172,7 +171,7 @@ export function StudyHeatmap({ data }: HeatmapProps) {
             />
           ))}
         </div>
-        <span>多</span>
+        <span>More</span>
       </div>
     </div>
   );
