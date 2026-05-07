@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { WorldLanguageExplorer } from "@/components/learning/WorldLanguageExplorer";
 import {
   worldLanguageFamilies,
   worldLanguages,
@@ -94,15 +95,15 @@ export default function WorldLanguagesPage() {
           <nav className="grid gap-1 text-sm">
             <Link href="/languages" className="rail-link rail-link-active">
               <span>W</span>
-              <strong>World Languages</strong>
+              <strong>世界语言</strong>
             </Link>
             <Link href="/tools" className="rail-link">
               <span>T</span>
-              <strong>AI Tools</strong>
+              <strong>AI 工具</strong>
             </Link>
             <Link href="/programming" className="rail-link">
               <span>C</span>
-              <strong>Coding Lab</strong>
+              <strong>编程训练</strong>
             </Link>
           </nav>
         </aside>
@@ -113,7 +114,7 @@ export default function WorldLanguagesPage() {
               <div>
                 <p className="eyebrow">世界语言 0 基础</p>
                 <h1 className="mt-3 max-w-5xl text-3xl font-semibold leading-[1.04] sm:text-4xl lg:text-5xl">
-                  World Languages Zero Foundation
+                  世界语言从 0 开始
                 </h1>
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--muted)]">
                   从发音开始 再到文字系统 第一批短句 句型替换 每日复习 让任何语言都能从 0 开始学
@@ -188,20 +189,7 @@ export default function WorldLanguagesPage() {
             </div>
           </section>
 
-          <section className="mt-3 dense-panel p-5">
-            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="eyebrow">全部语言</p>
-                <h2 className="mt-2 text-2xl font-semibold">世界语言地图</h2>
-              </div>
-              <span className="dense-status">0 基础课程</span>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {worldLanguages.map((language) => (
-                <LanguageCard key={language.slug} language={language} compact />
-              ))}
-            </div>
-          </section>
+          <WorldLanguageExplorer languages={worldLanguages} families={worldLanguageFamilies} />
         </section>
       </section>
     </main>
