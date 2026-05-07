@@ -27,6 +27,7 @@
     "backup:db": "node scripts/backup-db.js",
     "launch:check": "node scripts/prelaunch-check.js",
     "launch:vercel": "node scripts/vercel-env-check.js",
+    "launch:production": "node scripts/launch-production-gate.js",
     "launch:full": "npm run launch:check && npm run security:full",
     "production:check": "node scripts/production-readiness.js"
   },

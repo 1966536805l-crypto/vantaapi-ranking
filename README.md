@@ -130,6 +130,15 @@ GITHUB_READ_TOKEN="..."
 Then run:
 
 ```bash
+npm run launch:production
+npm run build
+```
+
+`launch:production` checks Vercel Production variable presence, pulls Production env into the ignored `.env.vercel.production.local` file, then validates the pulled values without printing secrets.
+
+Manual equivalent:
+
+```bash
 npm run launch:vercel
 npm run launch:check
 npm run build
@@ -143,7 +152,7 @@ If Vercel is configured but local `launch:check` still sees stale values, pull p
 
 ```bash
 vercel env pull .env.vercel.production.local --environment=production
-PRELAUNCH_ENV_FILE=.env.vercel.production.local npm run launch:check
+PRELAUNCH_ENV_FILE=.env.vercel.production.local PRELAUNCH_IGNORE_PROCESS_ENV=true npm run launch:check
 ```
 
 ## Admin
