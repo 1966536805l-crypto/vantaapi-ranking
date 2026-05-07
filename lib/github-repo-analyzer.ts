@@ -31,6 +31,12 @@ export type GitHubRepoAnalysis = {
     note: string;
   }>;
   mustFix: string[];
+  priorityFixes: {
+    today: string[];
+    beforeLaunch: string[];
+    later: string[];
+  };
+  prDescription: string;
   copyableIssues: string[];
   overview: string[];
   howToRun: string[];
@@ -556,6 +562,11 @@ function launchAuditSummary({
     ...blockers,
     ...warnings.slice(0, Math.max(0, 6 - blockers.length)),
   ];
+  const priorityFixes = {
+    today: blockers.length ? blockers : warnings.slice(0, 1),
+    beforeLaunch: blockers.length ? warnings.slice(0, 3) : warnings.slice(1, 4),
+    later: warnings.slice(blockers.length ? 3 : 4),
+  };
 
   const copyableIssues = mustFix.slice(0, 5).map((item, index) => {
     const title = item.replace(/\.$/, "");
@@ -593,9 +604,32 @@ npm run build
 \`\`\``;
   });
 
+  const visibleMustFix = mustFix.length ? mustFix : ["No launch blockers detected from the public files read."];
+  const prDescription = `## Launch readiness audit
+
+Score: ${score}/100
+Risk: ${riskLevel}
+
+### Today
+${priorityFixes.today.length ? priorityFixes.today.map((item) => `- [ ] ${item}`).join("\n") : "- [x] No same-day blocker detected"}
+
+### Before public launch
+${priorityFixes.beforeLaunch.length ? priorityFixes.beforeLaunch.map((item) => `- [ ] ${item}`).join("\n") : "- [x] No required pre-launch item detected"}
+
+### Later polish
+${priorityFixes.later.length ? priorityFixes.later.map((item) => `- [ ] ${item}`).join("\n") : "- [ ] Keep README, CI, env docs, and release notes current"}
+
+### Verification
+\`\`\`bash
+npm run lint
+npm run build
+\`\`\``;
+
   return {
     launchScore: { score, riskLevel, summary },
-    mustFix: mustFix.length ? mustFix : ["No launch blockers detected from the public files read."],
+    mustFix: visibleMustFix,
+    priorityFixes,
+    prDescription,
     copyableIssues: copyableIssues.length ? copyableIssues : ["No blocking issue template needed from this audit."],
   };
 }
@@ -655,6 +689,8 @@ function buildAnalysis({
     launchScore: audit.launchScore,
     scorecard,
     mustFix: audit.mustFix,
+    priorityFixes: audit.priorityFixes,
+    prDescription: audit.prDescription,
     copyableIssues: audit.copyableIssues,
     overview: [
       ...extraOverview,

@@ -6,6 +6,8 @@
   "required": [
     "repository",
     "scorecard",
+    "priorityFixes",
+    "prDescription",
     "overview",
     "howToRun",
     "techStack",
@@ -57,6 +59,17 @@
       "minItems": 5,
       "maxItems": 5
     },
+    "priorityFixes": {
+      "type": "object",
+      "required": ["today", "beforeLaunch", "later"],
+      "additionalProperties": false,
+      "properties": {
+        "today": { "$ref": "#/$defs/sectionItems" },
+        "beforeLaunch": { "$ref": "#/$defs/sectionItems" },
+        "later": { "$ref": "#/$defs/sectionItems" }
+      }
+    },
+    "prDescription": { "type": "string", "minLength": 1 },
     "overview": { "$ref": "#/$defs/sectionItems" },
     "howToRun": { "$ref": "#/$defs/commandItems" },
     "techStack": { "$ref": "#/$defs/findingItems" },

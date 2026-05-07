@@ -2125,6 +2125,41 @@ body:has(.home-audit-page) .global-search-trigger {
   color: #991b1b;
 }
 
+.repo-priority-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.repo-priority-card {
+  min-width: 0;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 12px;
+}
+
+.repo-priority-today {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: rgba(248, 250, 252, 0.96);
+}
+
+.repo-pr-description {
+  max-height: 258px;
+  overflow: auto;
+  margin-top: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 12px;
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
 .repo-report-board {
   margin-top: 12px;
   border: 1px solid rgba(15, 23, 42, 0.10);
@@ -2479,6 +2514,7 @@ body:has(.home-audit-page) .global-search-trigger {
   .tool-proof-grid,
   .tool-field-grid,
   .repo-scorecard-grid,
+  .repo-priority-grid,
   .repo-audit-brief,
   .repo-action-panel,
   .repo-verdict {

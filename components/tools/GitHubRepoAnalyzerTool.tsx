@@ -30,6 +30,12 @@ type GitHubRepoAnalysis = {
     note: string;
   }>;
   mustFix: string[];
+  priorityFixes: {
+    today: string[];
+    beforeLaunch: string[];
+    later: string[];
+  };
+  prDescription: string;
   copyableIssues: string[];
   overview: string[];
   howToRun: string[];
@@ -88,6 +94,34 @@ const sampleGitHubAnalysis: GitHubRepoAnalysis = {
     "Make required environment variables explicit in one env example section.",
     "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.",
   ],
+  priorityFixes: {
+    today: ["Make required environment variables explicit in one env example section."],
+    beforeLaunch: [
+      "Keep the README quick start path under five minutes for a new contributor.",
+      "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.",
+    ],
+    later: ["Add a recurring release review for docs, examples, and CI drift."],
+  },
+  prDescription: `## Launch readiness audit
+
+Score: 86/100
+Risk: Low
+
+### Today
+- [ ] Make required environment variables explicit in one env example section.
+
+### Before public launch
+- [ ] Keep the README quick start path under five minutes for a new contributor.
+- [ ] Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.
+
+### Later polish
+- [ ] Add a recurring release review for docs, examples, and CI drift.
+
+### Verification
+\`\`\`bash
+npm run lint
+npm run build
+\`\`\``,
   copyableIssues: [
     `## Improve new contributor quick start
 
@@ -211,6 +245,20 @@ function scorecardList(items: GitHubRepoAnalysis["scorecard"], zh: boolean) {
     : "- No scorecard detected";
 }
 
+function priorityFixList(priorityFixes: GitHubRepoAnalysis["priorityFixes"], zh: boolean) {
+  const today = priorityFixes.today.length ? priorityFixes.today : [zh ? "今天没有必须立刻修的阻塞项" : "No same-day blocker detected"];
+  const beforeLaunch = priorityFixes.beforeLaunch.length ? priorityFixes.beforeLaunch : [zh ? "上线前暂无额外必修项" : "No additional pre-launch item detected"];
+  const later = priorityFixes.later.length ? priorityFixes.later : [zh ? "持续保持 README CI 环境变量和发布说明更新" : "Keep README CI env docs and release notes current"];
+  return [
+    zh ? "今天必须修" : "Fix today",
+    numberedList(today),
+    zh ? "上线前修" : "Fix before launch",
+    numberedList(beforeLaunch),
+    zh ? "后面优化" : "Later polish",
+    numberedList(later),
+  ].join("\n");
+}
+
 function base64UrlEncode(value: string) {
   const bytes = new TextEncoder().encode(value);
   let binary = "";
@@ -237,6 +285,8 @@ function isSharedGitHubAnalysis(value: unknown): value is GitHubRepoAnalysis {
       candidate.launchScore &&
       typeof candidate.launchScore.score === "number" &&
       Array.isArray(candidate.scorecard) &&
+      candidate.priorityFixes &&
+      typeof candidate.prDescription === "string" &&
       Array.isArray(candidate.mustFix) &&
       Array.isArray(candidate.releaseChecklist)
   );
@@ -283,6 +333,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
     ? [
         `上线体检\n评分：${analysis.launchScore.score}/100\n风险：${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
         `五维评分卡\n${scorecardList(analysis.scorecard, true)}`,
+        `修复优先级\n${priorityFixList(analysis.priorityFixes, true)}`,
         `上线前必须修\n${numberedList(analysis.mustFix)}`,
         `仓库\n${analysis.repository.fullName}\n${analysis.repository.url}`,
         `概览\n${bulletList(analysis.overview)}`,
@@ -296,6 +347,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
         `CI 建议\n${bulletList(analysis.githubActions)}`,
         `部署清单\n${numberedList(analysis.deploymentChecklist)}`,
         `PR 检查清单\n${numberedList(analysis.prReviewChecklist)}`,
+        `可复制 PR 描述\n${analysis.prDescription}`,
         `发布清单\n${numberedList(analysis.releaseChecklist)}`,
         `可复制 GitHub Issues\n${analysis.copyableIssues.join("\n\n---\n\n")}`,
         `读取文件\n${bulletList(analysis.filesRead)}`,
@@ -303,6 +355,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
     : [
         `Launch readiness\nScore: ${analysis.launchScore.score}/100\nRisk: ${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
         `Five-point scorecard\n${scorecardList(analysis.scorecard, false)}`,
+        `Fix priority\n${priorityFixList(analysis.priorityFixes, false)}`,
         `Must fix before launch\n${numberedList(analysis.mustFix)}`,
         `Repository\n${analysis.repository.fullName}\n${analysis.repository.url}`,
         `Overview\n${bulletList(analysis.overview)}`,
@@ -316,6 +369,7 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
         `CI suggestions\n${bulletList(analysis.githubActions)}`,
         `Deployment checklist\n${numberedList(analysis.deploymentChecklist)}`,
         `PR review checklist\n${numberedList(analysis.prReviewChecklist)}`,
+        `Copyable PR description\n${analysis.prDescription}`,
         `Release checklist\n${numberedList(analysis.releaseChecklist)}`,
         `Copyable GitHub issues\n${analysis.copyableIssues.join("\n\n---\n\n")}`,
         `Files read\n${bulletList(analysis.filesRead)}`,
@@ -377,6 +431,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
   const output = useMemo(() => formatGitHubRepoOutput(analysis, error, language), [analysis, error, language]);
   const issueBundle = useMemo(() => analysis?.copyableIssues.join("\n\n---\n\n") || "", [analysis]);
   const releaseBundle = useMemo(() => analysis ? numberedList(analysis.releaseChecklist) : "", [analysis]);
+  const prDescription = useMemo(() => analysis?.prDescription || "", [analysis]);
   const qualityGates = useMemo(() => analysis ? qualityGateLabel(analysis) : [], [analysis]);
   const shareUrl = useMemo(() => {
     if (!analysis || typeof window === "undefined") return "";
@@ -389,10 +444,11 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
       { badge: `${analysis.launchScore.score}`, title: `${analysis.launchScore.riskLevel} risk verdict`, content: analysis.launchScore.summary },
       { badge: "01", title: zh ? "必须修" : "Must fix", content: numberedList(analysis.mustFix) },
       { badge: "02", title: zh ? "GitHub Issues" : "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
-      { badge: "03", title: zh ? "发布清单" : "Release checklist", content: numberedList(analysis.releaseChecklist) },
-      { badge: "04", title: zh ? "环境变量清单" : "Environment checklist", content: bulletList(analysis.envChecklist) },
-      { badge: "05", title: zh ? "README 优化" : "README upgrades", content: bulletList(analysis.readmeSuggestions) },
-      { badge: "06", title: zh ? "PR 检查清单" : "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
+      { badge: "03", title: zh ? "PR 描述" : "PR description", content: analysis.prDescription },
+      { badge: "04", title: zh ? "发布清单" : "Release checklist", content: numberedList(analysis.releaseChecklist) },
+      { badge: "05", title: zh ? "环境变量清单" : "Environment checklist", content: bulletList(analysis.envChecklist) },
+      { badge: "06", title: zh ? "README 优化" : "README upgrades", content: bulletList(analysis.readmeSuggestions) },
+      { badge: "07", title: zh ? "PR 检查清单" : "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
     ];
   }, [analysis, zh]);
 
@@ -530,6 +586,9 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
               <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, zh ? "发布清单已复制" : "Checklist copied")}>
                 {zh ? "复制发布清单" : "Copy release checklist"}
               </button>
+              <button type="button" className="dense-action" onClick={() => copyAuditText(prDescription, zh ? "PR 描述已复制" : "PR description copied")}>
+                {zh ? "复制 PR 描述" : "Copy PR description"}
+              </button>
               <a className="dense-action" href={analysis.repository.url} target="_blank" rel="noreferrer">
                 {zh ? "打开仓库" : "Open repo"}
               </a>
@@ -641,6 +700,34 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
         </section>
       )}
       {analysis && (
+        <section className="repo-priority-grid">
+          <article className="repo-priority-card repo-priority-today">
+            <p className="eyebrow">{zh ? "今天必须修" : "Fix today"}</p>
+            <ol className="repo-check-list">
+              {(analysis.priorityFixes.today.length ? analysis.priorityFixes.today : [zh ? "今天没有必须立刻修的阻塞项" : "No same-day blocker detected"]).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ol>
+          </article>
+          <article className="repo-priority-card">
+            <p className="eyebrow">{zh ? "上线前修" : "Before launch"}</p>
+            <ol className="repo-check-list">
+              {(analysis.priorityFixes.beforeLaunch.length ? analysis.priorityFixes.beforeLaunch : [zh ? "上线前暂无额外必修项" : "No additional pre-launch item detected"]).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ol>
+          </article>
+          <article className="repo-priority-card">
+            <p className="eyebrow">{zh ? "后面优化" : "Later polish"}</p>
+            <ol className="repo-check-list">
+              {(analysis.priorityFixes.later.length ? analysis.priorityFixes.later : [zh ? "持续保持 README CI 环境变量和发布说明更新" : "Keep README CI env docs and release notes current"]).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ol>
+          </article>
+        </section>
+      )}
+      {analysis && (
         <section className="repo-action-panel">
           <div>
             <p className="eyebrow">{zh ? "下一步" : "Ship Next"}</p>
@@ -688,16 +775,12 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
 
             <div className="repo-report-section">
               <div className="repo-report-section-head">
-                <p className="eyebrow">{zh ? "发布清单" : "Release Checklist"}</p>
-                <button type="button" onClick={() => copyAuditText(releaseBundle, zh ? "发布清单已复制" : "Release checklist copied")}>
+                <p className="eyebrow">{zh ? "PR 描述" : "PR Description"}</p>
+                <button type="button" onClick={() => copyAuditText(prDescription, zh ? "PR 描述已复制" : "PR description copied")}>
                   {zh ? "复制" : "Copy"}
                 </button>
               </div>
-              <ol className="repo-check-list">
-                {analysis.releaseChecklist.slice(0, 6).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ol>
+              <pre className="repo-pr-description">{analysis.prDescription}</pre>
             </div>
           </div>
 
