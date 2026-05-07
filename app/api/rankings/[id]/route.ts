@@ -1,15 +1,9 @@
-import { NextResponse } from "next/server";
+import { retiredApi } from "@/lib/retired-api";
 
 export async function PATCH() {
-  return NextResponse.json(
-    { message: "旧公开修改功能已下线。" },
-    { status: 410 }
-  );
+  return retiredApi("旧公开修改功能已下线。");
 }
 
 export async function DELETE() {
-  return NextResponse.json(
-    { message: "旧公开删除功能已下线。" },
-    { status: 410 }
-  );
+  return retiredApi("旧公开删除功能已下线。");
 }

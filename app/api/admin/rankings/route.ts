@@ -1,15 +1,9 @@
-import { NextResponse } from "next/server";
+import { retiredApi } from "@/lib/retired-api";
 
 export async function GET() {
-  return NextResponse.json(
-    { message: "旧公开审核后台已下线。" },
-    { status: 410 }
-  );
+  return retiredApi("旧公开审核后台已下线。");
 }
 
 export async function PATCH() {
-  return NextResponse.json(
-    { message: "旧公开审核后台已下线。" },
-    { status: 410 }
-  );
+  return retiredApi("旧公开审核后台已下线。");
 }

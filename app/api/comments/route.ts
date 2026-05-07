@@ -1,15 +1,9 @@
-import { NextResponse } from "next/server";
+import { retiredApi } from "@/lib/retired-api";
 
 export async function GET() {
-  return NextResponse.json(
-    { message: "公开评论功能已下线。" },
-    { status: 410 }
-  );
+  return retiredApi("公开评论功能已下线。");
 }
 
 export async function POST() {
-  return NextResponse.json(
-    { message: "公开评论功能已下线。" },
-    { status: 410 }
-  );
+  return retiredApi("公开评论功能已下线。");
 }

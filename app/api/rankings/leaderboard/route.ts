@@ -1,8 +1,5 @@
-import { NextResponse } from "next/server";
+import { retiredApi } from "@/lib/retired-api";
 
 export async function GET() {
-  return NextResponse.json(
-    { message: "旧公开展示接口已下线。" },
-    { status: 410 }
-  );
+  return retiredApi("旧公开展示接口已下线。");
 }

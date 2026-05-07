@@ -374,6 +374,50 @@ function checkRetiredPublicSurface() {
   }
 }
 
+function checkRetiredApiResponses() {
+  const retiredApiFiles = [
+    "app/api/categories/route.ts",
+    "app/api/comments/route.ts",
+    "app/api/rankings/route.ts",
+    "app/api/rankings/[id]/route.ts",
+    "app/api/rankings/leaderboard/route.ts",
+    "app/api/rankings/like/route.ts",
+    "app/api/report/route.ts",
+    "app/api/reports/route.ts",
+    "app/api/ai-review/route.ts",
+    "app/api/cpp/run/route.ts",
+    "app/api/admin/rankings/route.ts",
+    "app/api/admin/rankings/[id]/route.ts",
+  ];
+  const helper = read("lib/retired-api.ts");
+  const helperHasHeaders =
+    helper.includes('"Cache-Control": "no-store"') &&
+    helper.includes('"X-Robots-Tag": "noindex, nofollow, noarchive"') &&
+    helper.includes("status: 410");
+  const weak = [];
+
+  for (const file of retiredApiFiles) {
+    const body = read(file);
+    if (!body) {
+      weak.push(`${file} missing`);
+      continue;
+    }
+    const usesHelper = body.includes("retiredApi(") && helperHasHeaders;
+    const inlineHardened =
+      body.includes("status: 410") &&
+      body.includes('"Cache-Control": "no-store"') &&
+      body.includes('"X-Robots-Tag": "noindex, nofollow, noarchive"');
+    if (!usesHelper && !inlineHardened) weak.push(file);
+  }
+
+  if (weak.length) {
+    action("Harden retired API responses", "Retired APIs should return 410 with no-store and X-Robots-Tag noindex headers.");
+    bad("api:retired-responses", `weak retired API response in ${weak.slice(0, 10).join(", ")}`);
+  } else {
+    ok("api:retired-responses", "retired APIs return hardened 410 no-store noindex responses");
+  }
+}
+
 async function main() {
   console.log("🚀 JinMing Lab prelaunch gate\n");
   if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
@@ -404,6 +448,7 @@ async function main() {
 
   checkBrandResidue();
   checkRetiredPublicSurface();
+  checkRetiredApiResponses();
 
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (launchActions.length) {
