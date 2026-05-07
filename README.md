@@ -127,6 +127,14 @@ ENABLE_REDIS_RATE_LIMITS="true"
 GITHUB_READ_TOKEN="..."
 ```
 
+Generate the app-owned secrets locally:
+
+```bash
+npm run launch:secrets
+```
+
+This prints launch-ready values for `JWT_SECRET`, `CSRF_SECRET`, and `ENCRYPTION_KEY`, plus Vercel CLI helper commands. It does not write files and does not upload anything.
+
 Then run:
 
 ```bash

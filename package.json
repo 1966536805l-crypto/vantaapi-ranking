@@ -25,6 +25,7 @@
     "security:secrets": "node scripts/secret-pattern-check.js",
     "security:full": "npm run security:check && npm run security:regression && npm run security:repo && npm run security:network && npm run security:supply-chain && npm run security:secrets && npm run typecheck && npm run lint && npm run build && npm audit --audit-level=high",
     "backup:db": "node scripts/backup-db.js",
+    "launch:secrets": "node scripts/generate-secrets.js",
     "launch:check": "node scripts/prelaunch-check.js",
     "launch:vercel": "node scripts/vercel-env-check.js",
     "launch:production": "node scripts/launch-production-gate.js",
