@@ -13,7 +13,7 @@ export type ModuleItem = {
 
 const navCopy = {
   en: {
-    brand: "JinMing Lab",
+    brand: "VantaAPI",
     today: "Today",
     english: "English",
     programming: "Programming",
@@ -21,7 +21,7 @@ const navCopy = {
     dashboard: "Dashboard",
   },
   zh: {
-    brand: "JinMing Lab",
+    brand: "VantaAPI",
     today: "今日",
     english: "英语",
     programming: "编程",
@@ -52,7 +52,7 @@ export function AppleStudyHeader({ language = "en" }: { language?: SiteLanguage 
     <header className="apple-shell apple-nav px-5 py-3">
       <div className="flex items-center justify-between gap-4">
         <Link href={localizedHref("/", language)} className="flex items-center gap-2 font-semibold">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-slate-950 text-[10px] text-white shadow-sm">JM</span>
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-slate-950 text-[10px] text-white shadow-sm">VA</span>
           <span>{copy.brand}</span>
         </Link>
         <nav className="flex flex-wrap items-center justify-end gap-2 text-sm">
