@@ -26,8 +26,8 @@ const lesson = (slug, title, summary, content, examples, questions) => ({ slug, 
 const examPacks = [
   {
     slug: "ielts-5000",
-    title: "IELTS 5000 Vocabulary",
-    target: 5000,
+    title: "IELTS Vocabulary Builder",
+    scope: "IELTS academic vocabulary practice",
     level: "Band 6 to 8",
     words: [
       ["allocate", "Governments should allocate more funding to public transport.", "allocate funding"],
@@ -40,8 +40,8 @@ const examPacks = [
   },
   {
     slug: "toefl-5000",
-    title: "TOEFL 5000 Vocabulary",
-    target: 5000,
+    title: "TOEFL Vocabulary Builder",
+    scope: "TOEFL academic vocabulary practice",
     level: "iBT Academic",
     words: [
       ["hypothesis", "The researcher proposed a hypothesis about climate patterns.", "test a hypothesis"],
@@ -55,7 +55,7 @@ const examPacks = [
   {
     slug: "cet-4-core",
     title: "CET 4 Core Vocabulary",
-    target: 4500,
+    scope: "CET 4 core vocabulary practice",
     level: "College English Band 4",
     words: [
       ["benefit", "Regular reading brings long term benefits to students.", "major benefit"],
@@ -69,7 +69,7 @@ const examPacks = [
   {
     slug: "cet-6-core",
     title: "CET 6 Advanced Vocabulary",
-    target: 6000,
+    scope: "CET 6 advanced vocabulary practice",
     level: "College English Band 6",
     words: [
       ["substantial", "The policy produced substantial improvements in safety.", "substantial change"],
@@ -83,7 +83,7 @@ const examPacks = [
   {
     slug: "postgraduate-core",
     title: "Postgraduate Entrance Vocabulary",
-    target: 5500,
+    scope: "postgraduate entrance vocabulary practice",
     level: "China Postgraduate English",
     words: [
       ["acknowledge", "The author acknowledges the limits of the study.", "acknowledge a problem"],
@@ -101,13 +101,13 @@ const buildExamVocabularyCourses = () =>
     direction: "ENGLISH",
     slug: pack.slug,
     title: pack.title,
-    description: `${pack.level} pack with a ${pack.target} word target, priority words, collocations, key sentences and quiz conversion.`,
+    description: `${pack.level} pack with original priority words, collocations, key sentences and quiz conversion. The library is updated over time.`,
     lessons: [
       lesson(
         `${pack.slug}-priority-words`,
         `${pack.title} Priority Words`,
-        `${pack.target} word target with high value starting words.`,
-        `This pack is designed as a ${pack.target} word training target. Start with precision words, collocations and sentences before expanding the full list.`,
+        `${pack.scope} with high value starting words.`,
+        "Start with precision words, collocations and sentences before expanding the list through review and practice.",
         pack.words.map(([word, sentence, collocation]) => [word, sentence, collocation]),
         pack.words.map(([word, sentence, collocation]) =>
           choice(
