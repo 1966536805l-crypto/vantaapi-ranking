@@ -281,7 +281,7 @@ function checkBrandResidue() {
         if (entry.isDirectory()) stack.push(full);
         else if (/\.(ts|tsx|css|md)$/.test(entry.name)) {
           const body = fs.readFileSync(full, "utf8");
-          if (/JinMing|\bJM\b|Immortal|immortal/.test(body)) {
+          if (/VantaAPI|vantaapi-ranking|Immortal|immortal/.test(body)) {
             publicBrandResidue.push(path.relative(root, full));
           }
         }
@@ -292,12 +292,12 @@ function checkBrandResidue() {
   if (publicBrandResidue.length) {
     bad("brand:public-residue", `cleanup needed in ${Array.from(new Set(publicBrandResidue)).slice(0, 12).join(", ")}`);
   } else {
-    ok("brand:public-residue", "no JinMing/JM/Immortal residue in app, components, or lib");
+    ok("brand:public-residue", "no VantaAPI/vantaapi-ranking/Immortal residue in app, components, or lib");
   }
 }
 
 async function main() {
-  console.log("🚀 VantaAPI prelaunch gate\n");
+  console.log("🚀 JinMing Lab prelaunch gate\n");
   if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
 
   checkSecret("JWT_SECRET", { min: 32 });
