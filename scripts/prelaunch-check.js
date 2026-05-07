@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Production launch gate for VantaAPI.
+ * Production launch gate for JinMing Lab.
  * Checks server configuration without printing secret values.
  */
 
@@ -20,6 +20,7 @@ let warn = 0;
 let fail = 0;
 let databaseUrlLooksProductionReady = false;
 const loadedEnvFiles = [];
+const launchActions = [];
 
 function read(file) {
   try {
@@ -42,6 +43,10 @@ function caution(name, message) {
 function bad(name, message) {
   fail += 1;
   console.log(`❌ ${name}: ${message}`);
+}
+
+function action(title, detail) {
+  launchActions.push({ title, detail });
 }
 
 function loadEnvFile(file) {
@@ -86,7 +91,11 @@ function checkSecret(name, options = {}) {
 function checkToken(name, options = {}) {
   const value = envValue(name);
   const min = options.min || 20;
-  if (looksPlaceholder(value)) return bad(`env:${name}`, "missing or still a placeholder");
+  if (looksPlaceholder(value)) {
+    bad(`env:${name}`, "missing or still a placeholder");
+    action(`Set ${name}`, `Add a real provider value in Vercel Production environment variables. Keep it server-side and never commit it.`);
+    return;
+  }
   if (value.length < min) return bad(`env:${name}`, `looks too short; expected at least ${min} characters`);
   if (/\s/.test(value)) return bad(`env:${name}`, "must not contain whitespace");
   if (options.prefixes && !options.prefixes.some((prefix) => value.startsWith(prefix))) {
@@ -99,6 +108,7 @@ function checkRecommendedToken(name, options = {}) {
   const value = envValue(name);
   const min = options.min || 20;
   if (looksPlaceholder(value)) {
+    action(`Optional: set ${name}`, "Add a GitHub fine-grained read token to raise GitHub API quota for launch audits.");
     return caution(`env:${name}`, "not configured; feature will use a fallback or lower quota");
   }
   if (value.length < min) {
@@ -115,17 +125,24 @@ function checkRecommendedToken(name, options = {}) {
 
 function checkDatabasePassword() {
   const value = envValue("DATABASE_URL");
-  if (looksPlaceholder(value)) return bad("env:DATABASE_URL", "missing or still a placeholder");
+  if (looksPlaceholder(value)) {
+    bad("env:DATABASE_URL", "missing or still a placeholder");
+    action("Set DATABASE_URL", "Use a production Postgres URL from Neon, Supabase, Vercel Postgres, or another cloud database. Do not use localhost or MySQL for this Prisma schema.");
+    return;
+  }
   try {
     const parsed = new URL(value);
     if (!["postgres:", "postgresql:"].includes(parsed.protocol)) {
+      action("Replace DATABASE_URL", "The current DATABASE_URL is not Postgres. Create or connect a production Postgres database, then set DATABASE_URL in Vercel Production.");
       return bad("env:DATABASE_URL", "must be a valid postgres/postgresql URL");
     }
     if (["127.0.0.1", "localhost"].includes(parsed.hostname)) {
+      action("Move database off localhost", "Production deployments cannot use your laptop database. Set DATABASE_URL to a reachable cloud Postgres host.");
       return bad("env:DATABASE_URL", "must use a reachable production database host");
     }
     const password = decodeURIComponent(parsed.password || "");
     if (looksPlaceholder(password) || password.length < 16) {
+      action("Rotate database password", "Generate a strong database password in the database provider dashboard and update DATABASE_URL in Vercel.");
       return bad("env:DATABASE_URL", "database password must be strong and not a placeholder");
     }
     if (["root", "admin"].includes(parsed.username.toLowerCase())) {
@@ -191,6 +208,7 @@ function checkTurnstileConfig() {
   const secret = envValue("TURNSTILE_SECRET_KEY");
   if (!required) return caution("env:AUTH_TURNSTILE_REQUIRED", "Turnstile is not required; enable it before public launch if auth stays open");
   if (looksPlaceholder(siteKey) || looksPlaceholder(secret)) {
+    action("Configure Cloudflare Turnstile", "Create a Turnstile widget in Cloudflare, then set NEXT_PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY in Vercel Production.");
     return bad("env:TURNSTILE", "NEXT_PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY are required when auth Turnstile is enabled");
   }
   ok("env:TURNSTILE", "auth bot protection is configured");
@@ -216,12 +234,14 @@ function checkHostAllowlist() {
 function checkRedisConfig() {
   const enabled = envValue("ENABLE_REDIS_RATE_LIMITS") === "true" || Boolean(envValue("REDIS_URL"));
   if (!enabled) {
+    action("Recommended: set REDIS_URL", "Use Upstash Redis or another managed Redis to make rate limits consistent across serverless instances.");
     caution("env:REDIS_URL", "not configured; in-memory rate limits will work but are weaker on serverless scale");
     return;
   }
 
   const redisUrl = envValue("REDIS_URL");
   if (!redisUrl) {
+    action("Set REDIS_URL", "ENABLE_REDIS_RATE_LIMITS is true, so REDIS_URL must point to a managed Redis instance.");
     return bad("env:REDIS_URL", "ENABLE_REDIS_RATE_LIMITS is true but REDIS_URL is missing");
   }
 
@@ -238,6 +258,7 @@ function checkRedisConfig() {
 
 async function checkAdmin2FAState() {
   if (!databaseUrlLooksProductionReady) {
+    action("Verify admin 2FA after database is fixed", "After DATABASE_URL points to production Postgres, create or seed an ADMIN user and complete 2FA before public launch.");
     bad("db:admin-2fa", "skipped because DATABASE_URL is not production-ready");
     return;
   }
@@ -250,12 +271,14 @@ async function checkAdmin2FAState() {
     });
 
     if (admins.length === 0) {
+      action("Create an ADMIN user", "Seed or create one admin account in production, then log in and complete 2FA.");
       bad("db:admin-2fa", "no ADMIN user exists; create one before launch");
       return;
     }
 
     const unprotected = admins.filter((admin) => !admin.twoFactorEnabled || !admin.twoFactorConfirmedAt);
     if (unprotected.length > 0) {
+      action("Complete admin 2FA", "Log in as every admin account and finish 2FA setup before public launch.");
       bad("db:admin-2fa", `${unprotected.length}/${admins.length} admin account(s) have not completed 2FA`);
       return;
     }
@@ -327,11 +350,33 @@ async function main() {
   checkBrandResidue();
 
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
+  if (launchActions.length) {
+    console.log("\nNext launch actions:");
+    const uniqueActions = [];
+    const seen = new Set();
+    for (const item of launchActions) {
+      const key = `${item.title}:${item.detail}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      uniqueActions.push(item);
+    }
+    uniqueActions.slice(0, 8).forEach((item, index) => {
+      console.log(`${index + 1}. ${item.title}`);
+      console.log(`   ${item.detail}`);
+    });
+  }
   if (fail > 0) process.exit(1);
 }
 
 main().catch((error) => {
   bad("launch:check", error instanceof Error ? error.message : "unknown failure");
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
+  if (launchActions.length) {
+    console.log("\nNext launch actions:");
+    launchActions.slice(0, 8).forEach((item, index) => {
+      console.log(`${index + 1}. ${item.title}`);
+      console.log(`   ${item.detail}`);
+    });
+  }
   process.exit(1);
 });
