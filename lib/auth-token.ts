@@ -6,7 +6,7 @@ export type AuthPayload = {
   role: UserRole;
 };
 
-const JWT_ISSUER = "immortal-study";
+const JWT_ISSUER = "vantaapi-study";
 const JWT_AUDIENCE = "vantaapi.com";
 const DEFAULT_SESSION_SECONDS = 60 * 60 * 24;
 const MAX_SESSION_SECONDS = 60 * 60 * 24 * 7;

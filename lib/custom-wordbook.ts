@@ -1,7 +1,7 @@
 import type { ExamVocabularyWord } from "@/lib/exam-content";
 
 export const CUSTOM_WORDBOOK_SLUG = "custom-wordbook";
-export const CUSTOM_WORDBOOK_STORAGE_KEY = "immortal-custom-wordbook-v1";
+export const CUSTOM_WORDBOOK_STORAGE_KEY = "vantaapi-custom-wordbook-v1";
 
 export type CustomVocabularyWord = ExamVocabularyWord & {
   tags: string[];
@@ -78,7 +78,7 @@ export function readCustomWords() {
 export function writeCustomWords(words: CustomVocabularyWord[]) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(CUSTOM_WORDBOOK_STORAGE_KEY, JSON.stringify(words));
-  window.dispatchEvent(new CustomEvent("jinming-custom-wordbook"));
+  window.dispatchEvent(new CustomEvent("vantaapi-custom-wordbook"));
 }
 
 export function upsertCustomWord(word: ExamVocabularyWord, options?: { tags?: string[] | string; source?: string }) {

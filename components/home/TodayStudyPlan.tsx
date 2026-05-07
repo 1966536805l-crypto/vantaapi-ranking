@@ -63,7 +63,7 @@ type TodayStudyPlanProps = {
 };
 
 const DAILY_TARGET = 4;
-const COMPLETION_STORAGE_KEY = "jinming-today-punch-v1";
+const COMPLETION_STORAGE_KEY = "vantaapi-today-punch-v1";
 const todayTaskIds: TodayTaskId[] = ["review", "typing", "reading", "questions"];
 
 function daySeed(date = new Date()) {
@@ -78,7 +78,7 @@ function todayKey(date = new Date()) {
 function readVocabularyProgress(packSlug: string) {
   if (typeof window === "undefined") return {} as Record<string, ReviewRecord>;
   try {
-    return JSON.parse(window.localStorage.getItem(`immortal-vocabulary-review-${packSlug}`) || "{}") as Record<string, ReviewRecord>;
+    return JSON.parse(window.localStorage.getItem(`vantaapi-vocabulary-review-${packSlug}`) || "{}") as Record<string, ReviewRecord>;
   } catch {
     return {};
   }
@@ -140,7 +140,7 @@ function readCompletionState() {
 function persistCompletionState(state: TodayCompletionState) {
   try {
     window.localStorage.setItem(COMPLETION_STORAGE_KEY, JSON.stringify(state));
-    window.dispatchEvent(new CustomEvent("jinming-today-punch"));
+    window.dispatchEvent(new CustomEvent("vantaapi-today-punch"));
   } catch {
     // Punch data is local and best effort.
   }
@@ -293,15 +293,15 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
     const timer = window.setTimeout(refresh, 0);
     window.addEventListener("storage", refresh);
     window.addEventListener("vantaapi-local-progress", refresh);
-    window.addEventListener("jinming-today-punch", refresh);
-    window.addEventListener("jinming-custom-wordbook", refresh);
+    window.addEventListener("vantaapi-today-punch", refresh);
+    window.addEventListener("vantaapi-custom-wordbook", refresh);
     document.addEventListener("visibilitychange", refresh);
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener("storage", refresh);
       window.removeEventListener("vantaapi-local-progress", refresh);
-      window.removeEventListener("jinming-today-punch", refresh);
-      window.removeEventListener("jinming-custom-wordbook", refresh);
+      window.removeEventListener("vantaapi-today-punch", refresh);
+      window.removeEventListener("vantaapi-custom-wordbook", refresh);
       document.removeEventListener("visibilitychange", refresh);
     };
   }, []);

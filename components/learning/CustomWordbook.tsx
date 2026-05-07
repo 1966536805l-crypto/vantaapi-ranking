@@ -219,11 +219,11 @@ export default function CustomWordbook({ language }: { language: SiteLanguage })
     const refresh = () => setWords(readCustomWords());
     const timeoutId = window.setTimeout(refresh, 0);
     window.addEventListener("storage", refresh);
-    window.addEventListener("jinming-custom-wordbook", refresh);
+    window.addEventListener("vantaapi-custom-wordbook", refresh);
     return () => {
       window.clearTimeout(timeoutId);
       window.removeEventListener("storage", refresh);
-      window.removeEventListener("jinming-custom-wordbook", refresh);
+      window.removeEventListener("vantaapi-custom-wordbook", refresh);
     };
   }, []);
 

@@ -6,7 +6,7 @@ import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { searchSite, siteSearchItems, type SiteSearchItem } from "@/lib/site-search";
 
-const RECENT_STORAGE_KEY = "jinming-search-recents-v1";
+const RECENT_STORAGE_KEY = "vantaapi-search-recents-v1";
 const defaultHrefs = [
   "/today",
   "/english/vocabulary/custom?lang=zh",
@@ -155,7 +155,7 @@ export default function GlobalSearchLauncher() {
           <button type="button" className="global-search-backdrop" aria-label="Close search" onClick={closeLauncher} />
           <section className="global-search-panel">
             <div className="global-search-input-wrap">
-              <span>JM</span>
+              <span>VA</span>
               <input
                 ref={inputRef}
                 value={query}

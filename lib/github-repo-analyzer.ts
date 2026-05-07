@@ -134,7 +134,7 @@ function githubHeaders() {
   return {
     Accept: "application/vnd.github+json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    "User-Agent": "JinMing Lab-Repo-Analyzer",
+    "User-Agent": "VantaAPI-Repo-Analyzer",
     "X-GitHub-Api-Version": "2022-11-28",
   };
 }

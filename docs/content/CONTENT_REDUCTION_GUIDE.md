@@ -23,8 +23,8 @@ Use:
 
 Avoid in public UI and SEO metadata:
 
-- JinMing Lab
-- JinMing AI Coding Lab
+- VantaAPI
+- VantaAPI AI Coding Lab
 - immortal
 - vantaapi-ranking
 

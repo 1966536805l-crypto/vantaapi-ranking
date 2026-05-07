@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* =========================================================================
-   JinMing Lab · Soft Apple-like MVP skin
+   VantaAPI · Soft Apple-like MVP skin
    Clean white space, rounded glass surfaces, subtle hairlines, smooth motion.
    ========================================================================= */
 
@@ -503,6 +503,10 @@ button {
 }
 
 body:has(.typing-fullscreen-page) .global-search-trigger {
+  display: none;
+}
+
+body:has(.home-core-page) .global-search-trigger {
   display: none;
 }
 

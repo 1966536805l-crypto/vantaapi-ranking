@@ -7,16 +7,17 @@ type SearchPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Search - JinMing Lab",
-  description: "Search JinMing Lab tools coding practice world languages English modules and review pages.",
+  title: "AI 工具搜索 - Prompt 优化 代码解释 编程学习 - VantaAPI",
+  description: "搜索 VantaAPI 的 AI 工具、Prompt 优化、代码解释、Bug 定位、API 请求生成和零基础编程学习页面。",
+  keywords: ["AI 工具", "Prompt 优化", "代码解释", "编程学习", "零基础编程"],
   alternates: {
     canonical: "/search",
   },
   openGraph: {
-    title: "Search - JinMing Lab",
-    description: "Search JinMing Lab tools coding practice world languages English modules and review pages.",
+    title: "AI 工具搜索 - VantaAPI",
+    description: "搜索 AI 工具 Prompt 优化 代码解释 Bug 定位 API 请求生成和编程学习页面。",
     url: "https://vantaapi.com/search",
-    siteName: "JinMing Lab",
+    siteName: "VantaAPI",
     type: "website",
   },
 };
@@ -63,7 +64,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "JinMing Lab",
+    name: "VantaAPI",
     url: "https://vantaapi.com",
     potentialAction: {
       "@type": "SearchAction",
@@ -80,7 +81,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       />
       <section className="mx-auto min-h-screen w-[min(1180px,calc(100%_-_28px))] py-5">
         <header className="dense-panel flex flex-wrap items-center justify-between gap-3 p-4">
-          <Link href="/" className="dense-action">JinMing Lab</Link>
+          <Link href="/" className="dense-action">VantaAPI</Link>
           <div className="flex flex-wrap gap-2">
             <Link href="/today" className="dense-action-primary">Today</Link>
             <Link href="/english/vocabulary/custom?lang=zh" className="dense-action">Wordbook</Link>

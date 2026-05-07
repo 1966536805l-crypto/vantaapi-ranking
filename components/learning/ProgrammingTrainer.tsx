@@ -244,7 +244,7 @@ const trackSegments: TrackSegment[] = [
 ];
 
 function storageKey(languageSlug: ProgrammingLanguageSlug) {
-  return `immortal-programming-workbench-${languageSlug}`;
+  return `vantaapi-programming-workbench-${languageSlug}`;
 }
 
 function normalize(value: string) {
@@ -608,7 +608,7 @@ export default function ProgrammingTrainer({
       <div className="programming-workbench">
         <aside className="programming-rail dense-panel">
           <Link href={localizedHref("/", language)} className="tool-brand">
-            <span>JM</span>
+            <span>VA</span>
             <strong>{copy.brand}</strong>
           </Link>
 

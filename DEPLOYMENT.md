@@ -1,4 +1,4 @@
-# JinMing Lab 部署说明
+# VantaAPI 部署说明
 
 这份文档只描述当前 Next.js + Prisma + MySQL/MariaDB MVP 的部署方式。
 
@@ -8,8 +8,8 @@
 
 ## 上线结论
 
-- **内测可以上线**：建议关闭公开注册，开启 Turnstile，保持 C++ runner 关闭。
-- **公开上线前**：建议补齐 Redis 限流、管理员 2FA、CSRF token，以及 CSP nonce/hash。
+- **内测可以上线**：关闭公开注册，开启 Turnstile，保持 C++ runner 关闭。
+- **公开上线前**：必须更换强密钥/数据库密码，管理员完成 2FA，运行 `npm run launch:check`、安全检查和生产构建。
 
 ---
 
@@ -18,8 +18,10 @@
 ### 必填 `.env`
 
 ```env
-DATABASE_URL="mysql://<db_user>:<strong-random-password>@127.0.0.1:3306/<db_name>"
-JWT_SECRET="<generate-a-random-secret-at-least-32-chars>"
+DATABASE_URL=mysql://<db_user>:<strong-random-password>@127.0.0.1:3306/<db_name>
+JWT_SECRET=<generate-a-random-secret-at-least-32-chars>
+CSRF_SECRET=<generate-64-hex-chars>
+ENCRYPTION_KEY=<generate-64-hex-chars>
 NODE_ENV="production"
 NEXT_TELEMETRY_DISABLED="1"
 APP_ALLOWED_HOSTS="vantaapi.com,www.vantaapi.com"
@@ -38,6 +40,8 @@ ENABLE_PUBLIC_REGISTRATION="false"
 AUTH_TURNSTILE_REQUIRED="true"
 ENABLE_CPP_RUNNER="false"
 ENABLE_REDIS_RATE_LIMITS="true"
+REDIS_RATE_LIMIT_FAIL_CLOSED="true"
+ADMIN_2FA_REQUIRED="true"
 REDIS_URL="redis://127.0.0.1:6379"
 NEXT_PUBLIC_TURNSTILE_SITE_KEY="<your-turnstile-site-key>"
 TURNSTILE_SECRET_KEY="<your-turnstile-secret-key>"
@@ -46,6 +50,7 @@ TURNSTILE_SECRET_KEY="<your-turnstile-secret-key>"
 说明：
 
 - `DATABASE_URL` 必须使用生产随机强密码，不要复制任何文档示例密码。
+- `JWT_SECRET`、`CSRF_SECRET`、`ENCRYPTION_KEY` 必须在生产环境重新生成；不要沿用 `.env.example` 或旧测试值。
 - `APP_ALLOWED_HOSTS` 生产环境建议只包含正式域名，不要默认放行临时预览域名。
 - `ENABLE_CPP_RUNNER` 必须保持 `false`，除非你已经做了 Docker/worker 隔离、禁网络、限 CPU/内存/进程数、只读文件系统和超时强杀。
 
@@ -58,7 +63,7 @@ TURNSTILE_SECRET_KEY="<your-turnstile-secret-key>"
 ```bash
 cd /www/wwwroot
 # 任选一种方式：git clone / git pull / 宝塔文件上传
-cd /www/wwwroot/vantaapi-ranking
+cd /www/wwwroot/vantaapi
 ```
 
 ### 2. 安装依赖
@@ -105,16 +110,16 @@ npm run db:seed
 
 ```bash
 npm run build
-pm2 start npm --name "vantaapi-ranking" -- start
+pm2 start npm --name "vantaapi" -- start
 pm2 save
 ```
 
 常用命令：
 
 ```bash
-pm2 logs vantaapi-ranking
-pm2 restart vantaapi-ranking
-pm2 stop vantaapi-ranking
+pm2 logs vantaapi
+pm2 restart vantaapi
+pm2 stop vantaapi
 ```
 
 ---

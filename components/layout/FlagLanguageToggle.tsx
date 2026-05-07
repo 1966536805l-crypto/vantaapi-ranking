@@ -21,7 +21,7 @@ export default function FlagLanguageToggle({
 
   useEffect(() => {
     document.documentElement.lang = current === "zh" ? "zh-CN" : "en-US";
-    window.localStorage.setItem("immortal-language", current);
+    window.localStorage.setItem("vantaapi-language", current);
   }, [current]);
 
   function setLanguage(code: SiteLanguage) {

@@ -290,7 +290,7 @@ function fileSafeName(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-  return normalized || "jinming-lab-output";
+  return normalized || "vantaapi-lab-output";
 }
 
 function downloadTextFile(text: string, title: string) {
@@ -356,8 +356,8 @@ export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { in
       <div className="tool-shell">
         <aside className="tool-rail dense-panel">
           <Link href="/" className="tool-brand">
-            <span>JM</span>
-            <strong>JinMing Lab</strong>
+            <span>VA</span>
+            <strong>VantaAPI</strong>
           </Link>
           <nav className="tool-nav">
             {toolDefinitions.map((tool) => (
@@ -972,7 +972,7 @@ function ApiRequestGenerator() {
   const [url, setUrl] = useState("https://api.example.com/v1/users");
   const [method, setMethod] = useState<ApiMethod>("POST");
   const [headers, setHeaders] = useState("Authorization: Bearer YOUR_TOKEN\nContent-Type: application/json");
-  const [body, setBody] = useState('{"name":"JinMing Lab","role":"developer"}');
+  const [body, setBody] = useState('{"name":"VantaAPI","role":"developer"}');
   const requestBlocks = useMemo<OutputBlock[]>(() => {
     const parsedHeaders = parseHeaders(headers);
     const prettyBody = safeJsonBody(body);
@@ -1035,7 +1035,7 @@ print(response.json())`,
           <button type="button" className="dense-action" onClick={() => { setMethod("GET"); setUrl("https://api.example.com/v1/projects"); setHeaders("Authorization: Bearer YOUR_TOKEN"); setBody(""); }}>
             GET preset
           </button>
-          <button type="button" className="dense-action" onClick={() => { setMethod("POST"); setUrl("https://api.example.com/v1/users"); setHeaders("Authorization: Bearer YOUR_TOKEN\nContent-Type: application/json"); setBody('{"name":"JinMing Lab","role":"developer"}'); }}>
+          <button type="button" className="dense-action" onClick={() => { setMethod("POST"); setUrl("https://api.example.com/v1/users"); setHeaders("Authorization: Bearer YOUR_TOKEN\nContent-Type: application/json"); setBody('{"name":"VantaAPI","role":"developer"}'); }}>
             POST preset
           </button>
           <button type="button" className="dense-action" onClick={() => { setHeaders(""); setBody(""); }}>
@@ -1071,10 +1071,10 @@ print(response.json())`,
 }
 
 function DevUtilities() {
-  const [json, setJson] = useState('{"name":"JinMing Lab","tools":["json","regex","timestamp"],"ok":true}');
+  const [json, setJson] = useState('{"name":"VantaAPI","tools":["json","regex","timestamp"],"ok":true}');
   const [pattern, setPattern] = useState("\\b[A-Z][A-Za-z]+\\b");
   const [flags, setFlags] = useState("g");
-  const [regexText, setRegexText] = useState("JinMing Lab builds JSON Regex Timestamp Tools");
+  const [regexText, setRegexText] = useState("VantaAPI builds JSON Regex Timestamp Tools");
   const [timestamp, setTimestamp] = useState("1700000000000");
 
   const utilityBlocks = useMemo<OutputBlock[]>(() => {
@@ -1122,7 +1122,7 @@ Milliseconds ${Number.isNaN(date.getTime()) ? "Invalid date" : date.getTime()}`,
       blocks={utilityBlocks}
       actions={
         <>
-          <button type="button" className="dense-action" onClick={() => setJson('{"name":"JinMing Lab","tools":["json","regex","timestamp"],"ok":true}')}>
+          <button type="button" className="dense-action" onClick={() => setJson('{"name":"VantaAPI","tools":["json","regex","timestamp"],"ok":true}')}>
             JSON sample
           </button>
           <button type="button" className="dense-action" onClick={() => setTimestamp(String(Date.now()))}>

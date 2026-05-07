@@ -5,9 +5,11 @@ import {
   buildCppFilteredMegaQuestions,
   cppQuestionTypePlan,
   getCppCategoryTypeCounts,
+  searchCppQuestionIndex,
+  type CppQuestionIndexRow,
   type CppQuestionTypeFilter,
 } from "@/lib/cpp-bank";
-import { cppQuestionBank } from "@/lib/exam-content";
+import { cppQuestionBank, getCppCategory } from "@/lib/exam-content";
 import { localizedHref, resolveLanguage, type PageSearchParams, type SiteLanguage } from "@/lib/language";
 
 const baseQuestions = [
@@ -62,47 +64,124 @@ const typeLabel: Record<SiteLanguage, Record<CppQuestionTypeFilter, string>> = {
   },
 };
 
-const pageCopy = {
+const difficultyLabel: Record<SiteLanguage, Record<string, string>> = {
   en: {
-    eyebrow: "C++ Quiz",
-    title: "C++ Classified Question Bank",
-    description: "1000 static drills grouped by topic and type. No online compiler in this bank. Train concepts fill blanks code reading and output prediction first.",
-    course: "Open course path",
-    back: "Back to C++ hub",
-    topicClassify: "Topic Categories",
-    typeClassify: "Question Types",
-    activeBank: "Current Set",
-    current: "Current",
-    page: "Page",
-    drills: "drills",
-    typeTotal: "type total",
-    typeDistribution: "Type distribution",
-    difficultyDistribution: "Difficulty distribution",
-    previous: "Previous",
-    next: "Next",
+    EASY: "Easy",
+    MEDIUM: "Medium",
+    HARD: "Hard",
   },
   zh: {
-    eyebrow: "C++ 测验",
-    title: "C++ 分类题库",
-    description: "1000 道静态练习已经按知识模块和题型分类。不做在线编译运行，先把概念 判断 填空 代码阅读 输出预测练扎实。",
+    EASY: "基础",
+    MEDIUM: "进阶",
+    HARD: "挑战",
+  },
+};
+
+const pageCopy = {
+  en: {
+    eyebrow: "C++ Questions",
+    title: "C++ Question Search",
+    description: "Search first choose a topic and question type then start practice. The bank is classified and keeps expanding. No online compiler is enabled here.",
+    course: "Open course path",
+    back: "Back to C++ hub",
+    search: "Search",
+    searchPlaceholder: "Search loop vector pointer class output",
+    allTopics: "All topics",
+    topicClassify: "Topic categories",
+    typeClassify: "Question types",
+    tableTitle: "Question table",
+    tableMeta: "Matching questions",
+    startSelected: "Practice selected set",
+    practiceThis: "Practice this type",
+    preview: "Preview",
+    category: "Category",
+    type: "Type",
+    difficulty: "Difficulty",
+    question: "Question",
+    empty: "No question matched yet. Try a shorter keyword or reset the filters.",
+    previous: "Previous",
+    next: "Next",
+    practiceTitle: "Practice mode",
+    exitPractice: "Back to question table",
+    activeBank: "Current set",
+    page: "Page",
+    current: "Current",
+    drills: "drills",
+  },
+  zh: {
+    eyebrow: "C++ 题目",
+    title: "C++ 题目搜索",
+    description: "先搜索 再选知识模块和题型 最后进入练习。题库已经分类并持续扩充，这里不打开在线编译运行。",
     course: "打开课程路径",
     back: "返回 C++ 首页",
-    topicClassify: "知识模块分类",
+    search: "搜索",
+    searchPlaceholder: "搜索 循环 vector 指针 class 输出",
+    allTopics: "全部模块",
+    topicClassify: "知识模块",
     typeClassify: "题型分类",
-    activeBank: "当前题组",
-    current: "当前",
-    page: "第",
-    drills: "题",
-    typeTotal: "本题型总量",
-    typeDistribution: "题型分布",
-    difficultyDistribution: "难度分布",
+    tableTitle: "题目表",
+    tableMeta: "匹配题目",
+    startSelected: "练习当前筛选",
+    practiceThis: "练这一类",
+    preview: "预览",
+    category: "模块",
+    type: "题型",
+    difficulty: "难度",
+    question: "题目",
+    empty: "还没有匹配题目。换一个更短的关键词，或者重置分类。",
     previous: "上一页",
     next: "下一页",
+    practiceTitle: "练习模式",
+    exitPractice: "回到题目表",
+    activeBank: "当前题组",
+    page: "第",
+    current: "当前",
+    drills: "题",
   },
 } as const;
 
 function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function normalizedType(type: string | undefined): CppQuestionTypeFilter {
+  return cppQuestionTypePlan.some((item) => item.slug === type) ? type as CppQuestionTypeFilter : "ALL";
+}
+
+function buildHref({
+  language,
+  category,
+  type,
+  q,
+  page = 1,
+  mode,
+}: {
+  language: SiteLanguage;
+  category?: string;
+  type?: CppQuestionTypeFilter;
+  q?: string;
+  page?: number;
+  mode?: "practice";
+}) {
+  const params = new URLSearchParams();
+  if (category) params.set("category", category);
+  if (type && type !== "ALL") params.set("type", type);
+  if (q) params.set("q", q);
+  if (page > 1) params.set("page", String(page));
+  if (mode) params.set("mode", mode);
+  const suffix = params.toString();
+  return localizedHref(`/cpp/quiz/mega-1000${suffix ? `?${params.toString()}` : ""}`, language);
+}
+
+function RowPracticeLink({ copy, language, row }: { copy: typeof pageCopy.en | typeof pageCopy.zh; language: SiteLanguage; row: CppQuestionIndexRow }) {
+  return (
+    <Link
+      href={buildHref({ language, category: row.categorySlug, type: row.type, mode: "practice" })}
+      className="dense-action justify-center"
+    >
+      {copy.practiceThis}
+    </Link>
+  );
 }
 
 export default async function Page({
@@ -116,54 +195,104 @@ export default async function Page({
   const query = await searchParams;
   const language = resolveLanguage(query);
   const copy = pageCopy[language];
-  const page = firstParam(query.page);
-  const category = firstParam(query.category);
-  const type = firstParam(query.type);
+  const page = Math.max(Number(firstParam(query.page) || 1) || 1, 1);
+  const selectedCategory = firstParam(query.category);
+  const selectedType = normalizedType(firstParam(query.type));
+  const search = (firstParam(query.q) || "").trim().slice(0, 80);
+  const mode = firstParam(query.mode);
   const isMega = id === "mega-1000";
-  const currentPage = Math.max(Number(page || 1) || 1, 1);
-  const mega = isMega ? buildCppFilteredMegaQuestions({ categorySlug: category, type, page: currentPage, pageSize: 20 }) : null;
+  const safeCategory = selectedCategory && getCppCategory(selectedCategory) ? selectedCategory : undefined;
+
+  const table = isMega
+    ? searchCppQuestionIndex({ categorySlug: safeCategory, type: selectedType, query: search, page, pageSize: 24 })
+    : { rows: [], page: 1, pageSize: 24, totalPages: 1, totalQuestions: 0, type: "ALL" as CppQuestionTypeFilter };
+
+  const practiceCategory = safeCategory || table.rows[0]?.categorySlug || cppQuestionBank.categoryPlan[0].slug;
+  const practiceType = selectedType;
+  const practicePage = Math.max(1, page);
+  const mega = isMega
+    ? buildCppFilteredMegaQuestions({ categorySlug: practiceCategory, type: practiceType, page: practicePage, pageSize: 20 })
+    : null;
   const questions = mega?.questions || baseQuestions;
-  const hrefFor = (next: { category?: string; type?: CppQuestionTypeFilter; page?: number }) => {
-    const params = new URLSearchParams();
-    params.set("category", next.category || mega?.category.slug || cppQuestionBank.categoryPlan[0].slug);
-    params.set("type", next.type || mega?.type || "ALL");
-    params.set("page", String(next.page || 1));
-    return localizedHref(`/cpp/quiz/mega-1000?${params.toString()}`, language);
-  };
+  const showPractice = mode === "practice";
 
   return (
     <main className="apple-page pb-12 pt-4">
       <AppleStudyHeader language={language} />
       <section className="apple-shell py-7">
         <div className="apple-card soft-gradient p-5">
-          <p className="eyebrow">{copy.eyebrow} {id}</p>
-          <h1 className="mt-3 font-serif text-4xl">{copy.title}</h1>
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1 className="mt-3 font-serif text-4xl">{showPractice ? copy.practiceTitle : copy.title}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--muted)]">
             {copy.description}
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link href={localizedHref("/learn/cpp", language)} className="apple-button-secondary px-4 py-2 text-sm">{copy.course}</Link>
             <Link href={localizedHref("/cpp", language)} className="apple-button-primary px-4 py-2 text-sm">{copy.back}</Link>
+            {showPractice && (
+              <Link href={buildHref({ language, category: safeCategory, type: selectedType, q: search, page })} className="apple-button-secondary px-4 py-2 text-sm">
+                {copy.exitPractice}
+              </Link>
+            )}
           </div>
         </div>
 
-        {isMega && mega && (
+        {!showPractice && isMega && (
           <>
+            <section className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
+              <form action="/cpp/quiz/mega-1000" className="dense-panel p-4">
+                {language === "zh" && <input type="hidden" name="lang" value="zh" />}
+                {safeCategory && <input type="hidden" name="category" value={safeCategory} />}
+                {selectedType !== "ALL" && <input type="hidden" name="type" value={selectedType} />}
+                <p className="eyebrow">{copy.search}</p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <input
+                    name="q"
+                    defaultValue={search}
+                    className="min-h-11 min-w-0 flex-1 rounded-[8px] border border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition focus:border-slate-500"
+                    placeholder={copy.searchPlaceholder}
+                  />
+                  <button className="dense-action-primary px-5 py-2.5" type="submit">
+                    {copy.search}
+                  </button>
+                </div>
+              </form>
+
+              <div className="dense-panel p-4">
+                <p className="eyebrow">{copy.preview}</p>
+                <h2 className="mt-2 text-xl font-semibold">
+                  {copy.tableMeta}
+                </h2>
+                <Link
+                  href={buildHref({ language, category: practiceCategory, type: selectedType, q: search, page: 1, mode: "practice" })}
+                  className="mt-4 dense-action-primary justify-center"
+                >
+                  {copy.startSelected}
+                </Link>
+              </div>
+            </section>
+
             <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="eyebrow">{copy.topicClassify}</p>
-                <h2 className="mt-2 text-xl font-semibold">{language === "zh" ? "先选知识模块 再选题型" : "Choose a topic then a question type"}</h2>
+                <h2 className="mt-2 text-xl font-semibold">{language === "zh" ? "先选模块 再看题目表" : "Choose a topic then inspect the table"}</h2>
               </div>
               <div className="flex flex-wrap gap-2">
+                <Link
+                  href={buildHref({ language, type: selectedType, q: search })}
+                  className={!safeCategory ? "apple-button-primary px-4 py-2 text-sm" : "apple-button-secondary px-4 py-2 text-sm"}
+                >
+                  {copy.allTopics}
+                </Link>
                 {cppQuestionTypePlan.map((item) => {
-                  const active = item.slug === mega.type;
+                  const active = item.slug === selectedType;
                   return (
                     <Link
                       key={item.slug}
-                      href={hrefFor({ type: item.slug, page: 1 })}
+                      href={buildHref({ language, category: safeCategory, type: item.slug, q: search })}
                       className={active ? "apple-button-primary px-4 py-2 text-sm" : "apple-button-secondary px-4 py-2 text-sm"}
                     >
-                      {typeLabel[language][item.slug]} {mega.typeCounts[item.slug]}
+                      {typeLabel[language][item.slug]}
                     </Link>
                   );
                 })}
@@ -171,14 +300,18 @@ export default async function Page({
             </div>
 
             <section className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {cppQuestionBank.categoryPlan.map((category, index) => {
+              {cppQuestionBank.categoryPlan.map((category) => {
                 const counts = getCppCategoryTypeCounts(category.slug);
-                const active = category.slug === mega.category.slug;
+                const active = category.slug === safeCategory;
                 return (
-                  <Link key={category.slug} href={hrefFor({ category: category.slug, page: 1 })} className={`apple-card p-4 ${active ? "ring-2 ring-[color:var(--accent)]" : "apple-card-hover"}`}>
-                    <p className="eyebrow">{String(index + 1).padStart(2, "0")} · {category.zh}</p>
-                    <h2 className="mt-2 text-xl font-semibold">{category.title}</h2>
-                    <p className="mt-2 text-sm text-[color:var(--muted)]">{category.count} drills · {category.focus.slice(0, 3).join(" / ")}</p>
+                  <Link
+                    key={category.slug}
+                    href={buildHref({ language, category: category.slug, type: selectedType, q: search })}
+                    className={`apple-card p-4 ${active ? "ring-2 ring-[color:var(--accent)]" : "apple-card-hover"}`}
+                  >
+                    <p className="eyebrow">{language === "zh" ? category.zh : category.title}</p>
+                    <h2 className="mt-2 text-xl font-semibold">{language === "zh" ? category.zh : category.title}</h2>
+                    <p className="mt-2 text-sm text-[color:var(--muted)]">{category.focus.slice(0, 4).join(" / ")}</p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <span className="dense-status">{typeLabel[language].MULTIPLE_CHOICE} {counts.MULTIPLE_CHOICE}</span>
                       <span className="dense-status">{typeLabel[language].FILL_BLANK} {counts.FILL_BLANK}</span>
@@ -189,28 +322,85 @@ export default async function Page({
               })}
             </section>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-black/5 bg-white/75 p-4 shadow-sm">
-              <div>
-                <p className="eyebrow">{copy.activeBank} · {mega.category.zh} · {typeLabel[language][mega.type]}</p>
-                <p className="mt-1 text-lg font-semibold">
-                  {copy.page} {mega.page} / {mega.totalPages} · {copy.current} {questions.length} {copy.drills} / {copy.typeTotal} {mega.totalQuestions}
-                </p>
-                <p className="mt-1 text-xs text-[color:var(--muted)]">
-                  {copy.typeDistribution} {typeLabel[language].MULTIPLE_CHOICE} {mega.typeCounts.MULTIPLE_CHOICE} · {typeLabel[language].FILL_BLANK} {mega.typeCounts.FILL_BLANK} · {typeLabel[language].CODE_READING} {mega.typeCounts.CODE_READING}
-                </p>
-                <p className="mt-1 text-xs text-[color:var(--muted)]">{copy.difficultyDistribution} {cppQuestionBank.difficultyMix.join(" · ")}</p>
+            <section className="mt-6 dense-panel overflow-hidden p-0">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
+                <div>
+                  <p className="eyebrow">{copy.tableTitle}</p>
+                  <h2 className="mt-2 text-2xl font-semibold">
+                    {copy.tableMeta}
+                  </h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link href={buildHref({ language, category: safeCategory, type: selectedType, q: search, page: Math.max(1, table.page - 1) })} className="dense-action">{copy.previous}</Link>
+                  <Link href={buildHref({ language, category: safeCategory, type: selectedType, q: search, page: Math.min(table.totalPages, table.page + 1) })} className="dense-action-primary">{copy.next}</Link>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Link href={hrefFor({ page: Math.max(1, mega.page - 1) })} className="apple-button-secondary px-4 py-2 text-sm">{copy.previous}</Link>
-                <Link href={hrefFor({ page: Math.min(mega.totalPages, mega.page + 1) })} className="apple-button-primary px-4 py-2 text-sm">{copy.next}</Link>
-              </div>
-            </div>
+
+              {table.rows.length === 0 ? (
+                <div className="p-5">
+                  <p className="text-sm leading-6 text-[color:var(--muted)]">{copy.empty}</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[860px] border-collapse text-left text-sm">
+                    <thead className="bg-slate-50 text-xs uppercase tracking-normal text-[color:var(--muted)]">
+                      <tr>
+                        <th className="px-4 py-3">{copy.category}</th>
+                        <th className="px-4 py-3">{copy.type}</th>
+                        <th className="px-4 py-3">{copy.difficulty}</th>
+                        <th className="px-4 py-3">{copy.question}</th>
+                        <th className="px-4 py-3"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {table.rows.map((row) => (
+                        <tr key={row.id} className="border-t border-slate-100 align-top">
+                          <td className="px-4 py-3 font-semibold">{language === "zh" ? row.categoryZh : row.categoryTitle}</td>
+                          <td className="px-4 py-3">
+                            <span className="dense-status">{typeLabel[language][row.type]}</span>
+                          </td>
+                          <td className="px-4 py-3">{difficultyLabel[language][row.difficulty]}</td>
+                          <td className="px-4 py-3">
+                            <p className="font-medium text-slate-900">{row.prompt}</p>
+                            {row.codeSnippet && (
+                              <pre className="mt-2 max-w-xl overflow-x-auto rounded-[8px] bg-slate-950 p-3 text-xs leading-5 text-slate-100">{row.codeSnippet}</pre>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <RowPracticeLink copy={copy} language={language} row={row} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
           </>
         )}
 
-        <div className="mt-6">
-          <QuizBlock lessonId={`fallback-cpp-quiz-${id}-${mega?.category.slug || "base"}-${mega?.type || "ALL"}-page-${mega?.page || 1}`} questions={questions} language={language} />
-        </div>
+        {showPractice && (
+          <>
+            {isMega && mega && (
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-black/5 bg-white/75 p-4 shadow-sm">
+                <div>
+                  <p className="eyebrow">{copy.activeBank} · {language === "zh" ? mega.category.zh : mega.category.title} · {typeLabel[language][mega.type]}</p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {copy.page} {mega.page} / {mega.totalPages} · {copy.current} {questions.length} {copy.drills}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link href={buildHref({ language, category: practiceCategory, type: practiceType, page: Math.max(1, mega.page - 1), mode: "practice" })} className="apple-button-secondary px-4 py-2 text-sm">{copy.previous}</Link>
+                  <Link href={buildHref({ language, category: practiceCategory, type: practiceType, page: Math.min(mega.totalPages, mega.page + 1), mode: "practice" })} className="apple-button-primary px-4 py-2 text-sm">{copy.next}</Link>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6">
+              <QuizBlock lessonId={`fallback-cpp-quiz-${id}-${mega?.category.slug || "base"}-${mega?.type || "ALL"}-page-${mega?.page || 1}`} questions={questions} language={language} />
+            </div>
+          </>
+        )}
       </section>
     </main>
   );

@@ -127,7 +127,7 @@ export default function SmartAuthForm({
       });
 
     requestAnimationFrame(() => {
-      const storedEmail = window.localStorage.getItem("vantaapi-auth-email") || window.localStorage.getItem("immortal-auth-email");
+      const storedEmail = window.localStorage.getItem("vantaapi-auth-email") || window.localStorage.getItem("vantaapi-auth-email");
       if (!cancelled && storedEmail) setEmail(storedEmail);
       if (!cancelled) emailRef.current?.focus();
     });
@@ -184,8 +184,8 @@ export default function SmartAuthForm({
         <div className="auth-side">
           <div className="flex items-center justify-between gap-3">
             <Link href={localizedHref("/", language)} className="auth-brand">
-              <span className="auth-brand-mark">JM</span>
-              <span>JinMing Lab</span>
+              <span className="auth-brand-mark">VA</span>
+              <span>VantaAPI</span>
             </Link>
             <FlagLanguageToggle initialLanguage={language} />
           </div>
@@ -203,7 +203,7 @@ export default function SmartAuthForm({
             </Link>
             <Link href={localizedHref("/cpp", language)} className="dense-mini">
               <span>C++</span>
-              <span>1000 questions</span>
+              <span>classified drills</span>
             </Link>
             <Link href={localizedHref("/wrong", language)} className="dense-mini">
               <span>Review</span>

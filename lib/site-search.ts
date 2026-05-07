@@ -91,10 +91,10 @@ const staticItems: SiteSearchItem[] = [
     tags: ["languages", "world languages", "语言学习", "世界语言", "日语", "西班牙语", "法语", "韩语"],
   },
   {
-    title: "C++ Mega Quiz",
+    title: "C++ Question Search",
     href: "/cpp/quiz/mega-1000",
     category: "C++",
-    description: "C++ choice fill blank code reading and output prediction practice",
+    description: "Searchable C++ question table with topic filters choice fill blank code reading and output prediction practice",
     tags: ["cpp", "c++", "quiz", "stl", "algorithm", "题库", "选择", "填空", "代码阅读"],
   },
   {

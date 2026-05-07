@@ -19,9 +19,9 @@ export default async function StudyShell({ children }: { children: React.ReactNo
         <header className="apple-nav px-4 py-2.5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <Link href="/" className="flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-950 text-[10px] font-semibold text-white shadow-sm">JM</span>
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-950 text-[10px] font-semibold text-white shadow-sm">VA</span>
               <span>
-                <span className="block font-semibold leading-none">JinMing Lab</span>
+                <span className="block font-semibold leading-none">VantaAPI</span>
                 <span className="text-xs text-[color:var(--muted)]">AI tools and coding lab</span>
               </span>
             </Link>

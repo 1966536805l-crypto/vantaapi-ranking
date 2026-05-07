@@ -13,6 +13,12 @@ export type CppPracticeQuestion = {
 
 export type CppQuestionType = CppPracticeQuestion["type"];
 export type CppQuestionTypeFilter = "ALL" | CppQuestionType;
+export type CppQuestionIndexRow = CppPracticeQuestion & {
+  categorySlug: string;
+  categoryTitle: string;
+  categoryZh: string;
+  rowNumber: number;
+};
 
 export const cppQuestionTypePlan: Array<{ slug: CppQuestionTypeFilter; title: string; zh: string; description: string }> = [
   { slug: "ALL", title: "All Types", zh: "全部题型", description: "选择 填空 代码阅读一起练" },
@@ -224,4 +230,66 @@ export function buildAllCppMegaQuestions() {
   return cppQuestionBank.categoryPlan.flatMap((category) =>
     Array.from({ length: category.count }, (_, index) => buildCategoryQuestion(category.slug, index + 1)),
   );
+}
+
+export function buildCppQuestionIndex(): CppQuestionIndexRow[] {
+  return cppQuestionBank.categoryPlan.flatMap((category) =>
+    Array.from({ length: category.count }, (_, index) => ({
+      ...buildCategoryQuestion(category.slug, index + 1),
+      categorySlug: category.slug,
+      categoryTitle: category.title,
+      categoryZh: category.zh,
+      rowNumber: index + 1,
+    })),
+  );
+}
+
+function matchesQuery(question: CppQuestionIndexRow, query: string) {
+  const cleanQuery = query.trim().toLowerCase();
+  if (!cleanQuery) return true;
+  const haystack = [
+    question.id,
+    question.prompt,
+    question.codeSnippet || "",
+    question.difficulty,
+    question.type,
+    question.categorySlug,
+    question.categoryTitle,
+    question.categoryZh,
+  ].join(" ").toLowerCase();
+  return cleanQuery.split(/\s+/).every((term) => haystack.includes(term));
+}
+
+export function searchCppQuestionIndex({
+  categorySlug,
+  type,
+  query = "",
+  page = 1,
+  pageSize = 24,
+}: {
+  categorySlug?: string;
+  type?: string;
+  query?: string;
+  page?: number;
+  pageSize?: number;
+}) {
+  const typeFilter = normalizeTypeFilter(type);
+  const allRows = buildCppQuestionIndex();
+  const filteredRows = allRows.filter((question) => {
+    if (categorySlug && question.categorySlug !== categorySlug) return false;
+    if (typeFilter !== "ALL" && question.type !== typeFilter) return false;
+    return matchesQuery(question, query);
+  });
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const safePage = Math.max(1, Math.min(totalPages, Math.trunc(page) || 1));
+  const start = (safePage - 1) * pageSize;
+
+  return {
+    rows: filteredRows.slice(start, start + pageSize),
+    page: safePage,
+    pageSize,
+    totalPages,
+    totalQuestions: filteredRows.length,
+    type: typeFilter,
+  };
 }

@@ -23,7 +23,9 @@
     "security:network": "node scripts/network-security-check.js",
     "security:supply-chain": "node scripts/supply-chain-check.js",
     "security:secrets": "node scripts/secret-pattern-check.js",
-    "security:full": "npm run security:check && npm run security:regression && npm run security:repo && npm run security:network && npm run security:supply-chain && npm run security:secrets && npm run typecheck && npm run lint && npm run build && npm audit --audit-level=high"
+    "security:full": "npm run security:check && npm run security:regression && npm run security:repo && npm run security:network && npm run security:supply-chain && npm run security:secrets && npm run typecheck && npm run lint && npm run build && npm audit --audit-level=high",
+    "launch:check": "node scripts/prelaunch-check.js",
+    "launch:full": "npm run launch:check && npm run security:full"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.8.0",

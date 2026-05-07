@@ -17,11 +17,11 @@ export async function generateMetadata({ params }: ProgrammingLanguagePageProps)
   const current = programmingLanguages.find((item) => item.slug === language);
   if (!current) {
     return {
-      title: "Code Practice - JinMing Lab",
+      title: "Code Practice - VantaAPI",
     };
   }
   return {
-    title: `${current.title} Coding Practice - JinMing Lab`,
+    title: `${current.title} Coding Practice - VantaAPI`,
     description: `${current.title} tutorials original exercises runnable examples hints answers and keyboard shortcuts`,
   };
 }

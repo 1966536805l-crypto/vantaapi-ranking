@@ -1,1 +1,1 @@
-export const AUTH_COOKIE = "immortal_session";
+export const AUTH_COOKIE = "vantaapi_session";
