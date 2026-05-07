@@ -14,6 +14,36 @@ function toolUrl(tool: ToolDefinition) {
   return `https://vantaapi.com/tools/${tool.slug}`;
 }
 
+function toolKeywords(tool: ToolDefinition) {
+  const launchAuditKeywords =
+    tool.slug === "github-repo-analyzer"
+      ? [
+          "GitHub Launch Audit",
+          "GitHub 项目体检",
+          "README check",
+          "env example",
+          "CI check",
+          "deployment checklist",
+          "security checklist",
+          "release checklist",
+          "GitHub issue template",
+          "repo handoff checklist",
+        ]
+      : [];
+
+  return Array.from(
+    new Set([
+      "JinMing Lab",
+      tool.title,
+      tool.shortTitle,
+      ...tool.useCases,
+      ...tool.whatItDoes,
+      ...tool.audience,
+      ...launchAuditKeywords,
+    ])
+  );
+}
+
 function toolJsonLd(tool: ToolDefinition) {
   return {
     "@context": "https://schema.org",
@@ -58,6 +88,7 @@ export async function generateMetadata({ params }: ToolRouteProps): Promise<Meta
   return {
     title: `${tool.title} - JinMing Lab`,
     description: `${tool.description}. ${tool.promise}.`,
+    keywords: toolKeywords(tool),
     alternates: {
       canonical: `/tools/${tool.slug}`,
     },

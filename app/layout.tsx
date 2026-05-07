@@ -12,10 +12,21 @@ const fontVariables = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vantaapi.com"),
-  title: "VantaAPI - English and C++ Learning MVP",
+  title: "JinMing Lab - GitHub Launch Audit and AI Developer Tools",
   description:
-    "VantaAPI provides English learning, C++ beginner practice, quizzes, progress tracking, wrong-question review, and focused AI learning tools.",
-  keywords: ["英语学习", "C++ 学习", "学习进度", "错题复习", "AI 工具", "编程训练"],
+    "JinMing Lab helps developers audit public GitHub repositories before launch with README checks, env checks, CI signals, deployment steps, security notes, issue templates, and release checklists.",
+  keywords: [
+    "GitHub Launch Audit",
+    "GitHub 项目体检",
+    "README check",
+    "env example",
+    "CI check",
+    "deployment checklist",
+    "security checklist",
+    "release checklist",
+    "AI developer tools",
+    "编程工具",
+  ],
 };
 
 export const viewport: Viewport = {

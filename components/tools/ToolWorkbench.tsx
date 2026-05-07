@@ -61,6 +61,141 @@ type GitHubRepoAnalyzerResponse = {
 
 const sampleRepoUrl = "https://github.com/vercel/swr";
 
+const sampleGitHubAnalysis: GitHubRepoAnalysis = {
+  repository: {
+    fullName: "vercel/swr",
+    url: sampleRepoUrl,
+    description: "React Hooks for data fetching",
+    defaultBranch: "main",
+    stars: 31000,
+    forks: 1200,
+    openIssues: 80,
+    language: "TypeScript",
+    license: "MIT",
+    visibility: "public",
+    archived: false,
+    pushedAt: new Date().toISOString(),
+  },
+  launchScore: {
+    score: 86,
+    riskLevel: "Low",
+    summary:
+      "Public launch shape is strong. The remaining work is mostly release polish, contributor handoff, and keeping setup steps copy ready.",
+  },
+  mustFix: [
+    "Keep the README quick start path under five minutes for a new contributor.",
+    "Make required environment variables explicit in one env example section.",
+    "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.",
+  ],
+  copyableIssues: [
+    `## Improve new contributor quick start
+
+Priority: P1
+Labels: documentation onboarding
+
+Why this matters
+New contributors decide quickly whether a repo feels safe to run. A short install run test path reduces support questions.
+
+Suggested fix
+- Keep install run test commands in one README section
+- Mention required Node package manager and version
+- Add the expected local URL or output
+
+Done when
+- A new contributor can run the project without asking for hidden context
+- The quick start uses copy ready commands
+
+Verification
+- Follow the README from a clean checkout`,
+    `## Add explicit environment checklist
+
+Priority: P1
+Labels: docs security
+
+Why this matters
+Launches slow down when required secrets are hidden in code or deployment dashboards.
+
+Suggested fix
+- Add or update .env.example
+- Mark required optional and production only variables
+- Keep real secrets out of Git
+
+Done when
+- Every required runtime variable has a placeholder and short purpose
+- Production secrets are configured only in the host dashboard
+
+Verification
+- Run the app with only documented variables`,
+    `## Publish release readiness checklist
+
+Priority: P2
+Labels: release process
+
+Why this matters
+A repeatable launch checklist catches README drift, broken CI, stale examples, and missing security notes before users find them.
+
+Suggested fix
+- Add a short release checklist to README or docs
+- Include build test lint env deployment and rollback checks
+- Link to the changelog or release notes path
+
+Done when
+- Maintainers can follow one checklist before every public release
+
+Verification
+- Use the checklist on the next staging deploy`,
+  ],
+  overview: [
+    "Repository presents a focused public developer library with active maintenance signals.",
+    "The project has enough public metadata for a launch handoff and contributor review.",
+    "Launch risk is low when docs, env, CI, and release steps stay explicit.",
+  ],
+  howToRun: ["Install dependencies", "Run the development command from package scripts", "Run tests or type checks before a release"],
+  techStack: ["TypeScript", "React", "Package scripts", "GitHub based contribution flow"],
+  fileStructure: ["README explains the public purpose", "Root config files make project tooling discoverable", "Docs and examples should stay close to the first contributor path"],
+  securityNotes: [
+    "Do not commit production secrets or tokens.",
+    "Keep env examples as placeholders only.",
+    "Review dependency updates and public issue reports before release.",
+  ],
+  readmeSuggestions: [
+    "Keep the first screen focused on what the package does and how to start.",
+    "Move deeper architecture notes below install and usage examples.",
+    "Add a short release or deployment checklist when the project has a public website.",
+  ],
+  githubActions: [
+    "Keep lint typecheck test and build visible in CI.",
+    "Fail pull requests on broken formatting or type errors.",
+    "Cache dependencies only after the install path is stable.",
+  ],
+  envChecklist: [
+    "Detected env template keys should be documented with purpose and required status.",
+    "Production secrets belong in the host environment dashboard.",
+    "Local optional variables should have safe defaults.",
+  ],
+  issueLabelPlan: ["P0 launch blocker", "P1 release polish", "docs", "security", "good first issue"],
+  deploymentChecklist: [
+    "Run lint typecheck tests and build.",
+    "Confirm production environment variables.",
+    "Review README quick start and env docs.",
+    "Publish release notes and rollback steps.",
+  ],
+  prReviewChecklist: [
+    "Does the PR change public setup commands?",
+    "Does the PR require new env variables?",
+    "Are docs examples and tests updated together?",
+    "Can a new contributor verify the change locally?",
+  ],
+  releaseChecklist: [
+    "Clean working tree and passing CI.",
+    "No committed secrets or temporary local files.",
+    "README quick start still works.",
+    "Release notes include user visible changes.",
+    "Monitoring or rollback path is known before launch.",
+  ],
+  filesRead: ["README.md", "package.json", ".env.example", ".github/workflows/*", "deployment docs"],
+};
+
 const sampleCode = `async function loadUser(id) {
   const res = await fetch("/api/users/" + id);
   const data = await res.json();
@@ -580,6 +715,16 @@ function GitHubRepoAnalyzer() {
     }
   }
 
+  function loadSamplePreview(reason = "Local sample preview loaded") {
+    setUrl(sampleRepoUrl);
+    setAnalysis(sampleGitHubAnalysis);
+    setError("");
+    setRunStatus(reason);
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+  }
+
   async function analyzeRepo(targetUrl = url) {
     const trimmed = targetUrl.trim();
     if (!trimmed) {
@@ -607,8 +752,12 @@ function GitHubRepoAnalyzer() {
       setRunStatus(`Audit complete ${data.analysis.launchScore.score}/100`);
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     } catch (caught) {
-      setAnalysis(null);
       const message = caught instanceof Error ? caught.message : "Could not run repository launch audit";
+      if (trimmed === sampleRepoUrl) {
+        loadSamplePreview("Sample preview loaded because live audit is busy");
+        return;
+      }
+      setAnalysis(null);
       setError(message);
       setRunStatus(message);
     } finally {
@@ -617,7 +766,7 @@ function GitHubRepoAnalyzer() {
   }
 
   function runSampleAudit() {
-    void analyzeRepo(sampleRepoUrl);
+    loadSamplePreview("Local sample preview loaded");
   }
 
   return (
@@ -632,6 +781,9 @@ function GitHubRepoAnalyzer() {
           </button>
           <button type="button" className="dense-action" onClick={runSampleAudit} disabled={loading}>
             Try sample audit
+          </button>
+          <button type="button" className="dense-action" onClick={() => void analyzeRepo(sampleRepoUrl)} disabled={loading}>
+            Run live sample
           </button>
           {analysis && (
             <>
