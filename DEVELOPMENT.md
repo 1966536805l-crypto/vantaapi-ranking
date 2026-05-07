@@ -32,7 +32,7 @@ docker compose up -d mariadb
 Or create your own MySQL / MariaDB database and set:
 
 ```bash
-DATABASE_URL="mysql://root:root@localhost:3306/immortal_mvp"
+DATABASE_URL="mysql://<db_user>:<strong-random-password>@127.0.0.1:3306/<db_name>"
 ```
 
 2. Install and generate Prisma client:

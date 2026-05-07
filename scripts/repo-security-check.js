@@ -31,10 +31,10 @@ function has(file, pattern) {
 console.log("🔐 repository security check\n");
 
 const requiredWorkflows = [
-  [".github/workflows/security.yml", ["npm run security:check", "npm run build"]],
+  [".github/workflows/security.yml", ["npm run security:check", "npm run security:supply-chain", "npm run security:secrets", "npm run build"]],
   [".github/workflows/codeql.yml", ["github/codeql-action/init", "security-extended"]],
   [".github/workflows/secret-scan.yml", ["gitleaks/gitleaks-action"]],
-  [".github/workflows/npm-audit.yml", ["npm audit --audit-level=high"]],
+  [".github/workflows/npm-audit.yml", ["npm audit --audit-level=high", "npm ci --ignore-scripts"]],
 ];
 
 for (const [file, markers] of requiredWorkflows) {
@@ -65,6 +65,12 @@ if (has("docs/EDGE_SECURITY.md", "DDoS protection") && has("docs/EDGE_SECURITY.m
   fail("edge-security-doc", "edge DDoS/WAF baseline missing");
 }
 
+if (has("docs/SUPPLY_CHAIN_SECURITY.md", "Supply Chain Security") && has("scripts/supply-chain-check.js", "dependency-specs") && has("scripts/secret-pattern-check.js", "secret pattern check")) {
+  pass("supply-chain-doc", "supply-chain and local secret checks are documented");
+} else {
+  fail("supply-chain-doc", "supply-chain baseline is incomplete");
+}
+
 const ignore = read(".gitignore") + "\n" + read(".vercelignore");
 const ignoreMarkers = [".env", "*.db", "node_modules", ".next"];
 const missingIgnores = ignoreMarkers.filter((marker) => !ignore.includes(marker));
@@ -82,10 +88,10 @@ const suspiciousFiles = [".env", "prisma/dev.db", "dev.db", ".vercel/project.jso
 if (suspiciousFiles.length) fail("tracked-local-sensitive", `tracked local-sensitive files: ${suspiciousFiles.join(", ")}`);
 else pass("tracked-local-sensitive", "no known local secret/database files are tracked");
 
-if (has("package.json", "security:full") && has("package.json", "security:repo")) {
-  pass("package-scripts", "full and repo security scripts are available");
+if (has("package.json", "security:full") && has("package.json", "security:repo") && has("package.json", "security:supply-chain") && has("package.json", "security:secrets")) {
+  pass("package-scripts", "full, repo, supply-chain, and secret security scripts are available");
 } else {
-  warn("package-scripts", "security:repo/security:full script wiring should be reviewed");
+  warn("package-scripts", "security script wiring should be reviewed");
 }
 
 const icons = { pass: "✅", warn: "⚠️", fail: "❌" };

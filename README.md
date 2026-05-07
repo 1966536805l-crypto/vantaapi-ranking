@@ -37,8 +37,8 @@ Not in the first focused version:
 1. Configure `.env`:
 
 ```bash
-DATABASE_URL="mysql://USER:PASSWORD@HOST:3306/vantaapi"
-JWT_SECRET="replace-with-a-long-random-secret"
+DATABASE_URL="mysql://<db_user>:<strong-random-password>@127.0.0.1:3306/<db_name>"
+JWT_SECRET="<generate-a-random-secret-at-least-32-chars>"
 ```
 
 2. Install dependencies and generate Prisma Client:

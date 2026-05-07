@@ -1,6 +1,5 @@
 import crypto from "crypto";
 
-const DEFAULT_ENCRYPTION_KEY = "default-key-change-in-production-32bytes";
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16;
 const AUTH_TAG_LENGTH = 16;
@@ -12,14 +11,11 @@ const SALT_LENGTH = 32;
 function getEncryptionKey(): Buffer {
   const configuredKey = process.env.ENCRYPTION_KEY;
 
-  if (
-    process.env.NODE_ENV === "production" &&
-    (!configuredKey || configuredKey.length < 32)
-  ) {
-    throw new Error("ENCRYPTION_KEY is required in production");
+  if (!configuredKey || configuredKey.length < 32) {
+    throw new Error("ENCRYPTION_KEY is required and must be at least 32 characters");
   }
 
-  const encryptionKey = configuredKey || DEFAULT_ENCRYPTION_KEY;
+  const encryptionKey = configuredKey;
 
   if (/^[0-9a-fA-F]{64}$/.test(encryptionKey)) {
     return Buffer.from(encryptionKey, "hex");

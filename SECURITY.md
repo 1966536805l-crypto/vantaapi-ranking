@@ -36,6 +36,7 @@ Required protections:
 - Database and Redis not exposed to the public internet.
 - DDoS and heavy bot filtering handled at CDN/WAF level, not by global user-facing CAPTCHA.
 - Edge abuse mode available through `SECURITY_MODE=normal|elevated|emergency`.
+- Supply-chain gates for dependency audit, lockfile hygiene, CodeQL, Gitleaks, and local secret pattern checks.
 
 ## DDoS and abuse mode
 
@@ -48,6 +49,17 @@ During active attacks, raise it without changing code:
 
 Large volumetric DDoS still requires a CDN/WAF in front of the app. The app layer blocks probes, abusive API patterns, oversized URLs, traversal/injection probes, and high-frequency per-IP traffic, but it should not be treated as a replacement for edge DDoS protection.
 
+Additional app-layer defenses:
+
+- Per-IP global request budgets.
+- Per-fingerprint read/write budgets for distributed low-quality traffic.
+- Tighter budgets for expensive endpoints such as AI coach, login, registration, quiz submit and code execution.
+- JSON-only enforcement for JSON write APIs.
+- Smaller request body limits for AI/auth endpoints.
+- Query-shape limits for parameter floods and open-redirect probes.
+- Emergency mode write protection for non-core APIs.
+- Blocking for cloud metadata, double-encoded traversal and common injection probes.
+
 ## CI gates
 
 Pull requests and pushes should pass:
@@ -55,6 +67,10 @@ Pull requests and pushes should pass:
 ```bash
 npm run security:regression
 npm run security:check
+npm run security:repo
+npm run security:network
+npm run security:supply-chain
+npm run security:secrets
 npm run typecheck
 npm run lint
 npm run build
@@ -81,5 +97,7 @@ See:
 
 - `DEPLOYMENT.md`
 - `docs/EDGE_SECURITY.md`
+- `docs/NETWORK_HARDENING.md`
+- `docs/SUPPLY_CHAIN_SECURITY.md`
 
 Important: application code cannot absorb large DDoS traffic alone. Use Cloudflare, Vercel Firewall, or an equivalent CDN/WAF in front of production.
