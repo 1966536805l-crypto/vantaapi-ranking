@@ -78,52 +78,61 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
         </nav>
       </header>
 
-      <section className="home-audit-hero">
-        <p className="eyebrow">{zh ? "GitHub 上线体检" : "GitHub Launch Audit"}</p>
-        <h1>{zh ? "粘贴 GitHub 仓库，一键生成上线前检查报告。" : "Paste a GitHub repo. Get a launch-readiness audit in 30 seconds."}</h1>
-        <p>
-          {zh
-            ? "JinMing Lab 专注帮开发者检查公开仓库的 README、环境变量、CI、部署、安全提示、Issue 草稿和发布清单。"
-            : "JinMing Lab checks README gaps, env files, CI signals, deployment clues, security notes, issue drafts, and release checklists."}
-        </p>
-        <RepoAuditForm language={language} />
-      </section>
+      <section className="home-audit-command">
+        <div className="home-audit-hero">
+          <p className="eyebrow">{zh ? "GitHub 上线体检" : "GitHub Launch Audit"}</p>
+          <h1>{zh ? "粘贴仓库，拿到上线前检查报告。" : "Paste a repo. Get the launch blockers."}</h1>
+          <p>
+            {zh
+              ? "检查 README、环境变量、CI、部署、安全提示、Issue 草稿和发布清单。适合公开上线前最后一轮体检。"
+              : "Check README gaps, env files, CI signals, deployment clues, security notes, issue drafts, and release checklists before launch."}
+          </p>
+          <RepoAuditForm language={language} />
+          <div className="home-audit-outcomes" aria-label={zh ? "核心结果" : "Core outcomes"}>
+            {(zh
+              ? ["上线评分", "阻塞项", "Issue 草稿", "PR 描述"]
+              : ["Launch score", "Blockers", "Issue drafts", "PR description"]
+            ).map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
+        </div>
 
-      <section className="home-audit-preview" aria-label={zh ? "报告预览" : "Report preview"}>
-        <div className="home-audit-report">
-          <div className="home-audit-report-head">
-            <div>
-              <p className="eyebrow">{zh ? "示例报告" : "Sample report"}</p>
-              <h2>vercel/swr</h2>
+        <div className="home-audit-preview" aria-label={zh ? "报告预览" : "Report preview"}>
+          <div className="home-audit-report">
+            <div className="home-audit-report-head">
+              <div>
+                <p className="eyebrow">{zh ? "示例报告" : "Sample report"}</p>
+                <h2>vercel/swr</h2>
+              </div>
+              <strong>86</strong>
             </div>
-            <strong>86</strong>
-          </div>
-          <div className="home-audit-score-strip">
-            {scorecards.map(([label, score, status]) => (
-              <article key={label}>
-                <span>{label}</span>
-                <strong>{score}</strong>
-                <em>{status}</em>
-              </article>
-            ))}
-          </div>
-          <div className="home-audit-evidence-grid">
-            {evidenceCards.map(([severity, source, body]) => (
-              <article key={`${severity}-${source}`}>
-                <div>
-                  <span>{severity}</span>
-                  <strong>{source}</strong>
-                </div>
-                <p>{body}</p>
-              </article>
-            ))}
-          </div>
-          <div className="home-audit-pr-preview">
-            <div>
-              <p className="eyebrow">{zh ? "可复制 PR 描述" : "Copy-ready PR description"}</p>
-              <h3>{zh ? "把体检结果直接放进开发流程" : "Move the audit directly into the developer workflow"}</h3>
+            <div className="home-audit-score-strip">
+              {scorecards.map(([label, score, status]) => (
+                <article key={label}>
+                  <span>{label}</span>
+                  <strong>{score}</strong>
+                  <em>{status}</em>
+                </article>
+              ))}
             </div>
-            <pre>{`## Launch readiness audit
+            <div className="home-audit-evidence-grid">
+              {evidenceCards.map(([severity, source, body]) => (
+                <article key={`${severity}-${source}`}>
+                  <div>
+                    <span>{severity}</span>
+                    <strong>{source}</strong>
+                  </div>
+                  <p>{body}</p>
+                </article>
+              ))}
+            </div>
+            <div className="home-audit-pr-preview">
+              <div>
+                <p className="eyebrow">{zh ? "可复制 PR 描述" : "Copy-ready PR description"}</p>
+                <h3>{zh ? "把体检结果直接放进开发流程" : "Move the audit into the developer workflow"}</h3>
+              </div>
+              <pre>{`## Launch readiness audit
 
 Score: 86/100
 Risk: Low
@@ -138,6 +147,7 @@ Risk: Low
 ### Verification
 npm run lint
 npm run build`}</pre>
+            </div>
           </div>
         </div>
       </section>
