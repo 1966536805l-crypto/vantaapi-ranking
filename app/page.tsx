@@ -11,13 +11,13 @@ import {
 } from "@/lib/world-language-content";
 
 export const metadata: Metadata = {
-  title: "VantaAPI - AI Tools & Coding Lab",
+  title: "JinMing Lab - AI Tools & Coding Lab",
   description:
     "An AI tools and coding training platform for beginners and indie developers. Improve your learning and development efficiency with clearer prompts, faster code understanding, and systematic practice paths.",
 };
 
 const railItems = [
-  { href: "/", code: "VA", label: "Home" },
+  { href: "/", code: "JM", label: "Home" },
   { href: "/tools", code: "T", label: "Tools" },
   { href: "/programming", code: "C", label: "Coding" },
   { href: "/tools/learning-roadmap", code: "R", label: "Roadmap" },
@@ -616,7 +616,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
               <div>
                 <p className="eyebrow">{copy.heroEyebrow}</p>
                 <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-[1.04] tracking-normal sm:text-4xl lg:text-5xl">
-                  VantaAPI
+                  JinMing Lab
                 </h1>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--muted)]">
                   {copy.heroText}
@@ -828,8 +828,8 @@ function HomeRail({ isAdmin }: { isAdmin: boolean }) {
   return (
     <aside className="study-rail sticky top-5 flex h-[calc(100vh-40px)] flex-col p-2">
       <Link href="/" className="mb-3 flex items-center gap-2 rounded-[8px] px-2 py-2">
-        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">VA</span>
-        <span className="hidden text-sm font-semibold leading-tight sm:block">VantaAPI</span>
+        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">JM</span>
+        <span className="hidden text-sm font-semibold leading-tight sm:block">JinMing Lab</span>
       </Link>
 
       <nav className="grid gap-1">
@@ -864,7 +864,7 @@ function TopBar({
   return (
     <header className="dense-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="dense-status">VantaAPI</span>
+        <span className="dense-status">JinMing Lab</span>
         <span className="dense-status">{copy.statusSearch}</span>
         <span className="dense-status">{copy.statusTools}</span>
         <span className="dense-status">{copy.statusCoding}</span>

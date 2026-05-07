@@ -1,4 +1,4 @@
-# VantaAPI 部署说明
+# JinMing Lab 部署说明
 
 这份文档只描述当前 Next.js + Prisma + MySQL/MariaDB MVP 的部署方式。
 

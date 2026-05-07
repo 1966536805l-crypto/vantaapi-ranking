@@ -131,7 +131,7 @@ export const toolDefinitions: ToolDefinition[] = [
     useCases: ["Format JSON", "Test regex", "Convert timestamps"],
     whatItDoes: ["Formats JSON and creates a minified version", "Runs browser regex matches against sample text", "Converts seconds milliseconds and date strings"],
     audience: ["Developers debugging payloads", "SEO and data workers checking structured data", "Anyone converting logs and timestamps"],
-    inputExample: "{\"name\":\"VantaAPI\",\"ok\":true} plus a regex or timestamp",
+    inputExample: "{\"name\":\"JinMing Lab\",\"ok\":true} plus a regex or timestamp",
     outputExample: "JSON status formatted JSON minified JSON regex matches ISO local Unix and millisecond time",
     limitations: ["Regex uses browser JavaScript behavior", "Date strings depend on browser parsing rules", "Large payloads should still be checked in dedicated tooling"],
     faq: [

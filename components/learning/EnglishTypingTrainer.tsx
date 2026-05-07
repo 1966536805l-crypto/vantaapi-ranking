@@ -284,44 +284,53 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
               </div>
               <span>{current.type === "word" ? "Word" : "Sentence"}</span>
             </div>
-            <p>{current.meaningZh}</p>
+            <div className="typing-meaning-card">
+              <span>释义提示</span>
+              <strong>{current.meaningZh}</strong>
+              <small>{current.noteZh}</small>
+            </div>
             <div className="typing-mask">{showAnswer ? current.answer : maskAnswer(current.answer)}</div>
             <div className="typing-progress">
               <span style={{ width: `${characterProgress}%` }} />
             </div>
-            <p className="typing-note">{current.noteZh}</p>
+            <p className="typing-note">看释义回忆英文 先不要急着看答案</p>
           </aside>
 
           <div className="typing-work">
             <label>
               <span>输入英文 · 实时验证</span>
-              <input
-                ref={inputRef}
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    check();
-                  }
-                  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "p") {
-                    event.preventDefault();
-                    speak();
-                  }
-                  if (event.key === "Escape") {
-                    event.preventDefault();
-                    if (document.fullscreenElement) {
-                      void document.exitFullscreen();
+              <div className="typing-input-shell">
+                <div className="typing-answer-ghost" aria-hidden="true">
+                  {current.answer}
+                </div>
+                <input
+                  ref={inputRef}
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      check();
                     }
-                  }
-                }}
-                autoCapitalize="none"
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck={false}
-                placeholder={current.type === "word" ? "type the word" : "type the sentence"}
-                className={getInputClass()}
-              />
+                    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "p") {
+                      event.preventDefault();
+                      speak();
+                    }
+                    if (event.key === "Escape") {
+                      event.preventDefault();
+                      if (document.fullscreenElement) {
+                        void document.exitFullscreen();
+                      }
+                    }
+                  }}
+                  autoCapitalize="none"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  placeholder={current.type === "word" ? "type the word" : "type the sentence"}
+                  className={getInputClass()}
+                />
+              </div>
             </label>
 
             <div className="typing-command-row">

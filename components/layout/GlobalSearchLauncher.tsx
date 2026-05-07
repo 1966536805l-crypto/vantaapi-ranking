@@ -155,7 +155,7 @@ export default function GlobalSearchLauncher() {
           <button type="button" className="global-search-backdrop" aria-label="Close search" onClick={closeLauncher} />
           <section className="global-search-panel">
             <div className="global-search-input-wrap">
-              <span>VA</span>
+              <span>JM</span>
               <input
                 ref={inputRef}
                 value={query}

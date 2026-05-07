@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* =========================================================================
-   VantaAPI · Soft Apple-like MVP skin
+   JinMing Lab · Soft Apple-like MVP skin
    Clean white space, rounded glass surfaces, subtle hairlines, smooth motion.
    ========================================================================= */
 
@@ -3118,6 +3118,38 @@ button {
   line-height: 1.7;
 }
 
+.typing-meaning-card {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 12px;
+}
+
+.typing-meaning-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.typing-meaning-card strong {
+  color: var(--foreground);
+  font-size: 20px;
+  font-weight: 780;
+  line-height: 1.35;
+}
+
+.typing-meaning-card small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 560;
+  line-height: 1.6;
+}
+
 .typing-mask {
   margin-top: 12px;
   min-height: 52px;
@@ -3168,12 +3200,36 @@ button {
   font-weight: 760;
 }
 
+.typing-input-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.typing-answer-ghost {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 0 15px;
+  color: rgba(15, 23, 42, 0.12);
+  font-size: 19px;
+  font-weight: 760;
+  line-height: 1.25;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
 .typing-work input {
+  position: relative;
+  z-index: 1;
   min-height: 52px;
   width: 100%;
   border: 1px solid var(--hair);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.72);
   padding: 0 14px;
   color: var(--foreground);
   font-size: 19px;

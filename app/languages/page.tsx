@@ -7,18 +7,18 @@ import {
 } from "@/lib/world-language-content";
 
 export const metadata: Metadata = {
-  title: "World Languages Zero Foundation - VantaAPI",
+  title: "World Languages Zero Foundation - JinMing Lab",
   description:
     "A zero foundation world language learning hub for pronunciation script first phrases sentence patterns and daily review.",
   alternates: {
     canonical: "/languages",
   },
   openGraph: {
-    title: "World Languages Zero Foundation - VantaAPI",
+    title: "World Languages Zero Foundation - JinMing Lab",
     description:
       "Start human languages from zero with sound script first phrases sentence patterns and daily review.",
     url: "https://vantaapi.com/languages",
-    siteName: "VantaAPI",
+    siteName: "JinMing Lab",
     type: "website",
   },
 };
@@ -69,7 +69,7 @@ export default function WorldLanguagesPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "VantaAPI World Languages",
+    name: "JinMing Lab World Languages",
     itemListElement: worldLanguages.map((language, index) => ({
       "@type": "ListItem",
       position: index + 1,
@@ -88,8 +88,8 @@ export default function WorldLanguagesPage() {
       <section className="mx-auto grid min-h-screen w-[min(1480px,calc(100%_-_28px))] gap-3 py-5 lg:grid-cols-[220px_minmax(0,1fr)]">
         <aside className="dense-panel sticky top-5 h-fit p-3">
           <Link href="/" className="mb-3 flex items-center gap-2 rounded-[8px] p-2 font-semibold">
-            <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] text-white">VA</span>
-            <span>VantaAPI</span>
+            <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] text-white">JM</span>
+            <span>JinMing Lab</span>
           </Link>
           <nav className="grid gap-1 text-sm">
             <Link href="/languages" className="rail-link rail-link-active">

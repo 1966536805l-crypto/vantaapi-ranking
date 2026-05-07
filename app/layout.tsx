@@ -12,7 +12,7 @@ const fontVariables = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vantaapi.com"),
-  title: "VantaAPI - AI Tools and Coding Lab",
+  title: "JinMing Lab - AI Tools and Coding Lab",
   description:
     "A clean AI tools and programming learning platform for prompt optimization code explanation bug fixing API request generation and coding practice.",
 };

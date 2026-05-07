@@ -65,7 +65,7 @@ export default function ConsolePage({
 
       <footer className="border-t border-slate-200">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-6 py-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} VantaAPI · {t.note}</p>
+          <p>© {new Date().getFullYear()} JinMing Lab · {t.note}</p>
           <div className="flex items-center gap-5">
             <Link className="hover:text-slate-900" href={`/privacy${suffix}`}>{t.privacy}</Link>
             <Link className="hover:text-slate-900" href={`/terms${suffix}`}>{t.terms}</Link>
