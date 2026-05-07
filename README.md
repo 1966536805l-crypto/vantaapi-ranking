@@ -1,6 +1,6 @@
-# JinMing Lab
+# VantaAPI
 
-JinMing Lab is a focused AI tools and programming practice platform.
+VantaAPI is a focused AI tools and programming practice platform.
 
 The product direction is now:
 

@@ -245,6 +245,7 @@ function timeAgo(ts: number, copy: QuickCopy) {
 export default function QuickStartPanel({ ui = "english" }: { ui?: string }) {
   const copy = quickCopy[ui] ?? quickCopy.english;
   const actions = quickActions[ui] ?? quickActions.english;
+  const focusedActions = actions.filter((action) => action.kind === "tool" || action.kind === "programming" || action.id === "quick:search");
   const [state, setState] = useState<LocalProgressState>(() => readState());
   const summary = useMemo(() => localProgressSummary(state), [state]);
   const continueItem = summary.recents[0];
@@ -292,7 +293,7 @@ export default function QuickStartPanel({ ui = "english" }: { ui?: string }) {
         </div>
 
         <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-          {actions.map((action) => (
+          {focusedActions.map((action) => (
             <Link
               key={action.id}
               href={action.href}

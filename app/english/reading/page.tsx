@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
-import { originalContentSummary, originalReadingPacks } from "@/lib/original-english-bank";
+import { originalReadingPacks } from "@/lib/original-english-bank";
 import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/language";
 
 export default async function Page({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
@@ -19,8 +19,8 @@ export default async function Page({ searchParams }: { searchParams?: Promise<Pa
           </h1>
           <p className="apple-display-subtitle mt-3 max-w-3xl text-sm text-[color:var(--muted)]">
             {language === "zh"
-              ? `初一到高三每个年级 300 章，雅思 1000 篇，托福 1000 篇。当前规划共 ${originalContentSummary.readingArticles} 篇，全部由站内原创生成，不搬运外部文章，不收录官方试卷内容。`
-              : `${originalContentSummary.readingArticles} internally generated original passages across grades IELTS and TOEFL. Independent practice not affiliated with exam providers and not sourced from official papers.`}
+              ? "初中 高中 雅思 托福方向原创阅读持续扩充，全部由站内原创生成，不搬运外部文章，不收录官方试卷内容。"
+              : "Internally generated original passages across grades IELTS and TOEFL. The bank keeps expanding and is not sourced from official papers."}
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export default async function Page({ searchParams }: { searchParams?: Promise<Pa
                 {language === "zh" ? "分级原创短文 主旨 逻辑词 词汇任务 写作输出" : "Original passages with main idea logic vocabulary and writing tasks"}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="dense-status">{pack.targetArticles} chapters</span>
+                <span className="dense-status">{language === "zh" ? "持续扩充" : "expanding"}</span>
                 <span className="dense-status">original</span>
                 <span className="dense-status">exam-ready</span>
               </div>

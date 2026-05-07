@@ -53,9 +53,9 @@ export default async function OriginalQuestionPackPage({
             {language === "zh" ? `${pack.descriptionZh} 当前每页 ${PAGE_SIZE} 题，支持即时判分。独立原创模拟，不收录官方试卷内容。` : `Page ${page} of original local practice with instant checking. Independent practice not sourced from official papers.`}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="dense-status">选择 {pack.multipleChoiceCount}</span>
-            <span className="dense-status">填空 {pack.fillBlankCount}</span>
-            <span className="dense-status">total {total}</span>
+            <span className="dense-status">{language === "zh" ? "选择题" : "choice"}</span>
+            <span className="dense-status">{language === "zh" ? "填空题" : "fill blank"}</span>
+            <span className="dense-status">{language === "zh" ? "持续扩充" : "expanding"}</span>
           </div>
         </div>
 

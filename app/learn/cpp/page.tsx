@@ -97,7 +97,7 @@ function Header() {
   return (
     <header className="border-b border-slate-200">
       <div className="mx-auto flex max-w-6xl justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="text-xl font-semibold">JinMing Lab</Link>
+        <Link href="/" className="text-xl font-semibold">VantaAPI</Link>
         <nav className="flex gap-4 text-sm">
           <Link href="/learn/english">English</Link>
           <Link href="/progress">Progress</Link>

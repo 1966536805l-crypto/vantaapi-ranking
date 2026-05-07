@@ -15,6 +15,7 @@ const expensiveApiRules = [
   { prefix: "/api/auth/register", normal: 8, elevated: 4, emergency: 2, windowMs: 60 * 60_000 },
   { prefix: "/api/quiz/submit", normal: 80, elevated: 40, emergency: 20, windowMs: 60_000 },
   { prefix: "/api/cpp/run", normal: 30, elevated: 16, emergency: 8, windowMs: 60_000 },
+  { prefix: "/api/questions", normal: 90, elevated: 45, emergency: 20, windowMs: 60_000 },
 ];
 
 const jsonWriteApiPrefixes = [
@@ -51,6 +52,7 @@ const apiMethodRules = [
   { prefix: "/api/csrf", methods: ["GET", "HEAD"] },
   { prefix: "/api/cpp/analyze", methods: ["POST"] },
   { prefix: "/api/cpp/run", methods: ["POST"] },
+  { prefix: "/api/questions", methods: ["GET", "HEAD"] },
   { prefix: "/api/quiz/submit", methods: ["POST"] },
   { prefix: "/api/rankings/like", methods: ["POST"] },
   { prefix: "/api/report", methods: ["POST"] },

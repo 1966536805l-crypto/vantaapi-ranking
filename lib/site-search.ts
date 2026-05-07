@@ -212,7 +212,7 @@ export const siteSearchItems: SiteSearchItem[] = [
     title: pack.zhTitle,
     href: `/english/question-bank/${pack.slug}?lang=zh`,
     category: "English Questions",
-    description: `${pack.title} ${pack.multipleChoiceCount} choice ${pack.fillBlankCount} fill blank original questions`,
+    description: `${pack.title} original choice and fill blank questions. The bank keeps expanding.`,
     tags: [pack.title, pack.zhTitle, pack.level, "choice", "fill blank", "原创题库", "选择题", "填空题"],
   })),
   ...worldLanguages.map((language) => ({

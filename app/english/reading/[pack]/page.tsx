@@ -43,7 +43,7 @@ export default async function ReadingPackPage({
           {language === "zh" ? "返回原创文章库" : "Back to article library"}
         </Link>
         <div className="module-hero mt-3 px-5 py-6">
-          <p className="eyebrow">{article.level} · Chapter {article.chapter}/{pack.targetArticles}</p>
+          <p className="eyebrow">{article.level} · Chapter {article.chapter}</p>
           <h1 className="apple-display-title mt-3 max-w-4xl text-4xl">{language === "zh" ? article.subtitleZh : article.title}</h1>
           <p className="apple-display-subtitle mt-3 max-w-3xl text-sm text-[color:var(--muted)]">
             {language === "zh" ? `目标词数 ${article.wordTarget}。原创文章，训练阅读主旨、逻辑关系、词汇输出。不收录官方试卷内容。` : `Target ${article.wordTarget} words. Original passage for main idea logic and vocabulary output. Independent practice not sourced from official papers.`}

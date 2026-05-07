@@ -41,25 +41,25 @@ export type OriginalQuizQuestion = {
 };
 
 export const originalReadingPacks: OriginalReadingPack[] = [
-  { slug: "grade-7", title: "Grade 7 Original Reading · 300", zhTitle: "初一原创英语文章 300 章", level: "Grade 7", targetArticles: 300 },
-  { slug: "grade-8", title: "Grade 8 Original Reading · 300", zhTitle: "初二原创英语文章 300 章", level: "Grade 8", targetArticles: 300 },
-  { slug: "grade-9", title: "Grade 9 Original Reading · 300", zhTitle: "初三原创英语文章 300 章", level: "Grade 9", targetArticles: 300 },
-  { slug: "grade-10", title: "Grade 10 Original Reading · 300", zhTitle: "高一原创英语文章 300 章", level: "Grade 10", targetArticles: 300 },
-  { slug: "grade-11", title: "Grade 11 Original Reading · 300", zhTitle: "高二原创英语文章 300 章", level: "Grade 11", targetArticles: 300 },
-  { slug: "grade-12", title: "Grade 12 Original Reading · 300", zhTitle: "高三原创英语文章 300 章", level: "Grade 12", targetArticles: 300 },
-  { slug: "ielts-reading-1000", title: "IELTS Original Reading · 1000", zhTitle: "雅思原创阅读 1000 篇", level: "IELTS Band 5.5-8", targetArticles: 1000, exam: "IELTS" },
-  { slug: "toefl-reading-1000", title: "TOEFL Original Reading · 1000", zhTitle: "托福原创阅读 1000 篇", level: "TOEFL iBT", targetArticles: 1000, exam: "TOEFL" },
+  { slug: "grade-7", title: "Grade 7 Original Reading", zhTitle: "初一原创英语文章", level: "Grade 7", targetArticles: 300 },
+  { slug: "grade-8", title: "Grade 8 Original Reading", zhTitle: "初二原创英语文章", level: "Grade 8", targetArticles: 300 },
+  { slug: "grade-9", title: "Grade 9 Original Reading", zhTitle: "初三原创英语文章", level: "Grade 9", targetArticles: 300 },
+  { slug: "grade-10", title: "Grade 10 Original Reading", zhTitle: "高一原创英语文章", level: "Grade 10", targetArticles: 300 },
+  { slug: "grade-11", title: "Grade 11 Original Reading", zhTitle: "高二原创英语文章", level: "Grade 11", targetArticles: 300 },
+  { slug: "grade-12", title: "Grade 12 Original Reading", zhTitle: "高三原创英语文章", level: "Grade 12", targetArticles: 300 },
+  { slug: "ielts-reading-1000", title: "IELTS Original Reading", zhTitle: "雅思原创阅读", level: "IELTS Band 5.5-8", targetArticles: 1000, exam: "IELTS" },
+  { slug: "toefl-reading-1000", title: "TOEFL Original Reading", zhTitle: "托福原创阅读", level: "TOEFL iBT", targetArticles: 1000, exam: "TOEFL" },
 ];
 
 export const originalQuestionPacks: OriginalQuestionPack[] = [
-  { slug: "ielts-original-3000", title: "IELTS Original Bank", zhTitle: "雅思原创题库", level: "IELTS", multipleChoiceCount: 1500, fillBlankCount: 1500, descriptionZh: "雅思和托福合计 3000 道选择 + 3000 道填空；本包承担雅思 1500+1500。" },
-  { slug: "toefl-original-3000", title: "TOEFL Original Bank", zhTitle: "托福原创题库", level: "TOEFL", multipleChoiceCount: 1500, fillBlankCount: 1500, descriptionZh: "雅思和托福合计 3000 道选择 + 3000 道填空；本包承担托福 1500+1500。" },
-  { slug: "grade-7-1000", title: "Grade 7 Original Questions", zhTitle: "初一原创选择填空 1000 题", level: "Grade 7", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "每个年级 1000 道原创选择/填空混合题。" },
-  { slug: "grade-8-1000", title: "Grade 8 Original Questions", zhTitle: "初二原创选择填空 1000 题", level: "Grade 8", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "每个年级 1000 道原创选择/填空混合题。" },
-  { slug: "grade-9-1000", title: "Grade 9 Original Questions", zhTitle: "初三原创选择填空 1000 题", level: "Grade 9", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "每个年级 1000 道原创选择/填空混合题。" },
-  { slug: "grade-10-1000", title: "Grade 10 Original Questions", zhTitle: "高一原创选择填空 1000 题", level: "Grade 10", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "每个年级 1000 道原创选择/填空混合题。" },
-  { slug: "grade-11-1000", title: "Grade 11 Original Questions", zhTitle: "高二原创选择填空 1000 题", level: "Grade 11", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "每个年级 1000 道原创选择/填空混合题。" },
-  { slug: "grade-12-1000", title: "Grade 12 Original Questions", zhTitle: "高三原创选择填空 1000 题", level: "Grade 12", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "每个年级 1000 道原创选择/填空混合题。" },
+  { slug: "ielts-original-3000", title: "IELTS Original Bank", zhTitle: "雅思原创题库", level: "IELTS", multipleChoiceCount: 1500, fillBlankCount: 1500, descriptionZh: "雅思方向原创选择和填空题持续扩充。" },
+  { slug: "toefl-original-3000", title: "TOEFL Original Bank", zhTitle: "托福原创题库", level: "TOEFL", multipleChoiceCount: 1500, fillBlankCount: 1500, descriptionZh: "托福方向原创选择和填空题持续扩充。" },
+  { slug: "grade-7-1000", title: "Grade 7 Original Questions", zhTitle: "初一原创选择填空", level: "Grade 7", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "本年级原创选择和填空混合题持续扩充。" },
+  { slug: "grade-8-1000", title: "Grade 8 Original Questions", zhTitle: "初二原创选择填空", level: "Grade 8", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "本年级原创选择和填空混合题持续扩充。" },
+  { slug: "grade-9-1000", title: "Grade 9 Original Questions", zhTitle: "初三原创选择填空", level: "Grade 9", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "本年级原创选择和填空混合题持续扩充。" },
+  { slug: "grade-10-1000", title: "Grade 10 Original Questions", zhTitle: "高一原创选择填空", level: "Grade 10", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "本年级原创选择和填空混合题持续扩充。" },
+  { slug: "grade-11-1000", title: "Grade 11 Original Questions", zhTitle: "高二原创选择填空", level: "Grade 11", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "本年级原创选择和填空混合题持续扩充。" },
+  { slug: "grade-12-1000", title: "Grade 12 Original Questions", zhTitle: "高三原创选择填空", level: "Grade 12", multipleChoiceCount: 500, fillBlankCount: 500, descriptionZh: "本年级原创选择和填空混合题持续扩充。" },
 ];
 
 const themes = ["city gardens", "school clubs", "quiet technology", "healthy routines", "public libraries", "river protection", "space food", "shared bicycles", "music practice", "museum volunteers", "community maps", "smart classrooms"];

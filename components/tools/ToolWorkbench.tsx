@@ -8,11 +8,48 @@ import { toolDefinitions, type ToolDefinition, type ToolSlug } from "@/lib/tool-
 
 type ApiMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 type RoadmapTrack = "zero" | "frontend" | "python" | "automation" | "indie";
+type PromptTemplateKey = "builder" | "repo" | "code-coach" | "english-coach" | "api-docs";
 type OutputBlock = {
   title: string;
   badge: string;
   content: string;
 };
+
+type GitHubRepoAnalysis = {
+  repository: {
+    fullName: string;
+    url: string;
+    description: string;
+    defaultBranch: string;
+    stars: number;
+    forks: number;
+    openIssues: number;
+    language: string;
+    license: string;
+    visibility: string;
+    archived: boolean;
+    pushedAt: string;
+  };
+  overview: string[];
+  howToRun: string[];
+  techStack: string[];
+  fileStructure: string[];
+  securityNotes: string[];
+  readmeSuggestions: string[];
+  githubActions: string[];
+  deploymentChecklist: string[];
+  prReviewChecklist: string[];
+  filesRead: string[];
+};
+
+type GitHubRepoAnalyzerResponse = {
+  success: boolean;
+  analysis?: GitHubRepoAnalysis;
+  message?: string;
+  error?: string;
+};
+
+const sampleRepoUrl = "https://github.com/vercel/swr";
 
 const sampleCode = `async function loadUser(id) {
   const res = await fetch("/api/users/" + id);
@@ -73,6 +110,89 @@ const roadmapTracks: Record<RoadmapTrack, { label: string; goal: string; stack: 
     goal: "Find a narrow problem build a usable MVP and prepare launch",
     stack: ["Next.js", "Prisma", "Auth", "Payments later", "Analytics"],
     project: "One paid-tool style MVP with onboarding and retention loop",
+  },
+};
+
+const promptTemplates: Record<PromptTemplateKey, { label: string; role: string; tasks: string; constraints: string; acceptance: string }> = {
+  builder: {
+    label: "Product builder",
+    role: "You are a senior full stack product engineer",
+    tasks: `1. Clarify the smallest shippable version
+2. Design the route data and component structure
+3. Implement with existing project patterns
+4. Add focused tests or manual verification
+5. Explain exactly how to run it`,
+    constraints: `- Keep the MVP sharp
+- Prefer existing stack and local helpers
+- Avoid inflated marketing copy
+- Ship something usable before adding breadth`,
+    acceptance: `- The feature works from the first screen
+- Empty error loading and mobile states are handled
+- The user can verify it with one command or URL`,
+  },
+  repo: {
+    label: "GitHub repo audit",
+    role: "You are a pragmatic open source maintainer",
+    tasks: `1. Read README package scripts config and CI
+2. Identify how to install run test and deploy
+3. List security and license risks
+4. Suggest the first contribution path
+5. Produce a PR checklist`,
+    constraints: `- Do not invent files that are not present
+- Separate facts from assumptions
+- Prioritize contributor onboarding
+- Keep commands copy ready`,
+    acceptance: `- A new developer knows how to start
+- Release blockers are visible
+- The PR checklist catches docs tests and security risks`,
+  },
+  "code-coach": {
+    label: "Programming coach",
+    role: "You are a programming coach for zero base learners",
+    tasks: `1. Explain the current concept in one small idea
+2. Give one hint before the answer
+3. Ask the learner to predict output or fill the blank
+4. Show the answer only when requested
+5. End with one tiny variation drill`,
+    constraints: `- No long lectures
+- No full solution first
+- Use the learner's current code
+- Keep examples runnable and short`,
+    acceptance: `- The learner can do the next step alone
+- The answer teaches debugging not memorization
+- The final drill changes one thing only`,
+  },
+  "english-coach": {
+    label: "English memory coach",
+    role: "You are an English coach built only for vocabulary spelling and exam reading",
+    tasks: `1. Give the core meaning
+2. Add one natural phrase
+3. Add one original sentence
+4. Create a memory hook
+5. Test spelling recall within 5 seconds`,
+    constraints: `- Use original examples only
+- Do not quote copyrighted dictionary entries
+- Do not claim human audio
+- Keep Chinese explanations concise when needed`,
+    acceptance: `- The learner can spell the word
+- The learner sees one usage pattern
+- The drill is short enough to repeat daily`,
+  },
+  "api-docs": {
+    label: "API docs",
+    role: "You are a developer documentation writer",
+    tasks: `1. State what the endpoint does
+2. Document method headers body and response
+3. Generate curl fetch axios and Python examples
+4. Add error cases
+5. Add a minimal test checklist`,
+    constraints: `- Use concrete placeholders
+- Never hide auth requirements
+- Keep examples copy ready
+- Mark destructive requests clearly`,
+    acceptance: `- A developer can call the API without asking follow up questions
+- Errors and auth are documented
+- Examples match the same request shape`,
   },
 };
 
@@ -185,6 +305,34 @@ function downloadTextFile(text: string, title: string) {
   URL.revokeObjectURL(url);
 }
 
+function bulletList(items: string[]) {
+  return items.length ? items.map((item) => `- ${item}`).join("\n") : "- No signal detected";
+}
+
+function numberedList(items: string[]) {
+  return items.length ? items.map((item, index) => `${index + 1}. ${item}`).join("\n") : "1. No action detected";
+}
+
+function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: string) {
+  if (error) {
+    return `Status\n${error}\n\nSupported input\nPaste a public GitHub repository URL like ${sampleRepoUrl}`;
+  }
+  if (!analysis) {
+    return `GitHub Repo Analyzer\nPaste a public GitHub repository URL and analyze setup commands tech stack security notes deployment checks and PR review steps.\n\nExample\n${sampleRepoUrl}`;
+  }
+
+  return [
+    `Repository\n${analysis.repository.fullName}\n${analysis.repository.url}`,
+    `Overview\n${bulletList(analysis.overview)}`,
+    `Tech stack\n${bulletList(analysis.techStack)}`,
+    `How to run\n${numberedList(analysis.howToRun)}`,
+    `Security notes\n${bulletList(analysis.securityNotes)}`,
+    `Deployment checklist\n${numberedList(analysis.deploymentChecklist)}`,
+    `PR review checklist\n${numberedList(analysis.prReviewChecklist)}`,
+    `Files read\n${bulletList(analysis.filesRead)}`,
+  ].join("\n\n");
+}
+
 export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { initialSlug?: ToolSlug }) {
   const pathname = usePathname();
   const active = useMemo<ToolSlug>(() => {
@@ -208,8 +356,8 @@ export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { in
       <div className="tool-shell">
         <aside className="tool-rail dense-panel">
           <Link href="/" className="tool-brand">
-            <span>JM</span>
-            <strong>JinMing Lab</strong>
+            <span>VA</span>
+            <strong>VantaAPI</strong>
           </Link>
           <nav className="tool-nav">
             {toolDefinitions.map((tool) => (
@@ -252,6 +400,7 @@ export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { in
           </div>
 
           <div className="mt-3">
+            {active === "github-repo-analyzer" && <GitHubRepoAnalyzer />}
             {active === "prompt-optimizer" && <PromptOptimizer />}
             {active === "code-explainer" && <CodeExplainer />}
             {active === "bug-finder" && <BugFinder />}
@@ -267,24 +416,178 @@ export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { in
   );
 }
 
+function GitHubRepoAnalyzer() {
+  const [url, setUrl] = useState(sampleRepoUrl);
+  const [analysis, setAnalysis] = useState<GitHubRepoAnalysis | null>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const output = useMemo(() => formatGitHubRepoOutput(analysis, error), [analysis, error]);
+  const blocks = useMemo<OutputBlock[]>(() => {
+    if (!analysis) return [];
+    return [
+      { badge: "01", title: "Run commands", content: numberedList(analysis.howToRun) },
+      { badge: "02", title: "Security notes", content: bulletList(analysis.securityNotes) },
+      { badge: "03", title: "README upgrades", content: bulletList(analysis.readmeSuggestions) },
+      { badge: "04", title: "CI suggestions", content: bulletList(analysis.githubActions) },
+      { badge: "05", title: "Deployment checklist", content: numberedList(analysis.deploymentChecklist) },
+      { badge: "06", title: "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
+    ];
+  }, [analysis]);
+
+  async function analyzeRepo() {
+    const trimmed = url.trim();
+    if (!trimmed) {
+      setError("Repository URL is required");
+      setAnalysis(null);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch("/api/tools/github-repo-analyzer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: trimmed }),
+      });
+      const data = (await response.json()) as GitHubRepoAnalyzerResponse;
+      if (!response.ok || !data.success || !data.analysis) {
+        throw new Error(data.error || data.message || "Repository analysis failed");
+      }
+      setAnalysis(data.analysis);
+    } catch (caught) {
+      setAnalysis(null);
+      setError(caught instanceof Error ? caught.message : "Repository analysis failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <ToolLayout
+      output={output}
+      outputTitle="Repository analysis"
+      blocks={blocks}
+      actions={
+        <>
+          <button type="button" className="dense-action" onClick={analyzeRepo} disabled={loading}>
+            {loading ? "Analyzing" : "Analyze repo"}
+          </button>
+          <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
+            Load sample
+          </button>
+          <button type="button" className="dense-action" onClick={() => { setUrl(""); setAnalysis(null); setError(""); }}>
+            Clear
+          </button>
+        </>
+      }
+    >
+      <p className="eyebrow">Input</p>
+      <h2>Public repository</h2>
+      <label className="block">
+        <span className="tool-label">GitHub URL</span>
+        <input
+          value={url}
+          onChange={(event) => setUrl(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") void analyzeRepo();
+          }}
+          className="tool-input"
+          placeholder={sampleRepoUrl}
+        />
+      </label>
+      <div className="tool-field-grid">
+        <div className="dense-row">
+          <span className="text-sm font-semibold">Scope</span>
+          <span className="text-xs text-[color:var(--muted)]">Public repos only</span>
+        </div>
+        <div className="dense-row">
+          <span className="text-sm font-semibold">Reads</span>
+          <span className="text-xs text-[color:var(--muted)]">Metadata root files CI config</span>
+        </div>
+      </div>
+    </ToolLayout>
+  );
+}
+
+
+function toolExamples(tool: ToolDefinition) {
+  if (tool.slug === "prompt-optimizer") {
+    return [
+      {
+        title: "Writing prompt optimization",
+        input: "Write a product intro for a new AI tool.",
+        output: "Audience, tone, structure, proof points, limits, and acceptance criteria before drafting.",
+      },
+      {
+        title: "Code generation prompt optimization",
+        input: "Build a settings page in Next.js.",
+        output: "Route, components, state, validation, error states, styling constraints, and verification commands.",
+      },
+      {
+        title: "Learning plan prompt optimization",
+        input: "Help me learn Python in 30 days.",
+        output: "Weekly goals, daily exercises, review checkpoints, final project, and measurable completion criteria.",
+      },
+    ];
+  }
+
+  return [
+    {
+      title: `${tool.shortTitle} example`,
+      input: tool.inputExample,
+      output: tool.outputExample,
+    },
+  ];
+}
+
 function ToolSeoPanel({ tool }: { tool: ToolDefinition }) {
+  const examples = toolExamples(tool);
+
   return (
     <section className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       <div className="dense-panel p-5">
-        <p className="eyebrow">Use Cases</p>
-        <h2 className="mt-2 text-2xl font-semibold">{tool.shortTitle} workflows</h2>
+        <p className="eyebrow">What It Does</p>
+        <h2 className="mt-2 text-2xl font-semibold">{tool.shortTitle} workflow</h2>
         <div className="mt-4 grid gap-2">
-          {tool.useCases.map((item) => (
+          {tool.whatItDoes.map((item) => (
             <div key={item} className="dense-row">
               <span className="text-sm font-semibold">{item}</span>
-              <span className="text-xs text-[color:var(--muted)]">{tool.promise}</span>
+              <span className="text-xs text-[color:var(--muted)]">Built for fast copyable work</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="dense-panel p-5">
-        <p className="eyebrow">FAQ</p>
+        <p className="eyebrow">Good For</p>
+        <h2 className="mt-2 text-2xl font-semibold">Who should use it</h2>
+        <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+          {tool.audience.map((item) => (
+            <div key={item} className="rounded-[8px] border border-slate-200 bg-white/70 p-3 text-sm font-semibold">
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="dense-panel p-5">
+        <p className="eyebrow">Examples</p>
+        <h2 className="mt-2 text-2xl font-semibold">Input and output</h2>
+        <div className="mt-4 grid gap-3">
+          {examples.map((example) => (
+            <article key={example.title} className="rounded-[8px] border border-slate-200 bg-white/75 p-3">
+              <p className="eyebrow">{example.title}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-800"><strong>Input:</strong> {example.input}</p>
+              <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]"><strong>Output:</strong> {example.output}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className="dense-panel p-5">
+        <p className="eyebrow">FAQ And Limits</p>
         <h2 className="mt-2 text-2xl font-semibold">Before you use it</h2>
         <div className="mt-4 grid gap-2">
           {tool.faq.map((item) => (
@@ -293,6 +596,14 @@ function ToolSeoPanel({ tool }: { tool: ToolDefinition }) {
               <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]">{item.answer}</p>
             </details>
           ))}
+          <div className="rounded-[8px] border border-slate-200 bg-white/70 p-3">
+            <p className="text-sm font-semibold">Usage limits</p>
+            <ul className="mt-2 space-y-1 text-sm leading-6 text-[color:var(--muted)]">
+              {tool.limitations.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>
@@ -374,14 +685,17 @@ function PromptOptimizer() {
   const [goal, setGoal] = useState(sampleGoal);
   const [mode, setMode] = useState("coding");
   const [context, setContext] = useState(sampleContext);
+  const [templateKey, setTemplateKey] = useState<PromptTemplateKey>("builder");
 
   const promptBlocks = useMemo<OutputBlock[]>(() => {
+    const template = promptTemplates[templateKey];
     const role =
-      mode === "research"
+      template?.role ||
+      (mode === "research"
         ? "You are a senior research analyst"
         : mode === "product"
           ? "You are a senior product manager and UX writer"
-          : "You are a senior full stack engineer";
+          : "You are a senior full stack engineer");
     const cleanGoal = goal.trim() || "Describe the goal here";
     const cleanContext = context.trim() || "Add audience product constraints current stack and examples here";
 
@@ -392,7 +706,7 @@ function PromptOptimizer() {
       {
         badge: "04",
         title: "Tasks",
-        content: `1. Restate the objective in one sentence
+        content: template?.tasks || `1. Restate the objective in one sentence
 2. Ask only the critical missing questions
 3. Propose a practical implementation plan
 4. Produce the final answer or code in a copy ready format
@@ -410,7 +724,7 @@ function PromptOptimizer() {
       {
         badge: "06",
         title: "Constraints",
-        content: `- Prefer simple maintainable choices
+        content: template?.constraints || `- Prefer simple maintainable choices
 - Avoid vague advice
 - Make the result usable immediately
 - Include filenames commands or examples when relevant`,
@@ -418,12 +732,12 @@ function PromptOptimizer() {
       {
         badge: "07",
         title: "Acceptance Criteria",
-        content: `- The answer solves the actual user goal
+        content: template?.acceptance || `- The answer solves the actual user goal
 - The next action is obvious
 - The output can be pasted into a real workflow`,
       },
     ];
-  }, [context, goal, mode]);
+  }, [context, goal, mode, templateKey]);
 
   const output = useMemo(
     () => promptBlocks.map((block) => `${block.title}\n${block.content}`).join("\n\n"),
@@ -456,6 +770,14 @@ function PromptOptimizer() {
             <option value="coding">Coding</option>
             <option value="research">Research</option>
             <option value="product">Product</option>
+          </select>
+        </label>
+        <label>
+          <span>Template</span>
+          <select value={templateKey} onChange={(event) => setTemplateKey(event.target.value as PromptTemplateKey)} className="tool-input">
+            {Object.entries(promptTemplates).map(([key, template]) => (
+              <option key={key} value={key}>{template.label}</option>
+            ))}
           </select>
         </label>
       </div>
@@ -650,7 +972,7 @@ function ApiRequestGenerator() {
   const [url, setUrl] = useState("https://api.example.com/v1/users");
   const [method, setMethod] = useState<ApiMethod>("POST");
   const [headers, setHeaders] = useState("Authorization: Bearer YOUR_TOKEN\nContent-Type: application/json");
-  const [body, setBody] = useState('{"name":"JinMing Lab","role":"developer"}');
+  const [body, setBody] = useState('{"name":"VantaAPI","role":"developer"}');
   const requestBlocks = useMemo<OutputBlock[]>(() => {
     const parsedHeaders = parseHeaders(headers);
     const prettyBody = safeJsonBody(body);
@@ -713,7 +1035,7 @@ print(response.json())`,
           <button type="button" className="dense-action" onClick={() => { setMethod("GET"); setUrl("https://api.example.com/v1/projects"); setHeaders("Authorization: Bearer YOUR_TOKEN"); setBody(""); }}>
             GET preset
           </button>
-          <button type="button" className="dense-action" onClick={() => { setMethod("POST"); setUrl("https://api.example.com/v1/users"); setHeaders("Authorization: Bearer YOUR_TOKEN\nContent-Type: application/json"); setBody('{"name":"JinMing Lab","role":"developer"}'); }}>
+          <button type="button" className="dense-action" onClick={() => { setMethod("POST"); setUrl("https://api.example.com/v1/users"); setHeaders("Authorization: Bearer YOUR_TOKEN\nContent-Type: application/json"); setBody('{"name":"VantaAPI","role":"developer"}'); }}>
             POST preset
           </button>
           <button type="button" className="dense-action" onClick={() => { setHeaders(""); setBody(""); }}>
@@ -749,10 +1071,10 @@ print(response.json())`,
 }
 
 function DevUtilities() {
-  const [json, setJson] = useState('{"name":"JinMing Lab","tools":["json","regex","timestamp"],"ok":true}');
+  const [json, setJson] = useState('{"name":"VantaAPI","tools":["json","regex","timestamp"],"ok":true}');
   const [pattern, setPattern] = useState("\\b[A-Z][A-Za-z]+\\b");
   const [flags, setFlags] = useState("g");
-  const [regexText, setRegexText] = useState("JinMing Lab builds JSON Regex Timestamp Tools");
+  const [regexText, setRegexText] = useState("VantaAPI builds JSON Regex Timestamp Tools");
   const [timestamp, setTimestamp] = useState("1700000000000");
 
   const utilityBlocks = useMemo<OutputBlock[]>(() => {
@@ -800,7 +1122,7 @@ Milliseconds ${Number.isNaN(date.getTime()) ? "Invalid date" : date.getTime()}`,
       blocks={utilityBlocks}
       actions={
         <>
-          <button type="button" className="dense-action" onClick={() => setJson('{"name":"JinMing Lab","tools":["json","regex","timestamp"],"ok":true}')}>
+          <button type="button" className="dense-action" onClick={() => setJson('{"name":"VantaAPI","tools":["json","regex","timestamp"],"ok":true}')}>
             JSON sample
           </button>
           <button type="button" className="dense-action" onClick={() => setTimestamp(String(Date.now()))}>

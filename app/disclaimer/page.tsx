@@ -8,7 +8,7 @@ const copy = {
     eyebrow: "Legal",
     title: "Disclaimer",
     sections: [
-      ["Role", "JinMing Lab provides AI tools coding practice and learning utilities"],
+      ["Role", "VantaAPI provides AI tools coding practice and learning utilities"],
       ["Content", "User-submitted content remains the responsibility of the submitter"],
       ["Availability", "The service may change, break or become unavailable"],
       ["Advice", "AI and status features are for study review, not professional advice"],
@@ -19,7 +19,7 @@ const copy = {
     eyebrow: "说明",
     title: "免责声明",
     sections: [
-      ["角色", "JinMing Lab 提供 AI 工具、编程练习和学习工具"],
+      ["角色", "VantaAPI 提供 AI 工具、编程练习和学习工具"],
       ["内容", "用户提交的内容由提交者自行负责"],
       ["可用性", "服务可能调整、中断或不可用"],
       ["建议", "AI 和状态功能用于学习复盘，不构成专业建议"],

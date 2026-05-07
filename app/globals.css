@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* =========================================================================
-   JinMing Lab · Soft Apple-like MVP skin
+   VantaAPI · Soft Apple-like MVP skin
    Clean white space, rounded glass surfaces, subtle hairlines, smooth motion.
    ========================================================================= */
 
@@ -496,6 +496,10 @@ button {
 .learning-compact-hero p:last-child {
   max-width: 780px;
   line-height: 1.55;
+}
+
+.typing-page-hero {
+  min-height: auto;
 }
 
 .learning-head-actions {
@@ -2253,6 +2257,47 @@ button {
   font-weight: 800;
 }
 
+.programming-zero-path {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px 14px;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.programming-zero-path > div {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.programming-zero-path span {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 7px 9px;
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.programming-zero-path strong {
+  display: grid;
+  height: 20px;
+  min-width: 20px;
+  place-items: center;
+  border-radius: 6px;
+  background: #0f172a;
+  color: white;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 10px;
+}
+
 .programming-rail-section {
   display: grid;
   gap: 8px;
@@ -2582,6 +2627,7 @@ button {
   }
 
   .programming-topbar,
+  .programming-zero-path,
   .programming-question-head,
   .programming-inspector-head,
   .programming-reference-head {
@@ -2613,6 +2659,14 @@ button {
   }
 
   .programming-track-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .programming-zero-path {
+    grid-template-columns: 1fr;
+  }
+
+  .programming-zero-path > div {
     grid-template-columns: 1fr;
   }
 
@@ -2939,6 +2993,23 @@ button {
   padding: 14px;
 }
 
+.typing-lab-focus .typing-lab-main {
+  min-height: calc(100vh - 210px);
+}
+
+.typing-lab-focus .typing-board {
+  grid-template-columns: minmax(240px, 0.58fr) minmax(0, 1.42fr);
+}
+
+.typing-lab-focus .typing-work {
+  align-content: center;
+}
+
+.typing-lab-focus .typing-work input {
+  min-height: 68px;
+  font-size: 24px;
+}
+
 .typing-score {
   display: flex;
   align-items: baseline;
@@ -3061,6 +3132,22 @@ button {
   word-break: break-word;
 }
 
+.typing-progress {
+  margin-top: 10px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.typing-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0f172a, #0071e3);
+  transition: width 160ms ease;
+}
+
 .typing-note {
   font-size: 12px !important;
 }
@@ -3136,6 +3223,7 @@ button {
 }
 
 :fullscreen .typing-lab-main {
+  min-height: calc(100vh - 40px);
   padding: 20px;
 }
 
@@ -3149,8 +3237,8 @@ button {
 }
 
 :fullscreen .typing-work input {
-  font-size: 22px;
-  min-height: 64px;
+  font-size: 28px;
+  min-height: 78px;
 }
 
 :fullscreen .typing-mask {

@@ -984,7 +984,7 @@ export function buildProgrammingQuestion(languageSlug: ProgrammingLanguageSlug, 
   const variant = Math.floor((index - 1) / language.atoms.length) + 1;
   const selected = language.atoms[atomIndex];
   const codeNumber = (variant % 9) + 1;
-  const title = `${language.title} ${index} of ${programmingBankPlan.perLanguage}`;
+  const title = `${language.title} practice ${index}`;
   const hints = [
     `Look at ${selected.concept} first and find the missing piece`,
     `Check this habit ${language.dailyHabit}`,

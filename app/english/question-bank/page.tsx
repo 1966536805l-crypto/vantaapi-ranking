@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
-import { originalContentSummary, originalQuestionPacks } from "@/lib/original-english-bank";
+import { originalQuestionPacks } from "@/lib/original-english-bank";
 import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/language";
 
 export default async function QuestionBankPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
@@ -17,7 +17,7 @@ export default async function QuestionBankPage({ searchParams }: { searchParams?
           <h1 className="apple-display-title mt-3 max-w-4xl text-4xl">{language === "zh" ? "原创英语选择填空题库" : "Original English Question Bank"}</h1>
           <p className="apple-display-subtitle mt-3 max-w-3xl text-sm text-[color:var(--muted)]">
             {language === "zh"
-              ? `雅思+托福合计 ${originalContentSummary.examMultipleChoice} 道选择题、${originalContentSummary.examFillBlank} 道填空题；初一到高三每级 1000 道混合题。题目由站内规则原创生成，不收录官方试卷内容。`
+              ? "雅思 托福和初高中方向原创选择题 填空题持续扩充。题目由站内规则原创生成，不收录官方试卷内容。"
               : "Original multiple-choice and fill-blank practice for IELTS TOEFL and grade levels. Independent practice not affiliated with exam providers and not sourced from official papers."}
           </p>
         </div>
@@ -29,8 +29,9 @@ export default async function QuestionBankPage({ searchParams }: { searchParams?
               <h2 className="mt-2 text-xl font-semibold">{language === "zh" ? pack.zhTitle : pack.title}</h2>
               <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">{language === "zh" ? pack.descriptionZh : "Original exam-style multiple choice and fill blank questions"}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="dense-status">选择 {pack.multipleChoiceCount}</span>
-                <span className="dense-status">填空 {pack.fillBlankCount}</span>
+                <span className="dense-status">{language === "zh" ? "选择题" : "choice"}</span>
+                <span className="dense-status">{language === "zh" ? "填空题" : "fill blank"}</span>
+                <span className="dense-status">{language === "zh" ? "持续扩充" : "expanding"}</span>
               </div>
             </Link>
           ))}

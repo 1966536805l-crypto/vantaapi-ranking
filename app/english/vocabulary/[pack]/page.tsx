@@ -44,7 +44,7 @@ export default async function VocabularyPackPage({
           <p className="eyebrow">{pack.level}</p>
           <h1 className="apple-display-title mt-3 max-w-4xl text-3xl sm:text-4xl">{getPackDisplayTitle(pack, language)}</h1>
           <p className="apple-display-subtitle mt-3 max-w-3xl text-sm text-[color:var(--muted)]">
-            {pack.targetCount} {copy.subtitle}
+            {copy.subtitle}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {getPackFocus(pack, language).map((item) => (
@@ -62,7 +62,7 @@ export default async function VocabularyPackPage({
                 <p className="eyebrow">{copy.wordsEyebrow}</p>
                 <h2 className="mt-2 text-2xl font-semibold">{copy.wordsTitle}</h2>
               </div>
-              <span className="text-3xl font-semibold">{pack.targetCount}</span>
+              <span className="dense-status">{language === "zh" ? "持续扩充" : "expanding"}</span>
             </div>
             <div className="mt-4 grid gap-2 md:grid-cols-2">
               {pack.priorityWords.map((item) => (

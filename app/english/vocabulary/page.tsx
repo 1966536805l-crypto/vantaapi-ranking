@@ -75,7 +75,7 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
                   <p className="eyebrow">{pack.level}</p>
                   <h2 className="mt-2 text-xl font-semibold">{getPackShortTitle(pack, language)}</h2>
                 </div>
-                <span className="text-3xl font-semibold">{pack.targetCount}</span>
+                <span className="dense-status">{language === "zh" ? "持续扩充" : "expanding"}</span>
               </div>
               <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">{getPackFocus(pack, language).join("  ")}</p>
               <div className="mt-3 flex flex-wrap gap-2">

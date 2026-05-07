@@ -235,8 +235,8 @@ export const examVocabularyPacks: ExamVocabularyPack[] = [
   },
   {
     slug: "ielts-5000",
-    title: "IELTS 5000 Vocabulary",
-    shortTitle: "IELTS 5000",
+    title: "IELTS Vocabulary",
+    shortTitle: "IELTS",
     targetCount: 5000,
     level: "Band 6 to 8",
     route: "/english/vocabulary/ielts-5000",
@@ -247,8 +247,8 @@ export const examVocabularyPacks: ExamVocabularyPack[] = [
   },
   {
     slug: "toefl-5000",
-    title: "TOEFL 5000 Vocabulary",
-    shortTitle: "TOEFL 5000",
+    title: "TOEFL Vocabulary",
+    shortTitle: "TOEFL",
     targetCount: 5000,
     level: "iBT Academic",
     route: "/english/vocabulary/toefl-5000",

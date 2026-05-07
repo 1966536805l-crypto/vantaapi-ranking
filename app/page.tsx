@@ -11,20 +11,17 @@ import {
 } from "@/lib/world-language-content";
 
 export const metadata: Metadata = {
-  title: "JinMing Lab - AI Tools Coding Lab and World Languages",
+  title: "VantaAPI - AI Tools & Coding Lab",
   description:
-    "A clean AI tools programming practice and world language learning platform for prompts code debugging roadmaps and zero foundation language paths.",
+    "An AI tools and coding training platform for beginners and indie developers. Improve your learning and development efficiency with clearer prompts, faster code understanding, and systematic practice paths.",
 };
 
 const railItems = [
-  { href: "/", code: "JM", label: "Home" },
-  { href: "/today", code: "TD", label: "Today" },
-  { href: "/search", code: "S", label: "Search" },
+  { href: "/", code: "VA", label: "Home" },
   { href: "/tools", code: "T", label: "Tools" },
-  { href: "/languages", code: "W", label: "Languages" },
   { href: "/programming", code: "C", label: "Coding" },
   { href: "/tools/learning-roadmap", code: "R", label: "Roadmap" },
-  { href: "/dashboard", code: "D", label: "Dashboard" },
+  { href: "/search", code: "S", label: "Search" },
 ];
 
 type HomeSearchParams = Promise<{ ui?: string | string[] }>;
@@ -70,26 +67,26 @@ const homeCopy: Record<string, HomeCopy> = {
   english: {
     versionLabel: "English",
     statusSearch: "Search",
-    statusTools: "AI tools",
-    statusLanguages: "World languages",
-    statusCoding: "Coding lab",
-    statusRoadmaps: "Roadmaps",
+    statusTools: "AI Tools",
+    statusLanguages: "World Languages",
+    statusCoding: "Coding Lab",
+    statusRoadmaps: "Learning Roadmap",
     navSearch: "Search",
-    navTools: "Tools",
+    navTools: "AI Tools",
     navLanguages: "Languages",
-    navCoding: "Coding",
+    navCoding: "Coding Lab",
     navRoadmap: "Roadmap",
     navLogin: "Login",
     navLogout: "Logout",
-    heroEyebrow: "AI Tools Coding Lab World Languages",
-    heroText: "Search first then start the exact tool lesson drill or review page you need.",
+    heroEyebrow: "AI Tools & Coding Lab",
+    heroText: "An AI tools and coding training platform for beginners and indie developers. Improve your learning and development efficiency with clearer prompts, faster code understanding, and systematic practice paths.",
     search: "Search",
-    startToday: "Start Today",
+    startToday: "Start Learning",
     aiTools: "AI Tools",
     myWordbook: "My Wordbook",
-    coding: "Coding",
+    coding: "Coding Lab",
     languages: "Languages",
-    searchPlaceholder: "Search wordbook typing prompt python IELTS regex",
+    searchPlaceholder: "Search tools, coding, prompts, Python, regex",
     focus: "Focus",
     ready: "Ready",
     globalSetup: "Global Language Setup",
@@ -108,25 +105,25 @@ const homeCopy: Record<string, HomeCopy> = {
     statusSearch: "搜索",
     statusTools: "AI 工具",
     statusLanguages: "世界语言",
-    statusCoding: "编程训练",
-    statusRoadmaps: "路线图",
+    statusCoding: "编程实验室",
+    statusRoadmaps: "学习路线",
     navSearch: "搜索",
-    navTools: "工具",
+    navTools: "AI 工具",
     navLanguages: "语言",
-    navCoding: "编程",
-    navRoadmap: "路线",
+    navCoding: "编程实验室",
+    navRoadmap: "学习路线",
     navLogin: "登录",
     navLogout: "退出",
-    heroEyebrow: "AI 工具 编程实验室 世界语言",
-    heroText: "先搜索 再进入你需要的工具 课程 练习 或复习页面",
+    heroEyebrow: "AI 工具与编程实验室",
+    heroText: "一个面向零基础学习者和独立开发者的 AI 工具与编程训练平台。用更清晰的提示词、更快的代码理解、更系统的练习路线，提升你的学习和开发效率。",
     search: "搜索",
-    startToday: "今日开始",
+    startToday: "开始学习",
     aiTools: "AI 工具",
     myWordbook: "我的词书",
-    coding: "编程",
+    coding: "编程实验室",
     languages: "语言",
-    searchPlaceholder: "搜索词书 打字 提示词 Python 雅思 正则",
-    focus: "重点",
+    searchPlaceholder: "搜索工具 编程练习 提示词 Python 正则",
+    focus: "核心功能",
     ready: "就绪",
     globalSetup: "全语言设置",
     allLanguageHome: "全语言首页",
@@ -153,15 +150,15 @@ const homeCopy: Record<string, HomeCopy> = {
     navRoadmap: "ロードマップ",
     navLogin: "ログイン",
     navLogout: "ログアウト",
-    heroEyebrow: "AI ツール コードラボ 世界の言語",
-    heroText: "まず検索して 必要なツール レッスン 演習 復習ページへ進みます",
+    heroEyebrow: "AI ツール & コードラボ",
+    heroText: "初心者と個人開発者向けの AI ツールとコード練習プラットフォームです。より明確なプロンプト、速いコード理解、体系的な練習ルートで学習と開発を進めます。",
     search: "検索",
     startToday: "今日から",
     aiTools: "AI ツール",
     myWordbook: "単語帳",
     coding: "コード",
     languages: "言語",
-    searchPlaceholder: "単語帳 タイピング プロンプト Python IELTS 正規表現",
+    searchPlaceholder: "ツール コード プロンプト Python 正規表現",
     focus: "集中",
     ready: "準備完了",
     globalSetup: "全言語設定",
@@ -189,15 +186,15 @@ const homeCopy: Record<string, HomeCopy> = {
     navRoadmap: "로드맵",
     navLogin: "로그인",
     navLogout: "로그아웃",
-    heroEyebrow: "AI 도구 코딩 랩 세계 언어",
-    heroText: "먼저 검색하고 필요한 도구 수업 훈련 복습 페이지로 이동하세요",
+    heroEyebrow: "AI 도구 & 코딩 랩",
+    heroText: "초보 학습자와 독립 개발자를 위한 AI 도구 및 코딩 훈련 플랫폼입니다. 더 명확한 프롬프트, 빠른 코드 이해, 체계적인 연습 경로로 학습과 개발 효율을 높입니다.",
     search: "검색",
     startToday: "오늘 시작",
     aiTools: "AI 도구",
     myWordbook: "내 단어장",
     coding: "코딩",
     languages: "언어",
-    searchPlaceholder: "단어장 타이핑 프롬프트 Python IELTS 정규식",
+    searchPlaceholder: "도구 코딩 프롬프트 Python 정규식",
     focus: "집중",
     ready: "준비",
     globalSetup: "전 언어 설정",
@@ -225,15 +222,15 @@ const homeCopy: Record<string, HomeCopy> = {
     navRoadmap: "Ruta",
     navLogin: "Entrar",
     navLogout: "Salir",
-    heroEyebrow: "Herramientas AI Laboratorio de código Idiomas",
-    heroText: "Busca primero y abre la herramienta lección práctica o repaso que necesitas.",
+    heroEyebrow: "Herramientas AI & Laboratorio de código",
+    heroText: "Una plataforma de herramientas AI y práctica de código para principiantes y desarrolladores independientes. Mejora cómo aprendes y construyes con prompts más claros, lectura de código más rápida y rutas prácticas.",
     search: "Buscar",
     startToday: "Empezar hoy",
     aiTools: "Herramientas AI",
     myWordbook: "Mi vocabulario",
     coding: "Código",
     languages: "Idiomas",
-    searchPlaceholder: "Buscar vocabulario typing prompt Python IELTS regex",
+    searchPlaceholder: "Buscar herramientas código prompts Python regex",
     focus: "Enfoque",
     ready: "Listo",
     globalSetup: "Configuración global de idiomas",
@@ -261,15 +258,15 @@ const homeCopy: Record<string, HomeCopy> = {
     navRoadmap: "Parcours",
     navLogin: "Connexion",
     navLogout: "Sortir",
-    heroEyebrow: "Outils IA Laboratoire code Langues",
-    heroText: "Cherchez puis ouvrez l outil la leçon l exercice ou la révision utile.",
+    heroEyebrow: "Outils IA & Laboratoire code",
+    heroText: "Une plateforme d outils IA et de pratique du code pour débutants et développeurs indépendants. Apprenez et construisez avec des prompts plus clairs, une lecture de code plus rapide et des parcours structurés.",
     search: "Recherche",
     startToday: "Commencer",
     aiTools: "Outils IA",
     myWordbook: "Mon lexique",
     coding: "Code",
     languages: "Langues",
-    searchPlaceholder: "Chercher lexique typing prompt Python IELTS regex",
+    searchPlaceholder: "Chercher outils code prompts Python regex",
     focus: "Focus",
     ready: "Prêt",
     globalSetup: "Configuration langues",
@@ -386,11 +383,11 @@ type ProductCard = {
 const productCards: Record<string, ProductCard[]> = {
   english: [
   {
-    title: "Today",
-    href: "/today",
-    eyebrow: "Start",
-    body: "Daily review new words typing reading and questions in one short queue.",
-    points: ["One page", "Local streak", "No login"],
+    title: "Roadmap",
+    href: "/tools/learning-roadmap",
+    eyebrow: "Plan",
+    body: "Generate a practical 30 day path for zero base frontend Python automation or indie MVP work.",
+    points: ["30 days", "Milestones", "Project"],
   },
   {
     title: "AI Tools",
@@ -422,35 +419,35 @@ const productCards: Record<string, ProductCard[]> = {
   },
   ],
   chinese: [
-    { title: "今日", href: "/today", eyebrow: "开始", body: "每日复习 新词 打字 阅读和题目放进一条短队列", points: ["一页完成", "本地连续", "免登录"] },
+    { title: "学习路线", href: "/tools/learning-roadmap", eyebrow: "计划", body: "为零基础 前端 Python 自动化 独立开发生成可执行的 30 天路线", points: ["30 天", "里程碑", "小项目"] },
     { title: "AI 工具", href: "/tools", eyebrow: "核心", body: "提示词优化 代码解释 Bug 定位 API 请求和开发工具", points: ["提示词", "代码", "Bug"] },
     { title: "编程", href: "/programming", eyebrow: "练习", body: "零基础编程路径 教程 练习 提示和答案", points: ["Python", "JavaScript", "C++"] },
     { title: "英语", href: "/english?lang=zh", eyebrow: "训练", body: "词汇 打字 阅读 语法 题库和个人词书", points: ["打字", "词书", "复习"] },
     { title: "世界语言", href: "/languages", eyebrow: "零基础", body: "先听音 再认字 用短句和复习建立语言入口", points: ["听音", "文字", "复习"] },
   ],
   japanese: [
-    { title: "今日", href: "/today", eyebrow: "開始", body: "復習 新語 タイピング 読解 問題を短い流れにまとめます", points: ["一画面", "ローカル記録", "ログイン不要"] },
+    { title: "ロードマップ", href: "/tools/learning-roadmap", eyebrow: "計画", body: "ゼロベース フロントエンド Python 自動化 個人開発の 30 日計画", points: ["30日", "節目", "小项目"] },
     { title: "AI ツール", href: "/tools", eyebrow: "中核", body: "プロンプト改善 コード説明 バグ分析 API 生成と開発ツール", points: ["Prompt", "Code", "Bug"] },
     { title: "コード", href: "/programming", eyebrow: "演習", body: "ゼロから学ぶプログラミングの道筋と演習", points: ["Python", "JavaScript", "C++"] },
     { title: "英語", href: "/english?lang=zh", eyebrow: "訓練", body: "語彙 タイピング 読解 文法 問題集と単語帳", points: ["Typing", "単語帳", "復習"] },
     { title: "世界の言語", href: "/languages", eyebrow: "ゼロ", body: "音 文字 文型 復習から言語を始めます", points: ["音", "文字", "復習"] },
   ],
   korean: [
-    { title: "오늘", href: "/today", eyebrow: "시작", body: "복습 새 단어 타이핑 읽기 문제를 짧은 흐름으로 묶습니다", points: ["한 페이지", "로컬 기록", "로그인 없음"] },
+    { title: "로드맵", href: "/tools/learning-roadmap", eyebrow: "계획", body: "제로 베이스 프론트엔드 Python 자동화 독립 개발 30일 경로", points: ["30일", "마일스톤", "작은 프로젝트"] },
     { title: "AI 도구", href: "/tools", eyebrow: "핵심", body: "프롬프트 개선 코드 설명 버그 분석 API 요청 도구", points: ["Prompt", "Code", "Bug"] },
     { title: "코딩", href: "/programming", eyebrow: "연습", body: "제로 베이스 코딩 경로 튜토리얼 훈련 힌트 답안", points: ["Python", "JavaScript", "C++"] },
     { title: "영어", href: "/english?lang=zh", eyebrow: "훈련", body: "어휘 타이핑 읽기 문법 문제은행 개인 단어장", points: ["Typing", "단어장", "복습"] },
     { title: "세계 언어", href: "/languages", eyebrow: "제로", body: "소리 문자 문장 복습으로 언어를 시작합니다", points: ["소리", "문자", "복습"] },
   ],
   spanish: [
-    { title: "Hoy", href: "/today", eyebrow: "Inicio", body: "Repaso palabras typing lectura y preguntas en una cola corta", points: ["Una página", "Racha local", "Sin login"] },
+    { title: "Ruta", href: "/tools/learning-roadmap", eyebrow: "Plan", body: "Crea una ruta de 30 días para base cero frontend Python automatización o MVP", points: ["30 días", "Hitos", "Proyecto"] },
     { title: "Herramientas AI", href: "/tools", eyebrow: "Núcleo", body: "Prompt código bugs API y utilidades de desarrollo", points: ["Prompt", "Código", "Bug"] },
     { title: "Código", href: "/programming", eyebrow: "Práctica", body: "Rutas de programación desde cero con ejercicios y pistas", points: ["Python", "JavaScript", "C++"] },
     { title: "Inglés", href: "/english?lang=zh", eyebrow: "Entreno", body: "Vocabulario typing lectura gramática preguntas y lexicon personal", points: ["Typing", "Lexicon", "Repaso"] },
     { title: "Idiomas", href: "/languages", eyebrow: "Cero", body: "Sonido escritura frases y repaso para empezar idiomas", points: ["Sonido", "Escritura", "Repaso"] },
   ],
   french: [
-    { title: "Aujourd hui", href: "/today", eyebrow: "Départ", body: "Révision mots typing lecture et questions dans une file courte", points: ["Une page", "Série locale", "Sans login"] },
+    { title: "Parcours", href: "/tools/learning-roadmap", eyebrow: "Plan", body: "Créer un plan de 30 jours pour débutant frontend Python automatisation ou MVP", points: ["30 jours", "Étapes", "Projet"] },
     { title: "Outils IA", href: "/tools", eyebrow: "Noyau", body: "Prompt code bug API et outils de développement", points: ["Prompt", "Code", "Bug"] },
     { title: "Code", href: "/programming", eyebrow: "Pratique", body: "Parcours programmation depuis zéro avec exercices et indices", points: ["Python", "JavaScript", "C++"] },
     { title: "Anglais", href: "/english?lang=zh", eyebrow: "Entraînement", body: "Vocabulaire typing lecture grammaire questions et lexique", points: ["Typing", "Lexique", "Révision"] },
@@ -469,11 +466,6 @@ function getProductCards(ui: string) {
 const featuredCodingSlugs = ["python", "javascript", "typescript", "cpp", "sql", "bash"];
 const featuredCodingTracks = programmingLanguages.filter((language) =>
   featuredCodingSlugs.includes(language.slug)
-);
-
-const featuredWorldSlugs = ["english", "japanese", "spanish", "french", "korean", "arabic"];
-const featuredWorldTracks = worldLanguages.filter((language) =>
-  featuredWorldSlugs.includes(language.slug)
 );
 
 const homeWorldSlugs = [
@@ -601,8 +593,10 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
   const copy = getHomeCopy(selectedUi);
   const sections = getSectionCopy(selectedUi);
   const cards = getProductCards(selectedUi);
+  const focusedCards = cards.filter((card) => !card.href.startsWith("/english") && !card.href.startsWith("/languages"));
   const directLinks = getQuietLinks(selectedUi);
   const starterPlan = getStarterPlan(selectedUi);
+  const showSecondaryLanguageSection = false;
 
   return (
     <main className="apple-page">
@@ -622,29 +616,20 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
               <div>
                 <p className="eyebrow">{copy.heroEyebrow}</p>
                 <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-[1.04] tracking-normal sm:text-4xl lg:text-5xl">
-                  JinMing Lab
+                  VantaAPI
                 </h1>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--muted)]">
                   {copy.heroText}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <Link href="/search" className="dense-action-primary px-4 py-2.5">
-                    {copy.search}
-                  </Link>
-                  <Link href="/today" className="dense-action px-4 py-2.5">
-                    {copy.startToday}
-                  </Link>
-                  <Link href="/tools" className="dense-action px-4 py-2.5">
+                  <Link href="/tools" className="dense-action-primary px-4 py-2.5">
                     {copy.aiTools}
-                  </Link>
-                  <Link href="/english/vocabulary/custom?lang=zh" className="dense-action px-4 py-2.5">
-                    {copy.myWordbook}
                   </Link>
                   <Link href="/programming" className="dense-action px-4 py-2.5">
                     {copy.coding}
                   </Link>
-                  <Link href="/languages" className="dense-action px-4 py-2.5">
-                    {copy.languages}
+                  <Link href="/tools/learning-roadmap" className="dense-action px-4 py-2.5">
+                    {copy.navRoadmap}
                   </Link>
                 </div>
                 <form action="/search" className="mt-4 flex max-w-2xl flex-col gap-2 rounded-[8px] border border-slate-200 bg-white/80 p-2 sm:flex-row">
@@ -663,12 +648,9 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                 <p className="eyebrow">{copy.focus}</p>
                 <div className="mt-3 grid gap-2">
                   {[
-                    copy.statusSearch,
-                    copy.startToday,
                     copy.aiTools,
                     copy.statusCoding,
-                    sections.englishTraining,
-                    copy.statusLanguages,
+                    copy.statusRoadmaps,
                   ].map((item) => (
                     <span key={item} className="dense-row">
                       <span className="text-sm font-semibold">{item}</span>
@@ -682,8 +664,8 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
 
           <QuickStartPanel ui={selectedUi} />
 
-          <section className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-            {cards.map((card) => (
+          <section className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {focusedCards.map((card) => (
               <Link key={card.href} href={card.href} className="dense-card p-4 transition hover:-translate-y-0.5 hover:border-slate-300">
                 <p className="eyebrow">{card.eyebrow}</p>
                 <h2 className="mt-2 text-xl font-semibold">{card.title}</h2>
@@ -699,7 +681,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
             ))}
           </section>
 
-          <section className="mt-3 dense-panel p-5">
+          {showSecondaryLanguageSection && <section className="mt-3 dense-panel p-5">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="eyebrow">{copy.globalSetup}</p>
@@ -766,9 +748,9 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                 </div>
               </div>
             </div>
-          </section>
+          </section>}
 
-          <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)_minmax(320px,0.9fr)]">
+          <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
             <div className="dense-panel p-5">
               <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                 <div>
@@ -784,27 +766,6 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                   <Link key={tool.slug} href={`/tools/${tool.slug}`} className="dense-mini">
                     <span className="font-semibold">{tool.title}</span>
                     <span className="truncate text-[color:var(--muted)]">{tool.description}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="dense-panel p-5">
-              <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="eyebrow">{copy.worldLanguages}</p>
-                  <h2 className="mt-2 text-2xl font-semibold">{copy.chooseAnyPath}</h2>
-                </div>
-                <span className="dense-status">{worldLanguages.length} {copy.paths}</span>
-                <Link href="/languages" className="dense-action-primary">
-                  {copy.viewPaths}
-                </Link>
-              </div>
-              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-                {featuredWorldTracks.map((language) => (
-                  <Link key={language.slug} href={`/languages/${language.slug}`} className="dense-mini">
-                    <span className="font-semibold">{language.name}</span>
-                    <span className="truncate text-[color:var(--muted)]">{language.nativeName} · {language.script}</span>
                   </Link>
                 ))}
               </div>
@@ -867,8 +828,8 @@ function HomeRail({ isAdmin }: { isAdmin: boolean }) {
   return (
     <aside className="study-rail sticky top-5 flex h-[calc(100vh-40px)] flex-col p-2">
       <Link href="/" className="mb-3 flex items-center gap-2 rounded-[8px] px-2 py-2">
-        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">JM</span>
-        <span className="hidden text-sm font-semibold leading-tight sm:block">JinMing Lab</span>
+        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">VA</span>
+        <span className="hidden text-sm font-semibold leading-tight sm:block">VantaAPI</span>
       </Link>
 
       <nav className="grid gap-1">
@@ -903,10 +864,9 @@ function TopBar({
   return (
     <header className="dense-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="dense-status">JinMing Lab</span>
+        <span className="dense-status">VantaAPI</span>
         <span className="dense-status">{copy.statusSearch}</span>
         <span className="dense-status">{copy.statusTools}</span>
-        <span className="dense-status">{copy.statusLanguages}</span>
         <span className="dense-status">{copy.statusCoding}</span>
         <span className="dense-status">{copy.statusRoadmaps}</span>
         {isAdmin && <span className="dense-status">Admin</span>}
@@ -915,8 +875,6 @@ function TopBar({
         <SiteVersionMenu selectedUi={selectedUi} />
         <Link href="/search" className="dense-action-primary">{copy.navSearch}</Link>
         <Link href="/tools" className="dense-action">{copy.navTools}</Link>
-        <WorldLanguageMenu />
-        <Link href="/languages" className="dense-action">{copy.navLanguages}</Link>
         <Link href="/programming" className="dense-action">{copy.navCoding}</Link>
         <Link href="/tools/learning-roadmap" className="dense-action">{copy.navRoadmap}</Link>
         {isSignedIn ? (
@@ -951,43 +909,6 @@ function SiteVersionMenu({ selectedUi }: { selectedUi: string }) {
             <Link key={language.slug} href={homeHref(language.slug)}>
               <span>{language.nativeName}</span>
               <small>{language.name}</small>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </details>
-  );
-}
-
-function WorldLanguageMenu() {
-  const featured = ["english", "chinese", "japanese", "korean", "spanish", "french", "arabic", "german"];
-  const featuredLanguages = worldLanguages.filter((language) => featured.includes(language.slug));
-  const restLanguages = worldLanguages.filter((language) => !featured.includes(language.slug));
-
-  return (
-    <details className="home-language-menu">
-      <summary aria-label="Open global language switcher">
-        <span>Global</span>
-        <strong>{worldLanguages.length}</strong>
-      </summary>
-      <div className="home-language-popover">
-        <div className="home-language-popover-head">
-          <span>World Languages</span>
-          <Link href="/languages">All paths</Link>
-        </div>
-        <div className="home-language-featured">
-          {featuredLanguages.map((language) => (
-            <Link key={language.slug} href={`/languages/${language.slug}`}>
-              <span>{language.name}</span>
-              <small>{language.nativeName}</small>
-            </Link>
-          ))}
-        </div>
-        <div className="home-language-scroll">
-          {restLanguages.map((language) => (
-            <Link key={language.slug} href={`/languages/${language.slug}`}>
-              <span>{language.name}</span>
-              <small>{language.nativeName}</small>
             </Link>
           ))}
         </div>

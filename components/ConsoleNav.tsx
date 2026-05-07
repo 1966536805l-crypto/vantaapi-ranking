@@ -4,34 +4,30 @@ type Lang = "en" | "zh";
 
 const labels = {
   en: {
-    brand: "JinMing AI Coding Lab",
+    brand: "VantaAPI AI Coding Lab",
     switchLabel: "中文",
     switchHref: "/?lang=zh",
     items: [
       ["/", "Home"],
       ["/today", "Today"],
       ["/learn", "Subjects"],
-      ["/questions", "Problems"],
       ["/mistakes", "Mistakes"],
       ["/cpp", "C++ Lab"],
       ["/ai", "AI Coach"],
-      ["/projects", "Projects"],
       ["/status", "Progress"],
     ],
   },
   zh: {
-    brand: "金明 AI 编程实验室",
+    brand: "VantaAPI AI 编程实验室",
     switchLabel: "EN",
     switchHref: "/",
     items: [
       ["/?lang=zh", "首页"],
       ["/today?lang=zh", "今日"],
       ["/learn?lang=zh", "科目"],
-      ["/questions?lang=zh", "题库"],
       ["/mistakes?lang=zh", "错题"],
       ["/cpp?lang=zh", "C++ 实验"],
       ["/ai?lang=zh", "AI 教练"],
-      ["/projects?lang=zh", "项目"],
       ["/status?lang=zh", "进度"],
     ],
   },
@@ -45,7 +41,7 @@ export default function ConsoleNav({ lang = "en" }: { lang?: Lang }) {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
         <Link href={lang === "zh" ? "/?lang=zh" : "/"} className="flex items-baseline gap-3">
           <span className="font-serif text-[25px] leading-none tracking-tight text-slate-950">
-            JinMing Lab
+            VantaAPI
           </span>
           <span className="eyebrow hidden sm:inline">{copy.brand}</span>
         </Link>

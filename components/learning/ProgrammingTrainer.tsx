@@ -47,11 +47,30 @@ const typeLabel = {
   },
 } as const;
 
+const zeroBaseSteps = {
+  en: [
+    "Read one rule",
+    "Predict output",
+    "Type from memory",
+    "Run checklist",
+    "Repeat with one change",
+  ],
+  zh: [
+    "看一条规则",
+    "先猜输出",
+    "凭记忆敲",
+    "跑检查器",
+    "改一处重做",
+  ],
+} as const;
+
 const programmingCopy = {
   en: {
     brand: "Code Practice",
     languages: "Languages",
     queue: "Queue",
+    expanding: "Expanding",
+    zeroBase: "Zero base path",
     session: "Session",
     correct: "Correct",
     answered: "answered",
@@ -108,6 +127,8 @@ const programmingCopy = {
     brand: "编程刷题",
     languages: "语言",
     queue: "题型队列",
+    expanding: "持续扩充",
+    zeroBase: "零基础路径",
     session: "本轮进度",
     correct: "正确",
     answered: "已做",
@@ -294,7 +315,7 @@ function getConcept(question: ProgrammingQuestion) {
 
 function questionTitle(question: ProgrammingQuestion, language: SiteLanguage, languageTitle: string) {
   if (language === "en") return question.title;
-  return `${languageTitle} 第 ${question.index} / ${programmingBankPlan.perLanguage} 题`;
+  return `${languageTitle} 第 ${question.index} 题`;
 }
 
 function questionPrompt(question: ProgrammingQuestion, language: SiteLanguage, languageTitle: string) {
@@ -587,7 +608,7 @@ export default function ProgrammingTrainer({
       <div className="programming-workbench">
         <aside className="programming-rail dense-panel">
           <Link href={localizedHref("/", language)} className="tool-brand">
-            <span>JM</span>
+            <span>VA</span>
             <strong>{copy.brand}</strong>
           </Link>
 
@@ -618,7 +639,7 @@ export default function ProgrammingTrainer({
                   onClick={() => goToQuestion(track.start)}
                 >
                   <span>{copy.tracks[track.id].shortLabel}</span>
-                  <strong>{track.start}-{track.end}</strong>
+                  <strong>{copy.expanding}</strong>
                 </button>
               ))}
             </div>
@@ -656,10 +677,22 @@ export default function ProgrammingTrainer({
                 onClick={() => goToQuestion(track.start)}
               >
                 <span>{copy.tracks[track.id].label}</span>
-                <strong>{track.count}</strong>
-                <small>{track.start}-{track.end}</small>
+                <strong>{copy.expanding}</strong>
+                <small>{copy.zeroBase}</small>
               </button>
             ))}
+          </section>
+
+          <section className="dense-panel programming-zero-path" aria-label={copy.zeroBase}>
+            <p className="eyebrow">{copy.zeroBase}</p>
+            <div>
+              {zeroBaseSteps[language].map((step, index) => (
+                <span key={step}>
+                  <strong>{index + 1}</strong>
+                  {step}
+                </span>
+              ))}
+            </div>
           </section>
 
           <section id="trainer" className="programming-board-grid">
