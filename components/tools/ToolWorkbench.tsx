@@ -323,6 +323,52 @@ function numberedList(items: string[]) {
   return items.length ? items.map((item, index) => `${index + 1}. ${item}`).join("\n") : "1. No action detected";
 }
 
+function base64UrlEncode(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function base64UrlDecode(value: string) {
+  const padded = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
+  const binary = atob(padded);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+function isSharedGitHubAnalysis(value: unknown): value is GitHubRepoAnalysis {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<GitHubRepoAnalysis>;
+  return Boolean(
+    candidate.repository &&
+      typeof candidate.repository.fullName === "string" &&
+      typeof candidate.repository.url === "string" &&
+      candidate.launchScore &&
+      typeof candidate.launchScore.score === "number" &&
+      Array.isArray(candidate.mustFix) &&
+      Array.isArray(candidate.releaseChecklist)
+  );
+}
+
+function encodeSharedAnalysis(analysis: GitHubRepoAnalysis) {
+  return base64UrlEncode(JSON.stringify({ version: 1, analysis }));
+}
+
+function decodeSharedAnalysis(hash: string) {
+  const params = new URLSearchParams(hash.replace(/^#/, ""));
+  const packed = params.get("report");
+  if (!packed) return null;
+  try {
+    const parsed = JSON.parse(base64UrlDecode(packed)) as { analysis?: unknown };
+    return isSharedGitHubAnalysis(parsed.analysis) ? parsed.analysis : null;
+  } catch {
+    return null;
+  }
+}
+
 function riskTone(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"]) {
   if (riskLevel === "Low") return "low";
   if (riskLevel === "Medium") return "medium";
@@ -446,8 +492,14 @@ function GitHubRepoAnalyzer() {
   const [analysis, setAnalysis] = useState<GitHubRepoAnalysis | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [shareStatus, setShareStatus] = useState("");
 
   const output = useMemo(() => formatGitHubRepoOutput(analysis, error), [analysis, error]);
+  const shareUrl = useMemo(() => {
+    if (!analysis || typeof window === "undefined") return "";
+    const hash = encodeSharedAnalysis(analysis);
+    return `${window.location.origin}/tools/github-repo-analyzer${window.location.search}#report=${hash}`;
+  }, [analysis]);
   const blocks = useMemo<OutputBlock[]>(() => {
     if (!analysis) return [];
     return [
@@ -460,6 +512,28 @@ function GitHubRepoAnalyzer() {
       { badge: "06", title: "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
     ];
   }, [analysis]);
+
+  useEffect(() => {
+    const shared = decodeSharedAnalysis(window.location.hash);
+    if (!shared) return;
+    window.setTimeout(() => {
+      setAnalysis(shared);
+      setUrl(shared.repository.url);
+      setError("");
+    }, 0);
+  }, []);
+
+  async function copyShareLink() {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareStatus("Share link copied");
+      window.setTimeout(() => setShareStatus(""), 1400);
+    } catch {
+      setShareStatus("Copy failed");
+      window.setTimeout(() => setShareStatus(""), 1400);
+    }
+  }
 
   async function analyzeRepo() {
     const trimmed = url.trim();
@@ -482,6 +556,7 @@ function GitHubRepoAnalyzer() {
         throw new Error(data.error || data.message || "Could not run repository launch audit");
       }
       setAnalysis(data.analysis);
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     } catch (caught) {
       setAnalysis(null);
       setError(caught instanceof Error ? caught.message : "Could not run repository launch audit");
@@ -500,6 +575,16 @@ function GitHubRepoAnalyzer() {
           <button type="button" className="dense-action-primary" onClick={analyzeRepo} disabled={loading}>
             {loading ? "Auditing repo" : "Run launch audit"}
           </button>
+          {analysis && (
+            <>
+              <button type="button" className="dense-action" onClick={copyShareLink}>
+                {shareStatus || "Copy share link"}
+              </button>
+              <a className="dense-action" href={shareUrl} target="_blank" rel="noreferrer">
+                Open share
+              </a>
+            </>
+          )}
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
             Load sample
           </button>
