@@ -138,8 +138,10 @@ This prints launch-ready values for `JWT_SECRET`, `CSRF_SECRET`, and `ENCRYPTION
 To automatically rotate only those three app-owned secrets in Vercel Production:
 
 ```bash
-npm run launch:fix-secrets
+npm run launch:fix-secrets -- --apply
 ```
+
+Without `--apply`, the command is a dry run and only prints what it would do.
 
 This does not touch `DATABASE_URL`, `AI_API_KEY`, or Turnstile keys because those must come from external provider dashboards.
 
