@@ -86,7 +86,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           type="email"
           name="email"
           className="mt-2 w-full border border-slate-200 bg-slate-50 px-3 py-2 outline-none focus:border-blue-400"
-          placeholder="student@vantaapi.local"
+          placeholder="student@jinming.local"
         />
       </label>
       <label className="block text-sm font-medium text-slate-700">

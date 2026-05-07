@@ -608,7 +608,7 @@ export default function ProgrammingTrainer({
       <div className="programming-workbench">
         <aside className="programming-rail dense-panel">
           <Link href={localizedHref("/", language)} className="tool-brand">
-            <span>VA</span>
+            <span>JM</span>
             <strong>{copy.brand}</strong>
           </Link>
 

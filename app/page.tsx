@@ -5,9 +5,9 @@ import { localizedHref, type SiteLanguage } from "@/lib/language";
 import { worldLanguages } from "@/lib/world-language-content";
 
 export const metadata: Metadata = {
-  title: "VantaAPI - AI 学习工具平台 英语 编程 AI 工具",
+  title: "JinMing Lab - AI 学习工具平台 英语 编程 AI 工具",
   description:
-    "VantaAPI 是 AI 学习工具平台，聚焦英语学习、编程训练和开发者省时工具，提供 AI Coach、GitHub 发布包、错题复盘和零基础学习路径。",
+    "JinMing Lab 是 AI 学习工具平台，聚焦英语学习、编程训练和开发者省时工具，提供 AI Coach、GitHub 发布包、错题复盘和零基础学习路径。",
   keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "GitHub 发布包", "错题分析", "Prompt 优化"],
 };
 
@@ -54,34 +54,34 @@ const homeCopy: Record<string, HomeCopy> = {
     logout: "退出",
     admin: "后台",
     eyebrow: "AI 学习工具平台",
-    title: "VantaAPI",
-    description: "一句话讲清楚：这是一个把英语学习、编程训练和开发者省时工具放在一起的学习平台。先做少量精品内容，再用 AI Coach、GitHub 发布包和错题复盘把学习闭环做深。",
-    primaryCta: "进入英语学习",
+    title: "JinMing Lab",
+    description: "面向学习者和独立开发者的工具与训练台。首页只保留英语学习、编程训练和 AI 工具三条主线，把内容做深、反馈做快、路径做清楚。",
+    primaryCta: "开始英语训练",
     secondaryCta: "进入编程训练",
     tertiaryCta: "打开 AI 工具",
-    focus: "首页核心",
+    focus: "核心入口",
     ready: "可用",
     cards: [
       {
         href: "/english?lang=zh",
         eyebrow: "英语",
         title: "英语学习",
-        body: "先保留词汇、打字、阅读和错题复盘这些高频场景。AI Coach 负责解释单词、拆句、纠错和给下一步训练建议。",
-        points: ["精品词汇", "打字听写", "AI Coach"],
+        body: "把背词、听写、打字和短阅读做成连续训练。每次练习只给必要提示，错题自动沉淀到复习路径。",
+        points: ["词汇训练", "打字听写", "错题复习"],
       },
       {
         href: "/programming",
         eyebrow: "训练",
         title: "编程训练",
-        body: "把 Python、JavaScript、C++ 等核心语言做成可坚持的练习台。题型先分类，再配提示、答案和实操任务。",
-        points: ["零基础友好", "分类题库", "实操任务"],
+        body: "从 Python、JavaScript、C++ 开始，按语言、主题和题型组织练习。先理解，再动手，再复盘。",
+        points: ["零基础", "分类练习", "实操复盘"],
       },
       {
         href: "/tools",
         eyebrow: "AI",
         title: "AI 工具",
-        body: "保留真正省时间的工具：GitHub 发布包、Prompt 优化、Bug 定位、API 请求生成、学习路线和开发常用工具。",
-        points: ["GitHub 发布包", "Bug 定位", "路线生成"],
+        body: "只保留能节省真实时间的工具。优先做 GitHub 发布检查、Prompt 优化、Bug 定位、API 请求生成和学习路线。",
+        points: ["发布检查", "Bug 定位", "路线生成"],
       },
     ],
   },
@@ -96,8 +96,8 @@ const homeCopy: Record<string, HomeCopy> = {
     logout: "Logout",
     admin: "Admin",
     eyebrow: "AI Learning Tools Platform",
-    title: "VantaAPI",
-    description: "VantaAPI is an AI learning tools platform focused on English learning, coding practice, and practical AI tools. The public version favors curated content over generated volume.",
+    title: "JinMing Lab",
+    description: "A focused learning and builder lab for English practice, coding drills, and practical AI tools. Fewer promises, sharper workflows, faster feedback.",
     primaryCta: "Start English",
     secondaryCta: "Start Coding Practice",
     tertiaryCta: "Open AI Tools",
@@ -138,7 +138,7 @@ const homeCopy: Record<string, HomeCopy> = {
     logout: "ログアウト",
     admin: "管理",
     eyebrow: "AI ツール & コードラボ",
-    title: "VantaAPI",
+    title: "JinMing Lab",
     description: "初心者と個人開発者向けの AI ツールとコード練習プラットフォームです。明確なプロンプト、速いコード理解、体系的な練習ルートで学習と開発を進めます。",
     primaryCta: "AI ツールを開く",
     secondaryCta: "コード練習を始める",
@@ -162,7 +162,7 @@ const homeCopy: Record<string, HomeCopy> = {
     logout: "로그아웃",
     admin: "관리",
     eyebrow: "AI 도구 & 코딩 랩",
-    title: "VantaAPI",
+    title: "JinMing Lab",
     description: "초보 학습자와 독립 개발자를 위한 AI 도구 및 코딩 연습 플랫폼입니다. 더 명확한 프롬프트, 빠른 코드 이해, 체계적인 연습 경로로 학습과 개발을 이어갑니다.",
     primaryCta: "AI 도구 열기",
     secondaryCta: "코딩 연습 시작",
@@ -186,7 +186,7 @@ const homeCopy: Record<string, HomeCopy> = {
     logout: "Salir",
     admin: "Admin",
     eyebrow: "Herramientas IA & Laboratorio de código",
-    title: "VantaAPI",
+    title: "JinMing Lab",
     description: "Una plataforma de herramientas IA y práctica de código para principiantes y desarrolladores independientes. Usa prompts más claros, lectura de código más rápida y rutas de práctica estructuradas.",
     primaryCta: "Abrir herramientas IA",
     secondaryCta: "Empezar código",
@@ -210,7 +210,7 @@ const homeCopy: Record<string, HomeCopy> = {
     logout: "Sortir",
     admin: "Admin",
     eyebrow: "Outils IA & Laboratoire code",
-    title: "VantaAPI",
+    title: "JinMing Lab",
     description: "Une plateforme d outils IA et de pratique du code pour débutants et développeurs indépendants. Utilisez des prompts plus clairs, une lecture de code plus rapide et des parcours structurés.",
     primaryCta: "Ouvrir les outils IA",
     secondaryCta: "Commencer le code",
@@ -336,8 +336,8 @@ function HomeRail({ copy, isAdmin, language }: { copy: HomeCopy; isAdmin: boolea
   return (
     <aside className="study-rail sticky top-5 flex h-[calc(100vh-40px)] flex-col p-2">
       <Link href={localizedHref("/", language)} className="mb-3 flex items-center gap-2 rounded-[8px] px-2 py-2">
-        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">VA</span>
-        <span className="hidden text-sm font-semibold leading-tight sm:block">VantaAPI</span>
+        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">JM</span>
+        <span className="hidden text-sm font-semibold leading-tight sm:block">JinMing Lab</span>
       </Link>
 
       <nav className="grid gap-1">
@@ -370,7 +370,7 @@ function TopBar({
   return (
     <header className="dense-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="dense-status">VantaAPI</span>
+        <span className="dense-status">JinMing Lab</span>
         <span className="dense-status">{copy.english}</span>
         <span className="dense-status">{copy.tools}</span>
         <span className="dense-status">{copy.coding}</span>

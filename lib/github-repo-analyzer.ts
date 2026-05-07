@@ -159,7 +159,7 @@ function githubHeaders() {
   return {
     Accept: "application/vnd.github+json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    "User-Agent": "VantaAPI-Repo-Analyzer",
+    "User-Agent": "JinMingLab-Repo-Analyzer",
     "X-GitHub-Api-Version": "2022-11-28",
   };
 }
@@ -197,7 +197,7 @@ async function readRepoFile(owner: string, repo: string, path: string, branch: s
     const timeout = setTimeout(() => controller.abort(), RAW_FILE_TIMEOUT_MS);
     try {
       const response = await fetch(rawGitHubUrl(owner, repo, branch, path), {
-        headers: { Accept: "text/plain", "User-Agent": "VantaAPI-Repo-Analyzer" },
+        headers: { Accept: "text/plain", "User-Agent": "JinMingLab-Repo-Analyzer" },
         signal: controller.signal,
       });
       if (!response.ok) return null;

@@ -20,7 +20,7 @@ export default function DisclaimerModal() {
         <p className="eyebrow">Notice</p>
         <h2 className="mt-3 font-serif text-3xl">Before you continue</h2>
         <div className="mt-6 space-y-4 text-sm leading-7 text-slate-700">
-          <p>VantaAPI provides AI tools coding practice and learning utilities</p>
+          <p>JinMing Lab provides AI tools coding practice and learning utilities</p>
           <p>User-submitted content remains the responsibility of the submitter</p>
           <p>AI and status features are for study review, not professional advice</p>
           <p>The service may change, break or become unavailable</p>
