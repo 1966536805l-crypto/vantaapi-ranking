@@ -4,6 +4,7 @@ import { getToolDefinition, toolDefinitions, type ToolDefinition } from "@/lib/t
 
 type ToolRouteProps = {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ lang?: string | string[] }>;
 };
 
 export function generateStaticParams() {
@@ -107,8 +108,14 @@ export async function generateMetadata({ params }: ToolRouteProps): Promise<Meta
   };
 }
 
-export default async function ToolPage({ params }: ToolRouteProps) {
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function ToolPage({ params, searchParams }: ToolRouteProps) {
   const { slug } = await params;
+  const query = searchParams ? await searchParams : {};
+  const initialLanguage = firstParam(query.lang) === "zh" ? "zh" : "en";
   const tool = getToolDefinition(slug);
   return (
     <>
@@ -116,7 +123,7 @@ export default async function ToolPage({ params }: ToolRouteProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(toolJsonLd(tool)) }}
       />
-      <ToolWorkbench initialSlug={tool.slug} />
+      <ToolWorkbench initialSlug={tool.slug} initialLanguage={initialLanguage} />
     </>
   );
 }

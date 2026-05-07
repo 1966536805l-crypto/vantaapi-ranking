@@ -510,33 +510,62 @@ function riskTone(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"]) {
   return "high";
 }
 
-function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: string) {
+function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: string, language: "en" | "zh" = "en") {
+  const zh = language === "zh";
   if (error) {
+    if (zh) {
+      return `状态\n${error}\n\n支持输入\n粘贴公开 GitHub 仓库地址，例如 ${sampleRepoUrl}`;
+    }
     return `Status\n${error}\n\nSupported input\nPaste a public GitHub repository URL like ${sampleRepoUrl}`;
   }
   if (!analysis) {
+    if (zh) {
+      return `GitHub 项目体检\n粘贴公开仓库地址。获取评分、阻塞项、GitHub Issue 草稿、README、环境变量、CI、部署、安全和发布清单。\n\n示例\n${sampleRepoUrl}`;
+    }
     return `GitHub Launch Audit\nPaste a public repo URL. Get score blockers GitHub issue drafts README env CI deploy security and release checklist.\n\nExample\n${sampleRepoUrl}`;
   }
 
-  return [
-    `Launch readiness\nScore: ${analysis.launchScore.score}/100\nRisk: ${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
-    `Must fix before launch\n${numberedList(analysis.mustFix)}`,
-    `Repository\n${analysis.repository.fullName}\n${analysis.repository.url}`,
-    `Overview\n${bulletList(analysis.overview)}`,
-    `Tech stack\n${bulletList(analysis.techStack)}`,
-    `How to run\n${numberedList(analysis.howToRun)}`,
-    `Environment checklist\n${bulletList(analysis.envChecklist)}`,
-    `Project handoff\n${bulletList(analysis.fileStructure)}`,
-    `Issue label plan\n${bulletList(analysis.issueLabelPlan)}`,
-    `Security notes\n${bulletList(analysis.securityNotes)}`,
-    `README fixes\n${bulletList(analysis.readmeSuggestions)}`,
-    `CI suggestions\n${bulletList(analysis.githubActions)}`,
-    `Deployment checklist\n${numberedList(analysis.deploymentChecklist)}`,
-    `PR review checklist\n${numberedList(analysis.prReviewChecklist)}`,
-    `Release checklist\n${numberedList(analysis.releaseChecklist)}`,
-    `Copyable GitHub issues\n${analysis.copyableIssues.join("\n\n---\n\n")}`,
-    `Files read\n${bulletList(analysis.filesRead)}`,
-  ].join("\n\n");
+  const sections = zh
+    ? [
+        `上线体检\n评分：${analysis.launchScore.score}/100\n风险：${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
+        `上线前必须修\n${numberedList(analysis.mustFix)}`,
+        `仓库\n${analysis.repository.fullName}\n${analysis.repository.url}`,
+        `概览\n${bulletList(analysis.overview)}`,
+        `技术栈\n${bulletList(analysis.techStack)}`,
+        `如何运行\n${numberedList(analysis.howToRun)}`,
+        `环境变量清单\n${bulletList(analysis.envChecklist)}`,
+        `项目交接\n${bulletList(analysis.fileStructure)}`,
+        `Issue 标签建议\n${bulletList(analysis.issueLabelPlan)}`,
+        `安全提示\n${bulletList(analysis.securityNotes)}`,
+        `README 建议\n${bulletList(analysis.readmeSuggestions)}`,
+        `CI 建议\n${bulletList(analysis.githubActions)}`,
+        `部署清单\n${numberedList(analysis.deploymentChecklist)}`,
+        `PR 检查清单\n${numberedList(analysis.prReviewChecklist)}`,
+        `发布清单\n${numberedList(analysis.releaseChecklist)}`,
+        `可复制 GitHub Issues\n${analysis.copyableIssues.join("\n\n---\n\n")}`,
+        `读取文件\n${bulletList(analysis.filesRead)}`,
+      ]
+    : [
+        `Launch readiness\nScore: ${analysis.launchScore.score}/100\nRisk: ${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
+        `Must fix before launch\n${numberedList(analysis.mustFix)}`,
+        `Repository\n${analysis.repository.fullName}\n${analysis.repository.url}`,
+        `Overview\n${bulletList(analysis.overview)}`,
+        `Tech stack\n${bulletList(analysis.techStack)}`,
+        `How to run\n${numberedList(analysis.howToRun)}`,
+        `Environment checklist\n${bulletList(analysis.envChecklist)}`,
+        `Project handoff\n${bulletList(analysis.fileStructure)}`,
+        `Issue label plan\n${bulletList(analysis.issueLabelPlan)}`,
+        `Security notes\n${bulletList(analysis.securityNotes)}`,
+        `README fixes\n${bulletList(analysis.readmeSuggestions)}`,
+        `CI suggestions\n${bulletList(analysis.githubActions)}`,
+        `Deployment checklist\n${numberedList(analysis.deploymentChecklist)}`,
+        `PR review checklist\n${numberedList(analysis.prReviewChecklist)}`,
+        `Release checklist\n${numberedList(analysis.releaseChecklist)}`,
+        `Copyable GitHub issues\n${analysis.copyableIssues.join("\n\n---\n\n")}`,
+        `Files read\n${bulletList(analysis.filesRead)}`,
+      ];
+
+  return sections.join("\n\n");
 }
 
 function repoAgeLabel(pushedAt: string) {
@@ -572,74 +601,128 @@ function issueTitle(issue: string, index: number) {
   return firstLine?.replace(/^#+\s*/, "").trim() || `GitHub issue ${index + 1}`;
 }
 
-export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { initialSlug?: ToolSlug }) {
+function toolHref(slug: ToolSlug, language: "en" | "zh") {
+  return language === "zh" ? `/tools/${slug}?lang=zh` : `/tools/${slug}`;
+}
+
+function toolDisplay(tool: ToolDefinition, language: "en" | "zh") {
+  if (language !== "zh") return tool;
+  if (tool.slug === "github-repo-analyzer") {
+    return {
+      ...tool,
+      title: "GitHub 项目体检",
+      shortTitle: "体检",
+      description: "把公开 GitHub 仓库快速变成上线体检报告",
+      promise: "评分 阻塞项 Issue 草稿 发布清单 README 环境变量 CI 部署 安全",
+      inputHint: "粘贴公开仓库地址，例如 https://github.com/vercel/next.js",
+      useCases: ["上线前体检", "准备公开发布", "项目交接"],
+      whatItDoes: ["读取公开仓库信息和根目录配置文件", "把上线阻塞项和优化项分开", "生成 GitHub Issue 草稿和发布检查清单"],
+      audience: ["开源项目维护者", "准备上线的独立开发者", "接手陌生仓库的程序员"],
+      inputExample: "https://github.com/vercel/swr",
+      outputExample: "上线评分、阻塞项、GitHub Issue 草稿、README、环境变量、CI、部署、安全和发布清单",
+      limitations: ["仅支持公开仓库", "不会执行代码或深度分析源码", "私有仓库需要先做授权和审计控制"],
+      faq: [
+        { question: "需要 GitHub token 吗", answer: "不需要。第一版只读取公开仓库信息和公开配置文件。" },
+        { question: "为什么不直接让 AI 看代码", answer: "这里专门处理上线前最耗时间的杂事：README、环境变量、临时文件、CI、部署、安全提示和 PR 清单。" },
+      ],
+    };
+  }
+
+  const shortTitles: Partial<Record<ToolSlug, string>> = {
+    "prompt-optimizer": "提示词",
+    "code-explainer": "解释",
+    "bug-finder": "Bug",
+    "api-request-generator": "API",
+    "dev-utilities": "工具",
+    "learning-roadmap": "路线",
+  };
+
+  return {
+    ...tool,
+    shortTitle: shortTitles[tool.slug] || tool.shortTitle,
+  };
+}
+
+export default function ToolWorkbench({
+  initialSlug = "prompt-optimizer",
+  initialLanguage = "en",
+}: {
+  initialSlug?: ToolSlug;
+  initialLanguage?: "en" | "zh";
+}) {
   const pathname = usePathname();
+  const language = initialLanguage;
+  const zh = language === "zh";
   const active = useMemo<ToolSlug>(() => {
     const routeTool = toolDefinitions.find((tool) => pathname?.endsWith(`/tools/${tool.slug}`));
     return routeTool?.slug || initialSlug;
   }, [initialSlug, pathname]);
 
   const activeTool = toolDefinitions.find((tool) => tool.slug === active) || toolDefinitions[0];
+  const activeToolDisplay = toolDisplay(activeTool, language);
 
   useEffect(() => {
     recordLocalActivity({
       id: `tool:${active}`,
-      title: activeTool.title,
-      href: `/tools/${active}`,
+      title: activeToolDisplay.title,
+      href: toolHref(active, language),
       kind: "tool",
     });
-  }, [active, activeTool.title]);
+  }, [active, activeToolDisplay.title, language]);
 
   return (
     <main className="apple-page">
       <div className="tool-shell">
         <aside className="tool-rail dense-panel">
-          <Link href="/" className="tool-brand">
+          <Link href={zh ? "/?lang=zh" : "/"} className="tool-brand">
             <span>JM</span>
             <strong>JinMing Lab</strong>
           </Link>
           <nav className="tool-nav">
-            {toolDefinitions.map((tool) => (
+            {toolDefinitions.map((tool) => {
+              const display = toolDisplay(tool, language);
+              return (
               <Link
                 key={tool.slug}
-                href={`/tools/${tool.slug}`}
+                href={toolHref(tool.slug, language)}
                 className={tool.slug === active ? "tool-nav-link tool-nav-link-active" : "tool-nav-link"}
               >
                 <span>{tool.code}</span>
-                <strong>{tool.shortTitle}</strong>
+                <strong>{display.shortTitle}</strong>
               </Link>
-            ))}
+              );
+            })}
           </nav>
         </aside>
 
         <section className="min-w-0">
           <div className="dense-panel tool-hero">
             <div>
-              <p className="eyebrow">AI Developer Tools</p>
-              <h1>{activeTool.title}</h1>
-              <p>{activeTool.description}</p>
+              <p className="eyebrow">{zh ? "AI 开发者工具" : "AI Developer Tools"}</p>
+              <h1>{activeToolDisplay.title}</h1>
+              <p>{activeToolDisplay.description}</p>
             </div>
             <div className="tool-proof-grid">
-              <span>Fast</span>
-              <span>Copyable</span>
-              <span>No login required</span>
+              <span>{zh ? "快速" : "Fast"}</span>
+              <span>{zh ? "可复制" : "Copyable"}</span>
+              <span>{zh ? "无需登录" : "No login required"}</span>
             </div>
           </div>
 
           <div className="tool-command-strip dense-panel">
             <div>
-              <p className="eyebrow">Input Pattern</p>
-              <strong>{activeTool.inputHint}</strong>
+              <p className="eyebrow">{zh ? "输入方式" : "Input Pattern"}</p>
+              <strong>{activeToolDisplay.inputHint}</strong>
             </div>
             <div className="tool-command-tags">
-              <span>{activeTool.promise}</span>
-              <span>Local first</span>
-              <span>Private by default</span>
+              <span>{activeToolDisplay.promise}</span>
+              <span>{zh ? "本地优先" : "Local first"}</span>
+              <span>{zh ? "默认隐私" : "Private by default"}</span>
             </div>
           </div>
 
           <div className="mt-3">
-            {active === "github-repo-analyzer" && <GitHubRepoAnalyzer />}
+            {active === "github-repo-analyzer" && <GitHubRepoAnalyzer language={language} />}
             {active === "prompt-optimizer" && <PromptOptimizer />}
             {active === "code-explainer" && <CodeExplainer />}
             {active === "bug-finder" && <BugFinder />}
@@ -648,23 +731,24 @@ export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { in
             {active === "learning-roadmap" && <LearningRoadmap />}
           </div>
 
-          <ToolSeoPanel tool={activeTool} />
+          <ToolSeoPanel tool={activeToolDisplay} language={language} />
         </section>
       </div>
     </main>
   );
 }
 
-function GitHubRepoAnalyzer() {
+function GitHubRepoAnalyzer({ language = "en" }: { language?: "en" | "zh" }) {
+  const zh = language === "zh";
   const [url, setUrl] = useState(sampleRepoUrl);
   const [analysis, setAnalysis] = useState<GitHubRepoAnalysis | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
   const [actionStatus, setActionStatus] = useState("");
-  const [runStatus, setRunStatus] = useState("Ready to audit");
+  const [runStatus, setRunStatus] = useState(zh ? "准备体检" : "Ready to audit");
 
-  const output = useMemo(() => formatGitHubRepoOutput(analysis, error), [analysis, error]);
+  const output = useMemo(() => formatGitHubRepoOutput(analysis, error, language), [analysis, error, language]);
   const issueBundle = useMemo(() => analysis?.copyableIssues.join("\n\n---\n\n") || "", [analysis]);
   const releaseBundle = useMemo(() => analysis ? numberedList(analysis.releaseChecklist) : "", [analysis]);
   const qualityGates = useMemo(() => analysis ? qualityGateLabel(analysis) : [], [analysis]);
@@ -677,14 +761,14 @@ function GitHubRepoAnalyzer() {
     if (!analysis) return [];
     return [
       { badge: `${analysis.launchScore.score}`, title: `${analysis.launchScore.riskLevel} risk verdict`, content: analysis.launchScore.summary },
-      { badge: "01", title: "Must fix", content: numberedList(analysis.mustFix) },
-      { badge: "02", title: "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
-      { badge: "03", title: "Release checklist", content: numberedList(analysis.releaseChecklist) },
-      { badge: "04", title: "Environment checklist", content: bulletList(analysis.envChecklist) },
-      { badge: "05", title: "README upgrades", content: bulletList(analysis.readmeSuggestions) },
-      { badge: "06", title: "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
+      { badge: "01", title: zh ? "必须修" : "Must fix", content: numberedList(analysis.mustFix) },
+      { badge: "02", title: zh ? "GitHub Issues" : "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
+      { badge: "03", title: zh ? "发布清单" : "Release checklist", content: numberedList(analysis.releaseChecklist) },
+      { badge: "04", title: zh ? "环境变量清单" : "Environment checklist", content: bulletList(analysis.envChecklist) },
+      { badge: "05", title: zh ? "README 优化" : "README upgrades", content: bulletList(analysis.readmeSuggestions) },
+      { badge: "06", title: zh ? "PR 检查清单" : "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
     ];
-  }, [analysis]);
+  }, [analysis, zh]);
 
   useEffect(() => {
     const shared = decodeSharedAnalysis(window.location.hash);
@@ -700,10 +784,10 @@ function GitHubRepoAnalyzer() {
     if (!shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareUrl);
-      setShareStatus("Share link copied");
+      setShareStatus(zh ? "分享链接已复制" : "Share link copied");
       window.setTimeout(() => setShareStatus(""), 1400);
     } catch {
-      setShareStatus("Copy failed");
+      setShareStatus(zh ? "复制失败" : "Copy failed");
       window.setTimeout(() => setShareStatus(""), 1400);
     }
   }
@@ -715,12 +799,12 @@ function GitHubRepoAnalyzer() {
       setActionStatus(successMessage);
       window.setTimeout(() => setActionStatus(""), 1400);
     } catch {
-      setActionStatus("Copy failed");
+      setActionStatus(zh ? "复制失败" : "Copy failed");
       window.setTimeout(() => setActionStatus(""), 1400);
     }
   }
 
-  function loadSamplePreview(reason = "Local sample preview loaded") {
+  function loadSamplePreview(reason = zh ? "已加载本地样例报告" : "Local sample preview loaded") {
     setUrl(sampleRepoUrl);
     setAnalysis(sampleGitHubAnalysis);
     setError("");
@@ -733,16 +817,16 @@ function GitHubRepoAnalyzer() {
   async function analyzeRepo(targetUrl = url) {
     const trimmed = targetUrl.trim();
     if (!trimmed) {
-      setError("Repository URL is required");
+      setError(zh ? "需要填写仓库地址" : "Repository URL is required");
       setAnalysis(null);
-      setRunStatus("URL required");
+      setRunStatus(zh ? "需要仓库地址" : "URL required");
       return;
     }
 
     setUrl(trimmed);
     setLoading(true);
     setError("");
-    setRunStatus("Reading public repo signals");
+    setRunStatus(zh ? "正在读取公开仓库信号" : "Reading public repo signals");
     try {
       const response = await fetch("/api/tools/github-repo-analyzer", {
         method: "POST",
@@ -754,12 +838,12 @@ function GitHubRepoAnalyzer() {
         throw new Error(data.error || data.message || "Could not run repository launch audit");
       }
       setAnalysis(data.analysis);
-      setRunStatus(`Audit complete ${data.analysis.launchScore.score}/100`);
+      setRunStatus(zh ? `体检完成 ${data.analysis.launchScore.score}/100` : `Audit complete ${data.analysis.launchScore.score}/100`);
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     } catch (caught) {
-      const message = caught instanceof Error ? caught.message : "Could not run repository launch audit";
+      const message = caught instanceof Error ? caught.message : (zh ? "无法运行项目体检" : "Could not run repository launch audit");
       if (trimmed === sampleRepoUrl) {
-        loadSamplePreview("Sample preview loaded because live audit is busy");
+        loadSamplePreview(zh ? "真实体检繁忙，已加载样例报告" : "Sample preview loaded because live audit is busy");
         return;
       }
       setAnalysis(null);
@@ -771,60 +855,61 @@ function GitHubRepoAnalyzer() {
   }
 
   function runSampleAudit() {
-    loadSamplePreview("Local sample preview loaded");
+    loadSamplePreview(zh ? "已加载本地样例报告" : "Local sample preview loaded");
   }
 
   return (
     <ToolLayout
       output={output}
-      outputTitle={analysis ? `${analysis.launchScore.score}/100 launch audit` : "Launch audit"}
+      outputTitle={analysis ? `${analysis.launchScore.score}/100 ${zh ? "上线体检" : "launch audit"}` : (zh ? "上线体检" : "Launch audit")}
+      language={language}
       blocks={blocks}
       actions={
         <>
           <button type="button" className="dense-action-primary" onClick={() => void analyzeRepo()} disabled={loading}>
-            {loading ? "Auditing repo" : "Audit repo"}
+            {loading ? (zh ? "体检中" : "Auditing repo") : (zh ? "体检仓库" : "Audit repo")}
           </button>
           <button type="button" className="dense-action" onClick={runSampleAudit} disabled={loading}>
-            Preview report
+            {zh ? "预览报告" : "Preview report"}
           </button>
           <button type="button" className="dense-action" onClick={() => void analyzeRepo(sampleRepoUrl)} disabled={loading}>
-            Live sample
+            {zh ? "真实样例" : "Live sample"}
           </button>
           {analysis && (
             <>
               <button type="button" className="dense-action" onClick={copyShareLink}>
-                {shareStatus || "Copy share link"}
+                {shareStatus || (zh ? "复制分享链接" : "Copy share link")}
               </button>
               <a className="dense-action" href={shareUrl} target="_blank" rel="noreferrer">
-                Open share
+                {zh ? "打开分享" : "Open share"}
               </a>
-              <button type="button" className="dense-action" onClick={() => copyAuditText(issueBundle, "Issues copied")}>
-                Copy GitHub issues
+              <button type="button" className="dense-action" onClick={() => copyAuditText(issueBundle, zh ? "Issues 已复制" : "Issues copied")}>
+                {zh ? "复制 GitHub Issues" : "Copy GitHub issues"}
               </button>
-              <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, "Checklist copied")}>
-                Copy release checklist
+              <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, zh ? "发布清单已复制" : "Checklist copied")}>
+                {zh ? "复制发布清单" : "Copy release checklist"}
               </button>
               <a className="dense-action" href={analysis.repository.url} target="_blank" rel="noreferrer">
-                Open repo
+                {zh ? "打开仓库" : "Open repo"}
               </a>
             </>
           )}
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
-            Reset sample
+            {zh ? "重置样例" : "Reset sample"}
           </button>
           <button type="button" className="dense-action" onClick={() => { setUrl(""); setAnalysis(null); setError(""); }}>
-            Clear
+            {zh ? "清空" : "Clear"}
           </button>
         </>
       }
     >
-      <p className="eyebrow">Repo URL</p>
-      <h2>Audit launch blockers</h2>
+      <p className="eyebrow">{zh ? "仓库地址" : "Repo URL"}</p>
+      <h2>{zh ? "检查上线阻塞项" : "Audit launch blockers"}</h2>
       {analysis ? (
         <section className={`repo-verdict repo-verdict-${riskTone(analysis.launchScore.riskLevel)}`}>
           <div>
-            <p className="eyebrow">Verdict</p>
-            <strong>{analysis.launchScore.riskLevel} risk</strong>
+            <p className="eyebrow">{zh ? "结论" : "Verdict"}</p>
+            <strong>{analysis.launchScore.riskLevel} {zh ? "风险" : "risk"}</strong>
             <span>{analysis.launchScore.summary}</span>
           </div>
           <div className="repo-score">
@@ -832,33 +917,33 @@ function GitHubRepoAnalyzer() {
             <span>/100</span>
           </div>
           <div className="repo-next-step">
-            <p className="eyebrow">Next Fix</p>
+            <p className="eyebrow">{zh ? "下一步修复" : "Next Fix"}</p>
             <span>{analysis.mustFix[0]}</span>
           </div>
         </section>
       ) : (
         <section className="repo-verdict repo-verdict-empty">
           <div>
-            <p className="eyebrow">Report Shape</p>
-            <strong>Score blockers issues checklist</strong>
-            <span>Paste a public repo. Get the boring launch work turned into tasks.</span>
+            <p className="eyebrow">{zh ? "报告结构" : "Report Shape"}</p>
+            <strong>{zh ? "评分 阻塞项 Issues 清单" : "Score blockers issues checklist"}</strong>
+            <span>{zh ? "粘贴公开仓库，把上线前的繁琐检查变成任务。" : "Paste a public repo. Get the boring launch work turned into tasks."}</span>
           </div>
         </section>
       )}
       {analysis && (
         <section className="repo-audit-brief">
           <div>
-            <p className="eyebrow">Repository</p>
+            <p className="eyebrow">{zh ? "仓库" : "Repository"}</p>
             <strong>{analysis.repository.fullName}</strong>
-            <span>{analysis.repository.language || "Unknown"} · {analysis.repository.license || "No license"} · {repoAgeLabel(analysis.repository.pushedAt)}</span>
+            <span>{analysis.repository.language || (zh ? "未知" : "Unknown")} · {analysis.repository.license || (zh ? "无许可证" : "No license")} · {repoAgeLabel(analysis.repository.pushedAt)}</span>
           </div>
           <div>
-            <p className="eyebrow">Impact</p>
+            <p className="eyebrow">{zh ? "影响" : "Impact"}</p>
             <strong>{impactLabel(analysis.launchScore.score)}</strong>
-            <span>{analysis.mustFix.length} action items · {analysis.copyableIssues.length} issue drafts</span>
+            <span>{analysis.mustFix.length} {zh ? "个行动项" : "action items"} · {analysis.copyableIssues.length} {zh ? "个 Issue 草稿" : "issue drafts"}</span>
           </div>
           <div>
-            <p className="eyebrow">Quality Gates</p>
+            <p className="eyebrow">{zh ? "质量门禁" : "Quality Gates"}</p>
             <strong>{qualityGates[0]}</strong>
             <span>{qualityGates.slice(1).join(" · ")}</span>
           </div>
@@ -887,11 +972,11 @@ function GitHubRepoAnalyzer() {
       <div className="tool-field-grid">
         <div className="dense-row">
           <span className="text-sm font-semibold">Scope</span>
-          <span className="text-xs text-[color:var(--muted)]">Public repo only</span>
+          <span className="text-xs text-[color:var(--muted)]">{zh ? "仅公开仓库" : "Public repo only"}</span>
         </div>
         <div className="dense-row">
           <span className="text-sm font-semibold">Reads</span>
-          <span className="text-xs text-[color:var(--muted)]">README env CI deploy clues</span>
+          <span className="text-xs text-[color:var(--muted)]">{zh ? "README 环境变量 CI 部署线索" : "README env CI deploy clues"}</span>
         </div>
         {analysis && (
           <div className="dense-row">
@@ -903,9 +988,9 @@ function GitHubRepoAnalyzer() {
       {analysis && (
         <section className="repo-action-panel">
           <div>
-            <p className="eyebrow">Ship Next</p>
-            <h3>把报告变成任务</h3>
-            <p>{actionStatus || "复制 Issue 后可直接贴进 GitHub Issues；复制 checklist 可放到 PR 描述或发布说明里。"}</p>
+            <p className="eyebrow">{zh ? "下一步" : "Ship Next"}</p>
+            <h3>{zh ? "把报告变成任务" : "Turn report into tasks"}</h3>
+            <p>{actionStatus || (zh ? "复制 Issue 后可直接贴进 GitHub Issues；复制清单可放到 PR 描述或发布说明里。" : "Copy issues into GitHub Issues. Copy the checklist into a PR description or release note.")}</p>
           </div>
           <div className="repo-action-list">
             {analysis.mustFix.slice(0, 3).map((item, index) => (
@@ -921,22 +1006,22 @@ function GitHubRepoAnalyzer() {
         <section className="repo-report-board">
           <div className="repo-report-head">
             <div>
-              <p className="eyebrow">Professional Report</p>
-              <h3>Launch readiness report</h3>
-              <span>{analysis.repository.fullName} · {analysis.launchScore.riskLevel} risk · {analysis.copyableIssues.length} issue drafts</span>
+              <p className="eyebrow">{zh ? "专业报告" : "Professional Report"}</p>
+              <h3>{zh ? "上线体检报告" : "Launch readiness report"}</h3>
+              <span>{analysis.repository.fullName} · {analysis.launchScore.riskLevel} {zh ? "风险" : "risk"} · {analysis.copyableIssues.length} {zh ? "个 Issue 草稿" : "issue drafts"}</span>
             </div>
             <div className="repo-report-score">
               <strong>{analysis.launchScore.score}</strong>
-              <span>Launch Score</span>
+              <span>{zh ? "上线评分" : "Launch Score"}</span>
             </div>
           </div>
 
           <div className="repo-report-grid">
             <div className="repo-report-section repo-report-section-primary">
               <div className="repo-report-section-head">
-                <p className="eyebrow">Must Fix First</p>
-                <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), "Must fix copied")}>
-                  Copy
+                <p className="eyebrow">{zh ? "先修这些" : "Must Fix First"}</p>
+                <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), zh ? "必须修清单已复制" : "Must fix copied")}>
+                  {zh ? "复制" : "Copy"}
                 </button>
               </div>
               <ol className="repo-check-list">
@@ -948,9 +1033,9 @@ function GitHubRepoAnalyzer() {
 
             <div className="repo-report-section">
               <div className="repo-report-section-head">
-                <p className="eyebrow">Release Checklist</p>
-                <button type="button" onClick={() => copyAuditText(releaseBundle, "Release checklist copied")}>
-                  Copy
+                <p className="eyebrow">{zh ? "发布清单" : "Release Checklist"}</p>
+                <button type="button" onClick={() => copyAuditText(releaseBundle, zh ? "发布清单已复制" : "Release checklist copied")}>
+                  {zh ? "复制" : "Copy"}
                 </button>
               </div>
               <ol className="repo-check-list">
@@ -968,8 +1053,8 @@ function GitHubRepoAnalyzer() {
                   <p className="eyebrow">Issue {String(index + 1).padStart(2, "0")}</p>
                   <h4>{issueTitle(issue, index)}</h4>
                 </div>
-                <button type="button" onClick={() => copyAuditText(issue, `Issue ${index + 1} copied`)}>
-                  Copy Issue
+                <button type="button" onClick={() => copyAuditText(issue, zh ? `Issue ${index + 1} 已复制` : `Issue ${index + 1} copied`)}>
+                  {zh ? "复制 Issue" : "Copy Issue"}
                 </button>
               </article>
             ))}
@@ -1011,27 +1096,28 @@ function toolExamples(tool: ToolDefinition) {
   ];
 }
 
-function ToolSeoPanel({ tool }: { tool: ToolDefinition }) {
+function ToolSeoPanel({ tool, language = "en" }: { tool: ToolDefinition; language?: "en" | "zh" }) {
+  const zh = language === "zh";
   const examples = toolExamples(tool);
 
   return (
     <section className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       <div className="dense-panel p-5">
-        <p className="eyebrow">What It Does</p>
-        <h2 className="mt-2 text-2xl font-semibold">{tool.shortTitle} workflow</h2>
+        <p className="eyebrow">{zh ? "能做什么" : "What It Does"}</p>
+        <h2 className="mt-2 text-2xl font-semibold">{zh ? `${tool.shortTitle} 工作流` : `${tool.shortTitle} workflow`}</h2>
         <div className="mt-4 grid gap-2">
           {tool.whatItDoes.map((item) => (
             <div key={item} className="dense-row">
               <span className="text-sm font-semibold">{item}</span>
-              <span className="text-xs text-[color:var(--muted)]">Built for fast copyable work</span>
+              <span className="text-xs text-[color:var(--muted)]">{zh ? "适合快速复制和执行" : "Built for fast copyable work"}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="dense-panel p-5">
-        <p className="eyebrow">Good For</p>
-        <h2 className="mt-2 text-2xl font-semibold">Who should use it</h2>
+        <p className="eyebrow">{zh ? "适合谁" : "Good For"}</p>
+        <h2 className="mt-2 text-2xl font-semibold">{zh ? "谁最适合用" : "Who should use it"}</h2>
         <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
           {tool.audience.map((item) => (
             <div key={item} className="rounded-[8px] border border-slate-200 bg-white/70 p-3 text-sm font-semibold">
@@ -1042,22 +1128,22 @@ function ToolSeoPanel({ tool }: { tool: ToolDefinition }) {
       </div>
 
       <div className="dense-panel p-5">
-        <p className="eyebrow">Examples</p>
-        <h2 className="mt-2 text-2xl font-semibold">Input and output</h2>
+        <p className="eyebrow">{zh ? "示例" : "Examples"}</p>
+        <h2 className="mt-2 text-2xl font-semibold">{zh ? "输入和输出" : "Input and output"}</h2>
         <div className="mt-4 grid gap-3">
           {examples.map((example) => (
             <article key={example.title} className="rounded-[8px] border border-slate-200 bg-white/75 p-3">
               <p className="eyebrow">{example.title}</p>
-              <p className="mt-2 text-sm leading-6 text-slate-800"><strong>Input:</strong> {example.input}</p>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]"><strong>Output:</strong> {example.output}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-800"><strong>{zh ? "输入：" : "Input:"}</strong> {example.input}</p>
+              <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]"><strong>{zh ? "输出：" : "Output:"}</strong> {example.output}</p>
             </article>
           ))}
         </div>
       </div>
 
       <div className="dense-panel p-5">
-        <p className="eyebrow">FAQ And Limits</p>
-        <h2 className="mt-2 text-2xl font-semibold">Before you use it</h2>
+        <p className="eyebrow">{zh ? "常见问题和限制" : "FAQ And Limits"}</p>
+        <h2 className="mt-2 text-2xl font-semibold">{zh ? "使用前知道这些" : "Before you use it"}</h2>
         <div className="mt-4 grid gap-2">
           {tool.faq.map((item) => (
             <details key={item.question} className="rounded-[8px] border border-slate-200 bg-white/70 p-3">
@@ -1066,7 +1152,7 @@ function ToolSeoPanel({ tool }: { tool: ToolDefinition }) {
             </details>
           ))}
           <div className="rounded-[8px] border border-slate-200 bg-white/70 p-3">
-            <p className="text-sm font-semibold">Usage limits</p>
+            <p className="text-sm font-semibold">{zh ? "使用限制" : "Usage limits"}</p>
             <ul className="mt-2 space-y-1 text-sm leading-6 text-[color:var(--muted)]">
               {tool.limitations.map((item) => (
                 <li key={item}>{item}</li>
@@ -1085,13 +1171,16 @@ function ToolLayout({
   outputTitle = "Output",
   actions,
   blocks,
+  language = "en",
 }: {
   children: React.ReactNode;
   output: string;
   outputTitle?: string;
   actions?: React.ReactNode;
   blocks?: OutputBlock[];
+  language?: "en" | "zh";
 }) {
+  const zh = language === "zh";
   const { copied, copy } = useCopy();
   const [downloaded, setDownloaded] = useState(false);
   const outputLines = output.trim() ? output.trim().split(/\r?\n/).length : 0;
@@ -1112,17 +1201,17 @@ function ToolLayout({
       <section className="dense-panel tool-output">
         <div className="tool-output-head">
           <div>
-            <p className="eyebrow">Generated</p>
+            <p className="eyebrow">{zh ? "生成结果" : "Generated"}</p>
             <h2>{outputTitle}</h2>
           </div>
           <div className="tool-output-actions">
-            <span>{outputLines} lines</span>
-            <span>{outputCharacters} chars</span>
+            <span>{outputLines} {zh ? "行" : "lines"}</span>
+            <span>{outputCharacters} {zh ? "字符" : "chars"}</span>
             <button type="button" className="dense-action" onClick={() => copy(output, "main")}>
-              {copied === "main" ? "Copied" : "Copy"}
+              {copied === "main" ? (zh ? "已复制" : "Copied") : (zh ? "复制" : "Copy")}
             </button>
             <button type="button" className="dense-action" onClick={downloadOutput}>
-              {downloaded ? "Downloaded" : "Download"}
+              {downloaded ? (zh ? "已下载" : "Downloaded") : (zh ? "下载" : "Download")}
             </button>
           </div>
         </div>
@@ -1135,7 +1224,7 @@ function ToolLayout({
                   <span>{block.badge}</span>
                   <strong>{block.title}</strong>
                   <button type="button" onClick={() => copy(block.content, block.title)}>
-                    {copied === block.title ? "Copied" : "Copy"}
+                    {copied === block.title ? (zh ? "已复制" : "Copied") : (zh ? "复制" : "Copy")}
                   </button>
                 </div>
                 <p>{block.content}</p>
