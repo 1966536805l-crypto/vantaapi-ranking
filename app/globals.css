@@ -3518,6 +3518,48 @@ body:has(.home-core-page) .global-search-trigger {
   word-break: break-word;
 }
 
+.typing-char-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 8px;
+}
+
+.typing-char {
+  display: grid;
+  min-width: 22px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 7px;
+  background: #f8fafc;
+  color: rgba(15, 23, 42, 0.46);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.typing-char-space {
+  min-width: 30px;
+  color: rgba(15, 23, 42, 0.25);
+}
+
+.typing-char-correct {
+  border-color: rgba(34, 197, 94, 0.28);
+  background: rgba(240, 253, 244, 0.96);
+  color: #15803d;
+}
+
+.typing-char-wrong {
+  border-color: rgba(239, 68, 68, 0.34);
+  background: rgba(254, 242, 242, 0.96);
+  color: #b91c1c;
+}
+
 .typing-progress {
   margin-top: 10px;
   height: 8px;

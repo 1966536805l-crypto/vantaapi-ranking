@@ -15,6 +15,7 @@ export type EnglishTypingItem = {
 };
 
 type Mode = "mixed" | "word" | "sentence";
+type HintMode = "meaning" | "shape" | "answer";
 
 const storageKey = "vantaapi-english-typing-v1";
 
@@ -28,6 +29,21 @@ function normalize(value: string) {
 
 function maskAnswer(answer: string) {
   return answer.replace(/[A-Za-z]/g, "•");
+}
+
+function shapeHint(answer: string) {
+  return answer.replace(/[A-Za-z]/g, (letter, index) => (index % 3 === 0 ? letter : "•"));
+}
+
+function answerPreview(answer: string, hintMode: HintMode) {
+  if (hintMode === "answer") return answer;
+  if (hintMode === "shape") return shapeHint(answer);
+  return maskAnswer(answer);
+}
+
+function charState(answer: string, draft: string, index: number) {
+  if (index >= draft.length) return "pending";
+  return draft[index]?.toLowerCase() === answer[index]?.toLowerCase() ? "correct" : "wrong";
 }
 
 function readStats() {
@@ -63,6 +79,8 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
   const [message, setMessage] = useState("听音打字 拼对才能过关");
   const [showAnswer, setShowAnswer] = useState(false);
   const [focusMode, setFocusMode] = useState(true);
+  const [hintMode, setHintMode] = useState<HintMode>("meaning");
+  const [autoListen, setAutoListen] = useState(true);
   const [stats, setStats] = useState({ correct: 0, wrong: 0, index: 0 });
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [questionElapsedSeconds, setQuestionElapsedSeconds] = useState(0);
@@ -91,6 +109,9 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
   const characterProgress = current ? Math.min(100, Math.round((draft.length / Math.max(current.answer.length, 1)) * 100)) : 0;
   const recallSeconds = Math.max(0, 5 - questionElapsedSeconds);
   const strictTimeoutActive = !draft.trim() && recallSeconds === 0 && !timeoutIds[current?.id || ""];
+  const hintLabel = hintMode === "meaning" ? "只看释义" : hintMode === "shape" ? "看词形" : "看答案";
+  const typedCount = Math.min(draft.length, current?.answer.length || 0);
+  const nextNeeded = current?.answer[typedCount] || "";
 
   const speak = useCallback((text = current?.answer) => {
     if (!text) return;
@@ -108,6 +129,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     setIndex(nextIndex);
     setDraft("");
     setShowAnswer(false);
+    setHintMode("meaning");
     setQuestionElapsedSeconds(0);
     lastErrorRef.current = "";
     autoSubmittedRef.current = "";
@@ -147,15 +169,37 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
 
     if (correct) {
       setMessage("✓ 通过 自动下一题");
+      setHintMode("meaning");
       window.setTimeout(next, 520);
       return;
     }
 
     setMessage("✗ 拼写错误 再听一遍 必须打对才能过关");
     setShowAnswer(false);
+    setHintMode("shape");
     speak(current.answer);
     window.setTimeout(() => inputRef.current?.focus(), 0);
   }, [activeIndex, current, draft, next, persist, speak, stats.correct, stats.wrong]);
+
+  const giveUp = useCallback(() => {
+    if (!current) return;
+    const latestStats = readStats();
+    persist({ ...latestStats, wrong: latestStats.wrong + 1, index: activeIndex });
+    setShowAnswer(true);
+    setHintMode("answer");
+    setMessage("已加入复习 下一题前先看一眼正确拼写");
+    speak(current.answer);
+    window.setTimeout(next, 900);
+  }, [activeIndex, current, next, persist, speak]);
+
+  const cycleHint = useCallback(() => {
+    setHintMode((value) => {
+      if (value === "meaning") return "shape";
+      if (value === "shape") return "answer";
+      return "meaning";
+    });
+    window.setTimeout(() => inputRef.current?.focus(), 0);
+  }, []);
 
   useEffect(() => {
     if (!current || !draft) return;
@@ -168,9 +212,16 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     if (!normalizedAnswer.startsWith(normalizedDraft) && lastErrorRef.current !== draft) {
       lastErrorRef.current = draft;
       setMessage("这一处不对 重新听音再改");
+      setHintMode("shape");
       speak(current.answer);
     }
   }, [check, current, draft, normalizedAnswer, normalizedDraft, speak]);
+
+  useEffect(() => {
+    if (!current || !autoListen) return;
+    const timer = window.setTimeout(() => speak(current.answer), 220);
+    return () => window.clearTimeout(timer);
+  }, [autoListen, current, speak]);
 
   useEffect(() => {
     if (!current || draft.trim() || timeoutIds[current.id]) return;
@@ -200,6 +251,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     const timer = window.setTimeout(() => {
       setDraft("");
       setShowAnswer(false);
+      setHintMode("meaning");
       setMessage("已切换题型 听音拼写");
       setIndex(0);
       setQuestionElapsedSeconds(0);
@@ -243,7 +295,9 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
               <span>5 秒 {strictTimeoutActive ? "待复习" : `${recallSeconds}s`}</span>
               <span><kbd>Enter</kbd> 检查</span>
               <span><kbd>Ctrl P</kbd> 发音</span>
+              <span><kbd>Ctrl H</kbd> 提示</span>
               <span><kbd>Esc</kbd> 退出全屏</span>
+              <span>{hintLabel}</span>
             </div>
           </div>
           <div className="learning-head-actions">
@@ -267,8 +321,17 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
           <button type="button" onClick={() => speak()}>
             发音
           </button>
-          <button type="button" onClick={() => setShowAnswer((value) => !value)}>
-            {showAnswer ? "隐藏" : "答案"}
+          <button type="button" onClick={cycleHint}>
+            {hintLabel}
+          </button>
+          <button type="button" className={autoListen ? "active" : ""} onClick={() => setAutoListen((value) => !value)}>
+            首听
+          </button>
+          <button type="button" onClick={() => {
+            setShowAnswer((value) => !value);
+            setHintMode(showAnswer ? "meaning" : "answer");
+          }}>
+            {showAnswer ? "隐藏答案" : "看答案"}
           </button>
           <button type="button" className={focusMode ? "active" : ""} onClick={() => setFocusMode((value) => !value)}>
             沉浸
@@ -289,11 +352,21 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
               <strong>{current.meaningZh}</strong>
               <small>{current.noteZh}</small>
             </div>
-            <div className="typing-mask">{showAnswer ? current.answer : maskAnswer(current.answer)}</div>
+            <div className="typing-mask">{showAnswer ? current.answer : answerPreview(current.answer, hintMode)}</div>
+            <div className="typing-char-rail" aria-label="typing character progress">
+              {current.answer.split("").map((char, charIndex) => (
+                <span
+                  key={`${current.id}-${charIndex}-${char}`}
+                  className={`typing-char typing-char-${charState(current.answer, draft, charIndex)}${char === " " ? " typing-char-space" : ""}`}
+                >
+                  {char === " " ? "·" : char}
+                </span>
+              ))}
+            </div>
             <div className="typing-progress">
               <span style={{ width: `${characterProgress}%` }} />
             </div>
-            <p className="typing-note">看释义回忆英文 先不要急着看答案</p>
+            <p className="typing-note">下一位 {nextNeeded ? `"${nextNeeded === " " ? "space" : nextNeeded}"` : "完成"}  错了会自动重听  看答案不算过关</p>
           </aside>
 
           <div className="typing-work">
@@ -315,6 +388,10 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
                     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "p") {
                       event.preventDefault();
                       speak();
+                    }
+                    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "h") {
+                      event.preventDefault();
+                      cycleHint();
                     }
                     if (event.key === "Escape") {
                       event.preventDefault();
@@ -340,11 +417,17 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
               <button type="button" className="dense-action" onClick={() => speak()}>
                 发音 <kbd>Ctrl P</kbd>
               </button>
-              <button type="button" className="dense-action" onClick={() => setShowAnswer((value) => !value)}>
-                {showAnswer ? "隐藏" : "答案"}
+              <button type="button" className="dense-action" onClick={cycleHint}>
+                提示 <kbd>Ctrl H</kbd>
               </button>
-              <button type="button" className="dense-action" onClick={next}>
-                跳过
+              <button type="button" className="dense-action" onClick={() => {
+                setShowAnswer((value) => !value);
+                setHintMode(showAnswer ? "meaning" : "answer");
+              }}>
+                {showAnswer ? "隐藏答案" : "看答案"}
+              </button>
+              <button type="button" className="dense-action" onClick={giveUp}>
+                不会 记复习
               </button>
             </div>
 
