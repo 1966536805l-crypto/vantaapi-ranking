@@ -41,21 +41,21 @@ export async function generateMetadata({ params }: WorldLanguagePageProps): Prom
   const current = getLanguage(language);
   if (!current) {
     return {
-      title: "World Language Course - VantaAPI",
+      title: "World Language Course - JinMing Lab",
     };
   }
 
   return {
-    title: `${current.name} Zero Foundation Course - VantaAPI`,
+    title: `${current.name} Zero Foundation Course - JinMing Lab`,
     description: `Learn ${current.name} from zero with pronunciation script first phrases sentence slots and a seven day plan.`,
     alternates: {
       canonical: `/languages/${current.slug}`,
     },
     openGraph: {
-      title: `${current.name} Zero Foundation Course - VantaAPI`,
+      title: `${current.name} Zero Foundation Course - JinMing Lab`,
       description: `Start ${current.name} from zero with sound script first phrases and daily review.`,
       url: `https://vantaapi.com/languages/${current.slug}`,
-      siteName: "VantaAPI",
+      siteName: "JinMing Lab",
       type: "website",
     },
   };
@@ -77,7 +77,7 @@ export default async function WorldLanguageDetailPage({ params }: WorldLanguageP
     description: `A zero foundation ${current.name} course for ${current.starterGoal}.`,
     provider: {
       "@type": "Organization",
-      name: "VantaAPI",
+      name: "JinMing Lab",
       url: "https://vantaapi.com",
     },
     inLanguage: current.name,

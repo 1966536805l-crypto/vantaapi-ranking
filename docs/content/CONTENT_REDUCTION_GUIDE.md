@@ -1,30 +1,30 @@
-# VantaAPI Content Reduction Guide
+# JinMing Lab Content Reduction Guide
 
 Owner: OpenClaw
 Scope: brand, product copy, content hierarchy, and release-readiness review. This guide does not define backend API behavior or page implementation details.
 
 ## Decision
 
-Use **VantaAPI** as the public product brand.
+Use **JinMing Lab** as the public product brand.
 
 Reasons:
 
 - The production domain is `vantaapi.com`.
-- The current repository and security docs already use VantaAPI in several release-facing places.
+- The public UI now uses JinMing Lab while keeping the production domain on `vantaapi.com`.
 - A single product name is easier to remember, search, and trust.
 
 ## Brand rules
 
 Use:
 
-- VantaAPI
-- VantaAPI AI Tools
-- VantaAPI Coding Lab
+- JinMing Lab
+- JinMing Lab AI Tools
+- JinMing Lab Coding Lab
 
 Avoid in public UI and SEO metadata:
 
 - VantaAPI
-- VantaAPI AI Coding Lab
+- Immortal Study
 - immortal
 - vantaapi-ranking
 
@@ -58,7 +58,7 @@ Secondary modules can remain discoverable through lower-priority links, search, 
 Chinese UI:
 
 ```text
-VantaAPI
+JinMing Lab
 AI 工具与编程实验室
 
 一个面向零基础学习者和独立开发者的 AI 工具与编程训练平台。
@@ -72,7 +72,7 @@ AI 工具与编程实验室
 English UI:
 
 ```text
-VantaAPI
+JinMing Lab
 AI Tools & Coding Lab
 
 A focused AI tools and programming practice platform for beginners and independent developers.
@@ -213,7 +213,7 @@ Avoid:
 
 Before public launch, confirm:
 
-- Public brand is VantaAPI across homepage, tool pages, metadata, and footer.
+- Public brand is JinMing Lab across homepage, tool pages, metadata, and footer.
 - Homepage hero mentions only AI tools, coding practice, and roadmaps.
 - Unfinished routes are hidden from primary navigation.
 - Large exact content-count claims are removed or softened.

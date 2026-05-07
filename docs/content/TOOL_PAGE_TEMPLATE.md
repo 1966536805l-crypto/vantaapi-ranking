@@ -1,6 +1,6 @@
 # Tool Page Content Template
 
-Use this template for VantaAPI tool pages. Keep it concise and useful.
+Use this template for JinMing Lab tool pages. Keep it concise and useful.
 
 ## Hero
 

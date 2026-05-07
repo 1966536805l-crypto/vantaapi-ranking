@@ -36,7 +36,7 @@ OpenClaw should avoid implementing frontend/backend changes unless explicitly re
 
 ## Shared decision
 
-Public brand: **VantaAPI**.
+Public brand: **JinMing Lab**.
 
 Homepage core:
 

@@ -11,7 +11,7 @@ const requiredFiles = [
 ];
 
 const requiredPhrases = [
-  "Use **VantaAPI** as the public product brand.",
+  "Use **JinMing Lab** as the public product brand.",
   "AI tools",
   "Programming practice",
   "Learning roadmaps",
@@ -50,7 +50,7 @@ for (const phrase of requiredPhrases) {
   else fail(`guide missing: ${phrase}`);
 }
 
-const forbiddenPublicBrandExamples = ["JinMing Lab", "immortal", "vantaapi-ranking"];
+const forbiddenPublicBrandExamples = ["VantaAPI", "immortal", "vantaapi-ranking"];
 for (const phrase of forbiddenPublicBrandExamples) {
   if (guide.includes(`Avoid in public UI`) && guide.includes(phrase)) ok(`guide documents deprecated brand: ${phrase}`);
   else fail(`guide does not document deprecated brand: ${phrase}`);

@@ -21,7 +21,7 @@ export default async function StudyShell({ children }: { children: React.ReactNo
             <Link href="/" className="flex items-center gap-3">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-950 text-[10px] font-semibold text-white shadow-sm">VA</span>
               <span>
-                <span className="block font-semibold leading-none">VantaAPI</span>
+                <span className="block font-semibold leading-none">JinMing Lab</span>
                 <span className="text-xs text-[color:var(--muted)]">AI tools and coding lab</span>
               </span>
             </Link>

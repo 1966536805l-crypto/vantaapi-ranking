@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Production launch gate for VantaAPI.
+ * Production launch gate for JinMing Lab.
  * It checks only safe metadata and environment variable shape; it never prints secret values.
  */
 
@@ -98,7 +98,7 @@ function includesAny(file, patterns) {
   return patterns.some((pattern) => pattern.test(body));
 }
 
-console.log("🚀 VantaAPI prelaunch gate\n");
+console.log("🚀 JinMing Lab prelaunch gate\n");
 
 checkSecret("JWT_SECRET", { min: 32 });
 checkSecret("CSRF_SECRET", { min: 64, hex: true });
@@ -129,7 +129,7 @@ for (const base of ["app", "components", "lib"]) {
       if (entry.isDirectory()) stack.push(full);
       else if (/\.(ts|tsx|css|md)$/.test(entry.name)) {
         const body = fs.readFileSync(full, "utf8");
-        if (/JinMing|JinMing Lab|\bJM\b|immortal/.test(body)) {
+        if (/Immortal|immortal/.test(body)) {
           publicBrandResidue.push(path.relative(root, full));
         }
       }
@@ -140,7 +140,7 @@ for (const base of ["app", "components", "lib"]) {
 if (publicBrandResidue.length) {
   bad("brand:public-residue", `cleanup needed in ${Array.from(new Set(publicBrandResidue)).slice(0, 12).join(", ")}`);
 } else {
-  ok("brand:public-residue", "no JinMing/JM/immortal residue in app, components, or lib");
+  ok("brand:public-residue", "no Immortal brand residue in app, components, or lib");
 }
 
 console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);

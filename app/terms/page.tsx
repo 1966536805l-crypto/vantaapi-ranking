@@ -9,7 +9,7 @@ const copy = {
     title: "Terms of Service",
     updated: "Last updated · 2026-05-06",
     sections: [
-      ["Scope", "VantaAPI provides AI tools coding practice and learning utilities"],
+      ["Scope", "JinMing Lab provides AI tools coding practice and learning utilities"],
       ["Responsibility", "Use the tools lawfully and do not submit harmful or infringing content"],
       ["Content", "Unsafe, illegal or abusive content may be removed"],
       ["Privacy", "Information is handled according to the privacy policy"],
@@ -21,7 +21,7 @@ const copy = {
     title: "服务条款",
     updated: "最后更新 · 2026-05-06",
     sections: [
-      ["范围", "VantaAPI 提供 AI 工具、编程练习和学习工具"],
+      ["范围", "JinMing Lab 提供 AI 工具、编程练习和学习工具"],
       ["责任", "请合法使用工具，不要提交有害或侵权内容"],
       ["内容", "不安全、违法或滥用性质的内容可能会被移除"],
       ["隐私", "信息按隐私政策处理"],
