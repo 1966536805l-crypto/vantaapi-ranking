@@ -2181,6 +2181,109 @@ body:has(.home-audit-page) .global-search-trigger {
   margin-top: 12px;
 }
 
+.repo-command-board {
+  margin-top: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.04), rgba(255, 255, 255, 0.78)),
+    rgba(255, 255, 255, 0.82);
+  padding: 12px;
+}
+
+.repo-command-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.repo-command-head h3 {
+  margin-top: 5px;
+  color: #0f172a;
+  font-size: 19px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.repo-command-head span {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.repo-command-head a {
+  flex: 0 0 auto;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  background: #0f172a;
+  color: white;
+  padding: 8px 11px;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.repo-command-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.repo-command-grid button {
+  min-width: 0;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 11px;
+  text-align: left;
+  transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+}
+
+.repo-command-grid button:hover {
+  border-color: rgba(0, 113, 227, 0.28);
+  background: rgba(0, 113, 227, 0.06);
+  transform: translateY(-1px);
+}
+
+.repo-command-grid span {
+  display: inline-grid;
+  min-width: 28px;
+  min-height: 24px;
+  place-items: center;
+  border-radius: 8px;
+  background: #0f172a;
+  color: white;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.repo-command-grid strong {
+  display: block;
+  overflow: hidden;
+  margin-top: 10px;
+  color: #0f172a;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.repo-command-grid em {
+  display: block;
+  overflow: hidden;
+  margin-top: 6px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+}
+
 .repo-action-panel h3 {
   margin-top: 5px;
   font-size: 18px;
@@ -2773,9 +2876,14 @@ body:has(.home-audit-page) .global-search-trigger {
   .repo-priority-grid,
   .repo-evidence-grid,
   .repo-audit-brief,
+  .repo-command-grid,
   .repo-action-panel,
   .repo-verdict {
     grid-template-columns: 1fr;
+  }
+
+  .repo-command-head {
+    flex-direction: column;
   }
 
   .repo-score {

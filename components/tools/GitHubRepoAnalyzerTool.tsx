@@ -486,12 +486,10 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
       { badge: `${analysis.launchScore.score}`, title: zh ? `${riskLevelLabel(analysis.launchScore.riskLevel, true)}风险结论` : `${analysis.launchScore.riskLevel} risk verdict`, content: analysis.launchScore.summary },
       { badge: "01", title: zh ? "必须修" : "Must fix", content: numberedList(analysis.mustFix) },
       { badge: "02", title: zh ? "GitHub Issues" : "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
-      { badge: "03", title: zh ? "证据" : "Evidence", content: findingList(analysis.issueFindings) },
-      { badge: "04", title: zh ? "PR 描述" : "PR description", content: analysis.prDescription },
-      { badge: "05", title: zh ? "发布清单" : "Release checklist", content: numberedList(analysis.releaseChecklist) },
-      { badge: "06", title: zh ? "环境变量清单" : "Environment checklist", content: bulletList(analysis.envChecklist) },
-      { badge: "07", title: zh ? "README 优化" : "README upgrades", content: bulletList(analysis.readmeSuggestions) },
-      { badge: "08", title: zh ? "PR 检查清单" : "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
+      { badge: "03", title: zh ? "PR 描述" : "PR description", content: analysis.prDescription },
+      { badge: "04", title: zh ? "发布清单" : "Release checklist", content: numberedList(analysis.releaseChecklist) },
+      { badge: "05", title: zh ? "证据" : "Evidence", content: findingList(analysis.issueFindings) },
+      { badge: "06", title: zh ? "README 优化" : "README upgrades", content: bulletList(analysis.readmeSuggestions) },
     ];
   }, [analysis, zh]);
 
@@ -689,6 +687,40 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
             <p className="eyebrow">{zh ? "质量门禁" : "Quality Gates"}</p>
             <strong>{qualityGates[0]}</strong>
             <span>{qualityGates.slice(1).join(" · ")}</span>
+          </div>
+        </section>
+      )}
+      {analysis && (
+        <section className="repo-command-board">
+          <div className="repo-command-head">
+            <div>
+              <p className="eyebrow">{zh ? "先做这些" : "Do this first"}</p>
+              <h3>{zh ? "把体检报告变成 GitHub 任务" : "Turn the audit into GitHub work"}</h3>
+              <span>{actionStatus || (zh ? "复制后可以直接贴进 GitHub Issues PR 描述或发布说明" : "Copy straight into GitHub Issues PR descriptions or release notes")}</span>
+            </div>
+            <a href={analysis.repository.url} target="_blank" rel="noreferrer">{zh ? "打开仓库" : "Open repo"}</a>
+          </div>
+          <div className="repo-command-grid">
+            <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), zh ? "先修清单已复制" : "Must fix copied")}>
+              <span>01</span>
+              <strong>{zh ? "复制先修清单" : "Copy must fix"}</strong>
+              <em>{analysis.mustFix.length} {zh ? "项" : "items"}</em>
+            </button>
+            <button type="button" onClick={() => copyAuditText(issueBundle, zh ? "Issues 已复制" : "Issues copied")}>
+              <span>02</span>
+              <strong>{zh ? "复制 GitHub Issues" : "Copy GitHub issues"}</strong>
+              <em>{analysis.copyableIssues.length} {zh ? "个草稿" : "drafts"}</em>
+            </button>
+            <button type="button" onClick={() => copyAuditText(prDescription, zh ? "PR 描述已复制" : "PR description copied")}>
+              <span>03</span>
+              <strong>{zh ? "复制 PR 描述" : "Copy PR description"}</strong>
+              <em>{zh ? "可直接粘贴" : "paste ready"}</em>
+            </button>
+            <button type="button" onClick={() => copyAuditText(releaseBundle, zh ? "发布清单已复制" : "Checklist copied")}>
+              <span>04</span>
+              <strong>{zh ? "复制发布清单" : "Copy release checklist"}</strong>
+              <em>{analysis.releaseChecklist.length} {zh ? "步" : "steps"}</em>
+            </button>
           </div>
         </section>
       )}
