@@ -40,8 +40,8 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
             </div>
             <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
               {language === "zh"
-                ? "听发音后输入英文 单词和句子都必须打对才过关 错了自动重听"
-                : "Listen then type English words and sentences. Wrong answers stay on the same item."}
+                ? "听发音后输入英文 · 实时验证 · 拼对过关 · 本地进度"
+                : "Listen then type English · Real-time feedback · Spell to pass · Local progress"}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {(language === "zh" ? ["听音", "盲打", "错了重听", "本地进度"] : ["listen", "type", "retry", "local progress"]).map((item) => (
@@ -59,8 +59,8 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
             </div>
             <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
               {language === "zh"
-                ? "自己添加单词 释义 例句 标签 并进入四选一和艾宾浩斯复习"
-                : "Add your own words meanings examples and tags then train them with four choice and Ebbinghaus review"}
+                ? "自建词库 · 批量导入 · 本机保存 · 四选一训练 · 艾宾浩斯复习"
+                : "Custom wordbook · Bulk import · Local storage · Four-choice drill · Ebbinghaus review"}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {(language === "zh" ? ["自建词库", "批量导入", "本机保存", "直接训练"] : ["custom", "bulk import", "local", "train"]).map((item) => (
