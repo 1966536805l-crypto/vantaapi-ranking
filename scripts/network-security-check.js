@@ -30,6 +30,10 @@ for (const [name, pattern] of Object.entries({
   "proxy:body-limit": "bodySizeGuard",
   "proxy:cross-site": "crossSiteGuard",
   "proxy:security-header": "X-Security-Mode",
+  "proxy:fingerprint-rate": "fingerprintRateGuard",
+  "proxy:content-type": "contentTypeGuard",
+  "proxy:query-shape": "queryShapeGuard",
+  "proxy:emergency-write": "emergencyWriteGuard",
 })) {
   add(has(proxy, pattern) ? "pass" : "fail", name, has(proxy, pattern) ? "present" : "missing");
 }
@@ -38,6 +42,8 @@ for (const [name, pattern] of Object.entries({
   "bot:sensitive-probes": "sensitivePathPattern",
   "bot:traversal": "traversalPattern",
   "bot:injection": "injectionProbePattern",
+  "bot:metadata-probe": "cloudMetadataPattern",
+  "bot:encoded-probe": "encodedProbePattern",
   "bot:trap": "trapPaths",
   "bot:trusted-crawlers": "trustedCrawlerPattern",
 })) {

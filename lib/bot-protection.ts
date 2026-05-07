@@ -24,6 +24,8 @@ const sensitivePathPattern =
 
 const traversalPattern = /(?:%2e%2e|\.\.|%00|%5c|\\|\/\/{2,})/i;
 const injectionProbePattern = /\b(?:union\s+select|select\s+.+\s+from|sleep\s*\(|benchmark\s*\(|<script|onerror\s*=|javascript:|base64_decode|cmd=|exec=)\b/i;
+const cloudMetadataPattern = /(?:169\.254\.169\.254|metadata\.google\.internal|latest\/meta-data|computeMetadata)/i;
+const encodedProbePattern = /(?:%3cscript|%27%20or%20|%22%20or%20|%252e%252e|%2fetc%2fpasswd|%3bcat%20)/i;
 
 const trapPaths = new Set([
   "/__crawler-trap",
@@ -143,6 +145,11 @@ export function evaluateBotRequest(request: NextRequest, pathname: string): BotV
       : { action: "throttle", reason: "injection-probe", score: rollingScore, trustedCrawler };
   }
 
+  if (cloudMetadataPattern.test(rawUrl) || encodedProbePattern.test(rawUrl)) {
+    trapHits.set(ip, currentTime + 6 * 60 * 60_000);
+    return { action: "block", reason: "high-risk-probe", score: 10, trustedCrawler };
+  }
+
   if (trustedCrawler && !isApi && !isUnsafe) {
     return { action: "allow", reason: "trusted-crawler-readonly", score: 0, trustedCrawler };
   }
@@ -183,6 +190,11 @@ export function evaluateBotRequest(request: NextRequest, pathname: string): BotV
   if (isUnsafe && !request.headers.get("origin") && !request.headers.get("referer")) {
     score += 2;
     reasons.push("unsafe-without-origin");
+  }
+
+  if (isUnsafe && request.headers.get("content-length") === "0") {
+    score += 1;
+    reasons.push("empty-unsafe-body");
   }
 
   if (score === 0) return { action: "allow", reason: "normal", score, trustedCrawler };

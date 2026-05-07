@@ -16,8 +16,39 @@ const expensiveApiRules = [
   { prefix: "/api/cpp/run", normal: 30, elevated: 16, emergency: 8, windowMs: 60_000 },
 ];
 
+const jsonWriteApiPrefixes = [
+  "/api/ai",
+  "/api/ai-review",
+  "/api/ai/analyze-mistake",
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/cpp",
+  "/api/progress",
+  "/api/quiz/submit",
+  "/api/report",
+  "/api/reports",
+  "/api/wrong",
+];
+
+const emergencyWritableApiPrefixes = [
+  "/api/auth/login",
+  "/api/auth/logout",
+  "/api/auth/2fa",
+  "/api/csrf",
+  "/api/ai/coach",
+];
+
 function getClientIp(request: NextRequest) {
   return getBotClientIp(request);
+}
+
+function stableHash(value: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
 }
 
 function securityMode(): SecurityMode {
@@ -140,10 +171,49 @@ function bodySizeGuard(request: NextRequest, pathname: string) {
   const contentLength = Number(request.headers.get("content-length") || "0");
   if (!Number.isFinite(contentLength)) return jsonError("Invalid content length", 400);
 
-  const maxBytes = pathname.startsWith("/api/admin") ? 128 * 1024 : 64 * 1024;
+  const maxBytes = pathname.startsWith("/api/admin")
+    ? 96 * 1024
+    : pathname.startsWith("/api/ai")
+      ? 12 * 1024
+      : pathname.startsWith("/api/auth")
+        ? 8 * 1024
+        : 48 * 1024;
   if (contentLength > maxBytes) return jsonError("Request body too large", 413);
 
   return null;
+}
+
+function queryShapeGuard(request: NextRequest) {
+  const params = request.nextUrl.searchParams;
+  if (params.size > 32) return jsonError("Too many query parameters", 400);
+
+  for (const [key, value] of params.entries()) {
+    if (key.length > 80 || value.length > 900) return jsonError("Query parameter too large", 400);
+    if (/^(?:redirect|return|next|url|callback|continue)$/i.test(key) && /^https?:\/\//i.test(value)) {
+      return jsonError("External redirect blocked", 400);
+    }
+  }
+
+  return null;
+}
+
+function contentTypeGuard(request: NextRequest, pathname: string) {
+  if (safeMethods.has(request.method)) return null;
+  const expectsJson = jsonWriteApiPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  if (!expectsJson) return null;
+
+  const contentType = request.headers.get("content-type") || "";
+  if (!contentType.toLowerCase().includes("application/json")) {
+    return jsonError("Content-Type must be application/json", 415);
+  }
+
+  return null;
+}
+
+function emergencyWriteGuard(request: NextRequest, pathname: string) {
+  if (securityMode() !== "emergency" || safeMethods.has(request.method) || !pathname.startsWith("/api/")) return null;
+  const allowed = emergencyWritableApiPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  return allowed ? null : jsonError("Temporarily protected", 503, { "Retry-After": "120" });
 }
 
 function globalRateGuard(request: NextRequest, botVerdict: BotVerdict) {
@@ -155,6 +225,24 @@ function globalRateGuard(request: NextRequest, botVerdict: BotVerdict) {
       ? mode === "normal" ? 45 : mode === "elevated" ? 25 : 12
       : mode === "normal" ? 360 : mode === "elevated" ? 180 : 72;
   const bucket = rateLimit(`global:${ip}`, maxRequests, 60_000);
+  return bucket.allowed ? null : rateLimitResponse(bucket);
+}
+
+function fingerprintRateGuard(request: NextRequest, botVerdict: BotVerdict) {
+  if (botVerdict.trustedCrawler) return null;
+
+  const mode = securityMode();
+  const unsafe = !safeMethods.has(request.method);
+  const fingerprint = stableHash([
+    request.headers.get("user-agent") || "",
+    request.headers.get("accept-language") || "",
+    request.headers.get("accept") || "",
+    request.headers.get("sec-ch-ua-platform") || "",
+  ].join("|"));
+  const limit = unsafe
+    ? mode === "normal" ? 180 : mode === "elevated" ? 80 : 32
+    : mode === "normal" ? 720 : mode === "elevated" ? 320 : 120;
+  const bucket = rateLimit(`fingerprint:${fingerprint}:${unsafe ? "write" : "read"}`, limit, 60_000);
   return bucket.allowed ? null : rateLimitResponse(bucket);
 }
 
@@ -229,6 +317,12 @@ export function proxy(request: NextRequest) {
   const globalRateBlocked = globalRateGuard(request, botVerdict);
   if (globalRateBlocked) return withSecurityHeaders(globalRateBlocked, botVerdict);
 
+  const fingerprintRateBlocked = fingerprintRateGuard(request, botVerdict);
+  if (fingerprintRateBlocked) return withSecurityHeaders(fingerprintRateBlocked, botVerdict);
+
+  const queryBlocked = queryShapeGuard(request);
+  if (queryBlocked) return queryBlocked;
+
   const pageRateBlocked = pageRateGuard(request, pathname, botVerdict);
   if (pageRateBlocked) return pageRateBlocked;
 
@@ -240,8 +334,14 @@ export function proxy(request: NextRequest) {
     const bodyBlocked = bodySizeGuard(request, pathname);
     if (bodyBlocked) return bodyBlocked;
 
+    const contentTypeBlocked = contentTypeGuard(request, pathname);
+    if (contentTypeBlocked) return contentTypeBlocked;
+
     const crossSiteBlocked = crossSiteGuard(request);
     if (crossSiteBlocked) return crossSiteBlocked;
+
+    const emergencyBlocked = emergencyWriteGuard(request, pathname);
+    if (emergencyBlocked) return emergencyBlocked;
 
     const expensiveApiBlocked = expensiveApiGuard(request, pathname);
     if (expensiveApiBlocked) return expensiveApiBlocked;
