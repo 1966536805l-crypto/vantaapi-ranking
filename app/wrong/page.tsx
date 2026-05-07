@@ -9,13 +9,38 @@ export const dynamic = "force-dynamic";
 export default async function WrongPage() {
   const user = await requireServerUser();
   const items = await prisma.wrongQuestion.findMany({ where: { userId: user.id }, include: { question: { include: { lesson: { include: { course: true } } } } }, orderBy: { createdAt: "desc" } });
+  const englishCount = items.filter((item) => item.question.lesson.course.direction === "ENGLISH").length;
+  const cppCount = items.filter((item) => item.question.lesson.course.direction === "CPP").length;
+  const firstReviewHref = items[0]
+    ? `/learn/${items[0].question.lesson.course.direction === "ENGLISH" ? "english" : "cpp"}/${items[0].question.lesson.course.slug}/${items[0].question.lesson.slug}`
+    : "/english";
 
   return (
     <StudyShell>
       <section className="apple-card soft-gradient p-5">
         <p className="eyebrow">Wrong Questions</p>
-        <h1 className="mt-3 font-serif text-4xl">错题收藏</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--muted)]">做错或手动收藏的题会集中在这里，适合复习前快速扫一遍。</p>
+        <h1 className="mt-3 font-serif text-4xl">错题复习中心</h1>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--muted)]">错题不是垃圾桶，是下一轮学习计划。先看题目，回忆答案，再展开解析，最后回到知识点重练。</p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link href={firstReviewHref} className="apple-button-primary px-4 py-2 text-sm">从最近错题开始</Link>
+          <Link href="/today" className="apple-button-secondary px-4 py-2 text-sm">回到今日计划</Link>
+          <Link href="/progress" className="apple-button-secondary px-4 py-2 text-sm">查看进度</Link>
+        </div>
+      </section>
+
+      <section className="mt-4 grid gap-3 md:grid-cols-3">
+        <ReviewStat label="全部错题" value={items.length} />
+        <ReviewStat label="英语" value={englishCount} />
+        <ReviewStat label="C++" value={cppCount} />
+      </section>
+
+      <section className="mt-4 apple-card p-5">
+        <p className="eyebrow">Review Loop</p>
+        <div className="mt-3 grid gap-2 text-sm md:grid-cols-3">
+          <span className="dense-row"><strong>1. 先遮住答案</strong><small className="text-[color:var(--muted)]">自己回忆一次</small></span>
+          <span className="dense-row"><strong>2. 看解析</strong><small className="text-[color:var(--muted)]">找出错因</small></span>
+          <span className="dense-row"><strong>3. 回知识点</strong><small className="text-[color:var(--muted)]">重做相关练习</small></span>
+        </div>
       </section>
 
       <div className="mt-5 space-y-3">
@@ -47,11 +72,23 @@ export default async function WrongPage() {
         })}
         {items.length === 0 && (
           <div className="apple-card border-dashed p-7 text-center">
-            <p className="text-[color:var(--muted)]">还没有错题</p>
-            <Link href="/english" className="apple-button-primary mt-5 px-4 py-2 text-sm">去学习</Link>
+            <p className="text-[color:var(--muted)]">还没有错题。先完成一组英语或 C++ 练习，错题会自动进入这里。</p>
+            <div className="mt-5 flex justify-center gap-2">
+              <Link href="/english" className="apple-button-primary px-4 py-2 text-sm">去学英语</Link>
+              <Link href="/cpp" className="apple-button-secondary px-4 py-2 text-sm">去学 C++</Link>
+            </div>
           </div>
         )}
       </div>
     </StudyShell>
+  );
+}
+
+function ReviewStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="apple-card p-4">
+      <p className="eyebrow">{label}</p>
+      <p className="mt-2 font-serif text-4xl">{value}</p>
+    </div>
   );
 }
