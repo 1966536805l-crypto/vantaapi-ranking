@@ -1,18 +1,19 @@
 # JinMing Lab
 
-JinMing Lab is a focused AI tools and programming practice platform.
+JinMing Lab is a focused GitHub launch audit and AI developer tools platform.
 
 The product direction is now:
 
-- AI tools for prompts code explanation bug diagnosis API snippets and developer utilities
-- Coding practice for zero foundation learners and independent developers
-- Learning roadmaps that turn a direction into a practical daily plan
+- GitHub Launch Audit as the main public product
+- AI developer utilities for prompts API snippets JSON regex timestamps and roadmaps
+- Programming practice as a secondary learning lane
 
 English and legacy learning modules can remain available, but they are secondary to the main positioning.
 
 ## MVP Scope
 
-- Public AI tools page with six practical tools
+- Public GitHub Launch Audit with scorecard evidence P0/P1/P2 findings issue drafts PR description and release checklist
+- Public AI tools page with practical developer utilities
 - Programming learning paths and practice workbenches
 - Login, dashboard, progress, wrong answer review and admin CRUD
 - Security baseline with auth cookies, password hashing, rate limits, Turnstile support, security headers, robots and sitemap
@@ -100,6 +101,40 @@ npm run lint
 npm run build
 npx prisma validate
 ```
+
+## Production Launch Gate
+
+Before public launch, configure these in Vercel Production environment variables:
+
+```bash
+DATABASE_URL="postgresql://..."
+JWT_SECRET="..."
+CSRF_SECRET="..."
+ENCRYPTION_KEY="..."
+NEXT_PUBLIC_TURNSTILE_SITE_KEY="..."
+TURNSTILE_SECRET_KEY="..."
+AUTH_TURNSTILE_REQUIRED="true"
+AI_API_KEY="..."
+ENABLE_CPP_RUNNER="false"
+ADMIN_2FA_REQUIRED="true"
+```
+
+Recommended:
+
+```bash
+REDIS_URL="..."
+ENABLE_REDIS_RATE_LIMITS="true"
+GITHUB_READ_TOKEN="..."
+```
+
+Then run:
+
+```bash
+npm run launch:check
+npm run build
+```
+
+`launch:check` does not print secret values. If it fails, it prints the next launch actions to fix in Vercel, Cloudflare, or the database provider.
 
 ## Admin
 
