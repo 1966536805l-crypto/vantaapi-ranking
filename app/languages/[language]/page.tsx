@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { WorldLanguageStarterTrainer } from "@/components/learning/WorldLanguageStarterTrainer";
 import {
   worldLanguages,
   worldLanguageStarterPlan,
@@ -75,6 +76,11 @@ export default async function WorldLanguageDetailPage({ params }: WorldLanguageP
     .filter((item) => item.family === current.family && item.slug !== current.slug)
     .slice(0, 8);
   const survivalPhrases = worldLanguageSurvivalPhrases[current.slug];
+  const trainerPhrases = survivalSlots.map((slot, index) => ({
+    key: slot.key,
+    label: slot.zh,
+    text: survivalPhrases?.[slot.key] ?? current.firstLesson[index] ?? slot.fallback,
+  }));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -163,6 +169,13 @@ export default async function WorldLanguageDetailPage({ params }: WorldLanguageP
             </p>
           </article>
         </section>
+
+        <WorldLanguageStarterTrainer
+          languageSlug={current.slug}
+          nativeName={current.nativeName}
+          languageName={current.name}
+          phrases={trainerPhrases}
+        />
 
         <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="dense-panel dense-grid-bg p-5">
