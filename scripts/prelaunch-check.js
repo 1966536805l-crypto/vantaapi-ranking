@@ -418,6 +418,29 @@ function checkRetiredApiResponses() {
   }
 }
 
+function checkRetiredPageRedirects() {
+  const retiredPages = {
+    "app/games/page.tsx": ["/", "/tools/github-repo-analyzer"],
+    "app/projects/page.tsx": ["/", "/tools/github-repo-analyzer"],
+    "app/questions/page.tsx": ["/", "/tools/github-repo-analyzer"],
+    "app/report/page.tsx": ["/tools/github-repo-analyzer"],
+  };
+  const weak = [];
+
+  for (const [file, allowedTargets] of Object.entries(retiredPages)) {
+    const body = read(file);
+    const redirectsToAllowedTarget = allowedTargets.some((target) => body.includes(`redirect("${target}")`) || body.includes(`redirect('${target}')`));
+    if (!redirectsToAllowedTarget) weak.push(file);
+  }
+
+  if (weak.length) {
+    action("Retarget retired public pages", "Retired public pages should redirect to the homepage or GitHub Launch Audit, not old learning, ranking, project, or account surfaces.");
+    bad("pages:retired-redirects", `retired pages need safer redirects in ${weak.join(", ")}`);
+  } else {
+    ok("pages:retired-redirects", "retired public pages redirect to the focused product surface");
+  }
+}
+
 async function main() {
   console.log("🚀 JinMing Lab prelaunch gate\n");
   if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
@@ -449,6 +472,7 @@ async function main() {
   checkBrandResidue();
   checkRetiredPublicSurface();
   checkRetiredApiResponses();
+  checkRetiredPageRedirects();
 
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (launchActions.length) {

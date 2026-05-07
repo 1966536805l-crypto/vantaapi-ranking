@@ -1,2 +1,2 @@
 import { redirect } from "next/navigation";
-export default function QuestionsPage() { redirect("/learn/cpp"); }
+export default function QuestionsPage() { redirect("/tools/github-repo-analyzer"); }
