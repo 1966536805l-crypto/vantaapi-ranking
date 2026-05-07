@@ -522,6 +522,7 @@ function GitHubRepoAnalyzer() {
   const [loading, setLoading] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
   const [actionStatus, setActionStatus] = useState("");
+  const [runStatus, setRunStatus] = useState("Ready to audit");
 
   const output = useMemo(() => formatGitHubRepoOutput(analysis, error), [analysis, error]);
   const issueBundle = useMemo(() => analysis?.copyableIssues.join("\n\n---\n\n") || "", [analysis]);
@@ -579,16 +580,19 @@ function GitHubRepoAnalyzer() {
     }
   }
 
-  async function analyzeRepo() {
-    const trimmed = url.trim();
+  async function analyzeRepo(targetUrl = url) {
+    const trimmed = targetUrl.trim();
     if (!trimmed) {
       setError("Repository URL is required");
       setAnalysis(null);
+      setRunStatus("URL required");
       return;
     }
 
+    setUrl(trimmed);
     setLoading(true);
     setError("");
+    setRunStatus("Reading public repo signals");
     try {
       const response = await fetch("/api/tools/github-repo-analyzer", {
         method: "POST",
@@ -600,13 +604,20 @@ function GitHubRepoAnalyzer() {
         throw new Error(data.error || data.message || "Could not run repository launch audit");
       }
       setAnalysis(data.analysis);
+      setRunStatus(`Audit complete ${data.analysis.launchScore.score}/100`);
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     } catch (caught) {
       setAnalysis(null);
-      setError(caught instanceof Error ? caught.message : "Could not run repository launch audit");
+      const message = caught instanceof Error ? caught.message : "Could not run repository launch audit";
+      setError(message);
+      setRunStatus(message);
     } finally {
       setLoading(false);
     }
+  }
+
+  function runSampleAudit() {
+    void analyzeRepo(sampleRepoUrl);
   }
 
   return (
@@ -616,8 +627,11 @@ function GitHubRepoAnalyzer() {
       blocks={blocks}
       actions={
         <>
-          <button type="button" className="dense-action-primary" onClick={analyzeRepo} disabled={loading}>
+          <button type="button" className="dense-action-primary" onClick={() => void analyzeRepo()} disabled={loading}>
             {loading ? "Auditing repo" : "Run launch audit"}
+          </button>
+          <button type="button" className="dense-action" onClick={runSampleAudit} disabled={loading}>
+            Try sample audit
           </button>
           {analysis && (
             <>
@@ -633,6 +647,9 @@ function GitHubRepoAnalyzer() {
               <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, "Checklist copied")}>
                 Copy checklist
               </button>
+              <a className="dense-action" href={analysis.repository.url} target="_blank" rel="noreferrer">
+                Open repo
+              </a>
             </>
           )}
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
@@ -690,6 +707,14 @@ function GitHubRepoAnalyzer() {
           </div>
         </section>
       )}
+      <section className="repo-flow-strip">
+        {["Repo", "README", "env", "CI", "Deploy", "Issues"].map((item, index) => (
+          <span key={item} className={loading && index > 0 ? "repo-flow-pending" : ""}>
+            {item}
+          </span>
+        ))}
+        <strong>{runStatus}</strong>
+      </section>
       <label className="block">
         <span className="tool-label">GitHub URL</span>
         <input
