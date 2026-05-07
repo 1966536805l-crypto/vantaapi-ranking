@@ -33,7 +33,7 @@ function toolJsonLd(tool: ToolDefinition) {
         },
         publisher: {
           "@type": "Organization",
-          name: "JinMing Lab",
+          name: "VantaAPI",
           url: "https://vantaapi.com",
         },
       },
@@ -56,21 +56,21 @@ export async function generateMetadata({ params }: ToolRouteProps): Promise<Meta
   const { slug } = await params;
   const tool = getToolDefinition(slug);
   return {
-    title: `${tool.title} - JinMing Lab`,
+    title: `${tool.title} - VantaAPI`,
     description: `${tool.description}. ${tool.promise}.`,
     alternates: {
       canonical: `/tools/${tool.slug}`,
     },
     openGraph: {
-      title: `${tool.title} - JinMing Lab`,
+      title: `${tool.title} - VantaAPI`,
       description: `${tool.description}. ${tool.promise}.`,
       url: toolUrl(tool),
-      siteName: "JinMing Lab",
+      siteName: "VantaAPI",
       type: "website",
     },
     twitter: {
       card: "summary",
-      title: `${tool.title} - JinMing Lab`,
+      title: `${tool.title} - VantaAPI`,
       description: `${tool.description}. ${tool.promise}.`,
     },
   };

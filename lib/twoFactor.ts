@@ -4,8 +4,8 @@ import { decrypt, encrypt } from "@/lib/encryption";
 
 export function generate2FASecret(email: string) {
   const secret = speakeasy.generateSecret({
-    name: `JinMing Lab (${email})`,
-    issuer: "JinMing Lab",
+    name: `VantaAPI (${email})`,
+    issuer: "VantaAPI",
   });
 
   return {

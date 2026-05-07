@@ -4,7 +4,7 @@ import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/lan
 import { programmingLanguages, type ProgrammingLanguage, type ProgrammingLanguageSlug } from "@/lib/programming-content";
 
 export const metadata = {
-  title: "Programming Language Learning Lab - JinMing Lab",
+  title: "Programming Language Learning Lab - VantaAPI",
   description: "Zero foundation programming paths with beginner concepts tutorials drills hints answers and practice workbenches",
 };
 

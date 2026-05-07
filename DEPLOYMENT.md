@@ -18,10 +18,14 @@
 ### 必填 `.env`
 
 ```env
-DATABASE_URL=mysql://<db_user>:<strong-random-password>@127.0.0.1:3306/<db_name>
+DATABASE_URL=postgresql://<db_user>:<strong-random-password>@<db_host>:5432/<db_name>?sslmode=require
 JWT_SECRET=<generate-a-random-secret-at-least-32-chars>
 CSRF_SECRET=<generate-64-hex-chars>
 ENCRYPTION_KEY=<generate-64-hex-chars>
+AI_API_KEY=<server-side-ai-provider-token>
+AI_BASE_URL=https://api.deepseek.com/v1
+AI_MODEL=deepseek-chat
+GITHUB_READ_TOKEN=<github-read-token>
 NODE_ENV="production"
 NEXT_TELEMETRY_DISABLED="1"
 APP_ALLOWED_HOSTS="vantaapi.com,www.vantaapi.com"
@@ -49,8 +53,10 @@ TURNSTILE_SECRET_KEY="<your-turnstile-secret-key>"
 
 说明：
 
-- `DATABASE_URL` 必须使用生产随机强密码，不要复制任何文档示例密码。
+- `DATABASE_URL` 必须使用生产 Postgres/Neon 连接串和随机强密码，不要复制任何文档示例密码。
 - `JWT_SECRET`、`CSRF_SECRET`、`ENCRYPTION_KEY` 必须在生产环境重新生成；不要沿用 `.env.example` 或旧测试值。
+- `AI_API_KEY` 必须是服务器端 AI provider token；不要使用前端/public token。
+- `GITHUB_READ_TOKEN` 使用只读最小权限 token，用于 GitHub Repo Analyzer 配额和稳定性。
 - `APP_ALLOWED_HOSTS` 生产环境建议只包含正式域名，不要默认放行临时预览域名。
 - `ENABLE_CPP_RUNNER` 必须保持 `false`，除非你已经做了 Docker/worker 隔离、禁网络、限 CPU/内存/进程数、只读文件系统和超时强杀。
 
@@ -219,7 +225,10 @@ server {
 
 - [ ] `.env` 没有固定示例密码。
 - [ ] `APP_ALLOWED_HOSTS` 只包含正式生产域名。
-- [ ] 数据库只监听/只允许内网访问，云防火墙未开放 3306。
+- [ ] `npm run launch:check` 通过；它会连接生产数据库确认管理员 2FA 状态。
+- [ ] 数据库只允许生产应用访问；云防火墙未开放数据库端口到公网。
+- [ ] `AI_API_KEY`、`AI_BASE_URL`、`AI_MODEL` 已配置且只存在服务器端。
+- [ ] `GITHUB_READ_TOKEN` 已配置为只读最小权限 token。
 - [ ] Redis 未暴露公网；如公开上线，已配置 `REDIS_URL` 并开启 `ENABLE_REDIS_RATE_LIMITS=true`。
 - [ ] `ENABLE_CPP_RUNNER=false`。
 - [ ] 网站使用 HTTPS。
@@ -232,11 +241,10 @@ server {
 
 ## 仍需跟进的上线前安全任务
 
-1. 后台和关键写接口接入真正 CSRF token：`/api/admin/*`、`/api/wrong`、`/api/progress`、`/api/quiz/submit`。
-2. 启用管理员 2FA，至少先做 admin-only 2FA。
+1. 在生产后台确认所有管理员都已完成 2FA；`npm run launch:check` 会校验数据库状态。
+2. 确认 AI provider token 和 GitHub read token 未过期、权限最小化、未暴露到前端。
 3. 生产限流接 Redis，不依赖单进程内存 Map。
-4. CSP 从 `'unsafe-inline'` 逐步迁移到 nonce/hash。
-5. 如未来开放在线 C++ 运行，必须使用隔离 worker，不要在主站机器直接 `spawn("g++")`。
+4. 如未来开放在线 C++ 运行，必须使用隔离 worker，不要在主站机器直接 `spawn("g++")`。
 
 ---
 

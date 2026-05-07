@@ -13,7 +13,7 @@ export type ModuleItem = {
 
 const navCopy = {
   en: {
-    brand: "JinMing Lab",
+    brand: "VantaAPI",
     today: "Today",
     english: "English",
     programming: "Programming",
@@ -21,7 +21,7 @@ const navCopy = {
     dashboard: "Dashboard",
   },
   zh: {
-    brand: "JinMing Lab",
+    brand: "VantaAPI",
     today: "今日",
     english: "英语",
     programming: "编程",
