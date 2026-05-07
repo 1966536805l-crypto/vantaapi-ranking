@@ -4,10 +4,10 @@ import { getServerUser } from "@/lib/server-auth";
 import { worldLanguages } from "@/lib/world-language-content";
 
 export const metadata: Metadata = {
-  title: "VantaAPI - AI 工具 Prompt 优化 代码解释 编程学习",
+  title: "VantaAPI - AI 学习工具平台 英语 编程 AI 工具",
   description:
-    "VantaAPI 是面向零基础学习者和独立开发者的 AI 工具与编程训练平台，提供 Prompt 优化、代码解释、Bug 定位、API 请求生成和编程学习路线。",
-  keywords: ["AI 工具", "Prompt 优化", "代码解释", "Bug 定位", "API 请求生成", "编程学习", "零基础编程"],
+    "VantaAPI 是 AI 学习工具平台，聚焦英语学习、编程训练和 AI 工具，提供 AI Coach、代码解释、错题复盘和零基础学习路径。",
+  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "代码解释", "错题分析", "Prompt 优化"],
 };
 
 type HomeSearchParams = Promise<{ ui?: string | string[] }>;
@@ -17,6 +17,7 @@ type HomeCopy = {
   versions: string;
   tools: string;
   coding: string;
+  english: string;
   roadmap: string;
   login: string;
   logout: string;
@@ -46,39 +47,40 @@ const homeCopy: Record<string, HomeCopy> = {
     versions: "语言版本",
     tools: "AI 工具",
     coding: "编程训练",
-    roadmap: "学习路线",
+    english: "英语学习",
+    roadmap: "AI 工具",
     login: "登录",
     logout: "退出",
     admin: "后台",
-    eyebrow: "AI 工具与编程实验室",
+    eyebrow: "AI 学习工具平台",
     title: "VantaAPI",
-    description: "一个面向零基础学习者和独立开发者的 AI 工具与编程训练平台。用更清晰的提示词、更快的代码理解和更系统的练习路线，提升学习与开发效率。",
-    primaryCta: "开始使用 AI 工具",
+    description: "一句话讲清楚：这是一个把英语学习、编程训练和 AI 工具放在一起的学习平台。先做少量精品内容，再用 AI Coach、代码解释和错题复盘把学习闭环做深。",
+    primaryCta: "进入英语学习",
     secondaryCta: "进入编程训练",
-    tertiaryCta: "生成学习路线",
+    tertiaryCta: "打开 AI 工具",
     focus: "首页核心",
     ready: "可用",
     cards: [
       {
-        href: "/tools",
-        eyebrow: "工具",
-        title: "AI 工具",
-        body: "提示词优化、代码解释、Bug 定位、API 请求生成和开发常用工具。适合快速整理想法、读代码和排查问题。",
-        points: ["Prompt 优化", "代码解释", "Bug 定位"],
+        href: "/english?lang=zh",
+        eyebrow: "英语",
+        title: "英语学习",
+        body: "先保留词汇、打字、阅读和错题复盘这些高频场景。AI Coach 负责解释单词、拆句、纠错和给下一步训练建议。",
+        points: ["精品词汇", "打字听写", "AI Coach"],
       },
       {
         href: "/programming",
         eyebrow: "训练",
         title: "编程训练",
-        body: "零基础友好的编程练习入口。按语言和主题拆分教程、题型、提示和答案，适合每天推进一点。",
-        points: ["零基础友好", "分类练习", "AI 辅助学习"],
+        body: "把 Python、JavaScript、C++ 等核心语言做成可坚持的练习台。题型先分类，再配提示、答案和代码解释。",
+        points: ["零基础友好", "分类题库", "代码解释"],
       },
       {
-        href: "/tools/learning-roadmap",
-        eyebrow: "路线",
-        title: "学习路线",
-        body: "为前端、Python、自动化和独立开发生成可执行的阶段计划。先建立节奏，再进入具体训练。",
-        points: ["阶段计划", "每日任务", "持续更新"],
+        href: "/tools",
+        eyebrow: "AI",
+        title: "AI 工具",
+        body: "保留真正有用的工具：Prompt 优化、代码解释、Bug 定位、API 请求生成、学习路线和开发常用工具。",
+        points: ["Prompt 优化", "Bug 定位", "错题复盘"],
       },
     ],
   },
@@ -87,39 +89,40 @@ const homeCopy: Record<string, HomeCopy> = {
     versions: "Site Versions",
     tools: "AI Tools",
     coding: "Coding Practice",
-    roadmap: "Learning Roadmap",
+    english: "English Learning",
+    roadmap: "AI Tools",
     login: "Login",
     logout: "Logout",
     admin: "Admin",
-    eyebrow: "AI Tools & Coding Lab",
+    eyebrow: "AI Learning Tools Platform",
     title: "VantaAPI",
-    description: "An AI tools and coding practice platform for beginners and indie developers. Use clearer prompts, faster code understanding, and structured practice paths to learn and build with less friction.",
-    primaryCta: "Open AI Tools",
+    description: "VantaAPI is an AI learning tools platform focused on English learning, coding practice, and practical AI tools. The public version favors curated content over generated volume.",
+    primaryCta: "Start English",
     secondaryCta: "Start Coding Practice",
-    tertiaryCta: "Build A Roadmap",
+    tertiaryCta: "Open AI Tools",
     focus: "Home Focus",
     ready: "Ready",
     cards: [
       {
-        href: "/tools",
-        eyebrow: "Tools",
-        title: "AI Tools",
-        body: "Prompt optimization, code explanation, bug diagnosis, API request generation, and focused developer utilities.",
-        points: ["Prompt", "Code", "Bug"],
+        href: "/english?lang=zh",
+        eyebrow: "English",
+        title: "English Learning",
+        body: "Curated vocabulary, typing, reading, and mistake review. AI Coach explains words, sentence logic, and the next practice step.",
+        points: ["Vocabulary", "Typing", "AI Coach"],
       },
       {
         href: "/programming",
         eyebrow: "Practice",
         title: "Coding Practice",
-        body: "Beginner friendly programming practice organized by language, topic, question type, hints, and answers.",
-        points: ["Beginner friendly", "Classified drills", "AI assisted"],
+        body: "Beginner friendly coding practice organized by language, topic, question type, hints, answers, and code explanation.",
+        points: ["Beginner friendly", "Classified drills", "Code explain"],
       },
       {
-        href: "/tools/learning-roadmap",
-        eyebrow: "Plan",
-        title: "Learning Roadmap",
-        body: "Generate practical learning routes for frontend, Python, automation, and indie product building.",
-        points: ["Milestones", "Daily tasks", "Expanding"],
+        href: "/tools",
+        eyebrow: "AI",
+        title: "AI Tools",
+        body: "Prompt optimization, code explanation, bug diagnosis, API request generation, roadmaps, and developer utilities.",
+        points: ["Prompt", "Bug", "Review"],
       },
     ],
   },
@@ -128,6 +131,7 @@ const homeCopy: Record<string, HomeCopy> = {
     versions: "言語バージョン",
     tools: "AI ツール",
     coding: "コード練習",
+    english: "英語学習",
     roadmap: "学習ロードマップ",
     login: "ログイン",
     logout: "ログアウト",
@@ -151,6 +155,7 @@ const homeCopy: Record<string, HomeCopy> = {
     versions: "언어 버전",
     tools: "AI 도구",
     coding: "코딩 연습",
+    english: "영어 학습",
     roadmap: "학습 로드맵",
     login: "로그인",
     logout: "로그아웃",
@@ -174,6 +179,7 @@ const homeCopy: Record<string, HomeCopy> = {
     versions: "Versiones",
     tools: "Herramientas IA",
     coding: "Práctica de código",
+    english: "Inglés",
     roadmap: "Ruta de aprendizaje",
     login: "Entrar",
     logout: "Salir",
@@ -197,6 +203,7 @@ const homeCopy: Record<string, HomeCopy> = {
     versions: "Versions",
     tools: "Outils IA",
     coding: "Pratique code",
+    english: "Anglais",
     roadmap: "Parcours",
     login: "Connexion",
     logout: "Sortir",
@@ -260,13 +267,13 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                   {copy.description}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <Link href="/tools" className="dense-action-primary px-4 py-2.5">
+                  <Link href="/english?lang=zh" className="dense-action-primary px-4 py-2.5">
                     {copy.primaryCta}
                   </Link>
                   <Link href="/programming" className="dense-action px-4 py-2.5">
                     {copy.secondaryCta}
                   </Link>
-                  <Link href="/tools/learning-roadmap" className="dense-action px-4 py-2.5">
+                  <Link href="/tools" className="dense-action px-4 py-2.5">
                     {copy.tertiaryCta}
                   </Link>
                 </div>
@@ -275,7 +282,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
               <div className="rounded-[8px] border border-slate-200 bg-white/75 p-4">
                 <p className="eyebrow">{copy.focus}</p>
                 <div className="mt-3 grid gap-2">
-                  {[copy.tools, copy.coding, copy.roadmap].map((item) => (
+                  {[copy.english, copy.coding, copy.tools].map((item) => (
                     <span key={item} className="dense-row">
                       <span className="text-sm font-semibold">{item}</span>
                       <span className="text-xs text-[color:var(--muted)]">{copy.ready}</span>
@@ -311,8 +318,8 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
 function HomeRail({ copy, isAdmin }: { copy: HomeCopy; isAdmin: boolean }) {
   const items = [
     { href: "/tools", code: "AI", label: copy.tools },
+    { href: "/english?lang=zh", code: "E", label: copy.english },
     { href: "/programming", code: "C", label: copy.coding },
-    { href: "/tools/learning-roadmap", code: "R", label: copy.roadmap },
     ...(isAdmin ? [{ href: "/admin", code: "A", label: copy.admin }] : []),
   ];
 
@@ -352,15 +359,15 @@ function TopBar({
     <header className="dense-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="dense-status">VantaAPI</span>
+        <span className="dense-status">{copy.english}</span>
         <span className="dense-status">{copy.tools}</span>
         <span className="dense-status">{copy.coding}</span>
-        <span className="dense-status">{copy.roadmap}</span>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <SiteVersionMenu copy={copy} selectedUi={selectedUi} />
+        <Link href="/english?lang=zh" className="dense-action">{copy.english}</Link>
         <Link href="/tools" className="dense-action">{copy.tools}</Link>
         <Link href="/programming" className="dense-action">{copy.coding}</Link>
-        <Link href="/tools/learning-roadmap" className="dense-action">{copy.roadmap}</Link>
         {isAdmin && <Link href="/admin" className="dense-action">{copy.admin}</Link>}
         {isSignedIn ? (
           <form action="/api/auth/logout" method="post">

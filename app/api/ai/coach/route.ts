@@ -5,6 +5,8 @@ import { requireUser } from "@/lib/auth";
 import { checkRateLimit, checkRateLimitAsync, getRateLimitKey } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
+const AI_COACH_BURST_LIMIT = 16;
+const AI_COACH_DAILY_LIMIT = 80;
 
 async function fastRateLimit(key: string, maxRequests: number, windowMs: number) {
   return Promise.race([
@@ -24,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   const ipKey = getRateLimitKey(request);
 
-  const burstLimit = await fastRateLimit(`${ipKey}:ai-coach`, 16, 5 * 60_000);
+  const burstLimit = await fastRateLimit(`${ipKey}:ai-coach`, AI_COACH_BURST_LIMIT, 5 * 60_000);
   if (!burstLimit.allowed) {
     return guardedJson(
       { success: false, error: "Too many requests / 请求过于频繁" },
@@ -33,13 +35,14 @@ export async function POST(request: NextRequest) {
         headers: {
           "Retry-After": String(Math.max(1, Math.ceil((burstLimit.resetTime - Date.now()) / 1000))),
           "X-RateLimit-Reset": String(Math.ceil(burstLimit.resetTime / 1000)),
+          "X-AI-Burst-Limit": String(AI_COACH_BURST_LIMIT),
         },
       },
     );
   }
 
   const dailyKey = `ai-coach:user:${userResult.user.id}`;
-  const dailyLimit = await fastRateLimit(dailyKey, 80, 24 * 60 * 60_000);
+  const dailyLimit = await fastRateLimit(dailyKey, AI_COACH_DAILY_LIMIT, 24 * 60 * 60_000);
   if (!dailyLimit.allowed) {
     return guardedJson(
       { success: false, message: "今日 AI 助教使用次数已达上限，请明天再试" },
@@ -47,6 +50,7 @@ export async function POST(request: NextRequest) {
         status: 429,
         headers: {
           "Retry-After": String(Math.max(1, Math.ceil((dailyLimit.resetTime - Date.now()) / 1000))),
+          "X-AI-Daily-Limit": String(AI_COACH_DAILY_LIMIT),
         },
       },
     );
@@ -82,6 +86,7 @@ export async function POST(request: NextRequest) {
         "Content-Type": "text/plain; charset=utf-8",
         "X-Coach-Provider": result.provider,
         "X-Coach-Model": result.model,
+        "X-AI-Daily-Limit": String(AI_COACH_DAILY_LIMIT),
       },
     });
   }
@@ -93,5 +98,5 @@ export async function POST(request: NextRequest) {
     language,
   });
 
-  return guardedJson(result);
+  return guardedJson(result, { headers: { "X-AI-Daily-Limit": String(AI_COACH_DAILY_LIMIT) } });
 }

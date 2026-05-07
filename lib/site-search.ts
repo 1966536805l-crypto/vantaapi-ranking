@@ -1,8 +1,6 @@
 import { examVocabularyPacks } from "@/lib/exam-content";
-import { originalQuestionPacks, originalReadingPacks } from "@/lib/original-english-bank";
 import { programmingLanguages } from "@/lib/programming-content";
 import { toolDefinitions } from "@/lib/tool-definitions";
-import { worldLanguages } from "@/lib/world-language-content";
 
 export type SiteSearchItem = {
   title: string;
@@ -17,8 +15,8 @@ const staticItems: SiteSearchItem[] = [
     title: "Site Search",
     href: "/search",
     category: "Start",
-    description: "One search box for tools coding English world languages review and wordbook pages",
-    tags: ["search", "find", "入口", "搜索", "全站搜索", "找功能", "找页面"],
+    description: "One search box for AI tools English learning coding practice and review pages",
+    tags: ["search", "find", "入口", "搜索", "全站搜索", "找功能", "找页面", "AI 学习工具"],
   },
   {
     title: "Today Learning Plan",
@@ -84,13 +82,6 @@ const staticItems: SiteSearchItem[] = [
     tags: ["programming", "coding", "编程", "0基础", "python", "javascript", "cpp", "sql", "bash"],
   },
   {
-    title: "World Languages Hub",
-    href: "/languages",
-    category: "World Languages",
-    description: "World language zero foundation paths for sound script first phrases and daily review",
-    tags: ["languages", "world languages", "语言学习", "世界语言", "日语", "西班牙语", "法语", "韩语"],
-  },
-  {
     title: "C++ Question Search",
     href: "/cpp/quiz/mega-1000",
     category: "C++",
@@ -150,21 +141,6 @@ const toolAliases: Record<string, string[]> = {
   "learning-roadmap": ["路线", "学习路线", "30 天", "零基础"],
 };
 
-const worldLanguageAliases: Record<string, string[]> = {
-  english: ["英语", "英文", "背单词", "单词"],
-  japanese: ["日语", "日本语", "五十音", "假名"],
-  korean: ["韩语", "韩国语", "韩文"],
-  chinese: ["中文", "汉语", "普通话"],
-  spanish: ["西班牙语", "西语"],
-  french: ["法语"],
-  german: ["德语"],
-  italian: ["意大利语"],
-  portuguese: ["葡萄牙语"],
-  russian: ["俄语"],
-  arabic: ["阿拉伯语"],
-  thai: ["泰语"],
-};
-
 const programmingAliases: Record<string, string[]> = {
   python: ["python", "py", "自动化", "爬虫", "数据"],
   javascript: ["javascript", "js", "前端", "网页脚本"],
@@ -175,6 +151,9 @@ const programmingAliases: Record<string, string[]> = {
   bash: ["bash", "shell", "终端", "命令行"],
 };
 
+const publicVocabularySlugs = new Set(["middle-school-core", "high-school-core", "ielts-5000", "toefl-5000"]);
+const publicProgrammingSlugs = new Set(["python", "javascript", "typescript", "cpp", "sql", "bash"]);
+
 export const siteSearchItems: SiteSearchItem[] = [
   ...staticItems,
   ...toolDefinitions.map((tool) => ({
@@ -184,7 +163,7 @@ export const siteSearchItems: SiteSearchItem[] = [
     description: tool.description,
     tags: [tool.shortTitle, tool.promise, ...tool.useCases, tool.slug, ...(toolAliases[tool.slug] || [])],
   })),
-  ...examVocabularyPacks.map((pack) => ({
+  ...examVocabularyPacks.filter((pack) => publicVocabularySlugs.has(pack.slug)).map((pack) => ({
     title: `${pack.shortTitle} Vocabulary`,
     href: `${pack.route}?lang=zh`,
     category: "English",
@@ -201,28 +180,7 @@ export const siteSearchItems: SiteSearchItem[] = [
       "拼写",
     ],
   })),
-  ...originalReadingPacks.map((pack) => ({
-    title: pack.zhTitle,
-    href: `/english/reading/${pack.slug}?lang=zh`,
-    category: "English Reading",
-    description: `${pack.title} original reading path with vocabulary logic tasks and explanations`,
-    tags: [pack.title, pack.zhTitle, pack.level, pack.exam || "", "reading", "原创阅读", "文章", "阅读"],
-  })),
-  ...originalQuestionPacks.map((pack) => ({
-    title: pack.zhTitle,
-    href: `/english/question-bank/${pack.slug}?lang=zh`,
-    category: "English Questions",
-    description: `${pack.title} original choice and fill blank questions. The bank keeps expanding.`,
-    tags: [pack.title, pack.zhTitle, pack.level, "choice", "fill blank", "原创题库", "选择题", "填空题"],
-  })),
-  ...worldLanguages.map((language) => ({
-    title: `${language.name} From Zero`,
-    href: `/languages/${language.slug}`,
-    category: "World Languages",
-    description: `${language.nativeName} ${language.family} ${language.script} zero foundation path for ${language.starterGoal}`,
-    tags: [language.name, language.nativeName, language.family, language.region, language.script, ...language.firstLesson, ...(worldLanguageAliases[language.slug] || [])],
-  })),
-  ...programmingLanguages.map((language) => ({
+  ...programmingLanguages.filter((language) => publicProgrammingSlugs.has(language.slug)).map((language) => ({
     title: `${language.title} Learning Lab`,
     href: `/programming/${language.slug}`,
     category: "Coding Lab",
