@@ -12,10 +12,11 @@ const defaultHrefs = [
   "/tools",
   "/tools/api-request-generator",
   "/tools/prompt-optimizer",
+  "/tools/bug-finder",
+  "/tools/dev-utilities",
+  "/tools/learning-roadmap",
   "/programming",
   "/programming/python",
-  "/today",
-  "/english/vocabulary/custom?lang=zh",
 ];
 
 function targetIsEditable(target: EventTarget | null) {
@@ -164,7 +165,7 @@ export default function GlobalSearchLauncher() {
                   setSelectedIndex(0);
                 }}
                 onKeyDown={handleInputKeyDown}
-                placeholder="Search wordbook typing prompt python IELTS bug"
+                placeholder="Search GitHub prompt bug api json python"
                 autoComplete="off"
                 spellCheck={false}
               />

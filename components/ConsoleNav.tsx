@@ -9,12 +9,10 @@ const labels = {
     switchHref: "/?lang=zh",
     items: [
       ["/", "Home"],
-      ["/today", "Today"],
-      ["/learn", "Subjects"],
-      ["/mistakes", "Mistakes"],
-      ["/cpp", "C++ Lab"],
-      ["/ai", "AI Coach"],
-      ["/status", "Progress"],
+      ["/tools/github-repo-analyzer", "Audit"],
+      ["/tools", "Tools"],
+      ["/programming", "Coding"],
+      ["/search", "Search"],
     ],
   },
   zh: {
@@ -23,12 +21,10 @@ const labels = {
     switchHref: "/",
     items: [
       ["/?lang=zh", "首页"],
-      ["/today?lang=zh", "今日"],
-      ["/learn?lang=zh", "科目"],
-      ["/mistakes?lang=zh", "错题"],
-      ["/cpp?lang=zh", "C++ 实验"],
-      ["/ai?lang=zh", "AI 教练"],
-      ["/status?lang=zh", "进度"],
+      ["/tools/github-repo-analyzer?lang=zh", "上线体检"],
+      ["/tools?lang=zh", "AI 工具"],
+      ["/programming?lang=zh", "编程路线"],
+      ["/search?lang=zh", "搜索"],
     ],
   },
 } satisfies Record<Lang, { brand: string; switchLabel: string; switchHref: string; items: string[][] }>;

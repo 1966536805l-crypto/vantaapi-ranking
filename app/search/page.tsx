@@ -8,15 +8,15 @@ type SearchPageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "AI 学习工具搜索 - 英语 编程 AI 工具 - JinMing Lab",
-  description: "搜索 JinMing Lab 的英语学习、编程训练、AI Coach、GitHub 上线体检、Bug 定位、Prompt 优化和错题复盘页面。",
-  keywords: ["AI 学习工具", "英语学习", "编程学习", "AI Coach", "GitHub 上线体检", "Prompt 优化"],
+  title: "开发者工具搜索 - GitHub 上线体检 AI 工具 - JinMing Lab",
+  description: "搜索 JinMing Lab 的 GitHub 上线体检、Prompt 优化、Bug 定位、API 请求生成、JSON 正则时间戳工具和编程路线。",
+  keywords: ["GitHub 上线体检", "AI 开发者工具", "Prompt 优化", "Bug 定位", "API 请求生成", "编程路线"],
   alternates: {
     canonical: "/search",
   },
   openGraph: {
-    title: "AI 学习工具搜索 - JinMing Lab",
-    description: "搜索英语学习、编程训练、AI Coach、GitHub 上线体检、Bug 定位和 Prompt 优化页面。",
+    title: "开发者工具搜索 - JinMing Lab",
+    description: "搜索 GitHub 上线体检、AI 开发者工具、Bug 定位、Prompt 优化和 API 请求生成页面。",
     url: "https://vantaapi.com/search",
     siteName: "JinMing Lab",
     type: "website",
@@ -24,27 +24,25 @@ export const metadata: Metadata = {
 };
 
 const quickSearches = [
-  { label: "我的词书", query: "我的词书" },
-  { label: "英文打字", query: "英文打字" },
+  { label: "GitHub Audit", query: "github audit" },
   { label: "Prompt", query: "prompt" },
   { label: "Bug", query: "bug" },
-  { label: "Python", query: "python" },
-  { label: "C++", query: "c++" },
-  { label: "AI Coach", query: "AI Coach" },
+  { label: "API", query: "api" },
+  { label: "JSON", query: "json" },
   { label: "Regex", query: "regex" },
+  { label: "Roadmap", query: "roadmap" },
+  { label: "Python", query: "python" },
 ];
 
 const priorityHrefs = [
-  "/today",
-  "/english/vocabulary/custom?lang=zh",
-  "/english/typing?lang=zh",
-  "/english?lang=zh",
   "/tools/github-repo-analyzer",
-  "/programming",
   "/tools/prompt-optimizer",
   "/tools/bug-finder",
+  "/tools/api-request-generator",
+  "/tools/dev-utilities",
+  "/tools/learning-roadmap",
+  "/programming",
   "/programming/python",
-  "/english/question-bank?lang=zh",
 ];
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
@@ -86,21 +84,21 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <header className="dense-panel flex flex-wrap items-center justify-between gap-3 p-4">
           <Link href={localizedHref("/", language)} className="dense-action">JinMing Lab</Link>
           <div className="flex flex-wrap gap-2">
-            <Link href={localizedHref("/today", language)} className="dense-action-primary">Today</Link>
-            <Link href={localizedHref("/english/vocabulary/custom", language)} className="dense-action">Wordbook</Link>
-            <Link href={localizedHref("/english", language)} className="dense-action">English</Link>
-            <Link href={localizedHref("/programming", language)} className="dense-action">Coding</Link>
-            <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action">AI Tools</Link>
+            <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action-primary">{language === "zh" ? "上线体检" : "Launch Audit"}</Link>
+            <Link href={localizedHref("/tools", language)} className="dense-action">{language === "zh" ? "AI 工具" : "AI Tools"}</Link>
+            <Link href={localizedHref("/programming", language)} className="dense-action">{language === "zh" ? "编程路线" : "Coding"}</Link>
           </div>
         </header>
 
         <section className="mt-3 dense-panel overflow-hidden p-5 sm:p-6">
-          <p className="eyebrow">Command Search</p>
+          <p className="eyebrow">{language === "zh" ? "开发者工具搜索" : "Developer Tool Search"}</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-[1.04] sm:text-4xl">
-            Search once then start
+            {language === "zh" ? "搜索上线体检 AI 工具和编程路线" : "Search launch audits AI tools and coding routes"}
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--muted)]">
-            英语学习 编程训练 AI 工具 今日学习 我的词书和错题复盘都放在一个入口里 搜到就能直接开始
+            {language === "zh"
+              ? "公开入口先聚焦 GitHub 上线体检 Prompt 优化 Bug 定位 API 请求生成 JSON 正则时间戳和编程路线"
+              : "Public search is focused on GitHub launch audits prompt tools bug fixing API generation dev utilities and coding routes"}
           </p>
 
           <form action="/search" className="mt-5 flex flex-col gap-2 rounded-[8px] border border-slate-200 bg-white/85 p-2 sm:flex-row">
@@ -109,11 +107,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               name="q"
               defaultValue={query}
               className="min-h-11 min-w-0 flex-1 rounded-[8px] border border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition focus:border-slate-500"
-              placeholder="搜索 英语 AI Coach GitHub prompt bug python 错题"
+              placeholder={language === "zh" ? "搜索 GitHub prompt bug api json python" : "Search GitHub prompt bug api json python"}
               autoFocus
             />
             <button className="dense-action-primary px-5 py-2.5" type="submit">
-              Search
+              {language === "zh" ? "搜索" : "Search"}
             </button>
           </form>
 
@@ -128,8 +126,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
         <section className="mt-3 grid gap-3 lg:grid-cols-[300px_minmax(0,1fr)]">
           <aside className="dense-panel h-fit p-5">
-            <p className="eyebrow">Index</p>
-            <h2 className="mt-2 text-2xl font-semibold">{siteSearchItems.length} pages</h2>
+            <p className="eyebrow">{language === "zh" ? "索引" : "Index"}</p>
+            <h2 className="mt-2 text-2xl font-semibold">{siteSearchItems.length} {language === "zh" ? "个公开入口" : "public entries"}</h2>
             <div className="mt-4 grid gap-2">
               {Array.from(groupedCount.entries()).map(([category, count]) => (
                 <Link key={category} href={localizedHref(`/search?q=${encodeURIComponent(category)}`, language)} className="dense-row">
@@ -139,11 +137,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               ))}
             </div>
             <div className="mt-5 border-t border-slate-200 pt-4">
-              <p className="eyebrow">Fast Start</p>
+              <p className="eyebrow">{language === "zh" ? "快速开始" : "Fast Start"}</p>
               <div className="mt-3 grid gap-2">
-                <Link href={localizedHref("/today", language)} className="dense-action-primary justify-center">今日学习</Link>
-                <Link href={localizedHref("/english/vocabulary/custom", language)} className="dense-action justify-center">我的词书</Link>
-                <Link href={localizedHref("/english/typing", language)} className="dense-action justify-center">英文打字</Link>
+                <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action-primary justify-center">{language === "zh" ? "运行 GitHub 上线体检" : "Run GitHub Launch Audit"}</Link>
+                <Link href={localizedHref("/tools/prompt-optimizer", language)} className="dense-action justify-center">{language === "zh" ? "优化 Prompt" : "Optimize Prompt"}</Link>
+                <Link href={localizedHref("/tools/bug-finder", language)} className="dense-action justify-center">{language === "zh" ? "定位 Bug" : "Find Bug"}</Link>
               </div>
             </div>
           </aside>
@@ -151,9 +149,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <section className="dense-panel p-5">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">{query ? "Results" : "Start Here"}</p>
+                <p className="eyebrow">{query ? (language === "zh" ? "结果" : "Results") : (language === "zh" ? "从这里开始" : "Start Here")}</p>
                 <h2 className="mt-2 text-2xl font-semibold">
-                  {query ? `${results.length} matches for ${query}` : "Most useful entries"}
+                  {query ? `${results.length} ${language === "zh" ? "个匹配" : "matches for"} ${query}` : (language === "zh" ? "最有用的入口" : "Most useful entries")}
                 </h2>
               </div>
               <span className="dense-status">local index</span>
@@ -163,7 +161,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <div className="dense-card p-5">
                 <h3 className="text-xl font-semibold">No match yet</h3>
                 <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
-                  试试更短的词 比如 英语 打字 prompt python bug GitHub 错题
+                {language === "zh" ? "试试更短的词 比如 GitHub prompt bug api json python" : "Try shorter words like GitHub prompt bug api json python"}
                 </p>
               </div>
             ) : (
