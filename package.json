@@ -19,7 +19,8 @@
     "security:check": "node scripts/security-check.js",
     "security:regression": "node scripts/security-regression.js",
     "security:repo": "node scripts/repo-security-check.js",
-    "security:full": "npm run security:check && npm run security:regression && npm run security:repo && npm run typecheck && npm run lint && npm run build && npm audit --audit-level=high"
+    "security:network": "node scripts/network-security-check.js",
+    "security:full": "npm run security:check && npm run security:regression && npm run security:repo && npm run security:network && npm run typecheck && npm run lint && npm run build && npm audit --audit-level=high"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.8.0",

@@ -6,9 +6,25 @@ const protectedPages = ["/dashboard", "/progress", "/wrong", "/admin"];
 const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
 const allowedMethods = new Set(["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]);
 const rateBuckets = new Map<string, { count: number; resetTime: number }>();
+type SecurityMode = "normal" | "elevated" | "emergency";
+
+const expensiveApiRules = [
+  { prefix: "/api/ai/coach", normal: 24, elevated: 12, emergency: 6, windowMs: 60_000 },
+  { prefix: "/api/auth/login", normal: 18, elevated: 10, emergency: 6, windowMs: 15 * 60_000 },
+  { prefix: "/api/auth/register", normal: 8, elevated: 4, emergency: 2, windowMs: 60 * 60_000 },
+  { prefix: "/api/quiz/submit", normal: 80, elevated: 40, emergency: 20, windowMs: 60_000 },
+  { prefix: "/api/cpp/run", normal: 30, elevated: 16, emergency: 8, windowMs: 60_000 },
+];
 
 function getClientIp(request: NextRequest) {
   return getBotClientIp(request);
+}
+
+function securityMode(): SecurityMode {
+  const value = (process.env.SECURITY_MODE || process.env.DDOS_MODE || "normal").toLowerCase();
+  if (value === "emergency" || value === "lockdown") return "emergency";
+  if (value === "elevated" || value === "attack") return "elevated";
+  return "normal";
 }
 
 function rateLimit(key: string, maxRequests: number, windowMs: number) {
@@ -41,6 +57,14 @@ function jsonError(message: string, status: number, extraHeaders: Record<string,
   return withSecurityHeaders(response);
 }
 
+function rateLimitResponse(bucket: { resetTime: number }) {
+  const retryAfter = Math.max(1, Math.ceil((bucket.resetTime - Date.now()) / 1000));
+  return jsonError("Too many requests", 429, {
+    "Retry-After": String(retryAfter),
+    "X-RateLimit-Reset": String(Math.ceil(bucket.resetTime / 1000)),
+  });
+}
+
 function withSecurityHeaders(response: NextResponse, botVerdict?: BotVerdict) {
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
@@ -49,6 +73,7 @@ function withSecurityHeaders(response: NextResponse, botVerdict?: BotVerdict) {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), serial=(), browsing-topics=()");
+  response.headers.set("X-Security-Mode", securityMode());
   if (response.headers.get("content-type")?.includes("application/json")) {
     response.headers.set("Cache-Control", "no-store");
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
@@ -121,48 +146,67 @@ function bodySizeGuard(request: NextRequest, pathname: string) {
   return null;
 }
 
+function globalRateGuard(request: NextRequest, botVerdict: BotVerdict) {
+  const mode = securityMode();
+  const ip = getClientIp(request);
+  const maxRequests = botVerdict.trustedCrawler
+    ? mode === "emergency" ? 240 : 600
+    : botVerdict.action === "throttle"
+      ? mode === "normal" ? 45 : mode === "elevated" ? 25 : 12
+      : mode === "normal" ? 360 : mode === "elevated" ? 180 : 72;
+  const bucket = rateLimit(`global:${ip}`, maxRequests, 60_000);
+  return bucket.allowed ? null : rateLimitResponse(bucket);
+}
+
+function expensiveApiGuard(request: NextRequest, pathname: string) {
+  if (safeMethods.has(request.method)) return null;
+
+  const mode = securityMode();
+  const rule = expensiveApiRules.find((item) => pathname === item.prefix || pathname.startsWith(`${item.prefix}/`));
+  if (!rule) return null;
+
+  const ip = getClientIp(request);
+  const maxRequests = rule[mode];
+  const bucket = rateLimit(`expensive:${rule.prefix}:${ip}`, maxRequests, rule.windowMs);
+  return bucket.allowed ? null : rateLimitResponse(bucket);
+}
+
 function apiRateGuard(request: NextRequest, pathname: string) {
   const ip = getClientIp(request);
   const unsafe = !safeMethods.has(request.method);
+  const mode = securityMode();
   const windowMs = pathname.startsWith("/api/auth") ? 15 * 60_000 : 60_000;
-  const maxRequests = pathname.startsWith("/api/auth/login")
+  const baseLimit = pathname.startsWith("/api/auth/login")
     ? 30
     : pathname.startsWith("/api/auth")
       ? 60
       : unsafe
         ? 120
         : 240;
+  const maxRequests = mode === "normal" ? baseLimit : mode === "elevated" ? Math.ceil(baseLimit * 0.55) : Math.ceil(baseLimit * 0.28);
   const bucket = rateLimit(`api:${pathname}:${ip}`, maxRequests, windowMs);
 
-  if (bucket.allowed) return null;
-
-  const retryAfter = Math.max(1, Math.ceil((bucket.resetTime - Date.now()) / 1000));
-  return jsonError("Too many requests", 429, {
-    "Retry-After": String(retryAfter),
-    "X-RateLimit-Reset": String(Math.ceil(bucket.resetTime / 1000)),
-  });
+  return bucket.allowed ? null : rateLimitResponse(bucket);
 }
 
 function pageRateGuard(request: NextRequest, pathname: string, botVerdict: BotVerdict) {
   if (!safeMethods.has(request.method) || pathname.startsWith("/api/")) return null;
 
   const ip = getBotClientIp(request);
-  const maxRequests = botVerdict.trustedCrawler
+  const mode = securityMode();
+  const baseLimit = botVerdict.trustedCrawler
     ? 600
     : botVerdict.action === "throttle"
       ? 30
       : pathname.startsWith("/programming") || pathname.startsWith("/english/vocabulary")
         ? 160
         : 240;
+  const maxRequests = botVerdict.trustedCrawler
+    ? mode === "emergency" ? 240 : baseLimit
+    : mode === "normal" ? baseLimit : mode === "elevated" ? Math.ceil(baseLimit * 0.55) : Math.ceil(baseLimit * 0.25);
   const bucket = rateLimit(`page:${ip}`, maxRequests, 60_000);
 
-  if (bucket.allowed) return null;
-
-  const retryAfter = Math.max(1, Math.ceil((bucket.resetTime - Date.now()) / 1000));
-  return jsonError("Too many requests", 429, {
-    "Retry-After": String(retryAfter),
-    "X-RateLimit-Reset": String(Math.ceil(bucket.resetTime / 1000)),
-  });
+  return bucket.allowed ? null : rateLimitResponse(bucket);
 }
 
 export function proxy(request: NextRequest) {
@@ -182,6 +226,9 @@ export function proxy(request: NextRequest) {
     return withSecurityHeaders(botBlockedResponse(botVerdict), botVerdict);
   }
 
+  const globalRateBlocked = globalRateGuard(request, botVerdict);
+  if (globalRateBlocked) return withSecurityHeaders(globalRateBlocked, botVerdict);
+
   const pageRateBlocked = pageRateGuard(request, pathname, botVerdict);
   if (pageRateBlocked) return pageRateBlocked;
 
@@ -195,6 +242,9 @@ export function proxy(request: NextRequest) {
 
     const crossSiteBlocked = crossSiteGuard(request);
     if (crossSiteBlocked) return crossSiteBlocked;
+
+    const expensiveApiBlocked = expensiveApiGuard(request, pathname);
+    if (expensiveApiBlocked) return expensiveApiBlocked;
 
     const rateBlocked = apiRateGuard(request, pathname);
     if (rateBlocked) return rateBlocked;

@@ -51,6 +51,9 @@ jobs:
       - name: Repository security checks
         run: npm run security:repo
 
+      - name: Network security checks
+        run: npm run security:network
+
       - name: TypeScript
         run: npm run typecheck
 

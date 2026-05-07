@@ -24,6 +24,8 @@ const nextConfig = read("next.config.js");
 const deployment = read("DEPLOYMENT.md");
 const edgeSecurity = read("docs/EDGE_SECURITY.md");
 const githubSecurityWorkflow = read(".github/workflows/security.yml");
+const networkHardening = read("docs/NETWORK_HARDENING.md");
+const nginxSecurity = read("deploy/nginx/vantaapi-security.conf");
 
 const seed = read("prisma/seed.cjs");
 const aiCoach = read("app/api/ai/coach/route.ts");
@@ -116,6 +118,12 @@ if (has(githubSecurityWorkflow, "Security baseline") && has(githubSecurityWorkfl
   add("pass", "ci:security-baseline", "GitHub CI runs security checks and production build");
 } else {
   add("warn", "ci:security-baseline", "GitHub CI security baseline is missing");
+}
+
+if (has(networkHardening, "SECURITY_MODE") && has(nginxSecurity, "limit_req_zone") && has(proxy, "globalRateGuard") && has(proxy, "expensiveApiGuard")) {
+  add("pass", "network:adaptive-hardening", "adaptive network hardening, Nginx limits, and app-layer budgets are present");
+} else {
+  add("warn", "network:adaptive-hardening", "adaptive network hardening baseline is incomplete");
 }
 
 for (const [name, pattern] of Object.entries({

@@ -22,6 +22,9 @@ const suspiciousExtensions =
 const sensitivePathPattern =
   /(?:^|\/)(wp-admin|wp-login|xmlrpc\.php|phpmyadmin|adminer|\.git|\.svn|\.hg|\.env|composer\.json|package-lock\.json|vendor|node_modules|cgi-bin|boaform|actuator|server-status|config\.json)(?:\/|$)/i;
 
+const traversalPattern = /(?:%2e%2e|\.\.|%00|%5c|\\|\/\/{2,})/i;
+const injectionProbePattern = /\b(?:union\s+select|select\s+.+\s+from|sleep\s*\(|benchmark\s*\(|<script|onerror\s*=|javascript:|base64_decode|cmd=|exec=)\b/i;
+
 const trapPaths = new Set([
   "/__crawler-trap",
   "/api/__crawler-trap",
@@ -118,6 +121,26 @@ export function evaluateBotRequest(request: NextRequest, pathname: string): BotV
   if (sensitivePathPattern.test(pathname) || suspiciousExtensions.test(pathname)) {
     trapHits.set(ip, currentTime + 60 * 60_000);
     return { action: "block", reason: "sensitive-probe", score: 10, trustedCrawler };
+  }
+
+  const rawUrl = `${pathname}?${request.nextUrl.searchParams.toString()}`;
+  if (traversalPattern.test(rawUrl)) {
+    trapHits.set(ip, currentTime + 60 * 60_000);
+    return { action: "block", reason: "path-traversal-probe", score: 10, trustedCrawler };
+  }
+
+  if (pathname.length > 180 || request.nextUrl.search.length > 1800) {
+    const rollingScore = rememberViolation(ip, 4);
+    return rollingScore >= 9
+      ? { action: "block", reason: "oversized-url", score: rollingScore, trustedCrawler }
+      : { action: "throttle", reason: "oversized-url", score: rollingScore, trustedCrawler };
+  }
+
+  if (injectionProbePattern.test(rawUrl)) {
+    const rollingScore = rememberViolation(ip, 6);
+    return rollingScore >= 9
+      ? { action: "block", reason: "injection-probe", score: rollingScore, trustedCrawler }
+      : { action: "throttle", reason: "injection-probe", score: rollingScore, trustedCrawler };
   }
 
   if (trustedCrawler && !isApi && !isUnsafe) {

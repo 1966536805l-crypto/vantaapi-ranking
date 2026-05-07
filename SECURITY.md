@@ -35,6 +35,18 @@ Required protections:
 - C++ code execution disabled unless a separately isolated sandbox/worker is implemented.
 - Database and Redis not exposed to the public internet.
 - DDoS and heavy bot filtering handled at CDN/WAF level, not by global user-facing CAPTCHA.
+- Edge abuse mode available through `SECURITY_MODE=normal|elevated|emergency`.
+
+## DDoS and abuse mode
+
+`SECURITY_MODE=normal` is designed to be invisible for real learners.
+
+During active attacks, raise it without changing code:
+
+- `elevated`: tighter page/API budgets while keeping public study pages usable.
+- `emergency`: aggressive throttling for expensive APIs and suspicious traffic.
+
+Large volumetric DDoS still requires a CDN/WAF in front of the app. The app layer blocks probes, abusive API patterns, oversized URLs, traversal/injection probes, and high-frequency per-IP traffic, but it should not be treated as a replacement for edge DDoS protection.
 
 ## CI gates
 
