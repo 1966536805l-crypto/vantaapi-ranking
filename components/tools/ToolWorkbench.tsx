@@ -157,6 +157,49 @@ const promptTemplates: Record<PromptTemplateKey, { label: string; role: string; 
   },
 };
 
+const launchWorkflow = [
+  {
+    step: "01",
+    tool: "github-repo-analyzer" as ToolSlug,
+    title: "Audit",
+    titleZh: "上线体检",
+    body: "Find README env CI deploy security and release blockers.",
+    bodyZh: "检查 README 环境变量 CI 部署 安全和发布阻塞项",
+  },
+  {
+    step: "02",
+    tool: "bug-finder" as ToolSlug,
+    title: "Debug",
+    titleZh: "定位 Bug",
+    body: "Turn errors into causes steps repair notes and verification.",
+    bodyZh: "把报错整理成原因 步骤 修复方向和验证清单",
+  },
+  {
+    step: "03",
+    tool: "api-request-generator" as ToolSlug,
+    title: "API",
+    titleZh: "接口示例",
+    body: "Generate curl fetch axios and Python requests snippets.",
+    bodyZh: "生成 curl fetch axios 和 Python requests 示例",
+  },
+  {
+    step: "04",
+    tool: "dev-utilities" as ToolSlug,
+    title: "Utilities",
+    titleZh: "开发工具",
+    body: "Check JSON regex timestamps and copy clean outputs.",
+    bodyZh: "检查 JSON 正则 时间戳并复制干净结果",
+  },
+  {
+    step: "05",
+    tool: "learning-roadmap" as ToolSlug,
+    title: "Roadmap",
+    titleZh: "路线",
+    body: "Plan the next 30 days after the first launch.",
+    bodyZh: "上线后规划接下来 30 天的学习和开发路线",
+  },
+];
+
 function detectLanguage(code: string) {
   const source = code.trim();
   if (!source) return "Unknown";
@@ -261,7 +304,7 @@ function toolDisplay(tool: ToolDefinition, language: "en" | "zh") {
 
   const shortTitles: Partial<Record<ToolSlug, string>> = {
     "prompt-optimizer": "提示词",
-    "code-explainer": "解释",
+    "code-explainer": "代码笔记",
     "bug-finder": "Bug",
     "api-request-generator": "API",
     "dev-utilities": "工具",
@@ -312,6 +355,7 @@ export default function ToolWorkbench({
             <strong>JinMing Lab</strong>
           </Link>
           <nav className="tool-nav">
+            <p className="tool-nav-kicker">{zh ? "上线流程" : "Launch flow"}</p>
             {toolDefinitions.map((tool) => {
               const display = toolDisplay(tool, language);
               return (
@@ -353,6 +397,31 @@ export default function ToolWorkbench({
               <span>{zh ? "默认隐私" : "Private by default"}</span>
             </div>
           </div>
+
+          {active === "github-repo-analyzer" && (
+            <section className="tool-launch-flow dense-panel" aria-label={zh ? "上线工作流" : "Launch workflow"}>
+              <div className="tool-launch-flow-head">
+                <div>
+                  <p className="eyebrow">{zh ? "推荐顺序" : "Recommended order"}</p>
+                  <h2>{zh ? "从仓库体检到发布任务" : "From repo audit to release tasks"}</h2>
+                </div>
+                <Link href={toolHref("github-repo-analyzer", language)}>{zh ? "先跑体检" : "Start with audit"}</Link>
+              </div>
+              <div className="tool-launch-flow-grid">
+                {launchWorkflow.map((item) => (
+                  <Link
+                    key={item.tool}
+                    href={toolHref(item.tool, language)}
+                    className={item.tool === active ? "tool-launch-card tool-launch-card-active" : "tool-launch-card"}
+                  >
+                    <span>{item.step}</span>
+                    <strong>{zh ? item.titleZh : item.title}</strong>
+                    <p>{zh ? item.bodyZh : item.body}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           <div className="mt-3">
             {active === "github-repo-analyzer" && <GitHubRepoAnalyzer language={language} initialRepoUrl={initialRepoUrl} />}
