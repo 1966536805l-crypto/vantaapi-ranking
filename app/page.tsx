@@ -27,16 +27,24 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
   const language = resolveHomeLanguage(params?.lang, params?.ui);
   const zh = language === "zh";
 
-  const resultCards = zh
+  const scorecards = [
+    ["README", "90", zh ? "通过" : "Pass"],
+    ["ENV", "75", zh ? "待确认" : "Review"],
+    ["CI", "85", zh ? "通过" : "Pass"],
+    ["DEPLOY", "82", zh ? "通过" : "Pass"],
+    ["SECURITY", "88", zh ? "通过" : "Pass"],
+  ];
+
+  const evidenceCards = zh
     ? [
-        ["Score", "上线评分", "快速判断仓库是否适合公开发布"],
-        ["Blockers", "阻塞项", "优先列出必须先修的问题"],
-        ["Fix Checklist", "修复清单", "生成 README 环境变量 CI 部署和安全检查"],
+        ["P1", ".env.example", "环境变量需要区分本地 预览 生产"],
+        ["P1", "README.md", "快速开始路径需要控制在五分钟内"],
+        ["P2", "release docs", "发布清单不应该只存在维护者脑子里"],
       ]
     : [
-        ["Score", "Launch score", "See whether the repo is ready to publish"],
-        ["Blockers", "Must-fix blockers", "Know what has to be fixed first"],
-        ["Fix Checklist", "Fix checklist", "Get README env CI deploy and security steps"],
+        ["P1", ".env.example", "Env keys need local preview production separation"],
+        ["P1", "README.md", "Quick start should stay under five minutes"],
+        ["P2", "release docs", "Release checklist should be visible to maintainers"],
       ];
 
   return (
@@ -73,22 +81,46 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
             </div>
             <strong>86</strong>
           </div>
-          <div className="home-audit-report-grid">
-            {resultCards.map(([code, title, body]) => (
-              <article key={code}>
-                <span>{code}</span>
-                <h3>{title}</h3>
+          <div className="home-audit-score-strip">
+            {scorecards.map(([label, score, status]) => (
+              <article key={label}>
+                <span>{label}</span>
+                <strong>{score}</strong>
+                <em>{status}</em>
+              </article>
+            ))}
+          </div>
+          <div className="home-audit-evidence-grid">
+            {evidenceCards.map(([severity, source, body]) => (
+              <article key={`${severity}-${source}`}>
+                <div>
+                  <span>{severity}</span>
+                  <strong>{source}</strong>
+                </div>
                 <p>{body}</p>
               </article>
             ))}
           </div>
-          <div className="home-audit-fix-list">
-            <p className="eyebrow">{zh ? "输出内容" : "Output"}</p>
-            <ul>
-              <li>{zh ? "可复制 GitHub Issue 草稿" : "Copyable GitHub issue drafts"}</li>
-              <li>{zh ? "上线前必须修清单" : "Must-fix launch blockers"}</li>
-              <li>{zh ? "发布检查清单" : "Release checklist"}</li>
-            </ul>
+          <div className="home-audit-pr-preview">
+            <div>
+              <p className="eyebrow">{zh ? "可复制 PR 描述" : "Copy-ready PR description"}</p>
+              <h3>{zh ? "把体检结果直接放进开发流程" : "Move the audit directly into the developer workflow"}</h3>
+            </div>
+            <pre>{`## Launch readiness audit
+
+Score: 86/100
+Risk: Low
+
+### Today
+- [ ] Document env keys by environment
+
+### Before public launch
+- [ ] Keep quick start under five minutes
+- [ ] Keep release checklist visible
+
+### Verification
+npm run lint
+npm run build`}</pre>
           </div>
         </div>
       </section>
