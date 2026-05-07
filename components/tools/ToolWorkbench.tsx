@@ -748,7 +748,7 @@ function GitHubRepoAnalyzer() {
           <div>
             <p className="eyebrow">Ship Next</p>
             <h3>把报告变成任务</h3>
-            <p>{actionStatus || "复制 Issue 或 checklist 后，直接贴到 GitHub Issues、PR 描述或发布说明里。"}</p>
+            <p>{actionStatus || "复制 Issue 后可直接贴进 GitHub Issues；复制 checklist 可放到 PR 描述或发布说明里。"}</p>
           </div>
           <div className="repo-action-list">
             {analysis.mustFix.slice(0, 3).map((item, index) => (

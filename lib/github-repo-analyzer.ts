@@ -480,7 +480,38 @@ function launchAuditSummary({
 
   const copyableIssues = mustFix.slice(0, 5).map((item, index) => {
     const title = item.replace(/\.$/, "");
-    return `Issue ${index + 1}: ${title}\n\nWhy it matters\n${item}\n\nDone when\n- The repo no longer has this launch risk\n- README or CI documents the fix\n- A maintainer can verify it in a clean checkout`;
+    const priority = blockers.includes(item) ? "P0 release blocker" : index < 2 ? "P1 launch readiness" : "P2 polish";
+    const labels = blockers.includes(item)
+      ? "release-blocker, launch, security"
+      : /readme|setup|deploy/i.test(item)
+        ? "docs, launch"
+        : /test|lint|ci|workflow/i.test(item)
+          ? "ci, quality, launch"
+          : "launch, cleanup";
+
+    return `## ${title}
+
+Priority: ${priority}
+Labels: ${labels}
+
+### Why this matters
+${item}
+
+### Suggested fix
+- Update the repository files that create this launch risk
+- Document the expected local or production behavior
+- Keep secrets and machine-specific files out of public source control
+
+### Done when
+- [ ] The launch risk is no longer present in the public repository
+- [ ] README, CI, or deployment docs explain how to verify the fix
+- [ ] A maintainer can confirm it from a clean checkout
+
+### Verification
+\`\`\`bash
+npm run lint
+npm run build
+\`\`\``;
   });
 
   return {
