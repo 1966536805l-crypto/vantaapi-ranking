@@ -485,6 +485,41 @@ function checkFocusedSitemap() {
   ok("seo:sitemap-focus", "sitemap is focused on launch audit and developer tools");
 }
 
+function checkFocusedRobots() {
+  const body = read("app/robots.ts");
+  const blockedRoutes = [
+    "/api/",
+    "/admin/",
+    "/dashboard",
+    "/progress",
+    "/wrong",
+    "/today",
+    "/english",
+    "/cpp",
+    "/learn",
+    "/languages",
+    "/mistakes",
+    "/status",
+    "/login",
+    "/register",
+    "/games",
+    "/projects",
+    "/questions",
+    "/report",
+  ];
+  const missing = blockedRoutes.filter((route) => !body.includes(`"${route}"`) && !body.includes(`'${route}'`));
+  if (missing.length) {
+    action("Focus robots.txt", "Block old learning, account, retired, and API surfaces from crawler discovery while the public product is focused on GitHub Launch Audit and developer tools.");
+    bad("seo:robots-focus", `missing disallow entries: ${missing.join(", ")}`);
+    return;
+  }
+  if (!body.includes("https://vantaapi.com/sitemap.xml")) {
+    bad("seo:robots-focus", "robots sitemap must point to production sitemap");
+    return;
+  }
+  ok("seo:robots-focus", "robots disallows off-focus surfaces and points to sitemap");
+}
+
 async function main() {
   console.log("🚀 JinMing Lab prelaunch gate\n");
   if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
@@ -518,6 +553,7 @@ async function main() {
   checkRetiredApiResponses();
   checkRetiredPageRedirects();
   checkFocusedSitemap();
+  checkFocusedRobots();
 
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (launchActions.length) {
