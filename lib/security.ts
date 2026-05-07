@@ -1,11 +1,21 @@
 import { NextRequest } from "next/server";
 import crypto from "crypto";
+import { checkRedisRateLimit } from "@/lib/redis";
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const MAX_RATE_LIMIT_BUCKETS = 20_000;
+
+function cleanupRateLimits(now: number) {
+  if (rateLimitMap.size < MAX_RATE_LIMIT_BUCKETS) return;
+  for (const [key, record] of rateLimitMap) {
+    if (record.resetTime < now) rateLimitMap.delete(key);
+  }
+}
 
 export function getRateLimitKey(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0] : "unknown";
+  const realIp = request.headers.get("x-real-ip");
+  const ip = forwarded?.split(",")[0]?.trim() || realIp || "unknown";
   return crypto.createHash("sha256").update(ip).digest("hex").slice(0, 16);
 }
 
@@ -13,39 +23,56 @@ export function checkRateLimit(
   key: string,
   maxRequests: number = 10,
   windowMs: number = 60000
-): { allowed: boolean; remaining: number } {
+): { allowed: boolean; remaining: number; resetTime: number } {
   const now = Date.now();
+  cleanupRateLimits(now);
   const record = rateLimitMap.get(key);
 
   if (!record || now > record.resetTime) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + windowMs });
-    return { allowed: true, remaining: maxRequests - 1 };
+    const resetTime = now + windowMs;
+    rateLimitMap.set(key, { count: 1, resetTime });
+    return { allowed: true, remaining: maxRequests - 1, resetTime };
   }
 
   if (record.count >= maxRequests) {
-    return { allowed: false, remaining: 0 };
+    return { allowed: false, remaining: 0, resetTime: record.resetTime };
   }
 
   record.count++;
-  return { allowed: true, remaining: maxRequests - record.count };
+  return { allowed: true, remaining: maxRequests - record.count, resetTime: record.resetTime };
+}
+
+export async function checkRateLimitAsync(
+  key: string,
+  maxRequests: number = 10,
+  windowMs: number = 60000
+): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
+  if (process.env.REDIS_URL || process.env.ENABLE_REDIS_RATE_LIMITS === "true") {
+    const result = await checkRedisRateLimit(key, maxRequests, windowMs);
+    return { allowed: result.allowed, remaining: result.remaining, resetTime: result.resetAt };
+  }
+
+  return checkRateLimit(key, maxRequests, windowMs);
+}
+
+export function getEmailRateLimitKey(request: NextRequest, email: string): string {
+  return `${getRateLimitKey(request)}:${crypto
+    .createHash("sha256")
+    .update(email.trim().toLowerCase())
+    .digest("hex")
+    .slice(0, 16)}`;
 }
 
 export function sanitizeInput(input: string): string {
   if (typeof input !== "string") return "";
   return input
-    // 移除所有 HTML 标签
     .replace(/<[^>]*>/g, "")
-    // 移除危险字符
     .replace(/[<>'"]/g, "")
-    // 移除 javascript: 协议
     .replace(/javascript:/gi, "")
     .replace(/data:/gi, "")
     .replace(/vbscript:/gi, "")
-    // 移除事件处理器
     .replace(/on\w+\s*=/gi, "")
-    // 移除 iframe、script、object、embed 等标签名
     .replace(/iframe|script|object|embed|applet|meta|link|style/gi, "")
-    // 移除 SQL 注入常见字符
     .replace(/[;\\]/g, "")
     .trim()
     .slice(0, 1000);
@@ -64,7 +91,6 @@ export function validateUsername(username: string): boolean {
 }
 
 export function sanitizeHtml(input: string): string {
-  // 更严格的 HTML 清理，用于富文本内容
   return input
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
     .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
@@ -98,8 +124,8 @@ export function verifyRequestSignature(
   secret: string
 ): boolean {
   const expected = generateRequestSignature(data, secret);
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected)
-  );
+  const received = Buffer.from(signature, "hex");
+  const expectedBuffer = Buffer.from(expected, "hex");
+  if (received.length !== expectedBuffer.length) return false;
+  return crypto.timingSafeEqual(received, expectedBuffer);
 }

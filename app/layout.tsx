@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import CsrfBootstrap from "@/components/security/CsrfBootstrap";
 import "./globals.css";
 import "@/lib/protection";
 
@@ -14,8 +15,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Immortal - 个人学习与项目控制台",
-  description: "今日目标、学习路线、错题复盘、项目进度、状态记录与 AI 助手",
+  metadataBase: new URL("https://vantaapi.com"),
+  title: "JinMing Lab - AI Tools and Coding Lab",
+  description:
+    "A clean AI tools and programming learning platform for prompt optimization code explanation bug fixing API request generation and coding practice.",
 };
 
 export default function RootLayout({
@@ -28,7 +31,10 @@ export default function RootLayout({
       lang="zh-CN"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-white text-slate-900">
+        <CsrfBootstrap />
+        {children}
+      </body>
     </html>
   );
 }

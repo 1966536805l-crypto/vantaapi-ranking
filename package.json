@@ -3,10 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname 127.0.0.1",
     "build": "prisma generate && next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "next start --hostname 127.0.0.1",
+    "lint": "eslint",
+    "dev:3001": "next dev --hostname 127.0.0.1 --port 3001",
+    "preview": "next start --hostname 127.0.0.1 --port 3002",
+    "typecheck": "tsc --noEmit --incremental false",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "quality": "npm run lint && npm run typecheck && npm run build",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio",
+    "db:seed": "node prisma/seed.cjs",
+    "security:check": "node scripts/security-check.js",
+    "security:regression": "node scripts/security-regression.js",
+    "security:full": "npm run security:check && npm run security:regression && npm run typecheck && npm run lint && npm run build && npm audit --audit-level=high"
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.8.0",
@@ -43,5 +55,12 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "webpack-obfuscator": "^3.6.1"
+  },
+  "overrides": {
+    "@hono/node-server": "1.19.13",
+    "postcss": "8.5.13"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.cjs"
   }
 }

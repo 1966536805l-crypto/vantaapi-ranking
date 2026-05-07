@@ -1,5 +1,19 @@
 # 安全合规改造完成报告
 
+## 2026-05-06 企业级加固增量
+
+- 全站代理层增加 Host 白名单、非法 HTTP Method 拦截、API 请求体大小限制、API 基础限流。
+- 所有非安全 API 方法增加同源 Origin / Referer 校验，阻断跨站表单和跨站 fetch 攻击。
+- 登录接口增加 IP 级和邮箱级组合限流，响应统一 `no-store`，减少暴力破解窗口。
+- JWT 增加生产密钥强校验、`issuer`、`audience`、固定 `HS256` 算法和默认 24 小时会话。
+- Cookie 增加 `httpOnly`、`secure`、`sameSite=lax`、`priority=high` 和统一过期时间。
+- `GET /api/auth/logout` 不再改变状态，只允许 `POST` 退出。
+- 管理后台、进度、测验、错题接口增加 JSON Content-Type 和请求体大小限制。
+- 安全头补强：CSP 增加 `frame-src none` / `child-src none`，API 增加 `no-store` 与 `X-Robots-Tag`。
+- 依赖审计补丁：通过 npm overrides 固定 `postcss@8.5.13` 与 `@hono/node-server@1.19.13`，`npm audit --omit=dev` 已为 0 漏洞。
+
+仍建议后续接入 Redis / Upstash 做分布式限流和安全审计日志，因为 Vercel serverless 的内存限流不是跨实例强一致。
+
 ## 已完成的10项改造
 
 ### ✅ 1. 全站文案改为"AI/API项目展示目录"
@@ -82,13 +96,14 @@
 ---
 
 ### ✅ 7. 数据库安全配置
-**检查结果：**
-```
-DATABASE_URL="mysql://vantaapi:VantaAPI2026!Secure@127.0.0.1:3306/vantaapi"
+**生产要求：**
+```env
+DATABASE_URL="mysql://<db_user>:<strong-random-password>@127.0.0.1:3306/<db_name>"
 ```
 - ✅ 使用 `127.0.0.1` 本地地址
 - ✅ 3306端口仅本地访问
 - ✅ 不对公网开放
+- ✅ 禁止在文档或脚本中保存固定数据库密码
 
 ---
 

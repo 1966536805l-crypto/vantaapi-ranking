@@ -1,61 +1,29 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "@/lib/auth";
-import { verify2FAToken } from "@/lib/twoFactor";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { decrypt } from "@/lib/encryption";
-import { logAudit } from "@/lib/redis";
+import { requireAdmin } from "@/lib/auth";
+import { guardedJson, readJsonBody, requireCsrf } from "@/lib/api-guard";
+import { verifyEncrypted2FAToken } from "@/lib/twoFactor";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  try {
-    const admin = await verifyAdminToken(request);
-    if (!admin) {
-      return NextResponse.json({ message: "无权限" }, { status: 403 });
-    }
+  const { user, response } = await requireAdmin(request, { allowUnverified2FA: true });
+  if (response) return response;
+  const csrfBlocked = requireCsrf(request);
+  if (csrfBlocked) return csrfBlocked;
 
-    const body = await request.json();
-    const { token } = body;
+  const parsedBody = await readJsonBody<Record<string, unknown>>(request, 4 * 1024);
+  if (!parsedBody.ok) return parsedBody.response;
+  const token = String(parsedBody.body?.token || parsedBody.body?.code || "").trim();
 
-    if (!admin.twoFactorSecret) {
-      return NextResponse.json(
-        { message: "未设置2FA" },
-        { status: 400 }
-      );
-    }
+  const dbUser = await prisma.user.findUnique({ where: { id: user!.id }, select: { twoFactorSecret: true } });
+  if (!dbUser?.twoFactorSecret) return guardedJson({ message: "请先初始化 2FA" }, { status: 400 });
+  if (!verifyEncrypted2FAToken(dbUser.twoFactorSecret, token)) return guardedJson({ message: "2FA 验证码不正确" }, { status: 400 });
 
-    const secret = decrypt(admin.twoFactorSecret);
-    const valid = verify2FAToken(secret, token);
+  await prisma.user.update({
+    where: { id: user!.id },
+    data: { twoFactorEnabled: true, twoFactorConfirmedAt: new Date() },
+  });
 
-    if (!valid) {
-      await logAudit({
-        userId: admin.id,
-        action: "2fa_verify_failed",
-        resource: "auth",
-        ip: request.headers.get("x-forwarded-for") || "unknown",
-      });
-
-      return NextResponse.json(
-        { message: "验证码错误" },
-        { status: 401 }
-      );
-    }
-
-    await prisma.user.update({
-      where: { id: admin.id },
-      data: { twoFactorEnabled: true },
-    });
-
-    await logAudit({
-      userId: admin.id,
-      action: "2fa_enabled",
-      resource: "auth",
-      ip: request.headers.get("x-forwarded-for") || "unknown",
-    });
-
-    return NextResponse.json({ message: "2FA已启用" });
-  } catch (error) {
-    return NextResponse.json(
-      { message: "验证失败" },
-      { status: 500 }
-    );
-  }
+  return guardedJson({ ok: true, message: "2FA 已启用" });
 }

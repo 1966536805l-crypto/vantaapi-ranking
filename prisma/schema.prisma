@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,197 +6,193 @@ datasource db {
   provider = "mysql"
 }
 
-// 排行榜分类
-model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  description String?
-  icon        String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  rankings    Ranking[]
+enum UserRole {
+  USER
+  ADMIN
 }
 
-// 排行榜项目
-model Ranking {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  imageUrl    String?
-  score       Float     @default(0)
-  votes       Int       @default(0)
-  views       Int       @default(0)
-  categoryId  String
-  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  status      String    @default("pending") // pending, approved, rejected
-  submittedBy String?
-  userId      String?
-  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  comments    Comment[]
-  likes       Like[]
-
-  @@index([categoryId])
-  @@index([status])
-  @@index([score])
-  @@index([userId])
-  @@index([createdAt])
+enum LearningDirection {
+  ENGLISH
+  CPP
 }
 
-// 管理员用户
-model Admin {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  password  String
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum QuestionType {
+  MULTIPLE_CHOICE
+  FILL_BLANK
+  CODE_READING
 }
 
-// 普通用户
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  password          String
-  username          String?
-  name              String?
-  role              String    @default("user") // user, admin
-  twoFactorSecret   String?   // 加密存储的2FA密钥
-  twoFactorEnabled  Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  rankings          Ranking[]
-  comments          Comment[]
-  likes             Like[]
-  follows           Follow[]  @relation("UserFollows")
-  followers         Follow[]  @relation("UserFollowers")
-  cppErrors         CppError[]
-  mistakes          Mistake[]
+  id             String          @id @default(cuid())
+  email          String          @unique
+  passwordHash   String
+  name           String?
+  role           UserRole        @default(USER)
+  twoFactorSecret String?
+  twoFactorEnabled Boolean       @default(false)
+  twoFactorConfirmedAt DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  progress       UserProgress[]
+  attempts       QuestionAttempt[]
+  wrongQuestions WrongQuestion[]
 
   @@index([email])
+  @@index([role])
 }
 
-// 评论
-model Comment {
-  id        String    @id @default(cuid())
-  content   String    @db.Text
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rankingId String
-  ranking   Ranking   @relation(fields: [rankingId], references: [id], onDelete: Cascade)
-  parentId  String?
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("CommentReplies")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Course {
+  id          String            @id @default(cuid())
+  slug        String
+  title       String
+  description String            @db.Text
+  direction   LearningDirection
+  sortOrder   Int               @default(0)
+  isPublished Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  lessons     Lesson[]
 
-  @@index([rankingId])
-  @@index([userId])
-  @@index([parentId])
-  @@index([createdAt])
+  @@unique([direction, slug])
+  @@index([direction])
+  @@index([isPublished])
+  @@index([sortOrder])
 }
 
-// 点赞
-model Like {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rankingId String
-  ranking   Ranking  @relation(fields: [rankingId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+model Lesson {
+  id          String         @id @default(cuid())
+  courseId    String
+  course      Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  slug        String
+  title       String
+  summary     String         @db.Text
+  content     String         @db.Text
+  sortOrder   Int            @default(0)
+  isPublished Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  examples    Example[]
+  questions   Question[]
+  progress    UserProgress[]
 
-  @@unique([userId, rankingId])
-  @@index([rankingId])
-  @@index([userId])
+  @@unique([courseId, slug])
+  @@index([courseId])
+  @@index([isPublished])
+  @@index([sortOrder])
 }
 
-// 关注
-model Follow {
+model Example {
   id          String   @id @default(cuid())
-  followerId  String
-  follower    User     @relation("UserFollows", fields: [followerId], references: [id], onDelete: Cascade)
-  followingId String
-  following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-
-  @@unique([followerId, followingId])
-  @@index([followerId])
-  @@index([followingId])
-}
-
-// 举报记录
-model Report {
-  id          String   @id @default(cuid())
-  type        String   // ranking, spam, illegal, copyright, other
-  targetId    String
-  reason      String
-  description String?  @db.Text
-  email       String?
-  status      String   @default("pending") // pending, processing, resolved, rejected
-  ipAddress   String?
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title       String
+  content     String   @db.Text
+  explanation String   @db.Text
+  sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@index([status])
-  @@index([createdAt])
+  @@index([lessonId])
+  @@index([sortOrder])
 }
 
-// C++ 错误记录
-model CppError {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  code        String   @db.Text
-  stdin       String   @db.Text
-  stdout      String?  @db.Text
-  stderr      String?  @db.Text
-  note        String?  @db.Text
-  aiAnalysis  String?  @db.Text
-  createdAt   DateTime @default(now())
-
-  @@index([userId])
-  @@index([createdAt])
-}
-
-// 错题本
-model Mistake {
-  id              String    @id @default(cuid())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  question        String    @db.Text
-  myAnswer        String    @db.Text
-  correctAnswer   String    @db.Text
-  myProcess       String?   @db.Text
-  mistakeType     String    // 审题错/概念不清/公式乱用/计算粗心/图形没看出来/变量关系没建出来/第一突破口卡住/会方法但表达乱
-  correctThinking String?   @db.Text
-  nextReviewAt    DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  @@index([userId])
-  @@index([mistakeType])
-  @@index([nextReviewAt])
-  @@index([createdAt])
-}
-
-// 题库
 model Question {
-  id          String   @id @default(cuid())
-  content     String   @db.Text      // 题目内容
-  answer      String   @db.Text      // 答案
-  explanation String?  @db.Text      // 解析
-  difficulty  String   @default("中等") // 简单/中等/困难
-  subject     String   @default("数学") // 数学/物理/化学等
-  topic       String?                // 知识点（函数/三角/立体几何/解析几何/数列等）
-  type        String   @default("选择题") // 选择题/填空题/解答题
-  tags        String?                // 标签（JSON数组字符串）
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String            @id @default(cuid())
+  lessonId       String
+  lesson         Lesson            @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type           QuestionType
+  prompt         String            @db.Text
+  codeSnippet    String?           @db.Text
+  answer         String            @db.Text
+  explanation    String            @db.Text
+  difficulty     Difficulty        @default(EASY)
+  sortOrder      Int               @default(0)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  options        QuestionOption[]
+  attempts       QuestionAttempt[]
+  wrongQuestions WrongQuestion[]
 
-  @@index([difficulty])
-  @@index([subject])
-  @@index([topic])
+  @@index([lessonId])
   @@index([type])
+  @@index([difficulty])
+  @@index([sortOrder])
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label      String
+  content    String   @db.Text
+  isCorrect  Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([questionId])
+  @@index([sortOrder])
+}
+
+model UserProgress {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  status      ProgressStatus @default(IN_PROGRESS)
+  lastScore   Int?
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@index([status])
+}
+
+model QuestionAttempt {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer     String   @db.Text
+  isCorrect  Boolean
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([questionId])
+  @@index([isCorrect])
+  @@index([createdAt])
+}
+
+model WrongQuestion {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userAnswer String?  @db.Text
+  note       String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, questionId])
+  @@index([userId])
+  @@index([questionId])
   @@index([createdAt])
 }

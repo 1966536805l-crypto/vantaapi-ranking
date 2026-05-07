@@ -1,82 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword, checkLoginAttempts, recordLoginAttempt } from "@/lib/auth";
-import { getRateLimitKey, checkRateLimit } from "@/lib/security";
-import jwt from "jsonwebtoken";
+import { setAuthCookie, signAuthToken, verifyPassword } from "@/lib/auth";
+import { guardedJson, readJsonBody } from "@/lib/api-guard";
+import { auditEvent, hashAuditSubject } from "@/lib/audit";
+import { validateHumanFormSignals } from "@/lib/bot-protection";
+import { checkRateLimitAsync, getEmailRateLimitKey, getRateLimitKey } from "@/lib/security";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+import { verifyEncrypted2FAToken } from "@/lib/twoFactor";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+function rateLimitResponse(retryAfterSeconds: number) {
+  return NextResponse.json(
+    { message: "尝试次数过多，请稍后再试" },
+    {
+      status: 429,
+      headers: {
+        "Cache-Control": "no-store",
+        "Retry-After": String(retryAfterSeconds),
+      },
+    }
+  );
+}
 
 export async function POST(request: NextRequest) {
-  try {
-    // 频率限制
-    const rateLimitKey = getRateLimitKey(request);
-    const rateLimit = checkRateLimit(rateLimitKey, 5, 300000); // 5次/5分钟
-
-    if (!rateLimit.allowed) {
-      return NextResponse.json(
-        { message: "请求过于频繁，请稍后再试" },
-        { status: 429 }
-      );
-    }
-
-    const body = await request.json();
-    const { email, password } = body;
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { message: "邮箱和密码不能为空" },
-        { status: 400 }
-      );
-    }
-
-    // 检查登录失败锁定
-    const loginCheck = checkLoginAttempts(email);
-    if (!loginCheck.allowed) {
-      return NextResponse.json(
-        {
-          message: `登录失败次数过多，请在 ${loginCheck.remainingTime} 秒后重试`,
-        },
-        { status: 429 }
-      );
-    }
-
-    // 查找用户
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      recordLoginAttempt(email, false);
-      return NextResponse.json(
-        { message: "邮箱或密码错误" },
-        { status: 401 }
-      );
-    }
-
-    // 验证密码
-    const isValid = await verifyPassword(password, user.password);
-    if (!isValid) {
-      recordLoginAttempt(email, false);
-      return NextResponse.json(
-        { message: "邮箱或密码错误" },
-        { status: 401 }
-      );
-    }
-
-    // 登录成功
-    recordLoginAttempt(email, true);
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
-
-    return NextResponse.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-      },
-    });
-  } catch (error) {
-    console.error("User login error:", error);
-    return NextResponse.json({ message: "登录失败" }, { status: 500 });
+  const ipLimit = await checkRateLimitAsync(`login:ip:${getRateLimitKey(request)}`, 30, 15 * 60_000);
+  if (!ipLimit.allowed) {
+    auditEvent(request, "auth.login", "blocked", { reason: "ip-rate-limit" });
+    return rateLimitResponse(Math.ceil((ipLimit.resetTime - Date.now()) / 1000));
   }
+
+  const parsedBody = await readJsonBody<Record<string, unknown>>(request, 8 * 1024);
+  if (!parsedBody.ok) return parsedBody.response;
+
+  const body = parsedBody.body;
+  const humanSignals = validateHumanFormSignals(body);
+  if (!humanSignals.ok) {
+    auditEvent(request, "auth.login", "blocked", { reason: humanSignals.reason });
+    return guardedJson({ message: "请求被安全策略拦截" }, { status: 403 });
+  }
+
+  const turnstile = await verifyTurnstileToken(request, String(body.turnstileToken || ""));
+  if (!turnstile.success) {
+    auditEvent(request, "auth.login", "blocked", { reason: turnstile.reason || "turnstile-failed" });
+    return guardedJson({ message: "人机验证失败，请刷新后重试" }, { status: 403 });
+  }
+
+  const email = String(body?.email || "").trim().toLowerCase();
+  const password = String(body?.password || "");
+
+  if (!email || !password) return guardedJson({ message: "邮箱和密码不能为空" }, { status: 400 });
+
+  const emailLimit = await checkRateLimitAsync(`login:email:${getEmailRateLimitKey(request, email)}`, 8, 15 * 60_000);
+  if (!emailLimit.allowed) {
+    auditEvent(request, "auth.login", "blocked", { reason: "email-rate-limit", emailHash: hashAuditSubject(email) });
+    return rateLimitResponse(Math.ceil((emailLimit.resetTime - Date.now()) / 1000));
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    auditEvent(request, "auth.login", "failure", { emailHash: hashAuditSubject(email) });
+    return guardedJson({ message: "邮箱或密码错误" }, { status: 401 });
+  }
+
+  if (user.role === "ADMIN" && user.twoFactorEnabled) {
+    const twoFactorCode = String(body?.twoFactorCode || body?.totp || "").trim();
+    if (!verifyEncrypted2FAToken(user.twoFactorSecret, twoFactorCode)) {
+      auditEvent(request, "auth.login", "failure", { userId: user.id, reason: "bad-2fa" });
+      return guardedJson({ message: "2FA 验证码不正确" }, { status: 401 });
+    }
+  }
+
+  auditEvent(request, "auth.login", "success", { userId: user.id, role: user.role, twoFactorEnabled: user.twoFactorEnabled });
+  const response = guardedJson({ user: { id: user.id, email: user.email, name: user.name, role: user.role, twoFactorEnabled: user.twoFactorEnabled } });
+  setAuthCookie(response, signAuthToken({ userId: user.id, role: user.role }));
+  return response;
 }

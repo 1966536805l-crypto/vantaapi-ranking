@@ -1,123 +1,99 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
-const CSRF_SECRET = process.env.CSRF_SECRET || "change-this-csrf-secret-in-production";
 const CSRF_TOKEN_LENGTH = 32;
+const CSRF_TOKEN_COOKIE = "csrf-token";
+const CSRF_SIGNATURE_COOKIE = "csrf-signature";
+const CSRF_HEADER = "x-csrf-token";
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
-/**
- * 生成 CSRF Token
- */
+function getCsrfSecret() {
+  const secret = process.env.CSRF_SECRET || process.env.JWT_SECRET;
+  if (!secret && process.env.NODE_ENV === "production") {
+    throw new Error("CSRF_SECRET is required in production");
+  }
+  return secret || "dev-csrf-secret-change-me";
+}
+
 export function generateCsrfToken(): string {
   return crypto.randomBytes(CSRF_TOKEN_LENGTH).toString("hex");
 }
 
-/**
- * 创建 CSRF Token 签名
- */
 export function signCsrfToken(token: string): string {
-  return crypto
-    .createHmac("sha256", CSRF_SECRET)
-    .update(token)
-    .digest("hex");
+  return crypto.createHmac("sha256", getCsrfSecret()).update(token).digest("hex");
 }
 
-/**
- * 验证 CSRF Token
- */
 export function verifyCsrfToken(token: string, signature: string): boolean {
-  if (!token || !signature) {
-    return false;
-  }
-
+  if (!token || !signature) return false;
   const expectedSignature = signCsrfToken(token);
-
   try {
-    return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature)
-    );
+    const expected = Buffer.from(expectedSignature, "hex");
+    const received = Buffer.from(signature, "hex");
+    return expected.length === received.length && crypto.timingSafeEqual(received, expected);
   } catch {
     return false;
   }
 }
 
-/**
- * 从请求中提取 CSRF Token
- */
-export function extractCsrfToken(request: NextRequest): {
-  token: string | null;
-  signature: string | null;
-} {
-  // 优先从 Header 获取
-  const headerToken = request.headers.get("x-csrf-token");
-  const headerSignature = request.headers.get("x-csrf-signature");
-
-  if (headerToken && headerSignature) {
-    return { token: headerToken, signature: headerSignature };
-  }
-
-  // 从 Cookie 获取
-  const cookieToken = request.cookies.get("csrf-token")?.value || null;
-  const cookieSignature = request.cookies.get("csrf-signature")?.value || null;
-
-  return { token: cookieToken, signature: cookieSignature };
-}
-
-/**
- * 验证请求的 CSRF Token
- */
-export function validateCsrfRequest(request: NextRequest): boolean {
-  // GET、HEAD、OPTIONS 请求不需要 CSRF 验证
-  if (["GET", "HEAD", "OPTIONS"].includes(request.method)) {
-    return true;
-  }
-
-  // 验证 Origin/Referer
-  const origin = request.headers.get("origin");
-  const referer = request.headers.get("referer");
-  const host = request.headers.get("host");
-
-  // 如果有 Origin，验证是否匹配
-  if (origin) {
-    const originHost = new URL(origin).host;
-    if (originHost !== host) {
-      return false;
-    }
-  }
-
-  // 如果有 Referer，验证是否匹配
-  if (referer) {
-    const refererHost = new URL(referer).host;
-    if (refererHost !== host) {
-      return false;
-    }
-  }
-
-  // 验证 CSRF Token
-  const { token, signature } = extractCsrfToken(request);
-
-  if (!token || !signature) {
+function sameHost(urlValue: string, host: string) {
+  try {
+    return new URL(urlValue).host.toLowerCase() === host.toLowerCase();
+  } catch {
     return false;
   }
-
-  return verifyCsrfToken(token, signature);
 }
 
-/**
- * CSRF 中间件
- */
-export function csrfMiddleware(request: NextRequest): {
-  valid: boolean;
-  error?: string;
-} {
-  const isValid = validateCsrfRequest(request);
+export function setCsrfCookies(response: NextResponse, token = generateCsrfToken()) {
+  const secure = process.env.NODE_ENV === "production";
+  response.cookies.set(CSRF_TOKEN_COOKIE, token, {
+    httpOnly: false,
+    sameSite: "strict",
+    secure,
+    path: "/",
+    maxAge: 60 * 60 * 12,
+    priority: "high",
+  });
+  response.cookies.set(CSRF_SIGNATURE_COOKIE, signCsrfToken(token), {
+    httpOnly: true,
+    sameSite: "strict",
+    secure,
+    path: "/",
+    maxAge: 60 * 60 * 12,
+    priority: "high",
+  });
+  return token;
+}
 
-  if (!isValid) {
-    return {
-      valid: false,
-      error: "CSRF validation failed",
-    };
-  }
+export function createCsrfResponse() {
+  const token = generateCsrfToken();
+  const response = NextResponse.json({ csrfToken: token }, { headers: { "Cache-Control": "no-store" } });
+  setCsrfCookies(response, token);
+  return response;
+}
 
-  return { valid: true };
+export function validateCsrfRequest(request: NextRequest): boolean {
+  if (SAFE_METHODS.has(request.method)) return true;
+
+  const host = request.headers.get("host");
+  if (!host) return false;
+
+  const fetchSite = request.headers.get("sec-fetch-site");
+  if (fetchSite === "cross-site") return false;
+
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  if (origin && !sameHost(origin, host)) return false;
+  if (!origin && referer && !sameHost(referer, host)) return false;
+
+  const headerToken = request.headers.get(CSRF_HEADER);
+  const cookieToken = request.cookies.get(CSRF_TOKEN_COOKIE)?.value || "";
+  const cookieSignature = request.cookies.get(CSRF_SIGNATURE_COOKIE)?.value || "";
+
+  if (!headerToken || !cookieToken || headerToken !== cookieToken || !cookieSignature) return false;
+  return verifyCsrfToken(cookieToken, cookieSignature);
+}
+
+export function csrfMiddleware(request: NextRequest): { valid: boolean; error?: string } {
+  if (validateCsrfRequest(request)) return { valid: true };
+  return { valid: false, error: "CSRF validation failed" };
 }

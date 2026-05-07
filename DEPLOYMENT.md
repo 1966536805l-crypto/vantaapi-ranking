@@ -1,246 +1,246 @@
-# 安全加固部署说明
+# VantaAPI MVP 安全部署说明
 
-## 已完成的安全措施
+这份文档只描述当前 Next.js + Prisma + MySQL/MariaDB MVP 的部署方式。
 
-### 1. ✅ 数据库内网访问
-- `.env` 已更新为 `127.0.0.1`（需要在服务器上部署后生效）
-- **重要**：确保云服务器防火墙已关闭 3306 端口
-
-### 2. ✅ 内容审核机制
-- 用户提交的内容默认状态为 `pending`（待审核）
-- 只有 `approved` 状态的内容才会在前端展示
-- 管理员审核接口：`/api/admin/rankings`
-
-### 3. ✅ XSS 防护
-- 增强的 `sanitizeInput()` 函数，过滤所有危险标签和属性
-- 移除 `<script>`, `<iframe>`, `<object>`, `<embed>` 等标签
-- 移除所有事件处理器（`onclick`, `onerror` 等）
-- 移除危险协议（`javascript:`, `data:`, `vbscript:`）
-- URL 验证只允许 `http://` 和 `https://`
-
-### 4. ✅ 安全响应头
-- `X-Frame-Options: DENY` - 防止点击劫持
-- `X-Content-Type-Options: nosniff` - 防止 MIME 类型嗅探
-- `X-XSS-Protection: 1; mode=block` - 启用浏览器 XSS 过滤
-- `Strict-Transport-Security` - 强制 HTTPS（HSTS）
-- `Content-Security-Policy` - 完整的 CSP 策略
-- `Permissions-Policy` - 禁用不必要的浏览器功能
-
-### 5. ✅ 用户认证系统
-- 用户注册接口：`/api/auth/register`
-- 用户登录接口：`/api/auth/login`
-- 投稿必须登录（JWT token 验证）
-- 密码强度验证（至少12位，包含大小写、数字、特殊字符）
-- 密码使用 bcrypt 加密（12轮）
-
-### 6. ✅ 频率限制（Rate Limiting）
-- 投稿接口：5次/分钟
-- 登录接口：5次/5分钟
-- 注册接口：3次/小时
-- 举报接口：3次/小时
-- 登录失败5次后锁定15分钟
-
-### 7. ✅ 管理员后台安全
-- 强密码策略（12位以上，复杂度要求）
-- 登录失败锁定机制
-- JWT token 认证（24小时过期）
-- 管理员登录接口：`/api/admin/login`
-- 管理员审核接口：`/api/admin/rankings`
-
-### 8. ✅ 举报功能
-- 举报接口：`/api/report`
-- 支持多种举报类型：ranking, spam, illegal, copyright, other
-- 记录举报者 IP 和邮箱（可选）
-- 承诺24小时内处理
-
-### 9. ✅ 隐私政策
-- 隐私政策页面：`/privacy`
-- 详细说明数据收集、使用、保存、删除方式
-- 联系邮箱：privacy@vantaapi.com
+> 重点：不要使用固定示例密码；当前 Prisma schema 没有 `Admin` 表，管理员是 `User.role = ADMIN`。
 
 ---
 
-## 🚀 部署步骤
+## 上线结论
 
-### 在服务器上执行以下操作：
+- **内测可以上线**：建议关闭公开注册，开启 Turnstile，保持 C++ runner 关闭。
+- **公开上线前**：建议补齐 Redis 限流、管理员 2FA、CSRF token，以及 CSP nonce/hash。
 
-#### 1. 上传代码到服务器
-```bash
-# 使用 git 或 scp 上传代码
-git pull origin main
-# 或
-scp -r ./vantaapi-ranking user@server:/path/to/project
-```
+---
 
-#### 2. 安装依赖
-```bash
-cd /path/to/vantaapi-ranking
-npm install
-```
+## 生产环境最低配置
 
-#### 3. 配置环境变量
-```bash
-# 编辑 .env 文件
-nano .env
-```
+### 必填 `.env`
 
-确保包含以下内容：
 ```env
-DATABASE_URL="mysql://vantaapi:VantaAPI2026!Secure@127.0.0.1:3306/vantaapi"
-JWT_SECRET="VantaAPI-JWT-Secret-2026-Change-This-In-Production-Min-32-Chars"
+DATABASE_URL="mysql://<db_user>:<strong-random-password>@127.0.0.1:3306/<db_name>"
+JWT_SECRET="<generate-a-random-secret-at-least-32-chars>"
 NODE_ENV="production"
+NEXT_TELEMETRY_DISABLED="1"
+APP_ALLOWED_HOSTS="vantaapi.com,www.vantaapi.com"
 ```
 
-**重要**：请修改 `JWT_SECRET` 为一个随机的强密码（至少32位）
+生成随机 secret 示例：
 
-#### 4. 运行数据库迁移
+```bash
+openssl rand -base64 48
+```
+
+### 强烈建议的生产安全开关
+
+```env
+ENABLE_PUBLIC_REGISTRATION="false"
+AUTH_TURNSTILE_REQUIRED="true"
+ENABLE_CPP_RUNNER="false"
+ENABLE_REDIS_RATE_LIMITS="true"
+REDIS_URL="redis://127.0.0.1:6379"
+NEXT_PUBLIC_TURNSTILE_SITE_KEY="<your-turnstile-site-key>"
+TURNSTILE_SECRET_KEY="<your-turnstile-secret-key>"
+```
+
+说明：
+
+- `DATABASE_URL` 必须使用生产随机强密码，不要复制任何文档示例密码。
+- `APP_ALLOWED_HOSTS` 生产环境建议只包含正式域名，不要默认放行临时预览域名。
+- `ENABLE_CPP_RUNNER` 必须保持 `false`，除非你已经做了 Docker/worker 隔离、禁网络、限 CPU/内存/进程数、只读文件系统和超时强杀。
+
+---
+
+## 部署步骤
+
+### 1. 上传或拉取代码
+
+```bash
+cd /www/wwwroot
+# 任选一种方式：git clone / git pull / 宝塔文件上传
+cd /www/wwwroot/vantaapi-ranking
+```
+
+### 2. 安装依赖
+
+```bash
+npm ci
+# 如果没有 package-lock.json，则使用：npm install
+```
+
+### 3. 配置 `.env`
+
+```bash
+nano .env
+chmod 600 .env
+```
+
+按上面的 `.env` 模板填写生产变量。
+
+### 4. 数据库迁移
+
 ```bash
 npx prisma migrate deploy
-# 或者如果是开发环境
-npx prisma migrate dev
-```
-
-#### 5. 生成 Prisma Client
-```bash
 npx prisma generate
 ```
 
-#### 6. 创建管理员账户
+### 5. 创建管理员账户
+
+当前没有 `Admin` 表。管理员账户通过 `User` 表创建，`role` 为 `ADMIN`。
+
+推荐方式：使用现有 seed 脚本，并只在需要创建管理员时设置 seed 环境变量。
+
 ```bash
-# 使用 Prisma Studio 或直接插入数据库
-npx prisma studio
-# 或使用 SQL
+SEED_ADMIN_EMAIL="admin@example.com" \
+SEED_ADMIN_PASSWORD="Use-A-Strong-Random-Password-123!" \
+SEED_ADMIN_NAME="Admin" \
+npm run db:seed
 ```
 
-创建管理员的 SQL（密码需要先用 bcrypt 加密）：
-```sql
--- 注意：这里的密码是 "AdminPassword123!" 的 bcrypt hash
-INSERT INTO Admin (id, username, password, email, createdAt, updatedAt)
-VALUES (
-  'admin001',
-  'admin',
-  '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIeWEgKK3q',
-  'admin@vantaapi.com',
-  NOW(),
-  NOW()
-);
-```
+密码要求：至少 12 位，包含大小写字母、数字和特殊字符。
 
-**重要**：请使用强密码并通过 bcrypt 加密后再插入！
+安全建议：管理员创建完成后，不要把 `SEED_ADMIN_PASSWORD` 长期保存在服务器 `.env` 里。
 
-#### 7. 构建项目
+### 6. 构建并启动
+
 ```bash
 npm run build
-```
-
-#### 8. 启动服务
-```bash
-# 使用 PM2（推荐）
 pm2 start npm --name "vantaapi-ranking" -- start
 pm2 save
-
-# 或直接启动
-npm start
 ```
 
-#### 9. 配置 Nginx 反向代理（如果使用）
+常用命令：
+
+```bash
+pm2 logs vantaapi-ranking
+pm2 restart vantaapi-ranking
+pm2 stop vantaapi-ranking
+```
+
+---
+
+## 宝塔一键辅助脚本
+
+仓库内的 `deploy-baota.sh` 已改为安全版：
+
+- 不包含固定数据库密码。
+- 不向旧 `Admin` 表插入数据。
+- 读取/生成 `.env`。
+- 可选使用 `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` 执行 `npm run db:seed` 创建 `User.role=ADMIN` 管理员。
+
+使用方式：
+
+```bash
+chmod +x deploy-baota.sh
+./deploy-baota.sh
+```
+
+---
+
+## Nginx / 宝塔反向代理建议
+
+宝塔面板：
+
+1. 网站 -> 添加站点 -> 填写正式域名。
+2. SSL -> Let's Encrypt -> 申请证书。
+3. 反向代理目标：`http://127.0.0.1:3000`。
+4. 云服务器安全组只开放 `80/tcp` 和 `443/tcp`。
+5. 不开放 `3000`、`3306`、Redis、PM2/internal dashboard。
+
+Nginx 示例：
+
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com;
+    server_name vantaapi.com www.vantaapi.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name vantaapi.com www.vantaapi.com;
+
+    # ssl_certificate     /path/to/fullchain.pem;
+    # ssl_certificate_key /path/to/privkey.pem;
+
+    client_max_body_size 128k;
+    server_tokens off;
+
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    location ~ /(?:\.git|\.env|node_modules|package-lock\.json|prisma/dev\.db) {
+        deny all;
+        return 404;
+    }
 
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
+        proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
         proxy_cache_bypass $http_upgrade;
     }
 }
 ```
 
-#### 10. 配置 HTTPS（强烈推荐）
+---
+
+## Cloudflare/CDN 建议
+
+- SSL/TLS: Full (strict)
+- Always Use HTTPS: On
+- Automatic HTTPS Rewrites: On
+- WAF Managed Rules: On
+- Security Level: Medium
+- Bot Fight Mode: On（如果误伤正常用户就关）
+- Turnstile 接登录/注册，不建议 MVP 阶段给全站页面强上验证码
+
+---
+
+## 部署后验证清单
+
+- [ ] `.env` 没有固定示例密码。
+- [ ] `APP_ALLOWED_HOSTS` 只包含正式生产域名。
+- [ ] 数据库只监听/只允许内网访问，云防火墙未开放 3306。
+- [ ] Redis 未暴露公网；如公开上线，已配置 `REDIS_URL` 并开启 `ENABLE_REDIS_RATE_LIMITS=true`。
+- [ ] `ENABLE_CPP_RUNNER=false`。
+- [ ] 网站使用 HTTPS。
+- [ ] `/login`、`/register`（如启用）、`/dashboard` 可正常访问。
+- [ ] 管理员账户可登录 `/admin`。
+- [ ] 普通用户无法访问 `/admin`。
+- [ ] 安全响应头已生效，可用 https://securityheaders.com 检查。
+
+---
+
+## 仍需跟进的上线前安全任务
+
+1. 后台和关键写接口接入真正 CSRF token：`/api/admin/*`、`/api/wrong`、`/api/progress`、`/api/quiz/submit`。
+2. 启用管理员 2FA，至少先做 admin-only 2FA。
+3. 生产限流接 Redis，不依赖单进程内存 Map。
+4. CSP 从 `'unsafe-inline'` 逐步迁移到 nonce/hash。
+5. 如未来开放在线 C++ 运行，必须使用隔离 worker，不要在主站机器直接 `spawn("g++")`。
+
+---
+
+## 维护建议
+
 ```bash
-# 使用 Let's Encrypt
-certbot --nginx -d your-domain.com
+npm run security:check
+npm run typecheck
+npm run lint
+npm audit --audit-level=high
 ```
 
----
+数据库备份示例：
 
-## 📋 验证清单
-
-部署完成后，请验证以下项目：
-
-- [ ] 数据库只能从 127.0.0.1 访问
-- [ ] 云防火墙已关闭 3306 端口
-- [ ] 网站使用 HTTPS
-- [ ] 用户注册功能正常
-- [ ] 用户登录功能正常
-- [ ] 未登录用户无法提交内容
-- [ ] 提交的内容默认为待审核状态
-- [ ] 管理员可以登录后台
-- [ ] 管理员可以审核内容
-- [ ] 举报功能正常
-- [ ] 隐私政策页面可访问
-- [ ] 安全响应头已生效（使用 https://securityheaders.com 检查）
-
----
-
-## 🔐 安全建议
-
-1. **定期更新依赖**
-   ```bash
-   npm audit
-   npm update
-   ```
-
-2. **监控日志**
-   - 定期检查异常登录尝试
-   - 监控举报记录
-   - 关注频繁的 429 错误（可能是攻击）
-
-3. **备份数据库**
-   ```bash
-   # 每天自动备份
-   mysqldump -u vantaapi -p vantaapi > backup_$(date +%Y%m%d).sql
-   ```
-
-4. **修改默认密码**
-   - 修改 JWT_SECRET
-   - 修改管理员密码
-   - 修改数据库密码（如果使用默认密码）
-
-5. **启用 2FA（未来改进）**
-   - 考虑为管理员账户添加两步验证
-
----
-
-## 📞 联系方式
-
-如有问题，请联系：
-- 技术支持：support@vantaapi.com
-- 隐私问题：privacy@vantaapi.com
-- 举报邮箱：report@vantaapi.com
-
----
-
-## 📝 数据库迁移文件
-
-新增的数据库表：
-
-1. **User** - 普通用户表
-   - id, email, password, username, createdAt, updatedAt
-
-2. **Report** - 举报记录表
-   - id, type, targetId, reason, description, email, status, ipAddress, createdAt, updatedAt
-
-3. **Ranking** 表更新
-   - 新增 `userId` 字段（关联用户）
-   - `status` 默认值改为 `pending`
-
----
-
-生成时间：2026-05-05
+```bash
+mysqldump -u <db_user> -p <db_name> > backup_$(date +%Y%m%d).sql
+```

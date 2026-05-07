@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "default-key-change-in-production-32bytes";
+const DEFAULT_ENCRYPTION_KEY = "default-key-change-in-production-32bytes";
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16;
 const AUTH_TAG_LENGTH = 16;
@@ -10,10 +10,22 @@ const SALT_LENGTH = 32;
  * 确保密钥长度为32字节
  */
 function getEncryptionKey(): Buffer {
-  if (ENCRYPTION_KEY.length === 64) {
-    return Buffer.from(ENCRYPTION_KEY, "hex");
+  const configuredKey = process.env.ENCRYPTION_KEY;
+
+  if (
+    process.env.NODE_ENV === "production" &&
+    (!configuredKey || configuredKey.length < 32)
+  ) {
+    throw new Error("ENCRYPTION_KEY is required in production");
   }
-  return crypto.scryptSync(ENCRYPTION_KEY, "salt", 32);
+
+  const encryptionKey = configuredKey || DEFAULT_ENCRYPTION_KEY;
+
+  if (/^[0-9a-fA-F]{64}$/.test(encryptionKey)) {
+    return Buffer.from(encryptionKey, "hex");
+  }
+
+  return crypto.scryptSync(encryptionKey, "salt", 32);
 }
 
 /**
@@ -31,7 +43,7 @@ export function encrypt(text: string): string {
     const authTag = cipher.getAuthTag();
 
     return `${iv.toString("hex")}:${authTag.toString("hex")}:${encrypted}`;
-  } catch (error) {
+  } catch {
     throw new Error("Encryption failed");
   }
 }
@@ -48,6 +60,9 @@ export function decrypt(encryptedData: string): string {
 
     const iv = Buffer.from(parts[0], "hex");
     const authTag = Buffer.from(parts[1], "hex");
+    if (authTag.length !== AUTH_TAG_LENGTH) {
+      throw new Error("Invalid auth tag length");
+    }
     const encrypted = parts[2];
 
     const key = getEncryptionKey();
@@ -58,7 +73,7 @@ export function decrypt(encryptedData: string): string {
     decrypted += decipher.final("utf8");
 
     return decrypted;
-  } catch (error) {
+  } catch {
     throw new Error("Decryption failed");
   }
 }

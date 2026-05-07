@@ -1,29 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "@/lib/auth";
-import { generate2FASecret, generate2FAQRCode } from "@/lib/twoFactor";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { encrypt } from "@/lib/encryption";
+import { requireAdmin } from "@/lib/auth";
+import { guardedJson, requireCsrf } from "@/lib/api-guard";
+import { generate2FAQRCode, generate2FASecret } from "@/lib/twoFactor";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  try {
-    const admin = await verifyAdminToken(request);
-    if (!admin) {
-      return NextResponse.json({ message: "无权限" }, { status: 403 });
-    }
+  const { user, response } = await requireAdmin(request, { allowUnverified2FA: true });
+  if (response) return response;
+  const csrfBlocked = requireCsrf(request);
+  if (csrfBlocked) return csrfBlocked;
 
-    const { secret, otpauthUrl } = generate2FASecret(admin.email);
-    const qrCode = await generate2FAQRCode(otpauthUrl!);
+  const generated = generate2FASecret(user!.email);
+  if (!generated.otpauthUrl) return guardedJson({ message: "2FA setup failed" }, { status: 500 });
+  await prisma.user.update({
+    where: { id: user!.id },
+    data: { twoFactorSecret: generated.encryptedSecret, twoFactorEnabled: false, twoFactorConfirmedAt: null },
+  });
 
-    await prisma.user.update({
-      where: { id: admin.id },
-      data: { twoFactorSecret: encrypt(secret) },
-    });
-
-    return NextResponse.json({ qrCode, secret });
-  } catch (error) {
-    return NextResponse.json(
-      { message: "生成2FA失败" },
-      { status: 500 }
-    );
-  }
+  return guardedJson({
+    otpauthUrl: generated.otpauthUrl,
+    qrCode: await generate2FAQRCode(generated.otpauthUrl),
+    message: "Scan the QR code, then call /api/auth/2fa/verify with a 6 digit code to enable 2FA.",
+  });
 }

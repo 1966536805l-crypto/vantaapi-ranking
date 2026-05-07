@@ -1,142 +1,90 @@
-import { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { AUTH_COOKIE } from "@/lib/auth-constants";
+import { AUTH_SESSION_SECONDS, signAuthToken, verifyAuthToken, type AuthPayload } from "@/lib/auth-token";
 import { prisma } from "@/lib/prisma";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_TIME = 15 * 60 * 1000; // 15分钟
+export { signAuthToken, type AuthPayload };
 
-// 登录失败记录
-const loginAttempts = new Map<string, { count: number; lockUntil: number }>();
+type RequireAdminOptions = {
+  allowUnverified2FA?: boolean;
+};
 
-export async function verifyAdminToken(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return null;
-    }
+function admin2FARequired() {
+  return process.env.ADMIN_2FA_REQUIRED !== "false";
+}
 
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, JWT_SECRET) as { adminId: string };
+export function setAuthCookie(response: NextResponse, token: string) {
+  response.cookies.set(AUTH_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: AUTH_SESSION_SECONDS,
+    priority: "high",
+  });
+}
 
-    const admin = await prisma.user.findUnique({
-      where: { id: decoded.adminId },
-      select: { id: true, username: true, email: true, twoFactorSecret: true },
-    });
+export function clearAuthCookie(response: NextResponse) {
+  response.cookies.set(AUTH_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0,
+  });
+}
 
-    return admin;
-  } catch (error) {
-    return null;
+export function readAuthPayload(request: NextRequest): AuthPayload | null {
+  const token = request.cookies.get(AUTH_COOKIE)?.value;
+  if (!token) return null;
+  return verifyAuthToken(token);
+}
+
+export async function getCurrentUser(request: NextRequest) {
+  const payload = readAuthPayload(request);
+  if (!payload) return null;
+
+  return prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { id: true, email: true, name: true, role: true, twoFactorEnabled: true, createdAt: true },
+  });
+}
+
+export async function requireUser(request: NextRequest) {
+  const user = await getCurrentUser(request);
+  if (!user) {
+    return { user: null, response: NextResponse.json({ message: "请先登录" }, { status: 401 }) };
   }
+  return { user, response: null };
 }
 
-export async function verifyUserToken(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return null;
-    }
-
-    const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, username: true },
-    });
-
-    return user;
-  } catch (error) {
-    return null;
+export async function requireAdmin(request: NextRequest, options: RequireAdminOptions = {}) {
+  const userResult = await requireUser(request);
+  if (userResult.response) return userResult;
+  if (userResult.user?.role !== "ADMIN") {
+    return { user: null, response: NextResponse.json({ message: "需要管理员权限" }, { status: 403 }) };
   }
+  if (admin2FARequired() && !options.allowUnverified2FA && !userResult.user.twoFactorEnabled) {
+    return { user: null, response: NextResponse.json({ message: "管理员必须先启用 2FA" }, { status: 403 }) };
+  }
+  return userResult;
 }
 
-export function generateAdminToken(adminId: string): string {
-  return jwt.sign({ adminId }, JWT_SECRET, { expiresIn: "24h" });
-}
-
-export async function hashPassword(password: string): Promise<string> {
+export async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
 }
 
-export async function verifyPassword(
-  password: string,
-  hashedPassword: string
-): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword);
+export async function verifyPassword(password: string, hash: string) {
+  return bcrypt.compare(password, hash);
 }
 
-export function checkLoginAttempts(identifier: string): {
-  allowed: boolean;
-  remainingTime?: number;
-} {
-  const now = Date.now();
-  const record = loginAttempts.get(identifier);
-
-  if (!record) {
-    return { allowed: true };
-  }
-
-  if (record.lockUntil > now) {
-    return {
-      allowed: false,
-      remainingTime: Math.ceil((record.lockUntil - now) / 1000),
-    };
-  }
-
-  if (record.lockUntil <= now && record.count >= MAX_LOGIN_ATTEMPTS) {
-    loginAttempts.delete(identifier);
-    return { allowed: true };
-  }
-
-  return { allowed: true };
-}
-
-export function recordLoginAttempt(identifier: string, success: boolean) {
-  const now = Date.now();
-  const record = loginAttempts.get(identifier);
-
-  if (success) {
-    loginAttempts.delete(identifier);
-    return;
-  }
-
-  if (!record) {
-    loginAttempts.set(identifier, { count: 1, lockUntil: 0 });
-    return;
-  }
-
-  record.count++;
-
-  if (record.count >= MAX_LOGIN_ATTEMPTS) {
-    record.lockUntil = now + LOCKOUT_TIME;
-  }
-}
-
-export function validatePassword(password: string): {
-  valid: boolean;
-  message?: string;
-} {
-  if (password.length < 12) {
-    return { valid: false, message: "密码长度至少12位" };
-  }
-
-  const hasUpperCase = /[A-Z]/.test(password);
-  const hasLowerCase = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-  const strength = [hasUpperCase, hasLowerCase, hasNumber, hasSpecial].filter(
-    Boolean
-  ).length;
-
-  if (strength < 3) {
-    return {
-      valid: false,
-      message: "密码必须包含大写字母、小写字母、数字和特殊字符中的至少3种",
-    };
-  }
-
+export function validatePassword(password: string) {
+  if (password.length < 12) return { valid: false, message: "密码至少 12 位" };
+  if (password.length > 128) return { valid: false, message: "密码不能超过 128 位" };
+  if (!/[A-Z]/.test(password)) return { valid: false, message: "密码需要包含大写字母" };
+  if (!/[a-z]/.test(password)) return { valid: false, message: "密码需要包含小写字母" };
+  if (!/[0-9]/.test(password)) return { valid: false, message: "密码需要包含数字" };
+  if (!/[^A-Za-z0-9]/.test(password)) return { valid: false, message: "密码需要包含特殊字符" };
   return { valid: true };
 }
