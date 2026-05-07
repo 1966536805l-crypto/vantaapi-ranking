@@ -30,6 +30,13 @@ type GitHubRepoAnalysis = {
     archived: boolean;
     pushedAt: string;
   };
+  launchScore: {
+    score: number;
+    riskLevel: "Low" | "Medium" | "High";
+    summary: string;
+  };
+  mustFix: string[];
+  copyableIssues: string[];
   overview: string[];
   howToRun: string[];
   techStack: string[];
@@ -41,6 +48,7 @@ type GitHubRepoAnalysis = {
   issueLabelPlan: string[];
   deploymentChecklist: string[];
   prReviewChecklist: string[];
+  releaseChecklist: string[];
   filesRead: string[];
 };
 
@@ -324,6 +332,8 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
   }
 
   return [
+    `Launch readiness\nScore: ${analysis.launchScore.score}/100\nRisk: ${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
+    `Must fix before launch\n${numberedList(analysis.mustFix)}`,
     `Repository\n${analysis.repository.fullName}\n${analysis.repository.url}`,
     `Overview\n${bulletList(analysis.overview)}`,
     `Tech stack\n${bulletList(analysis.techStack)}`,
@@ -336,6 +346,8 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
     `CI suggestions\n${bulletList(analysis.githubActions)}`,
     `Deployment checklist\n${numberedList(analysis.deploymentChecklist)}`,
     `PR review checklist\n${numberedList(analysis.prReviewChecklist)}`,
+    `Release checklist\n${numberedList(analysis.releaseChecklist)}`,
+    `Copyable GitHub issues\n${analysis.copyableIssues.join("\n\n---\n\n")}`,
     `Files read\n${bulletList(analysis.filesRead)}`,
   ].join("\n\n");
 }
@@ -433,11 +445,12 @@ function GitHubRepoAnalyzer() {
   const blocks = useMemo<OutputBlock[]>(() => {
     if (!analysis) return [];
     return [
-      { badge: "01", title: "Run commands", content: numberedList(analysis.howToRun) },
-      { badge: "02", title: "Environment checklist", content: bulletList(analysis.envChecklist) },
-      { badge: "03", title: "README upgrades", content: bulletList(analysis.readmeSuggestions) },
-      { badge: "04", title: "Issue labels", content: bulletList(analysis.issueLabelPlan) },
-      { badge: "05", title: "Deployment checklist", content: numberedList(analysis.deploymentChecklist) },
+      { badge: `${analysis.launchScore.score}`, title: `${analysis.launchScore.riskLevel} risk`, content: analysis.launchScore.summary },
+      { badge: "01", title: "Must fix", content: numberedList(analysis.mustFix) },
+      { badge: "02", title: "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
+      { badge: "03", title: "Release checklist", content: numberedList(analysis.releaseChecklist) },
+      { badge: "04", title: "Environment checklist", content: bulletList(analysis.envChecklist) },
+      { badge: "05", title: "README upgrades", content: bulletList(analysis.readmeSuggestions) },
       { badge: "06", title: "PR review checklist", content: numberedList(analysis.prReviewChecklist) },
     ];
   }, [analysis]);
@@ -513,6 +526,12 @@ function GitHubRepoAnalyzer() {
           <span className="text-sm font-semibold">Reads</span>
           <span className="text-xs text-[color:var(--muted)]">README package env CI deploy clues</span>
         </div>
+        {analysis && (
+          <div className="dense-row">
+            <span className="text-sm font-semibold">Score</span>
+            <span className="text-xs text-[color:var(--muted)]">{analysis.launchScore.score}/100 {analysis.launchScore.riskLevel}</span>
+          </div>
+        )}
       </div>
     </ToolLayout>
   );

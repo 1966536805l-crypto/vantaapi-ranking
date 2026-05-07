@@ -19,6 +19,13 @@ export type GitHubRepoAnalysis = {
     archived: boolean;
     pushedAt: string;
   };
+  launchScore: {
+    score: number;
+    riskLevel: "Low" | "Medium" | "High";
+    summary: string;
+  };
+  mustFix: string[];
+  copyableIssues: string[];
   overview: string[];
   howToRun: string[];
   techStack: string[];
@@ -30,6 +37,7 @@ export type GitHubRepoAnalysis = {
   issueLabelPlan: string[];
   deploymentChecklist: string[];
   prReviewChecklist: string[];
+  releaseChecklist: string[];
   filesRead: string[];
 };
 
@@ -414,6 +422,74 @@ function issueLabelPlan(stack: string[], workflows: string[]) {
   return labels.map((label) => `Create label: ${label}`);
 }
 
+function riskyPublicFiles(tree: GitHubTreeItem[]) {
+  return tree
+    .filter((item) => item.type === "blob")
+    .map((item) => item.path)
+    .filter((path) =>
+      /(^|\/)(\.env|\.env\.local|\.env\.production|dev\.db|database\.sqlite|\.DS_Store|id_rsa|.*\.pem|.*\.key)$/i.test(path)
+    )
+    .slice(0, 12);
+}
+
+function launchAuditSummary({
+  meta,
+  files,
+  packageJson,
+  workflows,
+  readme,
+  riskyFiles,
+}: {
+  meta: GitHubRepoMeta;
+  files: Map<string, string | null>;
+  packageJson: ReturnType<typeof parsePackageJson>;
+  workflows: string[];
+  readme: string | null;
+  riskyFiles: string[];
+}) {
+  const scripts = packageJson?.scripts ?? {};
+  const blockers: string[] = [];
+  const warnings: string[] = [];
+
+  if (meta.archived) blockers.push("Repository is archived. Do not launch from it without a maintenance decision.");
+  if (riskyFiles.length) blockers.push(`Remove public sensitive or temporary files: ${riskyFiles.join(", ")}.`);
+  if (!readme) blockers.push("Add a README before launch so visitors understand purpose setup and status.");
+  if (!files.has(".env.example")) blockers.push("Add a sanitized .env.example with required production and local variables.");
+
+  if (readme && !/install|setup|getting started|quick start/i.test(readme)) warnings.push("README needs a clear setup or quick start section.");
+  if (readme && !/deploy|vercel|docker|production/i.test(readme)) warnings.push("README needs deployment and rollback notes.");
+  if (!scripts.build) warnings.push("No build script detected. Add or document the production build command.");
+  if (!scripts.test && !scripts.lint) warnings.push("No test or lint script detected. Add at least one quality gate.");
+  if (workflows.length === 0) warnings.push("No GitHub Actions workflow detected. Add CI for install build lint and tests.");
+  if (!meta.license) warnings.push("No license detected. Clarify usage rights before public release.");
+
+  const score = Math.max(0, Math.min(100, 100 - blockers.length * 18 - warnings.length * 7));
+  const riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"] =
+    score >= 82 ? "Low" : score >= 58 ? "Medium" : "High";
+  const summary =
+    riskLevel === "Low"
+      ? "Looks close to public launch. Fix small documentation and verification gaps before announcing."
+      : riskLevel === "Medium"
+        ? "Usable for staging, but public launch needs the listed blockers and quality signals fixed first."
+        : "Not ready for public launch. Resolve the blockers before sharing broadly.";
+
+  const mustFix = [
+    ...blockers,
+    ...warnings.slice(0, Math.max(0, 6 - blockers.length)),
+  ];
+
+  const copyableIssues = mustFix.slice(0, 5).map((item, index) => {
+    const title = item.replace(/\.$/, "");
+    return `Issue ${index + 1}: ${title}\n\nWhy it matters\n${item}\n\nDone when\n- The repo no longer has this launch risk\n- README or CI documents the fix\n- A maintainer can verify it in a clean checkout`;
+  });
+
+  return {
+    launchScore: { score, riskLevel, summary },
+    mustFix: mustFix.length ? mustFix : ["No launch blockers detected from the public files read."],
+    copyableIssues: copyableIssues.length ? copyableIssues : ["No blocking issue template needed from this audit."],
+  };
+}
+
 function buildAnalysis({
   owner,
   repo,
@@ -421,6 +497,7 @@ function buildAnalysis({
   files,
   workflows,
   fileStructure,
+  riskyFiles = [],
   extraOverview = [],
 }: {
   owner: string;
@@ -429,6 +506,7 @@ function buildAnalysis({
   files: Map<string, string | null>;
   workflows: string[];
   fileStructure: string[];
+  riskyFiles?: string[];
   extraOverview?: string[];
 }) {
   const readme = files.get("README.md") ?? files.get("README") ?? null;
@@ -436,6 +514,15 @@ function buildAnalysis({
   const packageManager = detectPackageManager(files, packageJson);
   const stack = detectStack(files, packageJson, meta.language);
   const commands = runCommands(packageManager, packageJson);
+  const audit = launchAuditSummary({ meta, files, packageJson, workflows, readme, riskyFiles });
+  const releaseChecklist = [
+    "Fix every item in Must fix before public launch.",
+    "Run install build lint and tests in a clean clone.",
+    "Confirm production env variables are set in the hosting platform and absent from Git.",
+    "Check robots sitemap metadata privacy terms and status pages.",
+    "Deploy to staging and click the main user paths on desktop and mobile.",
+    "Prepare rollback steps owner contact and health check URL.",
+  ];
 
   return {
     repository: {
@@ -454,6 +541,9 @@ function buildAnalysis({
       archived: meta.archived,
       pushedAt: meta.pushed_at,
     },
+    launchScore: audit.launchScore,
+    mustFix: audit.mustFix,
+    copyableIssues: audit.copyableIssues,
     overview: [
       ...extraOverview,
       meta.description ?? "No description was provided by the repository.",
@@ -483,6 +573,7 @@ function buildAnalysis({
       "Are security sensitive files auth routes API handlers and config reviewed carefully?",
       "Does CI pass before merge?",
     ],
+    releaseChecklist,
     filesRead: Array.from(files.keys()).concat(workflows.length ? [".github/workflows"] : []),
   };
 }
@@ -516,6 +607,7 @@ async function analyzeWithGitHubApi(owner: string, repo: string) {
     files,
     workflows: readWorkflowNames(tree),
     fileStructure: rootStructureFromTree(tree),
+    riskyFiles: riskyPublicFiles(tree),
   });
 }
 
