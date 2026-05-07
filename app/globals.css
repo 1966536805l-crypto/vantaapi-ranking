@@ -913,6 +913,41 @@ button {
   .study-desk-shell {
     width: min(100% - 24px, 560px);
   }
+
+  /* Better mobile typography */
+  .apple-display-title {
+    font-size: 30px;
+  }
+
+  .apple-display-subtitle {
+    font-size: 13px;
+  }
+
+  /* Improve mobile cards */
+  .dense-panel {
+    padding: 12px;
+  }
+
+  /* Better mobile navigation */
+  .apple-nav {
+    padding: 8px 12px;
+  }
+
+  .apple-nav a {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  /* Stack learning controls better */
+  .learning-head-actions {
+    gap: 8px;
+  }
+
+  /* Optimize forms for mobile */
+  .tool-label,
+  .tool-field-grid {
+    gap: 8px;
+  }
 }
 
 @media (max-width: 860px) {
