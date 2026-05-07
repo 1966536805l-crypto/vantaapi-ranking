@@ -195,12 +195,17 @@ server {
 
 ## Cloudflare/CDN 建议
 
+详细基线见 `docs/EDGE_SECURITY.md`。生产必须把 DDoS 和大流量 bot 过滤放在 CDN/WAF 层，应用代码只做精准鉴权、CSRF 和限流，避免误伤正常用户。
+
 - SSL/TLS: Full (strict)
 - Always Use HTTPS: On
 - Automatic HTTPS Rewrites: On
 - WAF Managed Rules: On
+- OWASP/Core managed rules: 先 log/simulate，确认无误伤后再 block
 - Security Level: Medium
-- Bot Fight Mode: On（如果误伤正常用户就关）
+- Bot Fight / Managed Challenge: 只针对可疑流量、登录/注册/AI/admin 等高成本入口，不要全站强挑战
+- Block probes: `/.env`、`/.git/*`、`/wp-login.php`、`/xmlrpc.php`、`/phpmyadmin/*`
+- Origin firewall: 如果自建服务器，源站只允许 CDN/WAF IP 访问 `80/443`，不要公开 `3000`、`3306`、Redis、PM2 dashboard
 - Turnstile 接登录/注册，不建议 MVP 阶段给全站页面强上验证码
 
 ---

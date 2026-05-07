@@ -22,6 +22,8 @@ const vercelIgnore = read(".vercelignore");
 const proxy = read("proxy.ts");
 const nextConfig = read("next.config.js");
 const deployment = read("DEPLOYMENT.md");
+const edgeSecurity = read("docs/EDGE_SECURITY.md");
+const githubSecurityWorkflow = read(".github/workflows/security.yml");
 
 const seed = read("prisma/seed.cjs");
 const aiCoach = read("app/api/ai/coach/route.ts");
@@ -103,6 +105,18 @@ if (!has(nextConfig, /\?\s*`script-src 'self' 'unsafe-inline'/) && has(nextConfi
 
 if (has(vercelIgnore, ".env") && has(vercelIgnore, "*.db") && has(vercelIgnore, "node_modules")) add("pass", "deploy:ignore", "sensitive/local files are ignored for Vercel");
 else add("warn", "deploy:ignore", "check .vercelignore for env/db/node_modules exclusions");
+
+if (has(edgeSecurity, "DDoS protection") && has(edgeSecurity, "Origin isolation") && has(edgeSecurity, "Managed Challenge") && has(edgeSecurity, "/api/ai/coach")) {
+  add("pass", "edge:ddos-waf", "CDN/WAF DDoS baseline is documented without global user challenges");
+} else {
+  add("warn", "edge:ddos-waf", "CDN/WAF DDoS baseline is incomplete");
+}
+
+if (has(githubSecurityWorkflow, "Security baseline") && has(githubSecurityWorkflow, "npm run security:check") && has(githubSecurityWorkflow, "npm run build")) {
+  add("pass", "ci:security-baseline", "GitHub CI runs security checks and production build");
+} else {
+  add("warn", "ci:security-baseline", "GitHub CI security baseline is missing");
+}
 
 for (const [name, pattern] of Object.entries({
   "proxy:host-guard": "APP_ALLOWED_HOSTS",

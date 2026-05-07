@@ -1,0 +1,58 @@
+name: Security baseline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  security-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_ENV: test
+      NEXT_TELEMETRY_DISABLED: "1"
+      DATABASE_URL: "mysql://ci_user:ci_password@127.0.0.1:3306/vantaapi_ci"
+      JWT_SECRET: "ci-only-jwt-secret-at-least-32-characters"
+      CSRF_SECRET: "ci-only-csrf-secret-at-least-32-characters"
+      ENCRYPTION_KEY: "ci-only-encryption-key-at-least-32-chars"
+      APP_ALLOWED_HOSTS: "vantaapi.com,www.vantaapi.com"
+      ENABLE_PUBLIC_REGISTRATION: "false"
+      ADMIN_2FA_REQUIRED: "true"
+      ENABLE_CPP_RUNNER: "false"
+      ENABLE_REDIS_RATE_LIMITS: "true"
+      REDIS_RATE_LIMIT_FAIL_CLOSED: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Security regression checks
+        run: npm run security:regression
+
+      - name: Security baseline checks
+        run: npm run security:check
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Production build
+        run: npm run build
