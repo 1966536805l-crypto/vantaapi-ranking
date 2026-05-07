@@ -44,24 +44,24 @@ const featuredLanguages = featuredSlugs
 
 const zeroRules = [
   {
-    title: "Sound First",
+    title: "声音先行",
     zh: "先听声音",
-    body: "Do not begin with grammar tables. Hear the greeting thanks and self introduction until the rhythm feels familiar.",
+    body: "不要一上来背语法表 先把问候 感谢 自我介绍听到节奏熟悉",
   },
   {
-    title: "Script Early",
+    title: "文字早认",
     zh: "早认文字",
-    body: "If the language uses a new script learn the shape sound direction and typing habit in the first week.",
+    body: "遇到新文字系统 第一周就认识字形 声音 方向和输入习惯",
   },
   {
-    title: "Sentence Slots",
+    title: "整句替换",
     zh: "整句替换",
-    body: "Practice I am learning this language I want water I do not understand and replace one slot at a time.",
+    body: "先练我正在学 我要水 我没听懂 这类高频句 再一次替换一个位置",
   },
   {
-    title: "Daily Tiny Review",
+    title: "短频复习",
     zh: "短频复习",
-    body: "Ten minutes every day beats one long session. Review yesterday before adding new words.",
+    body: "每天十分钟比一次学很久更稳 每次先复活昨天 再加新句子",
   },
 ];
 
@@ -120,13 +120,13 @@ export default function WorldLanguagesPage() {
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Link href="/languages/english" className="dense-action-primary px-4 py-2.5">
-                    Start English
+                    学英语
                   </Link>
                   <Link href="/languages/japanese" className="dense-action px-4 py-2.5">
-                    Start Japanese
+                    学日本語
                   </Link>
                   <Link href="/languages/spanish" className="dense-action px-4 py-2.5">
-                    Start Spanish
+                    学Español
                   </Link>
                 </div>
               </div>
@@ -159,10 +159,10 @@ export default function WorldLanguagesPage() {
             <div className="dense-panel p-5">
               <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="eyebrow">Recommended First Paths</p>
+                  <p className="eyebrow">推荐入口</p>
                   <h2 className="mt-2 text-2xl font-semibold">先从常用语言开始</h2>
                 </div>
-                <span className="dense-status">{worldLanguages.length} languages</span>
+                <span className="dense-status">{worldLanguages.length} 门语言</span>
               </div>
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {featuredLanguages.map((language) => (
@@ -172,7 +172,7 @@ export default function WorldLanguagesPage() {
             </div>
 
             <div className="dense-panel dense-grid-bg p-5">
-              <p className="eyebrow text-slate-400">Language Families</p>
+              <p className="eyebrow text-slate-400">语系</p>
               <h2 className="mt-2 text-2xl font-semibold text-white">按语系找入口</h2>
               <div className="mt-5 grid gap-2 sm:grid-cols-2">
                 {worldLanguageFamilies.map((family) => {
@@ -180,7 +180,7 @@ export default function WorldLanguagesPage() {
                   return (
                     <div key={family} className="rounded-[8px] border border-white/10 bg-white/[0.07] p-3">
                       <p className="font-semibold text-white">{family}</p>
-                      <p className="mt-1 text-xs text-slate-300">{count} languages</p>
+                      <p className="mt-1 text-xs text-slate-300">{count} 门语言</p>
                     </div>
                   );
                 })}
@@ -191,10 +191,10 @@ export default function WorldLanguagesPage() {
           <section className="mt-3 dense-panel p-5">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">All Languages</p>
+                <p className="eyebrow">全部语言</p>
                 <h2 className="mt-2 text-2xl font-semibold">世界语言地图</h2>
               </div>
-              <span className="dense-status">0 foundation courses</span>
+              <span className="dense-status">0 基础课程</span>
             </div>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {worldLanguages.map((language) => (
@@ -226,7 +226,9 @@ function LanguageCard({
         <span className="dense-status">{language.script}</span>
       </div>
       {!compact && (
-        <p className="mt-3 line-clamp-2 text-sm leading-6 text-[color:var(--muted)]">{language.starterGoal}</p>
+        <p className="mt-3 line-clamp-2 text-sm leading-6 text-[color:var(--muted)]">
+          从声音 文字 第一批短句开始 建立 {language.nativeName} 的入门手感
+        </p>
       )}
       <div className="mt-3 flex flex-wrap gap-2">
         {language.firstLesson.slice(0, compact ? 2 : 3).map((item) => (

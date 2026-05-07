@@ -144,7 +144,9 @@ export default async function WorldLanguageDetailPage({ params }: WorldLanguageP
           <article className="dense-card p-5">
             <p className="eyebrow">目标</p>
             <h2 className="mt-3 text-xl font-semibold">先能开口</h2>
-            <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">{current.starterGoal}</p>
+            <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
+              先掌握 {current.nativeName} 的声音 文字和日常短句
+            </p>
           </article>
           <article className="dense-card p-5">
             <p className="eyebrow">方法</p>
