@@ -28,7 +28,7 @@ jobs:
       REDIS_RATE_LIMIT_FAIL_CLOSED: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
         uses: actions/setup-node@v4
