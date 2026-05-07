@@ -19,6 +19,7 @@ let pass = 0;
 let warn = 0;
 let fail = 0;
 let databaseUrlLooksProductionReady = false;
+const loadedEnvFiles = [];
 
 function read(file) {
   try {
@@ -46,14 +47,24 @@ function bad(name, message) {
 function loadEnvFile(file) {
   const full = path.join(root, file);
   if (!fs.existsSync(full)) return {};
+  loadedEnvFiles.push(file);
   return dotenv.parse(fs.readFileSync(full, "utf8"));
 }
 
-const env = {
-  ...loadEnvFile(".env"),
-  ...loadEnvFile(".env.production"),
-  ...process.env,
-};
+const explicitEnvFile = process.env.PRELAUNCH_ENV_FILE;
+function mergeNonEmpty(target, source) {
+  for (const [key, value] of Object.entries(source)) {
+    if (String(value || "").trim() || !(key in target)) target[key] = value;
+  }
+  return target;
+}
+
+const env = {};
+mergeNonEmpty(env, loadEnvFile(".env"));
+mergeNonEmpty(env, loadEnvFile(".env.production"));
+if (explicitEnvFile) mergeNonEmpty(env, loadEnvFile(explicitEnvFile));
+else mergeNonEmpty(env, loadEnvFile(".env.vercel.production.local"));
+mergeNonEmpty(env, process.env);
 
 function envValue(name) {
   return String(env[name] || "").trim();
@@ -78,6 +89,24 @@ function checkToken(name, options = {}) {
   if (looksPlaceholder(value)) return bad(`env:${name}`, "missing or still a placeholder");
   if (value.length < min) return bad(`env:${name}`, `looks too short; expected at least ${min} characters`);
   if (/\s/.test(value)) return bad(`env:${name}`, "must not contain whitespace");
+  if (options.prefixes && !options.prefixes.some((prefix) => value.startsWith(prefix))) {
+    return caution(`env:${name}`, `token does not use a common prefix (${options.prefixes.join(", ")}); verify provider value manually`);
+  }
+  ok(`env:${name}`, "configured; value hidden");
+}
+
+function checkRecommendedToken(name, options = {}) {
+  const value = envValue(name);
+  const min = options.min || 20;
+  if (looksPlaceholder(value)) {
+    return caution(`env:${name}`, "not configured; feature will use a fallback or lower quota");
+  }
+  if (value.length < min) {
+    return caution(`env:${name}`, `looks short; expected at least ${min} characters`);
+  }
+  if (/\s/.test(value)) {
+    return caution(`env:${name}`, "contains whitespace; verify provider value manually");
+  }
   if (options.prefixes && !options.prefixes.some((prefix) => value.startsWith(prefix))) {
     return caution(`env:${name}`, `token does not use a common prefix (${options.prefixes.join(", ")}); verify provider value manually`);
   }
@@ -153,7 +182,58 @@ function checkAiProviderConfig() {
 }
 
 function checkGitHubToken() {
-  checkToken("GITHUB_READ_TOKEN", { min: 24, prefixes: ["github_pat_", "ghp_"] });
+  checkRecommendedToken("GITHUB_READ_TOKEN", { min: 24, prefixes: ["github_pat_", "ghp_"] });
+}
+
+function checkTurnstileConfig() {
+  const required = envValue("AUTH_TURNSTILE_REQUIRED") === "true" || envValue("AUTH_TURNSTILE_REQUIRED") !== "false";
+  const siteKey = envValue("NEXT_PUBLIC_TURNSTILE_SITE_KEY");
+  const secret = envValue("TURNSTILE_SECRET_KEY");
+  if (!required) return caution("env:AUTH_TURNSTILE_REQUIRED", "Turnstile is not required; enable it before public launch if auth stays open");
+  if (looksPlaceholder(siteKey) || looksPlaceholder(secret)) {
+    return bad("env:TURNSTILE", "NEXT_PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY are required when auth Turnstile is enabled");
+  }
+  ok("env:TURNSTILE", "auth bot protection is configured");
+}
+
+function checkHostAllowlist() {
+  const value = envValue("APP_ALLOWED_HOSTS");
+  if (!value) {
+    ok("env:APP_ALLOWED_HOSTS", "using secure built-in production host defaults");
+    return;
+  }
+
+  const hosts = value.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+  if (hosts.some((host) => host === "*" || host.includes(" "))) {
+    return bad("env:APP_ALLOWED_HOSTS", "must contain exact hostnames only");
+  }
+  if (!hosts.includes("vantaapi.com") && !hosts.includes("www.vantaapi.com")) {
+    return caution("env:APP_ALLOWED_HOSTS", "does not include vantaapi.com/www.vantaapi.com; verify launch domain");
+  }
+  ok("env:APP_ALLOWED_HOSTS", "host allowlist is explicit");
+}
+
+function checkRedisConfig() {
+  const enabled = envValue("ENABLE_REDIS_RATE_LIMITS") === "true" || Boolean(envValue("REDIS_URL"));
+  if (!enabled) {
+    caution("env:REDIS_URL", "not configured; in-memory rate limits will work but are weaker on serverless scale");
+    return;
+  }
+
+  const redisUrl = envValue("REDIS_URL");
+  if (!redisUrl) {
+    return bad("env:REDIS_URL", "ENABLE_REDIS_RATE_LIMITS is true but REDIS_URL is missing");
+  }
+
+  try {
+    const parsed = new URL(redisUrl);
+    if (["127.0.0.1", "localhost"].includes(parsed.hostname)) {
+      return bad("env:REDIS_URL", "must not point to localhost in production");
+    }
+    ok("env:REDIS_URL", "distributed rate limit store is configured");
+  } catch {
+    bad("env:REDIS_URL", "must be a valid URL when Redis rate limits are enabled");
+  }
 }
 
 async function checkAdmin2FAState() {
@@ -218,16 +298,20 @@ function checkBrandResidue() {
 
 async function main() {
   console.log("🚀 VantaAPI prelaunch gate\n");
+  if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
 
   checkSecret("JWT_SECRET", { min: 32 });
   checkSecret("CSRF_SECRET", { min: 64, hex: true });
   checkSecret("ENCRYPTION_KEY", { min: 64, hex: true });
   checkDatabasePassword();
+  checkHostAllowlist();
 
   if (envValue("ADMIN_2FA_REQUIRED") === "false") bad("env:ADMIN_2FA_REQUIRED", "must not be false before launch");
   else ok("env:ADMIN_2FA_REQUIRED", "2FA enforcement is enabled or using secure default");
 
   await checkAdmin2FAState();
+  checkTurnstileConfig();
+  checkRedisConfig();
   checkAiProviderConfig();
   checkGitHubToken();
 
