@@ -1661,6 +1661,70 @@ body:has(.home-core-page) .global-search-trigger {
   grid-template-columns: 1fr;
 }
 
+.repo-audit-brief {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.repo-audit-brief > div,
+.repo-action-panel {
+  min-width: 0;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 12px;
+}
+
+.repo-audit-brief strong {
+  display: block;
+  overflow: hidden;
+  margin-top: 5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.repo-audit-brief span {
+  display: block;
+  overflow: hidden;
+  margin-top: 6px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.repo-action-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.repo-action-panel h3 {
+  margin-top: 5px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.repo-action-panel p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.repo-action-list {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
 .tool-output pre {
   flex: 1;
   overflow: auto;
@@ -1878,6 +1942,8 @@ body:has(.home-core-page) .global-search-trigger {
 
   .tool-proof-grid,
   .tool-field-grid,
+  .repo-audit-brief,
+  .repo-action-panel,
   .repo-verdict {
     grid-template-columns: 1fr;
   }

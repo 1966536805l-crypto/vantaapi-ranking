@@ -404,6 +404,34 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
   ].join("\n\n");
 }
 
+function repoAgeLabel(pushedAt: string) {
+  const pushedTime = Date.parse(pushedAt);
+  if (!Number.isFinite(pushedTime)) return "Unknown";
+  const days = Math.max(0, Math.round((Date.now() - pushedTime) / 86_400_000));
+  if (days === 0) return "Updated today";
+  if (days === 1) return "Updated yesterday";
+  if (days < 30) return `${days} days since update`;
+  const months = Math.round(days / 30);
+  return `${months} months since update`;
+}
+
+function qualityGateLabel(analysis: GitHubRepoAnalysis) {
+  const hasCi = analysis.githubActions.some((item) => !/No GitHub Actions/i.test(item));
+  const hasEnv = analysis.envChecklist.some((item) => /Detected env template keys/i.test(item));
+  const hasRun = analysis.howToRun.some((item) => !/No package scripts/i.test(item));
+  return [
+    hasCi ? "CI signal found" : "CI needs work",
+    hasEnv ? "env template found" : "env template missing",
+    hasRun ? "run path found" : "run path unclear",
+  ];
+}
+
+function impactLabel(score: number) {
+  if (score >= 82) return "Launch polish";
+  if (score >= 58) return "Staging cleanup";
+  return "Launch blocked";
+}
+
 export default function ToolWorkbench({ initialSlug = "prompt-optimizer" }: { initialSlug?: ToolSlug }) {
   const pathname = usePathname();
   const active = useMemo<ToolSlug>(() => {
@@ -493,8 +521,12 @@ function GitHubRepoAnalyzer() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
+  const [actionStatus, setActionStatus] = useState("");
 
   const output = useMemo(() => formatGitHubRepoOutput(analysis, error), [analysis, error]);
+  const issueBundle = useMemo(() => analysis?.copyableIssues.join("\n\n---\n\n") || "", [analysis]);
+  const releaseBundle = useMemo(() => analysis ? numberedList(analysis.releaseChecklist) : "", [analysis]);
+  const qualityGates = useMemo(() => analysis ? qualityGateLabel(analysis) : [], [analysis]);
   const shareUrl = useMemo(() => {
     if (!analysis || typeof window === "undefined") return "";
     const hash = encodeSharedAnalysis(analysis);
@@ -532,6 +564,18 @@ function GitHubRepoAnalyzer() {
     } catch {
       setShareStatus("Copy failed");
       window.setTimeout(() => setShareStatus(""), 1400);
+    }
+  }
+
+  async function copyAuditText(text: string, successMessage: string) {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setActionStatus(successMessage);
+      window.setTimeout(() => setActionStatus(""), 1400);
+    } catch {
+      setActionStatus("Copy failed");
+      window.setTimeout(() => setActionStatus(""), 1400);
     }
   }
 
@@ -583,6 +627,12 @@ function GitHubRepoAnalyzer() {
               <a className="dense-action" href={shareUrl} target="_blank" rel="noreferrer">
                 Open share
               </a>
+              <button type="button" className="dense-action" onClick={() => copyAuditText(issueBundle, "Issues copied")}>
+                Copy issues
+              </button>
+              <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, "Checklist copied")}>
+                Copy checklist
+              </button>
             </>
           )}
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
@@ -621,6 +671,25 @@ function GitHubRepoAnalyzer() {
           </div>
         </section>
       )}
+      {analysis && (
+        <section className="repo-audit-brief">
+          <div>
+            <p className="eyebrow">Repository</p>
+            <strong>{analysis.repository.fullName}</strong>
+            <span>{analysis.repository.language || "Unknown"} · {analysis.repository.license || "No license"} · {repoAgeLabel(analysis.repository.pushedAt)}</span>
+          </div>
+          <div>
+            <p className="eyebrow">Impact</p>
+            <strong>{impactLabel(analysis.launchScore.score)}</strong>
+            <span>{analysis.mustFix.length} action items · {analysis.copyableIssues.length} issue drafts</span>
+          </div>
+          <div>
+            <p className="eyebrow">Quality Gates</p>
+            <strong>{qualityGates[0]}</strong>
+            <span>{qualityGates.slice(1).join(" · ")}</span>
+          </div>
+        </section>
+      )}
       <label className="block">
         <span className="tool-label">GitHub URL</span>
         <input
@@ -649,6 +718,23 @@ function GitHubRepoAnalyzer() {
           </div>
         )}
       </div>
+      {analysis && (
+        <section className="repo-action-panel">
+          <div>
+            <p className="eyebrow">Ship Next</p>
+            <h3>把报告变成任务</h3>
+            <p>{actionStatus || "复制 Issue 或 checklist 后，直接贴到 GitHub Issues、PR 描述或发布说明里。"}</p>
+          </div>
+          <div className="repo-action-list">
+            {analysis.mustFix.slice(0, 3).map((item, index) => (
+              <div key={item} className="dense-row">
+                <span className="text-sm font-semibold">{String(index + 1).padStart(2, "0")}</span>
+                <span className="truncate text-xs text-[color:var(--muted)]">{item}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </ToolLayout>
   );
 }
