@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/language";
 import { searchSite, siteSearchItems } from "@/lib/site-search";
 
 type SearchPageProps = {
-  searchParams?: Promise<{ q?: string }>;
+  searchParams?: Promise<PageSearchParams & { q?: string }>;
 };
 
 export const metadata: Metadata = {
@@ -48,7 +49,9 @@ const priorityHrefs = [
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = searchParams ? await searchParams : undefined;
-  const query = (params?.q || "").trim().slice(0, 80);
+  const language = resolveLanguage(params);
+  const rawQuery = Array.isArray(params?.q) ? params?.q[0] : params?.q;
+  const query = (rawQuery || "").trim().slice(0, 80);
   const results = searchSite(query);
   const groupedCount = new Map<string, number>();
 
@@ -81,13 +84,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       />
       <section className="mx-auto min-h-screen w-[min(1180px,calc(100%_-_28px))] py-5">
         <header className="dense-panel flex flex-wrap items-center justify-between gap-3 p-4">
-          <Link href="/" className="dense-action">JinMing Lab</Link>
+          <Link href={localizedHref("/", language)} className="dense-action">JinMing Lab</Link>
           <div className="flex flex-wrap gap-2">
-            <Link href="/today" className="dense-action-primary">Today</Link>
-            <Link href="/english/vocabulary/custom?lang=zh" className="dense-action">Wordbook</Link>
-            <Link href="/english?lang=zh" className="dense-action">English</Link>
-            <Link href="/programming" className="dense-action">Coding</Link>
-            <Link href="/tools" className="dense-action">AI Tools</Link>
+            <Link href={localizedHref("/today", language)} className="dense-action-primary">Today</Link>
+            <Link href={localizedHref("/english/vocabulary/custom", language)} className="dense-action">Wordbook</Link>
+            <Link href={localizedHref("/english", language)} className="dense-action">English</Link>
+            <Link href={localizedHref("/programming", language)} className="dense-action">Coding</Link>
+            <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action">AI Tools</Link>
           </div>
         </header>
 
@@ -101,6 +104,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </p>
 
           <form action="/search" className="mt-5 flex flex-col gap-2 rounded-[8px] border border-slate-200 bg-white/85 p-2 sm:flex-row">
+            <input type="hidden" name="lang" value={language} />
             <input
               name="q"
               defaultValue={query}
@@ -115,7 +119,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
           <div className="mt-4 flex flex-wrap gap-2">
             {quickSearches.map((item) => (
-              <Link key={item.query} href={`/search?q=${encodeURIComponent(item.query)}`} className="dense-status">
+              <Link key={item.query} href={localizedHref(`/search?q=${encodeURIComponent(item.query)}`, language)} className="dense-status">
                 {item.label}
               </Link>
             ))}
@@ -128,7 +132,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <h2 className="mt-2 text-2xl font-semibold">{siteSearchItems.length} pages</h2>
             <div className="mt-4 grid gap-2">
               {Array.from(groupedCount.entries()).map(([category, count]) => (
-                <Link key={category} href={`/search?q=${encodeURIComponent(category)}`} className="dense-row">
+                <Link key={category} href={localizedHref(`/search?q=${encodeURIComponent(category)}`, language)} className="dense-row">
                   <span className="text-sm font-semibold">{category}</span>
                   <span className="dense-status">{count}</span>
                 </Link>
@@ -137,9 +141,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <div className="mt-5 border-t border-slate-200 pt-4">
               <p className="eyebrow">Fast Start</p>
               <div className="mt-3 grid gap-2">
-                <Link href="/today" className="dense-action-primary justify-center">今日学习</Link>
-                <Link href="/english/vocabulary/custom?lang=zh" className="dense-action justify-center">我的词书</Link>
-                <Link href="/english/typing?lang=zh" className="dense-action justify-center">英文打字</Link>
+                <Link href={localizedHref("/today", language)} className="dense-action-primary justify-center">今日学习</Link>
+                <Link href={localizedHref("/english/vocabulary/custom", language)} className="dense-action justify-center">我的词书</Link>
+                <Link href={localizedHref("/english/typing", language)} className="dense-action justify-center">英文打字</Link>
               </div>
             </div>
           </aside>
@@ -165,7 +169,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             ) : (
               <div className="grid gap-2 md:grid-cols-2">
                 {resultItems.map((item) => (
-                  <Link key={`${item.category}-${item.href}`} href={item.href} className="dense-card p-4 transition hover:-translate-y-0.5 hover:border-slate-300">
+                  <Link key={`${item.category}-${item.href}`} href={localizedHref(item.href, language)} className="dense-card p-4 transition hover:-translate-y-0.5 hover:border-slate-300">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="eyebrow">{item.category}</p>
