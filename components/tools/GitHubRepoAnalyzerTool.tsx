@@ -413,32 +413,39 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
   return sections.join("\n\n");
 }
 
-function repoAgeLabel(pushedAt: string) {
+function repoAgeLabel(pushedAt: string, zh: boolean) {
   const pushedTime = Date.parse(pushedAt);
-  if (!Number.isFinite(pushedTime)) return "Unknown";
+  if (!Number.isFinite(pushedTime)) return zh ? "更新时间未知" : "Unknown";
   const days = Math.max(0, Math.round((Date.now() - pushedTime) / 86_400_000));
-  if (days === 0) return "Updated today";
-  if (days === 1) return "Updated yesterday";
-  if (days < 30) return `${days} days since update`;
+  if (days === 0) return zh ? "今天更新" : "Updated today";
+  if (days === 1) return zh ? "昨天更新" : "Updated yesterday";
+  if (days < 30) return zh ? `${days} 天前更新` : `${days} days since update`;
   const months = Math.round(days / 30);
-  return `${months} months since update`;
+  return zh ? `${months} 个月前更新` : `${months} months since update`;
 }
 
-function qualityGateLabel(analysis: GitHubRepoAnalysis) {
+function qualityGateLabel(analysis: GitHubRepoAnalysis, zh: boolean) {
   const hasCi = analysis.githubActions.some((item) => !/No GitHub Actions/i.test(item));
   const hasEnv = analysis.envChecklist.some((item) => /Detected env template keys/i.test(item));
   const hasRun = analysis.howToRun.some((item) => !/No package scripts/i.test(item));
   return [
-    hasCi ? "CI signal found" : "CI needs work",
-    hasEnv ? "env template found" : "env template missing",
-    hasRun ? "run path found" : "run path unclear",
+    hasCi ? (zh ? "发现 CI 信号" : "CI signal found") : (zh ? "CI 需要补强" : "CI needs work"),
+    hasEnv ? (zh ? "发现环境变量模板" : "env template found") : (zh ? "缺少环境变量模板" : "env template missing"),
+    hasRun ? (zh ? "发现运行路径" : "run path found") : (zh ? "运行路径不清楚" : "run path unclear"),
   ];
 }
 
-function impactLabel(score: number) {
-  if (score >= 82) return "Launch polish";
-  if (score >= 58) return "Staging cleanup";
-  return "Launch blocked";
+function impactLabel(score: number, zh: boolean) {
+  if (score >= 82) return zh ? "上线前精修" : "Launch polish";
+  if (score >= 58) return zh ? "预发布清理" : "Staging cleanup";
+  return zh ? "上线被阻塞" : "Launch blocked";
+}
+
+function riskLevelLabel(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"], zh: boolean) {
+  if (!zh) return riskLevel;
+  if (riskLevel === "Low") return "低";
+  if (riskLevel === "Medium") return "中";
+  return "高";
 }
 
 function scorecardStatusLabel(status: "pass" | "review" | "missing", zh: boolean) {
@@ -467,7 +474,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
   const issueBundle = useMemo(() => analysis?.copyableIssues.join("\n\n---\n\n") || "", [analysis]);
   const releaseBundle = useMemo(() => analysis ? numberedList(analysis.releaseChecklist) : "", [analysis]);
   const prDescription = useMemo(() => analysis?.prDescription || "", [analysis]);
-  const qualityGates = useMemo(() => analysis ? qualityGateLabel(analysis) : [], [analysis]);
+  const qualityGates = useMemo(() => analysis ? qualityGateLabel(analysis, zh) : [], [analysis, zh]);
   const shareUrl = useMemo(() => {
     if (!analysis || typeof window === "undefined") return "";
     const hash = encodeSharedAnalysis(analysis);
@@ -476,7 +483,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
   const blocks = useMemo<OutputBlock[]>(() => {
     if (!analysis) return [];
     return [
-      { badge: `${analysis.launchScore.score}`, title: `${analysis.launchScore.riskLevel} risk verdict`, content: analysis.launchScore.summary },
+      { badge: `${analysis.launchScore.score}`, title: zh ? `${riskLevelLabel(analysis.launchScore.riskLevel, true)}风险结论` : `${analysis.launchScore.riskLevel} risk verdict`, content: analysis.launchScore.summary },
       { badge: "01", title: zh ? "必须修" : "Must fix", content: numberedList(analysis.mustFix) },
       { badge: "02", title: zh ? "GitHub Issues" : "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
       { badge: "03", title: zh ? "证据" : "Evidence", content: findingList(analysis.issueFindings) },
@@ -645,7 +652,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
         <section className={`repo-verdict repo-verdict-${riskTone(analysis.launchScore.riskLevel)}`}>
           <div>
             <p className="eyebrow">{zh ? "结论" : "Verdict"}</p>
-            <strong>{analysis.launchScore.riskLevel} {zh ? "风险" : "risk"}</strong>
+            <strong>{riskLevelLabel(analysis.launchScore.riskLevel, zh)} {zh ? "风险" : "risk"}</strong>
             <span>{analysis.launchScore.summary}</span>
           </div>
           <div className="repo-score">
@@ -671,11 +678,11 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
           <div>
             <p className="eyebrow">{zh ? "仓库" : "Repository"}</p>
             <strong>{analysis.repository.fullName}</strong>
-            <span>{analysis.repository.language || (zh ? "未知" : "Unknown")} · {analysis.repository.license || (zh ? "无许可证" : "No license")} · {repoAgeLabel(analysis.repository.pushedAt)}</span>
+            <span>{analysis.repository.language || (zh ? "未知" : "Unknown")} · {analysis.repository.license || (zh ? "无许可证" : "No license")} · {repoAgeLabel(analysis.repository.pushedAt, zh)}</span>
           </div>
           <div>
             <p className="eyebrow">{zh ? "影响" : "Impact"}</p>
-            <strong>{impactLabel(analysis.launchScore.score)}</strong>
+            <strong>{impactLabel(analysis.launchScore.score, zh)}</strong>
             <span>{analysis.mustFix.length} {zh ? "个行动项" : "action items"} · {analysis.copyableIssues.length} {zh ? "个 Issue 草稿" : "issue drafts"}</span>
           </div>
           <div>
@@ -686,7 +693,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
         </section>
       )}
       <section className="repo-flow-strip">
-        {["Repo", "README", "env", "CI", "Deploy", "Issues"].map((item, index) => (
+        {(zh ? ["仓库", "README", "环境变量", "CI", "部署", "Issues"] : ["Repo", "README", "env", "CI", "Deploy", "Issues"]).map((item, index) => (
           <span key={item} className={loading && index > 0 ? "repo-flow-pending" : ""}>
             {item}
           </span>
@@ -707,17 +714,17 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
       </label>
       <div className="tool-field-grid">
         <div className="dense-row">
-          <span className="text-sm font-semibold">Scope</span>
+          <span className="text-sm font-semibold">{zh ? "范围" : "Scope"}</span>
           <span className="text-xs text-[color:var(--muted)]">{zh ? "仅公开仓库" : "Public repo only"}</span>
         </div>
         <div className="dense-row">
-          <span className="text-sm font-semibold">Reads</span>
+          <span className="text-sm font-semibold">{zh ? "读取" : "Reads"}</span>
           <span className="text-xs text-[color:var(--muted)]">{zh ? "README 环境变量 CI 部署线索" : "README env CI deploy clues"}</span>
         </div>
         {analysis && (
           <div className="dense-row">
-            <span className="text-sm font-semibold">Score</span>
-            <span className="text-xs text-[color:var(--muted)]">{analysis.launchScore.score}/100 {analysis.launchScore.riskLevel}</span>
+            <span className="text-sm font-semibold">{zh ? "评分" : "Score"}</span>
+            <span className="text-xs text-[color:var(--muted)]">{analysis.launchScore.score}/100 {riskLevelLabel(analysis.launchScore.riskLevel, zh)}</span>
           </div>
         )}
       </div>
@@ -800,7 +807,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
             <div>
               <p className="eyebrow">{zh ? "专业报告" : "Professional Report"}</p>
               <h3>{zh ? "上线体检报告" : "Launch readiness report"}</h3>
-              <span>{analysis.repository.fullName} · {analysis.launchScore.riskLevel} {zh ? "风险" : "risk"} · {analysis.copyableIssues.length} {zh ? "个 Issue 草稿" : "issue drafts"}</span>
+              <span>{analysis.repository.fullName} · {riskLevelLabel(analysis.launchScore.riskLevel, zh)} {zh ? "风险" : "risk"} · {analysis.copyableIssues.length} {zh ? "个 Issue 草稿" : "issue drafts"}</span>
             </div>
             <div className="repo-report-score">
               <strong>{analysis.launchScore.score}</strong>

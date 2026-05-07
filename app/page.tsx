@@ -72,14 +72,14 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
           <strong>JinMing Lab</strong>
         </Link>
         <nav>
-          <Link href={localizedHref("/tools/github-repo-analyzer", language)}>{zh ? "项目体检" : "Audit"}</Link>
+          <Link href={localizedHref("/tools/github-repo-analyzer", language)}>{zh ? "上线体检" : "Audit"}</Link>
           <Link href={localizedHref("/tools", language)}>{zh ? "工具" : "Tools"}</Link>
           <Link href={zh ? "/?ui=english&lang=en" : "/?lang=zh"}>{zh ? "English" : "中文"}</Link>
         </nav>
       </header>
 
       <section className="home-audit-hero">
-        <p className="eyebrow">GitHub Launch Audit</p>
+        <p className="eyebrow">{zh ? "GitHub 上线体检" : "GitHub Launch Audit"}</p>
         <h1>{zh ? "粘贴 GitHub 仓库，一键生成上线前检查报告。" : "Paste a GitHub repo. Get a launch-readiness audit in 30 seconds."}</h1>
         <p>
           {zh

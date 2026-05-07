@@ -103,7 +103,7 @@ async function checkAuditApi() {
 
 async function main() {
   console.log(`JinMing Lab production smoke check: ${baseUrl}\n`);
-  await checkPage("/", "GitHub Launch Audit");
+  await checkPage("/", "JinMing Lab");
   await checkPage("/tools/github-repo-analyzer", "GitHub Launch Audit");
   await checkRobots();
   await checkSitemap();
