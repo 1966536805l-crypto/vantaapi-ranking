@@ -54,6 +54,16 @@ TOOLS.md
 USER.md
 vantaapi-ranking.code-workspace
 
+# local deployment drafts generated during launch setup
+DEPLOYMENT_READY.md
+PRODUCTION_SETUP_CHECKLIST.md
+README_PRODUCTION.md
+VERCEL_DEPLOYMENT_GUIDE.md
+VERCEL_ENV_SETUP.md
+scripts/add-vercel-env.sh
+scripts/setup-vercel-env.sh
+scripts/verify-and-deploy.sh
+
 # editor local workspace
 .vscode/
 

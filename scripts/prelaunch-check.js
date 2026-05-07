@@ -541,6 +541,27 @@ function checkLaunchDocs() {
   ok("docs:launch-path", "README contains the focused launch command path");
 }
 
+function checkIgnoredLocalLaunchDrafts() {
+  const ignoreBody = read(".gitignore");
+  const localDrafts = [
+    "DEPLOYMENT_READY.md",
+    "PRODUCTION_SETUP_CHECKLIST.md",
+    "README_PRODUCTION.md",
+    "VERCEL_DEPLOYMENT_GUIDE.md",
+    "VERCEL_ENV_SETUP.md",
+    "scripts/add-vercel-env.sh",
+    "scripts/setup-vercel-env.sh",
+    "scripts/verify-and-deploy.sh",
+  ];
+  const missing = localDrafts.filter((file) => !ignoreBody.includes(file));
+  if (missing.length) {
+    action("Ignore local launch drafts", "Keep generated deployment drafts out of Git so README remains the canonical launch path.");
+    bad("repo:local-launch-drafts", `.gitignore missing local draft entries: ${missing.join(", ")}`);
+    return;
+  }
+  ok("repo:local-launch-drafts", "local deployment draft files are ignored");
+}
+
 async function main() {
   console.log("🚀 JinMing Lab prelaunch gate\n");
   if (loadedEnvFiles.length) console.log(`Loaded env files: ${loadedEnvFiles.join(", ")}\n`);
@@ -576,6 +597,7 @@ async function main() {
   checkFocusedSitemap();
   checkFocusedRobots();
   checkLaunchDocs();
+  checkIgnoredLocalLaunchDrafts();
 
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (launchActions.length) {
