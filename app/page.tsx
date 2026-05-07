@@ -5,10 +5,10 @@ import { localizedHref, type SiteLanguage } from "@/lib/language";
 import { worldLanguages } from "@/lib/world-language-content";
 
 export const metadata: Metadata = {
-  title: "VantaAPI - English and C++ Learning MVP",
+  title: "JinMing Lab - GitHub Launch Audit and AI Learning Tools",
   description:
-    "VantaAPI is a focused English and C++ learning site with lessons, quizzes, progress tracking, wrong-question review, and practical AI tools.",
-  keywords: ["英语学习", "C++ 学习", "错题复习", "学习进度", "AI 工具", "编程训练"],
+    "JinMing Lab is a focused AI learning tool platform for GitHub launch audits, developer tools, and practical learning roadmaps.",
+  keywords: ["GitHub 项目体检", "GitHub Launch Audit", "AI 工具", "Prompt 优化", "发布检查清单", "编程学习路线"],
 };
 
 type HomeSearchParams = Promise<{ ui?: string | string[]; lang?: string | string[] }>;
@@ -52,98 +52,98 @@ const homeCopy: Record<string, HomeCopy> = {
   chinese: {
     version: "版本",
     versions: "语言版本",
-    english: "英语学习",
-    cpp: "C++ 学习",
-    today: "今日计划",
-    dashboard: "继续学习",
+    english: "学习入口",
+    cpp: "编程训练",
+    today: "路线",
+    dashboard: "控制台",
     tools: "AI 工具",
     login: "登录",
     logout: "退出",
     admin: "后台",
-    eyebrow: "英语 + C++ 学习 MVP",
-    title: "VantaAPI",
+    eyebrow: "GitHub Launch Audit",
+    title: "JinMing Lab",
     description:
-      "一个先把英语学习和 C++ 入门做扎实的网站：课程路径、练习测验、学习进度、错题复习和少量实用 AI 工具都围绕“下一步该学什么”展开。",
-    primaryCta: "开始英语",
-    secondaryCta: "开始 C++",
-    tertiaryCta: "今日计划",
-    continueCta: "继续学习",
-    focus: "核心路径",
+      "一个更聚焦的 AI 学习工具平台。先把 GitHub 项目上线前最耗时间的 README、环境变量、CI、部署、安全和 Issue 模板一次检查清楚，再保留少量真正实用的 AI 工具和学习路线。",
+    primaryCta: "开始项目体检",
+    secondaryCta: "打开 AI 工具",
+    tertiaryCta: "查看学习路线",
+    continueCta: "进入控制台",
+    focus: "核心入口",
     ready: "可用",
-    pathsTitle: "MVP 学习路径",
-    pathsHeading: "先学、再练、最后复盘",
-    pathsBody: "首页只保留最重要的入口。GitHub 上线体检和 Prompt 工具继续保留，但降级为辅助工具，不抢学习主线。",
+    pathsTitle: "为什么先做这个",
+    pathsHeading: "少而精，比堆功能更容易留下用户",
+    pathsBody: "首页只放一个主功能：GitHub Launch Audit。英语、世界语言、打字和更多课程继续保留在二级页面，不抢第一眼。",
     open: "打开",
     cards: [
       {
-        href: "/english",
-        eyebrow: "路径 01",
-        title: "英语学习",
-        body: "从词汇、语法、阅读和打字听写开始。每次练习都尽量短，方便每天持续推进。",
-        points: ["词汇", "语法", "阅读", "打字"],
+        href: "/tools/github-repo-analyzer",
+        eyebrow: "主功能",
+        title: "GitHub 项目体检",
+        body: "粘贴公开仓库地址，生成上线评分、风险判断、必修清单、README 建议、环境变量检查和可复制的 GitHub Issue。",
+        points: ["README", "env", "CI", "部署", "安全"],
       },
       {
-        href: "/cpp",
-        eyebrow: "路径 02",
-        title: "C++ 入门",
-        body: "不开放在线执行，先用语法、代码阅读、输出预测和基础算法题建立安全的学习闭环。",
-        points: ["语法", "STL", "读代码", "算法"],
+        href: "/tools",
+        eyebrow: "辅助",
+        title: "AI 工具台",
+        body: "保留 Prompt 优化、API 请求生成、JSON 正则时间戳这些高频小工具，去掉不够强的噪音入口。",
+        points: ["Prompt", "API", "JSON", "正则"],
       },
       {
-        href: "/wrong",
-        eyebrow: "复盘",
-        title: "错题复习",
-        body: "把测验中的错误沉淀下来，回到错题本重做、理解原因，再进入下一轮学习。",
-        points: ["错题", "复习", "进度"],
+        href: "/tools/learning-roadmap",
+        eyebrow: "路线",
+        title: "学习路线",
+        body: "把零基础、前端、Python 自动化和独立开发路线整理成可执行的 30 天计划，适合长期沉淀。",
+        points: ["零基础", "前端", "Python", "独立开发"],
       },
     ],
   },
   english: {
     version: "Version",
     versions: "Site Versions",
-    english: "English",
-    cpp: "C++",
-    today: "Today",
-    dashboard: "Continue",
+    english: "Learn",
+    cpp: "Coding",
+    today: "Roadmap",
+    dashboard: "Dashboard",
     tools: "AI Tools",
     login: "Login",
     logout: "Logout",
     admin: "Admin",
-    eyebrow: "English + C++ Learning MVP",
-    title: "VantaAPI",
+    eyebrow: "GitHub Launch Audit",
+    title: "JinMing Lab",
     description:
-      "A focused learning site for English and beginner C++: course paths, quizzes, progress tracking, wrong-question review, and a few practical AI tools built around the next step to learn.",
-    primaryCta: "Start English",
-    secondaryCta: "Start C++",
-    tertiaryCta: "Today Plan",
-    continueCta: "Continue Learning",
-    focus: "Core Paths",
+      "A focused AI learning tool platform. Start with the launch work developers lose time on: README gaps, env files, CI signals, deployment steps, security notes, release checklists, and copyable GitHub issues.",
+    primaryCta: "Run GitHub Audit",
+    secondaryCta: "Open AI Tools",
+    tertiaryCta: "View Roadmap",
+    continueCta: "Open Dashboard",
+    focus: "Core Doors",
     ready: "Ready",
-    pathsTitle: "MVP learning paths",
-    pathsHeading: "Learn, practice, then review",
-    pathsBody: "The homepage now keeps the important learning doors first. GitHub launch audit and prompt tools remain available as supporting tools, not the main product story.",
+    pathsTitle: "Why this focus",
+    pathsHeading: "Fewer features, sharper value",
+    pathsBody: "The homepage now has one main product: GitHub Launch Audit. English, world languages, typing, and course modules stay available as secondary pages.",
     open: "Open",
     cards: [
       {
-        href: "/english",
-        eyebrow: "Path 01",
-        title: "English Learning",
-        body: "Start with vocabulary, grammar, reading, and typing practice. Each session stays short enough for daily progress.",
-        points: ["Vocabulary", "Grammar", "Reading", "Typing"],
+        href: "/tools/github-repo-analyzer",
+        eyebrow: "Core",
+        title: "GitHub Launch Audit",
+        body: "Paste a public repo and get a launch score, risk verdict, must-fix list, README suggestions, env checks, and copyable GitHub issues.",
+        points: ["README", "env", "CI", "Deploy", "Security"],
       },
       {
-        href: "/cpp",
-        eyebrow: "Path 02",
-        title: "C++ Basics",
-        body: "No online execution in the MVP. Build confidence through syntax, code reading, output prediction, STL, and beginner algorithms.",
-        points: ["Syntax", "STL", "Code reading", "Algorithms"],
+        href: "/tools",
+        eyebrow: "Support",
+        title: "AI Tools",
+        body: "Keep the useful daily tools: prompt optimizer, API request generator, JSON formatter, regex tester, and timestamp converter.",
+        points: ["Prompt", "API", "JSON", "Regex"],
       },
       {
-        href: "/wrong",
-        eyebrow: "Review",
-        title: "Wrong-question Review",
-        body: "Turn quiz mistakes into a review loop: retry, understand the reason, and move into the next learning session.",
-        points: ["Mistakes", "Review", "Progress"],
+        href: "/tools/learning-roadmap",
+        eyebrow: "Plan",
+        title: "Learning Roadmap",
+        body: "Generate a practical 30 day plan for zero base learning, frontend, Python automation, or indie building.",
+        points: ["Zero base", "Frontend", "Python", "Indie"],
       },
     ],
   },
@@ -171,9 +171,9 @@ function homeHref(ui: string) {
 
 function supportItems(language: SiteLanguage) {
   return [
-    { href: localizedHref("/today", language), title: language === "zh" ? "今日计划" : "Today Plan", meta: language === "zh" ? "每天入口" : "Daily entry" },
-    { href: localizedHref("/progress", language), title: language === "zh" ? "学习进度" : "Progress", meta: language === "zh" ? "查看完成度" : "Completion" },
-    { href: localizedHref("/tools/github-repo-analyzer", language), title: "GitHub Audit", meta: language === "zh" ? "辅助工具" : "Support tool" },
+    { href: localizedHref("/tools/github-repo-analyzer", language), title: "GitHub Audit", meta: language === "zh" ? "主功能" : "Main product" },
+    { href: localizedHref("/tools", language), title: language === "zh" ? "AI 工具" : "AI Tools", meta: language === "zh" ? "高频小工具" : "Daily utilities" },
+    { href: localizedHref("/tools/learning-roadmap", language), title: language === "zh" ? "学习路线" : "Roadmap", meta: language === "zh" ? "30 天计划" : "30 day plan" },
   ];
 }
 
@@ -210,13 +210,13 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                   {copy.description}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <Link href={localizedHref("/english", siteLanguage)} className="dense-action-primary px-4 py-2.5">
+                  <Link href={localizedHref("/tools/github-repo-analyzer", siteLanguage)} className="dense-action-primary px-4 py-2.5">
                     {copy.primaryCta}
                   </Link>
-                  <Link href={localizedHref("/cpp", siteLanguage)} className="dense-action px-4 py-2.5">
+                  <Link href={localizedHref("/tools", siteLanguage)} className="dense-action px-4 py-2.5">
                     {copy.secondaryCta}
                   </Link>
-                  <Link href={localizedHref("/today", siteLanguage)} className="dense-action px-4 py-2.5">
+                  <Link href={localizedHref("/tools/learning-roadmap", siteLanguage)} className="dense-action px-4 py-2.5">
                     {copy.tertiaryCta}
                   </Link>
                   <Link href={localizedHref(user ? "/dashboard" : "/login?next=/dashboard", siteLanguage)} className="dense-action px-4 py-2.5">
@@ -281,9 +281,9 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
 
 function HomeRail({ copy, isAdmin, language }: { copy: HomeCopy; isAdmin: boolean; language: SiteLanguage }) {
   const items = [
-    { href: localizedHref("/english", language), code: "E", label: copy.english },
-    { href: localizedHref("/cpp", language), code: "C", label: copy.cpp },
-    { href: localizedHref("/today", language), code: "T", label: copy.today },
+    { href: localizedHref("/tools/github-repo-analyzer", language), code: "G", label: "Audit" },
+    { href: localizedHref("/tools", language), code: "T", label: copy.tools },
+    { href: localizedHref("/tools/learning-roadmap", language), code: "R", label: copy.today },
     { href: localizedHref("/dashboard", language), code: "D", label: copy.dashboard },
     ...(isAdmin ? [{ href: localizedHref("/admin", language), code: "A", label: copy.admin }] : []),
   ];
@@ -291,8 +291,8 @@ function HomeRail({ copy, isAdmin, language }: { copy: HomeCopy; isAdmin: boolea
   return (
     <aside className="study-rail sticky top-5 flex h-[calc(100vh-40px)] flex-col p-2">
       <Link href={localizedHref("/", language)} className="mb-3 flex items-center gap-2 rounded-[8px] px-2 py-2">
-        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">VA</span>
-        <span className="hidden text-sm font-semibold leading-tight sm:block">VantaAPI</span>
+        <span className="grid h-8 w-8 place-items-center rounded-[8px] bg-slate-950 text-[10px] font-semibold text-white">JM</span>
+        <span className="hidden text-sm font-semibold leading-tight sm:block">JinMing</span>
       </Link>
 
       <nav className="grid gap-1">
@@ -325,17 +325,16 @@ function TopBar({
   return (
     <header className="dense-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3">
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="dense-status">VantaAPI</span>
-        <span className="dense-status">{copy.english}</span>
-        <span className="dense-status">{copy.cpp}</span>
+        <span className="dense-status">JinMing Lab</span>
+        <span className="dense-status">GitHub Audit</span>
+        <span className="dense-status">{copy.tools}</span>
         <span className="dense-status">{copy.today}</span>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <SiteVersionMenu copy={copy} selectedUi={selectedUi} />
-        <Link href={localizedHref("/english", language)} className="dense-action">{copy.english}</Link>
-        <Link href={localizedHref("/cpp", language)} className="dense-action">{copy.cpp}</Link>
-        <Link href={localizedHref("/today", language)} className="dense-action">{copy.today}</Link>
+        <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action">Audit</Link>
         <Link href={localizedHref("/tools", language)} className="dense-action">{copy.tools}</Link>
+        <Link href={localizedHref("/tools/learning-roadmap", language)} className="dense-action">{copy.today}</Link>
         {isAdmin && <Link href={localizedHref("/admin", language)} className="dense-action">{copy.admin}</Link>}
         {isSignedIn ? (
           <form action="/api/auth/logout" method="post">
