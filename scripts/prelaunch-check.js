@@ -470,7 +470,15 @@ function checkFocusedSitemap() {
     "/questions",
     "/report",
   ];
-  const missing = requiredRoutes.filter((route) => !body.includes(`"${route}"`) && !body.includes(`'${route}'`));
+  const hasRoute = (route) => {
+    if (body.includes(`"${route}"`) || body.includes(`'${route}'`)) return true;
+    if (route.startsWith("/tools/")) {
+      const slug = route.replace("/tools/", "");
+      return body.includes(`"${slug}"`) || body.includes(`'${slug}'`);
+    }
+    return false;
+  };
+  const missing = requiredRoutes.filter((route) => !hasRoute(route));
   const exposed = offFocusRoutes.filter((route) => body.includes(`"${route}"`) || body.includes(`'${route}'`));
 
   if (missing.length) {

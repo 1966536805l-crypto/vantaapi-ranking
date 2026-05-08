@@ -80,10 +80,17 @@ async function checkSitemap() {
     const body = await response.text();
     if (!response.ok) return logFail("/sitemap.xml", `HTTP ${response.status}`);
     if (!body.includes("/tools/github-repo-analyzer")) return logFail("/sitemap.xml", "missing GitHub Audit URL");
+    const urls = Array.from(body.matchAll(/<loc>([^<]+)<\/loc>/g), (match) => {
+      try {
+        return new URL(match[1]).pathname;
+      } catch {
+        return match[1];
+      }
+    });
     const offFocus = ["/today", "/english", "/cpp", "/learn", "/languages", "/wrong", "/dashboard", "/progress", "/games", "/projects", "/questions", "/report"];
-    const exposed = offFocus.filter((route) => body.includes(route));
+    const exposed = offFocus.filter((route) => urls.some((path) => path === route || path.startsWith(`${route}/`)));
     if (exposed.length) return logFail("/sitemap.xml", `off-focus routes exposed: ${exposed.join(", ")}`);
-    logPass("/sitemap.xml", "sitemap includes core audit URL only");
+    logPass("/sitemap.xml", "sitemap includes focused URLs and no retired surfaces");
   } catch (error) {
     logFail("/sitemap.xml", error instanceof Error ? error.message : "request failed");
   }
@@ -91,7 +98,16 @@ async function checkSitemap() {
 
 async function checkRetiredEndpoint(path, method = "GET") {
   try {
-    const response = await fetchWithTimeout(path, { method });
+    const isWriteMethod = !["GET", "HEAD"].includes(method);
+    const response = await fetchWithTimeout(path, {
+      method,
+      ...(isWriteMethod
+        ? {
+            headers: { "Content-Type": "application/json" },
+            body: "{}",
+          }
+        : {}),
+    });
     if (response.status !== 410) return logFail(path, `expected 410 retired response, got HTTP ${response.status}`);
     const robotsHeader = response.headers.get("x-robots-tag") || "";
     const cacheHeader = response.headers.get("cache-control") || "";

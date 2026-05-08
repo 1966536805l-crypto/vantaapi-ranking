@@ -25,6 +25,12 @@ const legalRoutes = [
   "/terms",
 ];
 
+function sitemapLastModified() {
+  const value = process.env.SITEMAP_LASTMOD || process.env.NEXT_PUBLIC_BUILD_TIME || "2026-05-08T00:00:00.000Z";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? new Date("2026-05-08T00:00:00.000Z") : date;
+}
+
 function absoluteUrl(path: string) {
   return `${siteUrl}${path}`;
 }
@@ -60,7 +66,7 @@ function routeEntry(route: string, now: Date, multilingual = true): MetadataRout
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+  const now = sitemapLastModified();
   const toolRoutes = toolDefinitions
     .filter((tool) => publicToolSlugs.has(tool.slug))
     .map((tool) => `/tools/${tool.slug}`);
