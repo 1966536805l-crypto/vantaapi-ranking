@@ -1913,6 +1913,282 @@ function programmingLanguageTitle(slug: ProgrammingLanguageSlug) {
   return getProgrammingLanguage(slug).title;
 }
 
+type LineageFamilyKind =
+  | "web"
+  | "systems"
+  | "data"
+  | "automation"
+  | "functional"
+  | "object"
+  | "scripting"
+  | "business"
+  | "blockchain"
+  | "general";
+
+const lineageFamilyLabels: Record<InterfaceLanguage, Record<LineageFamilyKind, string>> = {
+  en: {
+    web: "Web and interface language family",
+    systems: "Systems programming language family",
+    data: "Data and scientific computing family",
+    automation: "Automation and command language family",
+    functional: "Functional and logic language family",
+    object: "Object oriented language family",
+    scripting: "Scripting language family",
+    business: "Business and teaching language family",
+    blockchain: "Smart contract language family",
+    general: "Programming language family",
+  },
+  zh: {
+    web: "Web 和界面语言家族",
+    systems: "系统编程语言家族",
+    data: "数据和科学计算语言家族",
+    automation: "自动化和命令语言家族",
+    functional: "函数式和逻辑语言家族",
+    object: "面向对象语言家族",
+    scripting: "脚本语言家族",
+    business: "商业和教学语言家族",
+    blockchain: "智能合约语言家族",
+    general: "编程语言家族",
+  },
+  ja: {
+    web: "Web と UI の言語ファミリー",
+    systems: "システムプログラミング言語ファミリー",
+    data: "データと科学計算の言語ファミリー",
+    automation: "自動化とコマンド言語ファミリー",
+    functional: "関数型と論理型の言語ファミリー",
+    object: "オブジェクト指向言語ファミリー",
+    scripting: "スクリプト言語ファミリー",
+    business: "業務と教育向け言語ファミリー",
+    blockchain: "スマートコントラクト言語ファミリー",
+    general: "プログラミング言語ファミリー",
+  },
+  ko: {
+    web: "웹과 UI 언어 계열",
+    systems: "시스템 프로그래밍 언어 계열",
+    data: "데이터와 과학 계산 언어 계열",
+    automation: "자동화와 명령 언어 계열",
+    functional: "함수형과 논리형 언어 계열",
+    object: "객체 지향 언어 계열",
+    scripting: "스크립트 언어 계열",
+    business: "업무와 교육 언어 계열",
+    blockchain: "스마트 계약 언어 계열",
+    general: "프로그래밍 언어 계열",
+  },
+  es: {
+    web: "familia de lenguajes web e interfaz",
+    systems: "familia de programacion de sistemas",
+    data: "familia de datos y computacion cientifica",
+    automation: "familia de automatizacion y comandos",
+    functional: "familia funcional y logica",
+    object: "familia orientada a objetos",
+    scripting: "familia de scripting",
+    business: "familia empresarial y de enseñanza",
+    blockchain: "familia de contratos inteligentes",
+    general: "familia de lenguajes de programacion",
+  },
+  fr: {
+    web: "famille web et interface",
+    systems: "famille programmation systeme",
+    data: "famille donnees et calcul scientifique",
+    automation: "famille automatisation et commandes",
+    functional: "famille fonctionnelle et logique",
+    object: "famille orientee objet",
+    scripting: "famille scripting",
+    business: "famille metier et enseignement",
+    blockchain: "famille contrats intelligents",
+    general: "famille de langages de programmation",
+  },
+  de: {
+    web: "Web und UI Sprachfamilie",
+    systems: "Systemprogrammierung Sprachfamilie",
+    data: "Daten und wissenschaftliches Rechnen",
+    automation: "Automatisierung und Kommando Sprachfamilie",
+    functional: "funktionale und logische Sprachfamilie",
+    object: "objektorientierte Sprachfamilie",
+    scripting: "Skriptsprachen Familie",
+    business: "Business und Lehrsprachen Familie",
+    blockchain: "Smart Contract Sprachfamilie",
+    general: "Programmiersprachen Familie",
+  },
+  pt: {
+    web: "familia de linguagens web e interface",
+    systems: "familia de programacao de sistemas",
+    data: "familia de dados e computacao cientifica",
+    automation: "familia de automacao e comandos",
+    functional: "familia funcional e logica",
+    object: "familia orientada a objetos",
+    scripting: "familia de scripting",
+    business: "familia de negocio e ensino",
+    blockchain: "familia de contratos inteligentes",
+    general: "familia de linguagens de programacao",
+  },
+  ru: {
+    web: "семья языков для web и интерфейсов",
+    systems: "семья системного программирования",
+    data: "семья данных и научных вычислений",
+    automation: "семья автоматизации и команд",
+    functional: "функциональная и логическая семья",
+    object: "объектно ориентированная семья",
+    scripting: "семья скриптовых языков",
+    business: "семья бизнес и учебных языков",
+    blockchain: "семья смарт контрактов",
+    general: "семья языков программирования",
+  },
+  ar: {
+    web: "عائلة لغات الويب والواجهات",
+    systems: "عائلة لغات برمجة الأنظمة",
+    data: "عائلة لغات البيانات والحوسبة العلمية",
+    automation: "عائلة لغات الأتمتة والأوامر",
+    functional: "عائلة لغات الدوال والمنطق",
+    object: "عائلة لغات البرمجة الكائنية",
+    scripting: "عائلة لغات السكربت",
+    business: "عائلة لغات الأعمال والتعليم",
+    blockchain: "عائلة لغات العقود الذكية",
+    general: "عائلة لغات البرمجة",
+  },
+  hi: {
+    web: "web और interface भाषा परिवार",
+    systems: "systems programming भाषा परिवार",
+    data: "data और scientific computing भाषा परिवार",
+    automation: "automation और command भाषा परिवार",
+    functional: "functional और logic भाषा परिवार",
+    object: "object oriented भाषा परिवार",
+    scripting: "scripting भाषा परिवार",
+    business: "business और teaching भाषा परिवार",
+    blockchain: "smart contract भाषा परिवार",
+    general: "programming भाषा परिवार",
+  },
+  id: {
+    web: "keluarga bahasa web dan antarmuka",
+    systems: "keluarga bahasa pemrograman sistem",
+    data: "keluarga data dan komputasi ilmiah",
+    automation: "keluarga otomasi dan command",
+    functional: "keluarga fungsional dan logika",
+    object: "keluarga berorientasi objek",
+    scripting: "keluarga scripting",
+    business: "keluarga bisnis dan pengajaran",
+    blockchain: "keluarga smart contract",
+    general: "keluarga bahasa pemrograman",
+  },
+  vi: {
+    web: "ho ngon ngu web va giao dien",
+    systems: "ho ngon ngu lap trinh he thong",
+    data: "ho du lieu va tinh toan khoa hoc",
+    automation: "ho tu dong hoa va lenh",
+    functional: "ho ham va logic",
+    object: "ho huong doi tuong",
+    scripting: "ho ngon ngu script",
+    business: "ho nghiep vu va giang day",
+    blockchain: "ho hop dong thong minh",
+    general: "ho ngon ngu lap trinh",
+  },
+  th: {
+    web: "ตระกูลภาษา web และ interface",
+    systems: "ตระกูลภาษา programming ระบบ",
+    data: "ตระกูลข้อมูลและคำนวณวิทยาศาสตร์",
+    automation: "ตระกูล automation และ command",
+    functional: "ตระกูล functional และ logic",
+    object: "ตระกูล object oriented",
+    scripting: "ตระกูล scripting",
+    business: "ตระกูลธุรกิจและการสอน",
+    blockchain: "ตระกูล smart contract",
+    general: "ตระกูลภาษา programming",
+  },
+  tr: {
+    web: "web ve arayuz dil ailesi",
+    systems: "sistem programlama dil ailesi",
+    data: "veri ve bilimsel hesaplama ailesi",
+    automation: "otomasyon ve komut dil ailesi",
+    functional: "fonksiyonel ve mantik dil ailesi",
+    object: "nesne yonelimli dil ailesi",
+    scripting: "script dil ailesi",
+    business: "is ve ogretim dil ailesi",
+    blockchain: "akilli sozlesme dil ailesi",
+    general: "programlama dili ailesi",
+  },
+  it: {
+    web: "famiglia web e interfacce",
+    systems: "famiglia programmazione di sistema",
+    data: "famiglia dati e calcolo scientifico",
+    automation: "famiglia automazione e comandi",
+    functional: "famiglia funzionale e logica",
+    object: "famiglia orientata agli oggetti",
+    scripting: "famiglia scripting",
+    business: "famiglia business e didattica",
+    blockchain: "famiglia smart contract",
+    general: "famiglia dei linguaggi di programmazione",
+  },
+  nl: {
+    web: "web en interface taalfamilie",
+    systems: "systeemprogrammering taalfamilie",
+    data: "data en wetenschappelijk rekenen",
+    automation: "automatisering en command taalfamilie",
+    functional: "functionele en logische taalfamilie",
+    object: "objectgeorienteerde taalfamilie",
+    scripting: "scripting taalfamilie",
+    business: "business en onderwijs taalfamilie",
+    blockchain: "smart contract taalfamilie",
+    general: "programmeer taalfamilie",
+  },
+  pl: {
+    web: "rodzina jezykow web i interfejsow",
+    systems: "rodzina programowania systemowego",
+    data: "rodzina danych i obliczen naukowych",
+    automation: "rodzina automatyzacji i komend",
+    functional: "rodzina funkcyjna i logiczna",
+    object: "rodzina obiektowa",
+    scripting: "rodzina skryptowa",
+    business: "rodzina biznesowa i edukacyjna",
+    blockchain: "rodzina smart kontraktow",
+    general: "rodzina jezykow programowania",
+  },
+};
+
+const lineageUseCasePrefix: Record<InterfaceLanguage, string> = {
+  en: "Best used for",
+  zh: "适合",
+  ja: "向いている用途",
+  ko: "잘 맞는 용도",
+  es: "mejor para",
+  fr: "utile pour",
+  de: "gut fuer",
+  pt: "melhor para",
+  ru: "лучше для",
+  ar: "مناسب لـ",
+  hi: "इसके लिए उपयोगी",
+  id: "cocok untuk",
+  vi: "phu hop cho",
+  th: "เหมาะกับ",
+  tr: "en iyi alan",
+  it: "utile per",
+  nl: "goed voor",
+  pl: "najlepsze do",
+};
+
+function lineageFamilyKind(family: string): LineageFamilyKind {
+  const value = family.toLowerCase();
+  if (value.includes("smart contract")) return "blockchain";
+  if (value.includes("web") || value.includes("javascript") || value.includes("client app") || value.includes("ui")) return "web";
+  if (value.includes("system") || value.includes("machine") || value.includes("c replacement") || value.includes("c++")) return "systems";
+  if (value.includes("data") || value.includes("scientific") || value.includes("statistical") || value.includes("matrix") || value.includes("relational")) return "data";
+  if (value.includes("shell") || value.includes("command") || value.includes("automation") || value.includes("text")) return "automation";
+  if (value.includes("functional") || value.includes("logic") || value.includes("lisp") || value.includes("ml") || value.includes("beam") || value.includes("scheme")) return "functional";
+  if (value.includes("oop") || value.includes("object") || value.includes("jvm")) return "object";
+  if (value.includes("scripting") || value.includes("script") || value.includes("ruby") || value.includes("dynamic") || value.includes("readable")) return "scripting";
+  if (value.includes("business") || value.includes("teaching") || value.includes("basic") || value.includes("legacy")) return "business";
+  return "general";
+}
+
+function localizedLineageFamily(family: string, language: InterfaceLanguage) {
+  if (language === "en") return family;
+  return lineageFamilyLabels[language][lineageFamilyKind(family)];
+}
+
+function localizedLineageUseCase(useCase: string, activeRole: string, language: InterfaceLanguage) {
+  if (language === "en") return useCase;
+  return `${lineageUseCasePrefix[language]} ${activeRole}`;
+}
+
 function uniqueLanguageSlugs(slugs: ProgrammingLanguageSlug[], activeSlug: ProgrammingLanguageSlug, limit: number) {
   return Array.from(new Set(slugs.filter((slug) => slug !== activeSlug))).slice(0, limit);
 }
@@ -3840,6 +4116,8 @@ export default function ProgrammingTrainer({
   }));
   const definition = definitionCopy(activeLanguage, activeRole, language);
   const lineage = useMemo(() => lineageForLanguage(activeLanguage), [activeLanguage]);
+  const lineageFamily = localizedLineageFamily(lineage.family, language);
+  const lineageUseCase = localizedLineageUseCase(lineage.useCase, activeRole, language);
   const lineageUi = lineageCopy[language];
   const zeroSteps = zeroBaseSteps[language] || zeroBaseSteps.en;
   const isRtl = language === "ar";
@@ -4171,7 +4449,7 @@ export default function ProgrammingTrainer({
               <article className="current">
                 <span>{lineageUi.current}</span>
                 <strong>{activeLanguage.title}</strong>
-                <small>{lineage.family}</small>
+                <small>{lineageFamily}</small>
               </article>
               <article>
                 <span>{lineageUi.relatives}</span>
@@ -4188,11 +4466,11 @@ export default function ProgrammingTrainer({
             <div className="programming-lineage-cards">
               <article>
                 <span>{lineageUi.family}</span>
-                <strong>{lineage.family}</strong>
+                <strong>{lineageFamily}</strong>
               </article>
               <article>
                 <span>{lineageUi.useCase}</span>
-                <p>{lineage.useCase}</p>
+                <p>{lineageUseCase}</p>
               </article>
               <article>
                 <span>{lineageUi.next}</span>
