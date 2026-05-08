@@ -124,6 +124,22 @@ async function checkCookieRedirect(name, path, cookieLanguage, expectedLocation,
   }
 }
 
+async function checkProtectedLanguageRedirect(name, path, acceptLanguage, expectedLocation, index) {
+  try {
+    const response = await fetchWithTimeout(path, browserHeaders(acceptLanguage, index));
+    const location = response.headers.get("location") || "";
+    if (![301, 302, 303, 307, 308].includes(response.status)) {
+      return bad(name, `expected login redirect to ${expectedLocation}, got HTTP ${response.status}`);
+    }
+    if (location !== expectedLocation) {
+      return bad(name, `expected Location ${expectedLocation}, got ${location || "(empty)"}`);
+    }
+    return ok(name, `protected page preserves language in ${expectedLocation}`);
+  } catch (error) {
+    bad(name, error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function checkPage(name, path, acceptLanguage, requiredSnippets, forbiddenSnippets, index) {
   try {
     const response = await fetchWithTimeout(path, browserHeaders(acceptLanguage, index), { redirect: "follow" });
@@ -171,6 +187,13 @@ async function main() {
   await checkRedirect("accept-language:en", "en-US,en;q=0.9", "", 3);
   await checkCookieRedirect("cookie-language:ar-programming", "/programming/javascript", "ar", "/programming/javascript?lang=ar", 12);
   await checkCookieRedirect("cookie-language:ja-search", "/search?q=github", "ja", "/search?q=github&lang=ja", 13);
+  await checkProtectedLanguageRedirect(
+    "protected-language:dashboard-ar",
+    "/dashboard?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    "/login?next=%2Fdashboard%3Flang%3Dar&lang=ar",
+    14,
+  );
 
   await checkPage(
     "programming-ar",

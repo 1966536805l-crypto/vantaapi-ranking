@@ -777,7 +777,9 @@ export function proxy(request: NextRequest) {
   const needsLogin = protectedPages.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   if (needsLogin && !request.cookies.get(AUTH_COOKIE)?.value) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", pathname);
+    loginUrl.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
+    const language = securityLanguage(request);
+    if (language !== "en") loginUrl.searchParams.set("lang", language);
     return withSecurityHeaders(NextResponse.redirect(loginUrl), botVerdict);
   }
 
