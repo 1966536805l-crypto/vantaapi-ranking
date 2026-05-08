@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
-import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { programmingLanguages, type ProgrammingLanguage, type ProgrammingLanguageSlug } from "@/lib/programming-content";
 
 const zeroSteps = {
@@ -852,6 +852,10 @@ export async function generateMetadata({
   return {
     title: `${t.title} - JinMing Lab`,
     description: t.subtitle,
+    alternates: {
+      canonical: localizedHref("/programming", language),
+      languages: localizedLanguageAlternates("/programming"),
+    },
   };
 }
 

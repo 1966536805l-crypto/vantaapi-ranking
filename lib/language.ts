@@ -62,6 +62,18 @@ export function localizedHref(href: string, language: InterfaceLanguage | SiteLa
   return `${path}${nextQuery ? `?${nextQuery}` : ""}${nextHash}`;
 }
 
+export function localizedLanguageAlternates(path: string) {
+  const alternates: Record<string, string> = {
+    "x-default": localizedHref(path, "en"),
+  };
+
+  for (const language of interfaceLanguages) {
+    alternates[language.htmlLang] = localizedHref(path, language.code);
+  }
+
+  return alternates;
+}
+
 export function resolveSafeNextHref(searchParams: PageSearchParams | undefined, fallback: string) {
   const value = searchParams?.next;
   const nextHref = Array.isArray(value) ? value[0] : value;

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import ProgrammingTrainer from "@/components/learning/ProgrammingTrainer";
-import { resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { getProgrammingLanguage, programmingLanguages } from "@/lib/programming-content";
 
 type ProgrammingLanguagePageProps = {
@@ -123,9 +123,14 @@ export async function generateMetadata({ params, searchParams }: ProgrammingLang
       title: copy.fallback,
     };
   }
+  const path = `/programming/${current.slug}`;
   return {
     title: copy.title(current.title),
     description: copy.description(current.title),
+    alternates: {
+      canonical: localizedHref(path, siteLanguage),
+      languages: localizedLanguageAlternates(path),
+    },
   };
 }
 
