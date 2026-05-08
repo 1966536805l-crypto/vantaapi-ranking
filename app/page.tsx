@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import RepoAuditForm from "@/components/home/RepoAuditForm";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
-import { localizedHref, type SiteLanguage } from "@/lib/language";
+import { isInterfaceLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
 
 export const metadata: Metadata = {
   title: "GitHub Launch Audit - Repo Readiness Checker | JinMing Lab",
@@ -34,36 +34,190 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function resolveHomeLanguage(rawLang?: string | string[], rawUi?: string | string[]): SiteLanguage {
+function resolveHomeLanguage(rawLang?: string | string[], rawUi?: string | string[]): InterfaceLanguage {
   const lang = firstParam(rawLang);
-  if (lang === "zh" || lang === "en") return lang;
+  if (isInterfaceLanguage(lang)) return lang;
   return firstParam(rawUi) === "english" ? "en" : "zh";
 }
+
+const homeCopy = {
+  en: {
+    audit: "Audit", tools: "Tools", programming: "Programming", eyebrow: "GitHub Launch Audit",
+    title: "Paste a repo. Get the launch blockers.",
+    subtitle: "Deterministic checks first: README, env files, CI, deploy, and security signals. Then package the result into issue drafts, PR copy, and a release checklist.",
+    outcomes: ["Rules-first score", "Blockers", "Issue drafts", "PR description"],
+    pass: "Pass", review: "Review", sample: "Sample report", evidence: [["P1", ".env.example", "Env keys need local preview production separation"], ["P1", "README.md", "Quick start should stay under five minutes"], ["P2", "release docs", "Release checklist should be visible to maintainers"]],
+    pr: "Copy-ready PR description", workflow: "Move the audit into the developer workflow", developerTools: "View developer tools", programmingLab: "Open programming lab",
+  },
+  zh: {
+    audit: "上线体检", tools: "工具", programming: "编程", eyebrow: "GitHub 上线体检",
+    title: "粘贴仓库，拿到上线前检查报告。",
+    subtitle: "先用确定性规则检查 README、环境变量、CI、部署和安全提示，再整理成 Issue 草稿、PR 描述和发布清单。",
+    outcomes: ["上线评分", "阻塞项", "Issue 草稿", "PR 描述"],
+    pass: "通过", review: "待确认", sample: "示例报告", evidence: [["P1", ".env.example", "环境变量需要区分本地 预览 生产"], ["P1", "README.md", "快速开始路径需要控制在五分钟内"], ["P2", "release docs", "发布清单不应该只存在维护者脑子里"]],
+    pr: "可复制 PR 描述", workflow: "把体检结果直接放进开发流程", developerTools: "查看开发者工具", programmingLab: "进入编程训练",
+  },
+  ja: {
+    audit: "公開前診断", tools: "ツール", programming: "プログラミング", eyebrow: "GitHub 公開前診断",
+    title: "リポジトリを貼るだけで、公開前の詰まりを確認。",
+    subtitle: "README、環境変数、CI、デプロイ、セキュリティをルールで先に確認し、Issue 草案、PR 文、リリースチェックリストにまとめます。",
+    outcomes: ["診断スコア", "ブロッカー", "Issue 草案", "PR 説明"],
+    pass: "合格", review: "確認", sample: "レポート例", evidence: [["P1", ".env.example", "環境変数は local preview production で分ける必要があります"], ["P1", "README.md", "クイックスタートは 5 分以内に収めます"], ["P2", "release docs", "リリース手順を見える場所に置きます"]],
+    pr: "コピーできる PR 説明", workflow: "診断結果を開発フローへ", developerTools: "開発者ツールを見る", programmingLab: "プログラミングへ",
+  },
+  ko: {
+    audit: "출시 점검", tools: "도구", programming: "프로그래밍", eyebrow: "GitHub 출시 점검",
+    title: "저장소를 붙여 넣고 출시 전 문제를 확인하세요.",
+    subtitle: "README, 환경 변수, CI, 배포, 보안 신호를 규칙으로 먼저 점검하고 Issue 초안, PR 문구, 릴리스 체크리스트로 정리합니다.",
+    outcomes: ["점검 점수", "차단 항목", "Issue 초안", "PR 설명"],
+    pass: "통과", review: "검토", sample: "예시 보고서", evidence: [["P1", ".env.example", "환경 변수는 local preview production 으로 나눠야 합니다"], ["P1", "README.md", "빠른 시작은 5분 안에 끝나야 합니다"], ["P2", "release docs", "릴리스 체크리스트는 유지보수자가 볼 수 있어야 합니다"]],
+    pr: "복사 가능한 PR 설명", workflow: "점검 결과를 개발 흐름에 연결", developerTools: "개발자 도구 보기", programmingLab: "프로그래밍 열기",
+  },
+  es: {
+    audit: "Auditoría", tools: "Herramientas", programming: "Programación", eyebrow: "Auditoría de lanzamiento GitHub",
+    title: "Pega un repo y detecta bloqueos antes de publicar.",
+    subtitle: "Primero revisa README, variables, CI, despliegue y seguridad con reglas deterministas. Luego genera issues, texto de PR y checklist de release.",
+    outcomes: ["Puntuación", "Bloqueos", "Borradores issue", "Descripción PR"],
+    pass: "OK", review: "Revisar", sample: "Informe ejemplo", evidence: [["P1", ".env.example", "Las variables deben separarse por local preview production"], ["P1", "README.md", "El quick start debe durar menos de cinco minutos"], ["P2", "release docs", "El checklist de release debe ser visible"]],
+    pr: "Descripción PR lista", workflow: "Lleva la auditoría al flujo de desarrollo", developerTools: "Ver herramientas", programmingLab: "Abrir programación",
+  },
+  fr: {
+    audit: "Audit", tools: "Outils", programming: "Programmation", eyebrow: "Audit de lancement GitHub",
+    title: "Collez un repo. Trouvez les blocages avant publication.",
+    subtitle: "Contrôles déterministes pour README, variables, CI, déploiement et sécurité, puis brouillons d’issues, texte de PR et checklist de release.",
+    outcomes: ["Score", "Blocages", "Brouillons issue", "Description PR"],
+    pass: "OK", review: "À vérifier", sample: "Exemple de rapport", evidence: [["P1", ".env.example", "Les variables doivent séparer local preview production"], ["P1", "README.md", "Le démarrage rapide doit rester sous cinq minutes"], ["P2", "release docs", "La checklist de release doit être visible"]],
+    pr: "Description PR prête", workflow: "Intégrer l’audit au flux dev", developerTools: "Voir les outils", programmingLab: "Ouvrir programmation",
+  },
+  de: {
+    audit: "Audit", tools: "Tools", programming: "Programmieren", eyebrow: "GitHub Launch Audit",
+    title: "Repo einfügen. Launch-Blocker finden.",
+    subtitle: "Regelbasierte Checks für README, Umgebungsvariablen, CI, Deployment und Sicherheit, danach Issue-Entwürfe, PR-Text und Release-Checkliste.",
+    outcomes: ["Score", "Blocker", "Issue Entwürfe", "PR Beschreibung"],
+    pass: "OK", review: "Prüfen", sample: "Beispielbericht", evidence: [["P1", ".env.example", "Env-Keys brauchen local preview production Trennung"], ["P1", "README.md", "Quick Start sollte unter fünf Minuten bleiben"], ["P2", "release docs", "Release-Checkliste muss sichtbar sein"]],
+    pr: "Kopierbare PR Beschreibung", workflow: "Audit in den Dev-Workflow bringen", developerTools: "Tools ansehen", programmingLab: "Programmieren öffnen",
+  },
+  pt: {
+    audit: "Auditoria", tools: "Ferramentas", programming: "Programação", eyebrow: "Auditoria de lançamento GitHub",
+    title: "Cole um repo e veja bloqueios antes do lançamento.",
+    subtitle: "Checagens determinísticas para README, env, CI, deploy e segurança, depois rascunhos de issues, texto de PR e checklist de release.",
+    outcomes: ["Pontuação", "Bloqueios", "Issues", "Descrição PR"],
+    pass: "OK", review: "Revisar", sample: "Relatório exemplo", evidence: [["P1", ".env.example", "Variáveis precisam separar local preview production"], ["P1", "README.md", "Quick start deve ficar abaixo de cinco minutos"], ["P2", "release docs", "Checklist de release deve ficar visível"]],
+    pr: "Descrição PR pronta", workflow: "Levar auditoria ao fluxo dev", developerTools: "Ver ferramentas", programmingLab: "Abrir programação",
+  },
+  ru: {
+    audit: "Аудит", tools: "Инструменты", programming: "Программирование", eyebrow: "GitHub аудит перед запуском",
+    title: "Вставьте репозиторий и найдите блокеры запуска.",
+    subtitle: "Проверки README, env, CI, деплоя и безопасности по правилам, затем черновики issues, PR описание и release checklist.",
+    outcomes: ["Оценка", "Блокеры", "Issues", "PR описание"],
+    pass: "OK", review: "Проверить", sample: "Пример отчета", evidence: [["P1", ".env.example", "Env ключи нужно разделить на local preview production"], ["P1", "README.md", "Quick start должен быть короче пяти минут"], ["P2", "release docs", "Release checklist должен быть видимым"]],
+    pr: "Готовое PR описание", workflow: "Перенести аудит в dev flow", developerTools: "Открыть инструменты", programmingLab: "Открыть программирование",
+  },
+  ar: {
+    audit: "تدقيق الإطلاق", tools: "الأدوات", programming: "البرمجة", eyebrow: "تدقيق GitHub قبل الإطلاق",
+    title: "ألصق المستودع واعرف عوائق الإطلاق.",
+    subtitle: "فحوصات قواعدية لـ README والمتغيرات و CI والنشر والأمان، ثم مسودات Issues ووصف PR وقائمة إطلاق.",
+    outcomes: ["النتيجة", "العوائق", "مسودات Issues", "وصف PR"],
+    pass: "ناجح", review: "مراجعة", sample: "تقرير مثال", evidence: [["P1", ".env.example", "يجب فصل المتغيرات بين local preview production"], ["P1", "README.md", "البداية السريعة يجب أن تكون أقل من خمس دقائق"], ["P2", "release docs", "قائمة الإطلاق يجب أن تكون مرئية"]],
+    pr: "وصف PR جاهز للنسخ", workflow: "أدخل التدقيق في سير التطوير", developerTools: "عرض أدوات المطور", programmingLab: "فتح البرمجة",
+  },
+  hi: {
+    audit: "लॉन्च ऑडिट", tools: "टूल्स", programming: "प्रोग्रामिंग", eyebrow: "GitHub लॉन्च ऑडिट",
+    title: "Repo पेस्ट करें और लॉन्च blockers देखें।",
+    subtitle: "README, env, CI, deploy और security को नियमों से जांचें, फिर issue drafts, PR copy और release checklist बनाएं।",
+    outcomes: ["स्कोर", "Blockers", "Issue drafts", "PR description"],
+    pass: "पास", review: "जांचें", sample: "Sample report", evidence: [["P1", ".env.example", "Env keys को local preview production में अलग करें"], ["P1", "README.md", "Quick start पांच मिनट से कम रखें"], ["P2", "release docs", "Release checklist दिखनी चाहिए"]],
+    pr: "Copy-ready PR description", workflow: "Audit को developer workflow में लाएं", developerTools: "Developer tools देखें", programmingLab: "Programming खोलें",
+  },
+  id: {
+    audit: "Audit", tools: "Alat", programming: "Pemrograman", eyebrow: "Audit rilis GitHub",
+    title: "Tempel repo dan temukan blocker sebelum rilis.",
+    subtitle: "Cek README, env, CI, deploy, dan keamanan dengan aturan, lalu buat draft issue, teks PR, dan checklist rilis.",
+    outcomes: ["Skor", "Blocker", "Draft issue", "Deskripsi PR"],
+    pass: "Lulus", review: "Tinjau", sample: "Contoh laporan", evidence: [["P1", ".env.example", "Env perlu dibagi local preview production"], ["P1", "README.md", "Quick start sebaiknya di bawah lima menit"], ["P2", "release docs", "Checklist rilis harus terlihat"]],
+    pr: "Deskripsi PR siap salin", workflow: "Masukkan audit ke alur developer", developerTools: "Lihat alat developer", programmingLab: "Buka pemrograman",
+  },
+  vi: {
+    audit: "Kiểm tra", tools: "Công cụ", programming: "Lập trình", eyebrow: "Kiểm tra GitHub trước khi ra mắt",
+    title: "Dán repo và tìm blocker trước khi ra mắt.",
+    subtitle: "Kiểm tra README, env, CI, deploy và bảo mật bằng luật, rồi tạo issue draft, PR copy và release checklist.",
+    outcomes: ["Điểm", "Blocker", "Issue draft", "PR mô tả"],
+    pass: "Đạt", review: "Xem lại", sample: "Báo cáo mẫu", evidence: [["P1", ".env.example", "Env cần tách local preview production"], ["P1", "README.md", "Quick start nên dưới năm phút"], ["P2", "release docs", "Release checklist cần hiển thị"]],
+    pr: "PR mô tả sẵn sao chép", workflow: "Đưa audit vào quy trình dev", developerTools: "Xem công cụ dev", programmingLab: "Mở lập trình",
+  },
+  th: {
+    audit: "ตรวจปล่อยงาน", tools: "เครื่องมือ", programming: "เขียนโปรแกรม", eyebrow: "GitHub Launch Audit",
+    title: "วาง repo แล้วดู blocker ก่อนปล่อยจริง",
+    subtitle: "ตรวจ README, env, CI, deploy และ security ด้วยกฎ แล้วสรุปเป็น issue draft, PR copy และ release checklist",
+    outcomes: ["คะแนน", "Blockers", "Issue drafts", "PR description"],
+    pass: "ผ่าน", review: "ตรวจเพิ่ม", sample: "รายงานตัวอย่าง", evidence: [["P1", ".env.example", "Env ต้องแยก local preview production"], ["P1", "README.md", "Quick start ควรต่ำกว่า 5 นาที"], ["P2", "release docs", "ต้องเห็น release checklist"]],
+    pr: "PR description พร้อมคัดลอก", workflow: "นำ audit เข้าสู่ dev workflow", developerTools: "ดูเครื่องมือ", programmingLab: "เปิดบทเรียนโปรแกรม",
+  },
+  tr: {
+    audit: "Denetim", tools: "Araçlar", programming: "Programlama", eyebrow: "GitHub yayın denetimi",
+    title: "Repo yapıştır, yayın engellerini gör.",
+    subtitle: "README, env, CI, dağıtım ve güvenliği kurallarla kontrol eder; issue taslakları, PR metni ve release checklist üretir.",
+    outcomes: ["Skor", "Engeller", "Issue taslakları", "PR açıklaması"],
+    pass: "Geçti", review: "İncele", sample: "Örnek rapor", evidence: [["P1", ".env.example", "Env anahtarları local preview production olarak ayrılmalı"], ["P1", "README.md", "Quick start beş dakikanın altında olmalı"], ["P2", "release docs", "Release checklist görünür olmalı"]],
+    pr: "Kopyalanabilir PR açıklaması", workflow: "Denetimi geliştirici akışına taşı", developerTools: "Araçları gör", programmingLab: "Programlamayı aç",
+  },
+  it: {
+    audit: "Audit", tools: "Strumenti", programming: "Programmazione", eyebrow: "Audit GitHub prima del lancio",
+    title: "Incolla un repo e trova i blocchi di lancio.",
+    subtitle: "Controlli deterministici per README, env, CI, deploy e sicurezza, poi bozze issue, testo PR e checklist release.",
+    outcomes: ["Punteggio", "Blocchi", "Issue draft", "Descrizione PR"],
+    pass: "OK", review: "Rivedi", sample: "Report esempio", evidence: [["P1", ".env.example", "Le env devono separare local preview production"], ["P1", "README.md", "Quick start sotto cinque minuti"], ["P2", "release docs", "Checklist release visibile"]],
+    pr: "Descrizione PR pronta", workflow: "Porta audit nel flusso dev", developerTools: "Vedi strumenti", programmingLab: "Apri programmazione",
+  },
+  nl: {
+    audit: "Audit", tools: "Tools", programming: "Programmeren", eyebrow: "GitHub launch audit",
+    title: "Plak een repo en vind launch blockers.",
+    subtitle: "Regelchecks voor README, env, CI, deploy en security, daarna issue drafts, PR tekst en release checklist.",
+    outcomes: ["Score", "Blockers", "Issue drafts", "PR beschrijving"],
+    pass: "OK", review: "Controleren", sample: "Voorbeeldrapport", evidence: [["P1", ".env.example", "Env keys moeten local preview production scheiden"], ["P1", "README.md", "Quick start onder vijf minuten houden"], ["P2", "release docs", "Release checklist moet zichtbaar zijn"]],
+    pr: "Kopieerbare PR beschrijving", workflow: "Breng audit in de dev workflow", developerTools: "Bekijk tools", programmingLab: "Open programmeren",
+  },
+  pl: {
+    audit: "Audyt", tools: "Narzędzia", programming: "Programowanie", eyebrow: "GitHub audyt przed publikacją",
+    title: "Wklej repo i znajdź blokery publikacji.",
+    subtitle: "Regułowe kontrole README, env, CI, deploy i bezpieczeństwa, potem szkice issue, opis PR i release checklist.",
+    outcomes: ["Wynik", "Blokery", "Issue drafts", "Opis PR"],
+    pass: "OK", review: "Sprawdź", sample: "Przykładowy raport", evidence: [["P1", ".env.example", "Env keys muszą rozdzielać local preview production"], ["P1", "README.md", "Quick start powinien być poniżej pięciu minut"], ["P2", "release docs", "Release checklist musi być widoczny"]],
+    pr: "Opis PR do skopiowania", workflow: "Wprowadź audyt do dev workflow", developerTools: "Zobacz narzędzia", programmingLab: "Otwórz programowanie",
+  },
+} satisfies Record<InterfaceLanguage, {
+  audit: string;
+  tools: string;
+  programming: string;
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  outcomes: string[];
+  pass: string;
+  review: string;
+  sample: string;
+  evidence: string[][];
+  pr: string;
+  workflow: string;
+  developerTools: string;
+  programmingLab: string;
+}>;
 
 export default async function HomePage({ searchParams }: { searchParams: HomeSearchParams }) {
   const params = await searchParams;
   const language = resolveHomeLanguage(params?.lang, params?.ui);
   const zh = language === "zh";
+  const t = homeCopy[language];
 
   const scorecards = [
-    ["README", "90", zh ? "通过" : "Pass"],
-    ["ENV", "75", zh ? "待确认" : "Review"],
-    ["CI", "85", zh ? "通过" : "Pass"],
-    ["DEPLOY", "82", zh ? "通过" : "Pass"],
-    ["SECURITY", "88", zh ? "通过" : "Pass"],
+    ["README", "90", t.pass],
+    ["ENV", "75", t.review],
+    ["CI", "85", t.pass],
+    ["DEPLOY", "82", t.pass],
+    ["SECURITY", "88", t.pass],
   ];
 
-  const evidenceCards = zh
-    ? [
-        ["P1", ".env.example", "环境变量需要区分本地 预览 生产"],
-        ["P1", "README.md", "快速开始路径需要控制在五分钟内"],
-        ["P2", "release docs", "发布清单不应该只存在维护者脑子里"],
-      ]
-    : [
-        ["P1", ".env.example", "Env keys need local preview production separation"],
-        ["P1", "README.md", "Quick start should stay under five minutes"],
-        ["P2", "release docs", "Release checklist should be visible to maintainers"],
-      ];
+  const evidenceCards = t.evidence;
 
   return (
     <main className="home-audit-page">
@@ -73,28 +227,21 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
           <strong>JinMing Lab</strong>
         </Link>
         <nav>
-          <Link href={localizedHref("/tools/github-repo-analyzer", language)}>{zh ? "上线体检" : "Audit"}</Link>
-          <Link href={localizedHref("/tools", language)}>{zh ? "工具" : "Tools"}</Link>
-          <Link href={localizedHref("/programming", language)}>{zh ? "编程" : "Programming"}</Link>
+          <Link href={localizedHref("/tools/github-repo-analyzer", language)}>{t.audit}</Link>
+          <Link href={localizedHref("/tools", language)}>{t.tools}</Link>
+          <Link href={localizedHref("/programming", language)}>{t.programming}</Link>
           <FlagLanguageToggle initialLanguage={language} />
         </nav>
       </header>
 
       <section className="home-audit-command">
         <div className="home-audit-hero">
-          <p className="eyebrow">{zh ? "GitHub 上线体检" : "GitHub Launch Audit"}</p>
-          <h1>{zh ? "粘贴仓库，拿到上线前检查报告。" : "Paste a repo. Get the launch blockers."}</h1>
-          <p>
-            {zh
-              ? "先用确定性规则检查 README、环境变量、CI、部署和安全提示，再整理成 Issue 草稿、PR 描述和发布清单。"
-              : "Deterministic checks first: README, env files, CI, deploy, and security signals. Then package the result into issue drafts, PR copy, and a release checklist."}
-          </p>
+          <p className="eyebrow">{t.eyebrow}</p>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
           <RepoAuditForm language={language} />
           <div className="home-audit-outcomes" aria-label={zh ? "核心结果" : "Core outcomes"}>
-            {(zh
-              ? ["上线评分", "阻塞项", "Issue 草稿", "PR 描述"]
-              : ["Rules-first score", "Blockers", "Issue drafts", "PR description"]
-            ).map((item) => (
+            {t.outcomes.map((item) => (
               <span key={item}>{item}</span>
             ))}
           </div>
@@ -104,7 +251,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
           <div className="home-audit-report">
             <div className="home-audit-report-head">
               <div>
-                <p className="eyebrow">{zh ? "示例报告" : "Sample report"}</p>
+                <p className="eyebrow">{t.sample}</p>
                 <h2>vercel/swr</h2>
               </div>
               <strong>86</strong>
@@ -131,8 +278,8 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
             </div>
             <div className="home-audit-pr-preview">
               <div>
-                <p className="eyebrow">{zh ? "可复制 PR 描述" : "Copy-ready PR description"}</p>
-                <h3>{zh ? "把体检结果直接放进开发流程" : "Move the audit into the developer workflow"}</h3>
+                <p className="eyebrow">{t.pr}</p>
+                <h3>{t.workflow}</h3>
               </div>
               <pre>{`## Launch readiness audit
 
@@ -155,8 +302,8 @@ npm run build`}</pre>
       </section>
 
       <footer className="home-audit-footer">
-        <Link href={localizedHref("/tools", language)}>{zh ? "查看开发者工具" : "View developer tools"}</Link>
-        <Link href={localizedHref("/programming", language)}>{zh ? "进入编程训练" : "Open programming lab"}</Link>
+        <Link href={localizedHref("/tools", language)}>{t.developerTools}</Link>
+        <Link href={localizedHref("/programming", language)}>{t.programmingLab}</Link>
       </footer>
     </main>
   );

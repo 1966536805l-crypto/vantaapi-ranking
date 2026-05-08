@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { bilingualLanguage, type InterfaceLanguage } from "@/lib/language";
 
 type CoachMode = "english" | "programming";
 type CoachEngine = "local" | "ai";
@@ -23,7 +24,7 @@ type AICoachPanelProps = {
   placeholder: string;
   quickPrompts: string[];
   context: unknown;
-  language?: "en" | "zh";
+  language?: InterfaceLanguage;
 };
 
 const coachCopy = {
@@ -100,7 +101,7 @@ function firstEnglishWord(...values: string[]) {
   return "";
 }
 
-function memoryHook(word: string, language: "en" | "zh") {
+function memoryHook(word: string, language: InterfaceLanguage) {
   if (!word) return language === "zh" ? "先听音 再拼写 再看释义" : "listen first then spell then check the meaning";
 
   const normalized = word.toLowerCase();
@@ -120,7 +121,7 @@ function memoryHook(word: string, language: "en" | "zh") {
   return `learn one collocation then use ${word} in a short sentence`;
 }
 
-function englishInstantAnswer(prompt: string, context: unknown, language: "en" | "zh") {
+function englishInstantAnswer(prompt: string, context: unknown, language: InterfaceLanguage) {
   const word = readContextValue(context, ["word", "term", "title"], 60) || firstEnglishWord(prompt);
   const meaning =
     readContextValue(context, language === "zh" ? ["meaningZh", "translation", "meaning", "meaningEn"] : ["meaningEn", "meaning", "meaningZh"], 110);
@@ -147,7 +148,7 @@ function englishInstantAnswer(prompt: string, context: unknown, language: "en" |
   ].join("\n");
 }
 
-function programmingNextMove(type: string, prompt: string, language: "en" | "zh") {
+function programmingNextMove(type: string, prompt: string, language: InterfaceLanguage) {
   const source = `${type} ${prompt}`.toLowerCase();
   if (language === "zh") {
     if (source.includes("bug") || source.includes("error") || source.includes("报错")) return "先锁定报错行 再只改一处";
@@ -166,7 +167,7 @@ function programmingNextMove(type: string, prompt: string, language: "en" | "zh"
   return "reduce the question to one tiny example";
 }
 
-function programmingInstantAnswer(promptText: string, context: unknown, language: "en" | "zh") {
+function programmingInstantAnswer(promptText: string, context: unknown, language: InterfaceLanguage) {
   const topic = readContextValue(context, ["language", "languageRole", "topic", "title"], 80);
   const questionType = readContextValue(context, ["questionType", "type"], 50);
   const questionNumber = readContextValue(context, ["questionNumber", "index"], 20);
@@ -202,7 +203,7 @@ function localCoachAnswer({
   mode: CoachMode;
   prompt: string;
   context: unknown;
-  language: "en" | "zh";
+  language: InterfaceLanguage;
 }) {
   return mode === "english"
     ? englishInstantAnswer(prompt, context, language)
@@ -216,7 +217,7 @@ function normalizeProvider(value: string | null): CoachProvider {
   return "ai";
 }
 
-function providerName(provider: CoachProvider | undefined, language: "en" | "zh") {
+function providerName(provider: CoachProvider | undefined, language: InterfaceLanguage) {
   if (provider === "gateway") return language === "zh" ? "GLM" : "GLM";
   if (provider === "ollama") return language === "zh" ? "Ollama 本地" : "Ollama local";
   if (provider === "built-in" || provider === "local") return language === "zh" ? "内置教练" : "built in coach";
@@ -237,9 +238,9 @@ function phaseText({
   phase: CoachPhase;
   answer: CoachResponse | null;
   engine: CoachEngine;
-  language: "en" | "zh";
+  language: InterfaceLanguage;
 }) {
-  const copy = coachCopy[language];
+  const copy = coachCopy[bilingualLanguage(language)];
   if (engine === "local") return copy.local;
   if (phase === "instant") return copy.instantDraft;
   if (phase === "checking") return copy.checking;
@@ -264,7 +265,7 @@ export default function AICoachPanel({
   const [engine, setEngine] = useState<CoachEngine>("ai");
   const [phase, setPhase] = useState<CoachPhase>("idle");
   const requestIdRef = useRef(0);
-  const copy = coachCopy[language];
+  const copy = coachCopy[bilingualLanguage(language)];
 
   async function ask(nextPrompt = prompt) {
     const cleanPrompt = nextPrompt.trim();

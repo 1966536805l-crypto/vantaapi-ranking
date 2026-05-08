@@ -8,7 +8,8 @@ const allowedMethods = new Set(["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH"
 const rateBuckets = new Map<string, { count: number; resetTime: number }>();
 const penaltyBuckets = new Map<string, { blockedUntil: number; level: number; resetTime: number; reason: string }>();
 type SecurityMode = "normal" | "elevated" | "emergency";
-type SiteLanguage = "en" | "zh";
+const supportedSiteLanguages = ["en", "zh", "ja", "ko", "es", "fr", "de", "pt", "ru", "ar", "hi", "id", "vi", "th", "tr", "it", "nl", "pl"] as const;
+type SiteLanguage = (typeof supportedSiteLanguages)[number];
 
 const languageCookieNames = ["jinming_language", "vantaapi-language"];
 
@@ -184,9 +185,13 @@ function withSecurityHeaders(response: NextResponse, botVerdict?: BotVerdict) {
 function readLanguageCookie(request: NextRequest): SiteLanguage | null {
   for (const name of languageCookieNames) {
     const value = request.cookies.get(name)?.value;
-    if (value === "zh" || value === "en") return value;
+    if (isSupportedSiteLanguage(value)) return value;
   }
   return null;
+}
+
+function isSupportedSiteLanguage(value: string | undefined | null): value is SiteLanguage {
+  return supportedSiteLanguages.some((language) => language === value);
 }
 
 function writeLanguageCookies(response: NextResponse, language: SiteLanguage) {
@@ -204,7 +209,7 @@ function writeLanguageCookies(response: NextResponse, language: SiteLanguage) {
 
 function withLanguagePreference(response: NextResponse, request: NextRequest) {
   const language = request.nextUrl.searchParams.get("lang");
-  if (language === "zh" || language === "en") {
+  if (isSupportedSiteLanguage(language)) {
     return writeLanguageCookies(response, language);
   }
   return response;
@@ -216,13 +221,13 @@ function languageRedirectGuard(request: NextRequest, pathname: string) {
   if (/\.[A-Za-z0-9]{2,8}$/.test(pathname)) return null;
 
   const explicitLanguage = request.nextUrl.searchParams.get("lang");
-  if (explicitLanguage === "zh" || explicitLanguage === "en") return null;
+  if (isSupportedSiteLanguage(explicitLanguage)) return null;
 
   const preferredLanguage = readLanguageCookie(request);
-  if (preferredLanguage !== "zh") return null;
+  if (!preferredLanguage || preferredLanguage === "en") return null;
 
   const url = request.nextUrl.clone();
-  url.searchParams.set("lang", "zh");
+  url.searchParams.set("lang", preferredLanguage);
   return NextResponse.redirect(url);
 }
 

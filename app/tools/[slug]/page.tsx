@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ToolWorkbench from "@/components/tools/ToolWorkbench";
+import { resolveInterfaceLanguage } from "@/lib/language";
 import { getToolDefinition, toolDefinitions, type ToolDefinition } from "@/lib/tool-definitions";
 
 type ToolRouteProps = {
@@ -123,7 +124,7 @@ function firstParam(value: string | string[] | undefined) {
 export default async function ToolPage({ params, searchParams }: ToolRouteProps) {
   const { slug } = await params;
   const query = searchParams ? await searchParams : {};
-  const initialLanguage = firstParam(query.lang) === "zh" ? "zh" : "en";
+  const initialLanguage = resolveInterfaceLanguage(query);
   const initialRepoUrl = firstParam(query.repo);
   const tool = getToolDefinition(slug);
   return (

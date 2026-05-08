@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import GitHubRepoAnalyzer from "@/components/tools/GitHubRepoAnalyzerTool";
 import ToolLayout, { type OutputBlock } from "@/components/tools/ToolLayout";
 import { recordLocalActivity } from "@/lib/local-progress";
+import { localizedHref, type InterfaceLanguage } from "@/lib/language";
 import { toolDefinitions, type ToolDefinition, type ToolSlug } from "@/lib/tool-definitions";
 
 type ApiMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -275,11 +277,11 @@ function safeJsonBody(raw: string) {
   }
 }
 
-function toolHref(slug: ToolSlug, language: "en" | "zh") {
-  return language === "zh" ? `/tools/${slug}?lang=zh` : `/tools/${slug}`;
+function toolHref(slug: ToolSlug, language: InterfaceLanguage) {
+  return localizedHref(`/tools/${slug}`, language);
 }
 
-function toolDisplay(tool: ToolDefinition, language: "en" | "zh") {
+function toolDisplay(tool: ToolDefinition, language: InterfaceLanguage) {
   if (language !== "zh") return tool;
   if (tool.slug === "github-repo-analyzer") {
     return {
@@ -324,7 +326,7 @@ export default function ToolWorkbench({
   initialRepoUrl,
 }: {
   initialSlug?: ToolSlug;
-  initialLanguage?: "en" | "zh";
+  initialLanguage?: InterfaceLanguage;
   initialRepoUrl?: string;
 }) {
   const pathname = usePathname();
@@ -351,10 +353,11 @@ export default function ToolWorkbench({
     <main className="apple-page">
       <div className="tool-shell">
         <aside className="tool-rail dense-panel">
-          <Link href={zh ? "/?lang=zh" : "/"} className="tool-brand">
+          <Link href={localizedHref("/", language)} className="tool-brand">
             <span>JM</span>
             <strong>JinMing Lab</strong>
           </Link>
+          <FlagLanguageToggle initialLanguage={language} />
           <nav className="tool-nav">
             <p className="tool-nav-kicker">{zh ? "上线流程" : "Launch flow"}</p>
             {toolDefinitions.map((tool) => {
@@ -471,7 +474,7 @@ function toolExamples(tool: ToolDefinition) {
   ];
 }
 
-function ToolSeoPanel({ tool, language = "en" }: { tool: ToolDefinition; language?: "en" | "zh" }) {
+function ToolSeoPanel({ tool, language = "en" }: { tool: ToolDefinition; language?: InterfaceLanguage }) {
   const zh = language === "zh";
   const examples = toolExamples(tool);
 

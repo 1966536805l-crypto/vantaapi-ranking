@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ToolWorkbench from "@/components/tools/ToolWorkbench";
+import { resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { toolDefinitions } from "@/lib/tool-definitions";
 
 export const metadata: Metadata = {
@@ -25,7 +26,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ToolsPage() {
+export default async function ToolsPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -45,7 +47,7 @@ export default function ToolsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ToolWorkbench initialSlug="github-repo-analyzer" />
+      <ToolWorkbench initialSlug="github-repo-analyzer" initialLanguage={language} />
     </>
   );
 }

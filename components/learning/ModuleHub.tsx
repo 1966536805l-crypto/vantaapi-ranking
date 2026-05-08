@@ -1,6 +1,6 @@
 import Link from "next/link";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
-import { localizedHref, type SiteLanguage } from "@/lib/language";
+import { bilingualLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
 
 export type ModuleItem = {
   href: string;
@@ -45,8 +45,8 @@ const moduleHubCopy = {
   },
 } as const;
 
-export function AppleStudyHeader({ language = "en" }: { language?: SiteLanguage } = {}) {
-  const copy = navCopy[language];
+export function AppleStudyHeader({ language = "en" }: { language?: InterfaceLanguage } = {}) {
+  const copy = navCopy[bilingualLanguage(language)];
 
   return (
     <header className="apple-shell apple-nav px-5 py-3">
@@ -83,9 +83,9 @@ export function ModuleHub({
   modules: ModuleItem[];
   ctaHref?: string;
   ctaLabel?: string;
-  language?: SiteLanguage;
+  language?: InterfaceLanguage;
 }) {
-  const hubCopy = moduleHubCopy[language];
+  const hubCopy = moduleHubCopy[bilingualLanguage(language)];
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -156,9 +156,9 @@ export function ModuleDetail({
   description: string;
   sections: { title: string; body: string; examples?: string[] }[];
   practiceHref?: string;
-  language?: SiteLanguage;
+  language?: InterfaceLanguage;
 }) {
-  const hubCopy = moduleHubCopy[language];
+  const hubCopy = moduleHubCopy[bilingualLanguage(language)];
 
   return (
     <main className="apple-page pb-12 pt-4">

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
+import type { InterfaceLanguage } from "@/lib/language";
 
 export type OutputBlock = {
   title: string;
@@ -56,7 +57,7 @@ export default function ToolLayout({
   outputTitle?: string;
   actions?: ReactNode;
   blocks?: OutputBlock[];
-  language?: "en" | "zh";
+  language?: InterfaceLanguage;
 }) {
   const zh = language === "zh";
   const { copied, copy } = useCopy();

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
-import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/language";
+import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { programmingLanguages, type ProgrammingLanguage, type ProgrammingLanguageSlug } from "@/lib/programming-content";
 
 export const metadata = {
@@ -109,7 +109,27 @@ const groups: Array<{
   },
 ];
 
-const copy = {
+type ProgrammingPageCopy = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  startPython: string;
+  startJavaScript: string;
+  startCpp: string;
+  stats: [string, string, string];
+  zeroTitle: string;
+  zeroEyebrow: string;
+  groupsTitle: string;
+  groupsEyebrow: string;
+  allTitle: string;
+  allEyebrow: string;
+  open: string;
+  drillsEach: string;
+  firstChoice: string;
+  advanced: string;
+};
+
+const baseCopy: Record<"en" | "zh", ProgrammingPageCopy> = {
   en: {
     eyebrow: "Zero Foundation Programming",
     title: "Programming Language Learning Lab",
@@ -148,7 +168,316 @@ const copy = {
     firstChoice: "适合第一门",
     advanced: "进阶路线",
   },
-} as const;
+};
+
+const copy: Record<InterfaceLanguage, ProgrammingPageCopy> = {
+  en: baseCopy.en,
+  zh: baseCopy.zh,
+  ja: {
+    eyebrow: "ゼロからのプログラミング",
+    title: "プログラミング学習ラボ",
+    subtitle: "共通する考え方から始めて、言語を選び、構造化されたオリジナル練習に進みます",
+    startPython: "Python から始める",
+    startJavaScript: "JavaScript から始める",
+    startCpp: "C++ から始める",
+    stats: ["言語", "練習モード", "基礎ステップ"],
+    zeroTitle: "最初に学ぶ 6 つの考え方",
+    zeroEyebrow: "基礎",
+    groupsTitle: "方向を選ぶ",
+    groupsEyebrow: "言語マップ",
+    allTitle: "プログラミング教程",
+    allEyebrow: "ワークベンチ",
+    open: "開く",
+    drillsEach: "オリジナル練習",
+    firstChoice: "最初の言語に向く",
+    advanced: "発展ルート",
+  },
+  ko: {
+    eyebrow: "제로 베이스 프로그래밍",
+    title: "프로그래밍 학습 랩",
+    subtitle: "공통 개념부터 시작하고 언어를 선택해 구조화된 오리지널 연습으로 이어갑니다",
+    startPython: "Python 시작",
+    startJavaScript: "JavaScript 시작",
+    startCpp: "C++ 시작",
+    stats: ["언어", "연습 모드", "기초 단계"],
+    zeroTitle: "먼저 익힐 여섯 가지 개념",
+    zeroEyebrow: "기초",
+    groupsTitle: "방향 선택",
+    groupsEyebrow: "언어 지도",
+    allTitle: "프로그래밍 튜토리얼",
+    allEyebrow: "워크벤치",
+    open: "열기",
+    drillsEach: "오리지널 연습",
+    firstChoice: "첫 언어 추천",
+    advanced: "심화 트랙",
+  },
+  es: {
+    eyebrow: "Programación desde cero",
+    title: "Laboratorio de aprendizaje de programación",
+    subtitle: "Empieza con ideas comunes, elige un lenguaje y practica con ejercicios originales estructurados",
+    startPython: "Empezar Python",
+    startJavaScript: "Empezar JavaScript",
+    startCpp: "Empezar C++",
+    stats: ["lenguajes", "modos de práctica", "pasos base"],
+    zeroTitle: "Empieza con estas seis ideas",
+    zeroEyebrow: "Base",
+    groupsTitle: "Elige una dirección",
+    groupsEyebrow: "Mapa de lenguajes",
+    allTitle: "Tutoriales de programación",
+    allEyebrow: "Workbench",
+    open: "Abrir",
+    drillsEach: "práctica original",
+    firstChoice: "Buen primer lenguaje",
+    advanced: "Ruta avanzada",
+  },
+  fr: {
+    eyebrow: "Programmation zéro base",
+    title: "Laboratoire d’apprentissage programmation",
+    subtitle: "Commencez par les idées communes, choisissez un langage, puis pratiquez avec des exercices originaux",
+    startPython: "Commencer Python",
+    startJavaScript: "Commencer JavaScript",
+    startCpp: "Commencer C++",
+    stats: ["langages", "modes de pratique", "étapes zéro"],
+    zeroTitle: "Commencer par ces six idées",
+    zeroEyebrow: "Fondation",
+    groupsTitle: "Choisir une direction",
+    groupsEyebrow: "Carte des langages",
+    allTitle: "Tutoriels de programmation",
+    allEyebrow: "Atelier",
+    open: "Ouvrir",
+    drillsEach: "pratique originale",
+    firstChoice: "Bon premier langage",
+    advanced: "Parcours avancé",
+  },
+  de: {
+    eyebrow: "Programmieren ab null",
+    title: "Programmier-Lernlabor",
+    subtitle: "Mit gemeinsamen Konzepten starten, eine Sprache wählen und mit strukturierten Übungen trainieren",
+    startPython: "Python starten",
+    startJavaScript: "JavaScript starten",
+    startCpp: "C++ starten",
+    stats: ["Sprachen", "Übungsmodi", "Grundschritte"],
+    zeroTitle: "Mit diesen sechs Ideen starten",
+    zeroEyebrow: "Grundlage",
+    groupsTitle: "Richtung wählen",
+    groupsEyebrow: "Sprachkarte",
+    allTitle: "Programmier-Tutorials",
+    allEyebrow: "Workbench",
+    open: "Öffnen",
+    drillsEach: "Originalübungen",
+    firstChoice: "Gute erste Sprache",
+    advanced: "Fortgeschritten",
+  },
+  pt: {
+    eyebrow: "Programação do zero",
+    title: "Laboratório de aprendizagem de programação",
+    subtitle: "Comece por ideias comuns, escolha uma linguagem e pratique com exercícios originais",
+    startPython: "Começar Python",
+    startJavaScript: "Começar JavaScript",
+    startCpp: "Começar C++",
+    stats: ["linguagens", "modos de prática", "passos base"],
+    zeroTitle: "Comece por estas seis ideias",
+    zeroEyebrow: "Base",
+    groupsTitle: "Escolha uma direção",
+    groupsEyebrow: "Mapa de linguagens",
+    allTitle: "Tutoriais de programação",
+    allEyebrow: "Workbench",
+    open: "Abrir",
+    drillsEach: "prática original",
+    firstChoice: "Boa primeira linguagem",
+    advanced: "Trilha avançada",
+  },
+  ru: {
+    eyebrow: "Программирование с нуля",
+    title: "Лаборатория изучения программирования",
+    subtitle: "Начните с общих идей, выберите язык и тренируйтесь на структурированных оригинальных заданиях",
+    startPython: "Начать Python",
+    startJavaScript: "Начать JavaScript",
+    startCpp: "Начать C++",
+    stats: ["языков", "режима практики", "шагов с нуля"],
+    zeroTitle: "Начните с этих шести идей",
+    zeroEyebrow: "Основа",
+    groupsTitle: "Выберите направление",
+    groupsEyebrow: "Карта языков",
+    allTitle: "Учебники программирования",
+    allEyebrow: "Рабочая зона",
+    open: "Открыть",
+    drillsEach: "оригинальная практика",
+    firstChoice: "Хороший первый язык",
+    advanced: "Продвинутый трек",
+  },
+  ar: {
+    eyebrow: "برمجة من الصفر",
+    title: "مختبر تعلم البرمجة",
+    subtitle: "ابدأ بالأفكار المشتركة، اختر لغة، وتدرّب بتمارين أصلية منظمة",
+    startPython: "ابدأ Python",
+    startJavaScript: "ابدأ JavaScript",
+    startCpp: "ابدأ C++",
+    stats: ["لغات", "أنماط تدريب", "خطوات أساسية"],
+    zeroTitle: "ابدأ بهذه الأفكار الست",
+    zeroEyebrow: "الأساس",
+    groupsTitle: "اختر المسار",
+    groupsEyebrow: "خريطة اللغات",
+    allTitle: "دروس البرمجة",
+    allEyebrow: "منضدة العمل",
+    open: "فتح",
+    drillsEach: "تدريب أصلي",
+    firstChoice: "لغة أولى جيدة",
+    advanced: "مسار متقدم",
+  },
+  hi: {
+    eyebrow: "Zero Foundation Programming",
+    title: "Programming Learning Lab",
+    subtitle: "Common programming ideas से शुरू करें, एक भाषा चुनें, और structured original drills करें",
+    startPython: "Python शुरू करें",
+    startJavaScript: "JavaScript शुरू करें",
+    startCpp: "C++ शुरू करें",
+    stats: ["languages", "practice modes", "zero steps"],
+    zeroTitle: "इन छह ideas से शुरू करें",
+    zeroEyebrow: "Foundation",
+    groupsTitle: "Direction चुनें",
+    groupsEyebrow: "Language Map",
+    allTitle: "Programming Tutorials",
+    allEyebrow: "Workbench",
+    open: "Open",
+    drillsEach: "original practice",
+    firstChoice: "Good first language",
+    advanced: "Advanced track",
+  },
+  id: {
+    eyebrow: "Pemrograman dari nol",
+    title: "Lab belajar pemrograman",
+    subtitle: "Mulai dari ide umum, pilih bahasa, lalu latihan dengan drill original terstruktur",
+    startPython: "Mulai Python",
+    startJavaScript: "Mulai JavaScript",
+    startCpp: "Mulai C++",
+    stats: ["bahasa", "mode latihan", "langkah dasar"],
+    zeroTitle: "Mulai dari enam ide ini",
+    zeroEyebrow: "Dasar",
+    groupsTitle: "Pilih arah",
+    groupsEyebrow: "Peta bahasa",
+    allTitle: "Tutorial pemrograman",
+    allEyebrow: "Workbench",
+    open: "Buka",
+    drillsEach: "latihan original",
+    firstChoice: "Bahasa pertama yang bagus",
+    advanced: "Track lanjut",
+  },
+  vi: {
+    eyebrow: "Lập trình từ con số 0",
+    title: "Phòng lab học lập trình",
+    subtitle: "Bắt đầu từ tư duy chung, chọn một ngôn ngữ và luyện với bài tập gốc có cấu trúc",
+    startPython: "Bắt đầu Python",
+    startJavaScript: "Bắt đầu JavaScript",
+    startCpp: "Bắt đầu C++",
+    stats: ["ngôn ngữ", "chế độ luyện", "bước nền tảng"],
+    zeroTitle: "Bắt đầu với sáu ý tưởng này",
+    zeroEyebrow: "Nền tảng",
+    groupsTitle: "Chọn hướng học",
+    groupsEyebrow: "Bản đồ ngôn ngữ",
+    allTitle: "Hướng dẫn lập trình",
+    allEyebrow: "Workbench",
+    open: "Mở",
+    drillsEach: "bài tập gốc",
+    firstChoice: "Ngôn ngữ đầu tiên tốt",
+    advanced: "Lộ trình nâng cao",
+  },
+  th: {
+    eyebrow: "เขียนโปรแกรมจากศูนย์",
+    title: "ห้องเรียนเขียนโปรแกรม",
+    subtitle: "เริ่มจากแนวคิดร่วม เลือกภาษา แล้วฝึกด้วยโจทย์ต้นฉบับแบบมีโครงสร้าง",
+    startPython: "เริ่ม Python",
+    startJavaScript: "เริ่ม JavaScript",
+    startCpp: "เริ่ม C++",
+    stats: ["ภาษา", "โหมดฝึก", "ขั้นพื้นฐาน"],
+    zeroTitle: "เริ่มจาก 6 แนวคิดนี้",
+    zeroEyebrow: "พื้นฐาน",
+    groupsTitle: "เลือกทิศทาง",
+    groupsEyebrow: "แผนที่ภาษา",
+    allTitle: "บทเรียนเขียนโปรแกรม",
+    allEyebrow: "Workbench",
+    open: "เปิด",
+    drillsEach: "แบบฝึกต้นฉบับ",
+    firstChoice: "เหมาะเป็นภาษาแรก",
+    advanced: "เส้นทางขั้นสูง",
+  },
+  tr: {
+    eyebrow: "Sıfırdan programlama",
+    title: "Programlama öğrenme laboratuvarı",
+    subtitle: "Ortak fikirlerle başla, bir dil seç ve yapılandırılmış özgün alıştırmalarla çalış",
+    startPython: "Python başla",
+    startJavaScript: "JavaScript başla",
+    startCpp: "C++ başla",
+    stats: ["dil", "pratik modu", "temel adım"],
+    zeroTitle: "Bu altı fikirle başla",
+    zeroEyebrow: "Temel",
+    groupsTitle: "Yön seç",
+    groupsEyebrow: "Dil haritası",
+    allTitle: "Programlama dersleri",
+    allEyebrow: "Workbench",
+    open: "Aç",
+    drillsEach: "özgün pratik",
+    firstChoice: "İyi ilk dil",
+    advanced: "İleri rota",
+  },
+  it: {
+    eyebrow: "Programmazione da zero",
+    title: "Laboratorio di apprendimento programmazione",
+    subtitle: "Parti dalle idee comuni, scegli una lingua e pratica con esercizi originali strutturati",
+    startPython: "Inizia Python",
+    startJavaScript: "Inizia JavaScript",
+    startCpp: "Inizia C++",
+    stats: ["linguaggi", "modalità pratica", "passi base"],
+    zeroTitle: "Inizia da queste sei idee",
+    zeroEyebrow: "Fondamenta",
+    groupsTitle: "Scegli una direzione",
+    groupsEyebrow: "Mappa linguaggi",
+    allTitle: "Tutorial programmazione",
+    allEyebrow: "Workbench",
+    open: "Apri",
+    drillsEach: "pratica originale",
+    firstChoice: "Buon primo linguaggio",
+    advanced: "Percorso avanzato",
+  },
+  nl: {
+    eyebrow: "Programmeren vanaf nul",
+    title: "Programmeer leerlab",
+    subtitle: "Start met gedeelde ideeën, kies een taal en oefen met gestructureerde originele drills",
+    startPython: "Start Python",
+    startJavaScript: "Start JavaScript",
+    startCpp: "Start C++",
+    stats: ["talen", "oefenmodi", "nulstappen"],
+    zeroTitle: "Begin met deze zes ideeën",
+    zeroEyebrow: "Basis",
+    groupsTitle: "Kies richting",
+    groupsEyebrow: "Taalkaart",
+    allTitle: "Programmeer tutorials",
+    allEyebrow: "Workbench",
+    open: "Open",
+    drillsEach: "originele oefening",
+    firstChoice: "Goede eerste taal",
+    advanced: "Gevorderd pad",
+  },
+  pl: {
+    eyebrow: "Programowanie od zera",
+    title: "Laboratorium nauki programowania",
+    subtitle: "Zacznij od wspólnych idei, wybierz język i ćwicz na uporządkowanych oryginalnych zadaniach",
+    startPython: "Zacznij Python",
+    startJavaScript: "Zacznij JavaScript",
+    startCpp: "Zacznij C++",
+    stats: ["języków", "tryby ćwiczeń", "kroki od zera"],
+    zeroTitle: "Zacznij od tych sześciu idei",
+    zeroEyebrow: "Podstawy",
+    groupsTitle: "Wybierz kierunek",
+    groupsEyebrow: "Mapa języków",
+    allTitle: "Tutoriale programowania",
+    allEyebrow: "Workbench",
+    open: "Otwórz",
+    drillsEach: "oryginalne ćwiczenia",
+    firstChoice: "Dobry pierwszy język",
+    advanced: "Ścieżka zaawansowana",
+  },
+};
 
 const firstLanguageSlugs = new Set<ProgrammingLanguageSlug>(["python", "javascript", "html-css", "sql"]);
 
@@ -165,7 +494,8 @@ export default async function ProgrammingPage({
 }: {
   searchParams?: Promise<PageSearchParams>;
 }) {
-  const language = resolveLanguage(searchParams ? await searchParams : undefined);
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const foundationLanguage = bilingualLanguage(language);
   const t = copy[language];
 
   return (
@@ -192,7 +522,7 @@ export default async function ProgrammingPage({
             </div>
             <div className="dense-chip">
               <p className="text-[11px] text-[color:var(--muted)]">{t.stats[2]}</p>
-              <p className="mt-1 text-3xl font-semibold">{zeroSteps[language].length}</p>
+              <p className="mt-1 text-3xl font-semibold">{zeroSteps[foundationLanguage].length}</p>
             </div>
           </div>
         </div>
@@ -206,7 +536,7 @@ export default async function ProgrammingPage({
             <span className="dense-status">choice · fill blank · build tasks</span>
           </div>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {zeroSteps[language].map((step) => (
+            {zeroSteps[foundationLanguage].map((step) => (
               <article key={step.key} className="dense-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <span className="dense-status">{step.key}</span>

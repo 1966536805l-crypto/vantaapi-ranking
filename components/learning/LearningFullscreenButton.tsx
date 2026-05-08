@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { InterfaceLanguage } from "@/lib/language";
 
 type LearningFullscreenButtonProps = {
-  language?: "en" | "zh";
+  language?: InterfaceLanguage;
 };
 
 export default function LearningFullscreenButton({

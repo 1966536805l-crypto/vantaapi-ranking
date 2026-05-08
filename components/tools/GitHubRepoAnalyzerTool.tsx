@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ToolLayout, { type OutputBlock } from "@/components/tools/ToolLayout";
+import type { InterfaceLanguage } from "@/lib/language";
 
 type GitHubRepoAnalysis = {
   auditEngine?: {
@@ -353,7 +354,7 @@ function riskTone(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"]) {
   return "high";
 }
 
-function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: string, language: "en" | "zh" = "en") {
+function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: string, language: InterfaceLanguage = "en") {
   const zh = language === "zh";
   if (error) {
     if (zh) {
@@ -470,7 +471,7 @@ function issueTitle(issue: string, index: number) {
   return firstLine?.replace(/^#+\s*/, "").trim() || `GitHub issue ${index + 1}`;
 }
 
-function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "en" | "zh"; initialRepoUrl?: string }) {
+function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: InterfaceLanguage; initialRepoUrl?: string }) {
   const zh = language === "zh";
   const [url, setUrl] = useState(initialRepoUrl?.trim() || sampleRepoUrl);
   const [analysis, setAnalysis] = useState<GitHubRepoAnalysis | null>(null);

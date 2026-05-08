@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import ProgrammingTrainer from "@/components/learning/ProgrammingTrainer";
-import { resolveLanguage, type PageSearchParams } from "@/lib/language";
+import { resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { getProgrammingLanguage, programmingLanguages } from "@/lib/programming-content";
 
 type ProgrammingLanguagePageProps = {
@@ -30,7 +30,7 @@ export default async function ProgrammingLanguagePage({ params, searchParams }: 
   const { language } = await params;
   const current = programmingLanguages.find((item) => item.slug === language);
   if (!current) notFound();
-  const siteLanguage = resolveLanguage(searchParams ? await searchParams : undefined);
+  const siteLanguage = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
 
   return <ProgrammingTrainer initialLanguageSlug={getProgrammingLanguage(language).slug} initialSiteLanguage={siteLanguage} />;
 }

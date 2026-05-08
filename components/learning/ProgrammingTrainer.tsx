@@ -6,7 +6,7 @@ import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import AICoachPanel from "@/components/learning/AICoachPanel";
 import LearningFullscreenButton from "@/components/learning/LearningFullscreenButton";
-import { localizedHref, type SiteLanguage } from "@/lib/language";
+import { bilingualLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
 import { recordLocalActivity } from "@/lib/local-progress";
 import {
   buildProgrammingQuestion,
@@ -268,7 +268,7 @@ function checkQuestion(question: ProgrammingQuestion, answer: string) {
   return submitted === normalize(question.answer);
 }
 
-function runnerText(question: ProgrammingQuestion, answer: string, language: SiteLanguage) {
+function runnerText(question: ProgrammingQuestion, answer: string, language: InterfaceLanguage) {
   const sampleLabel = language === "zh" ? "样例" : "Sample";
   const outputLabel = language === "zh" ? "输出" : "Output";
 
@@ -313,12 +313,12 @@ function getConcept(question: ProgrammingQuestion) {
   return question.prompt.match(/matches (.+)\.$/)?.[1] || "current concept";
 }
 
-function questionTitle(question: ProgrammingQuestion, language: SiteLanguage, languageTitle: string) {
+function questionTitle(question: ProgrammingQuestion, language: InterfaceLanguage, languageTitle: string) {
   if (language === "en") return question.title;
   return `${languageTitle} 第 ${question.index} 题`;
 }
 
-function questionPrompt(question: ProgrammingQuestion, language: SiteLanguage, languageTitle: string) {
+function questionPrompt(question: ProgrammingQuestion, language: InterfaceLanguage, languageTitle: string) {
   if (language === "en") return question.prompt;
 
   if (question.type === "MULTIPLE_CHOICE") {
@@ -334,7 +334,7 @@ function questionPrompt(question: ProgrammingQuestion, language: SiteLanguage, l
   return `${firstLine}\n先自己写一遍 出错后再开提示或对照答案`;
 }
 
-function questionHints(question: ProgrammingQuestion, activeRole: string, language: SiteLanguage) {
+function questionHints(question: ProgrammingQuestion, activeRole: string, language: InterfaceLanguage) {
   if (language === "en") return question.hints;
   return [
     `先看 ${getConcept(question)} 找出缺的那一块`,
@@ -348,11 +348,12 @@ export default function ProgrammingTrainer({
   initialSiteLanguage = "en",
 }: {
   initialLanguageSlug?: ProgrammingLanguageSlug;
-  initialSiteLanguage?: SiteLanguage;
+  initialSiteLanguage?: InterfaceLanguage;
 }) {
   const pathname = usePathname();
-  const [language, setLanguage] = useState<SiteLanguage>(initialSiteLanguage);
-  const copy = programmingCopy[language];
+  const [language, setLanguage] = useState<InterfaceLanguage>(initialSiteLanguage);
+  const copyLanguage = bilingualLanguage(language);
+  const copy = programmingCopy[copyLanguage];
   const activeLanguage = useMemo(() => {
     const routeLanguage = programmingLanguages.find((language) => pathname?.endsWith(`/programming/${language.slug}`));
     return getProgrammingLanguage(routeLanguage?.slug || initialLanguageSlug);
@@ -686,7 +687,7 @@ export default function ProgrammingTrainer({
           <section className="dense-panel programming-zero-path" aria-label={copy.zeroBase}>
             <p className="eyebrow">{copy.zeroBase}</p>
             <div>
-              {zeroBaseSteps[language].map((step, index) => (
+              {zeroBaseSteps[copyLanguage].map((step, index) => (
                 <span key={step}>
                   <strong>{index + 1}</strong>
                   {step}
@@ -703,7 +704,7 @@ export default function ProgrammingTrainer({
                   <h2>{questionTitle(question, language, activeLanguage.title)}</h2>
                   <div className="programming-meta-line">
                     <span>Q {questionIndex}</span>
-                    <span>{typeLabel[language][question.type]}</span>
+                    <span>{typeLabel[copyLanguage][question.type]}</span>
                     <span>{result ? (result.correct ? copy.statusSolved : copy.statusReview) : answer ? copy.statusDraft : copy.statusNew}</span>
                   </div>
                 </div>
