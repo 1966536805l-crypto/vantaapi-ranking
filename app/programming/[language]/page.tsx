@@ -51,10 +51,65 @@ const metadataCopy: Partial<Record<InterfaceLanguage, ProgrammingMetadataCopy>> 
     description: (name: string) => `${name} tutoriels exercices originaux exemples indices reponses et raccourcis`,
     fallback: "Pratique du code - JinMing Lab",
   },
+  de: {
+    title: (name: string) => `${name} Coding Praxis - JinMing Lab`,
+    description: (name: string) => `${name} Tutorials originale Übungen lauffähige Beispiele Hinweise Antworten und Tastenkürzel`,
+    fallback: "Coding Praxis - JinMing Lab",
+  },
+  pt: {
+    title: (name: string) => `${name} prática de código - JinMing Lab`,
+    description: (name: string) => `${name} tutoriais exercícios originais exemplos executáveis dicas respostas e atalhos`,
+    fallback: "Prática de código - JinMing Lab",
+  },
+  ru: {
+    title: (name: string) => `${name} практика кода - JinMing Lab`,
+    description: (name: string) => `${name} уроки оригинальные задания запускаемые примеры подсказки ответы и горячие клавиши`,
+    fallback: "Практика кода - JinMing Lab",
+  },
   ar: {
     title: (name: string) => `تدريب ${name} البرمجي - JinMing Lab`,
     description: (name: string) => `دروس ${name} وتمارين أصلية وأمثلة قابلة للتشغيل وتلميحات وإجابات واختصارات`,
     fallback: "تدريب البرمجة - JinMing Lab",
+  },
+  hi: {
+    title: (name: string) => `${name} कोड अभ्यास - JinMing Lab`,
+    description: (name: string) => `${name} tutorial original exercises runnable examples hints answers और shortcuts`,
+    fallback: "कोड अभ्यास - JinMing Lab",
+  },
+  id: {
+    title: (name: string) => `${name} latihan kode - JinMing Lab`,
+    description: (name: string) => `${name} tutorial latihan orisinal contoh yang bisa dijalankan petunjuk jawaban dan pintasan`,
+    fallback: "Latihan kode - JinMing Lab",
+  },
+  vi: {
+    title: (name: string) => `${name} luyện code - JinMing Lab`,
+    description: (name: string) => `${name} hướng dẫn bài tập gốc ví dụ chạy được gợi ý đáp án và phím tắt`,
+    fallback: "Luyện code - JinMing Lab",
+  },
+  th: {
+    title: (name: string) => `ฝึกเขียน ${name} - JinMing Lab`,
+    description: (name: string) => `บทเรียน ${name} แบบฝึกต้นฉบับ ตัวอย่างรันได้ คำใบ้ คำตอบ และปุ่มลัด`,
+    fallback: "ฝึกเขียนโค้ด - JinMing Lab",
+  },
+  tr: {
+    title: (name: string) => `${name} kod pratiği - JinMing Lab`,
+    description: (name: string) => `${name} dersleri özgün alıştırmalar çalıştırılabilir örnekler ipuçları cevaplar ve kısayollar`,
+    fallback: "Kod pratiği - JinMing Lab",
+  },
+  it: {
+    title: (name: string) => `${name} pratica di codice - JinMing Lab`,
+    description: (name: string) => `${name} tutorial esercizi originali esempi eseguibili indizi risposte e scorciatoie`,
+    fallback: "Pratica di codice - JinMing Lab",
+  },
+  nl: {
+    title: (name: string) => `${name} code oefenen - JinMing Lab`,
+    description: (name: string) => `${name} tutorials originele oefeningen uitvoerbare voorbeelden hints antwoorden en sneltoetsen`,
+    fallback: "Code oefenen - JinMing Lab",
+  },
+  pl: {
+    title: (name: string) => `${name} ćwiczenia kodu - JinMing Lab`,
+    description: (name: string) => `${name} tutoriale oryginalne ćwiczenia przykłady do uruchomienia podpowiedzi odpowiedzi i skróty`,
+    fallback: "Ćwiczenia kodu - JinMing Lab",
   },
 };
 
