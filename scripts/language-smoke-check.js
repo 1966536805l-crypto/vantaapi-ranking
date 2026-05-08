@@ -463,6 +463,70 @@ async function main() {
     ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
     65,
   );
+  await checkPage(
+    "world-language-detail-hi",
+    "/languages/english?lang=hi",
+    "hi-IN,hi;q=0.9,en;q=0.2",
+    ["भाषा सूची पर वापस", "शून्य आधार", "पहले तीन वाक्य", "पहला पाठ प्रशिक्षक", "यह वाक्य टाइप करें"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    66,
+  );
+  await checkPage(
+    "world-language-detail-id",
+    "/languages/japanese?lang=id",
+    "id-ID,id;q=0.9,en;q=0.2",
+    ["Kembali ke daftar bahasa", "dari nol", "Tiga frasa pertama", "Pelatih pelajaran pertama", "Ketik frasa ini"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    67,
+  );
+  await checkPage(
+    "world-language-detail-vi",
+    "/languages/korean?lang=vi",
+    "vi-VN,vi;q=0.9,en;q=0.2",
+    ["Quay lại danh sách ngôn ngữ", "từ con số không", "Ba câu đầu tiên", "Huấn luyện bài đầu", "Gõ câu này"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    68,
+  );
+  await checkPage(
+    "world-language-detail-th",
+    "/languages/thai?lang=th",
+    "th-TH,th;q=0.9,en;q=0.2",
+    ["กลับไปยังรายการภาษา", "เริ่มจากศูนย์", "สามประโยคแรก", "ครูฝึกบทแรก", "พิมพ์ประโยคนี้"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    69,
+  );
+  await checkPage(
+    "world-language-detail-tr",
+    "/languages/turkish?lang=tr",
+    "tr-TR,tr;q=0.9,en;q=0.2",
+    ["Diller listesine dön", "sıfırdan", "İlk üç cümle", "İlk ders antrenörü", "Bu cümleyi yaz"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    70,
+  );
+  await checkPage(
+    "world-language-detail-it",
+    "/languages/italian?lang=it",
+    "it-IT,it;q=0.9,en;q=0.2",
+    ["Torna alle lingue", "da zero", "Prime tre frasi", "Allenatore prima lezione", "Digita questa frase"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    71,
+  );
+  await checkPage(
+    "world-language-detail-nl",
+    "/languages/dutch?lang=nl",
+    "nl-NL,nl;q=0.9,en;q=0.2",
+    ["Terug naar talen", "vanaf nul", "Eerste drie zinnen", "Eerste les trainer", "Typ deze zin"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    72,
+  );
+  await checkPage(
+    "world-language-detail-pl",
+    "/languages/polish?lang=pl",
+    "pl-PL,pl;q=0.9,en;q=0.2",
+    ["Wróć do języków", "od zera", "Pierwsze trzy zdania", "Trener pierwszej lekcji", "Wpisz to zdanie"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    73,
+  );
 
   await checkPage(
     "github-audit-de",
