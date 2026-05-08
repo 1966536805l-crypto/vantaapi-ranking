@@ -404,6 +404,22 @@ async function main() {
     34,
   );
   await checkPage(
+    "english-hub-ja",
+    "/english?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["英語トレーニングセンター", "英語ディクテーション", "/learn/english?lang=ja", "/english/vocabulary?lang=ja"],
+    ["Programming Training Hub", "C++ Core Track"],
+    39,
+  );
+  await checkPage(
+    "cpp-hub-ar",
+    "/cpp?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["مركز تدريب C++", "بنك أسئلة C++ مصنف", "/learn/cpp?lang=ar", "/cpp/quiz/mega-1000?lang=ar"],
+    ["C++ Training Hub", "Question Bank", "/cpp/quiz/mega-1000\""],
+    40,
+  );
+  await checkPage(
     "learn-english-ja",
     "/learn/english?lang=ja",
     "ja-JP,ja;q=0.9,en;q=0.2",
