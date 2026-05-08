@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { interfaceLanguages, isInterfaceLanguage, languageHtmlLang, type InterfaceLanguage } from "@/lib/language";
 
 const languageCookieNames = ["jinming_language", "vantaapi-language"];
@@ -66,6 +66,7 @@ export default function FlagLanguageToggle({
   initialLanguage?: InterfaceLanguage;
   onChange?: (language: InterfaceLanguage) => void;
 }) {
+  const pathname = usePathname() || "/";
   const searchParams = useSearchParams();
   const queryLanguage = searchParams.get("lang");
   const [preferredLanguage, setPreferredLanguage] = useState<InterfaceLanguage | null>(() => {
@@ -98,32 +99,45 @@ export default function FlagLanguageToggle({
     window.location.assign(url.toString());
   }
 
+  function languageHref(code: InterfaceLanguage) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (code === "en") params.delete("lang");
+    else params.set("lang", code);
+
+    const query = params.toString();
+    return `${pathname}${query ? `?${query}` : ""}`;
+  }
+
   const activeLanguage = interfaceLanguages.find((language) => language.code === current) ?? interfaceLanguages[0];
   const copy = toggleCopy[current];
 
   return (
     <div className="flag-toggle" aria-label={copy.region}>
-      <label className="flag-toggle-label">
-        <span aria-hidden="true">{activeLanguage.flag}</span>
-        <span>{activeLanguage.nativeName}</span>
-      </label>
-      <select
-        key={current}
-        className="flag-toggle-select"
-        value={current}
-        aria-label={copy.choose}
-        title={copy.choose}
-        onChange={(event) => {
-          const next = event.target.value;
-          if (isInterfaceLanguage(next)) setLanguage(next);
-        }}
-      >
-        {interfaceLanguages.map((language) => (
-          <option key={language.code} value={language.code}>
-            {language.flag} {language.nativeName}
-          </option>
-        ))}
-      </select>
+      <details className="flag-toggle-details">
+        <summary className="flag-toggle-summary" aria-label={copy.choose} title={copy.choose}>
+          <span aria-hidden="true">{activeLanguage.flag}</span>
+          <span>{activeLanguage.nativeName}</span>
+        </summary>
+        <div className="flag-toggle-menu-list" role="menu" aria-label={copy.choose}>
+          {interfaceLanguages.map((language) => (
+            <a
+              key={language.code}
+              className="flag-toggle-option"
+              href={languageHref(language.code)}
+              role="menuitemradio"
+              aria-checked={language.code === current}
+              onClick={(event) => {
+                event.preventDefault();
+                setLanguage(language.code);
+              }}
+            >
+              <span aria-hidden="true">{language.flag}</span>
+              <span>{language.nativeName}</span>
+              {language.code === current ? <span className="flag-toggle-check" aria-hidden="true">✓</span> : null}
+            </a>
+          ))}
+        </div>
+      </details>
     </div>
   );
 }

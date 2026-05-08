@@ -86,8 +86,18 @@ body::before {
   margin-right: 4px;
 }
 
-[dir="rtl"] .flag-toggle-label {
+[dir="rtl"] .flag-toggle-summary {
   padding: 7px 10px 7px 30px;
+}
+
+[dir="rtl"] .flag-toggle-menu-list {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .flag-toggle-check {
+  margin-right: auto;
+  margin-left: 0;
 }
 
 [dir="rtl"] .home-audit-nav nav {
