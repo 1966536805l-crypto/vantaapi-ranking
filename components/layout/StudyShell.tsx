@@ -1,4 +1,5 @@
 import Link from "next/link";
+import StudyShellLogoutButton from "@/components/layout/StudyShellLogoutButton";
 import { localizedHref, type InterfaceLanguage } from "@/lib/language";
 import { getServerUser } from "@/lib/server-auth";
 
@@ -177,7 +178,7 @@ export default async function StudyShell({
               ))}
               {user?.role === "ADMIN" && <Link href={localizedHref("/admin", language)} className="apple-pill border-amber-200 bg-amber-50/80 px-3 py-1.5 text-amber-800">{copy.admin}</Link>}
               {user ? (
-                <form action="/api/auth/logout" method="post"><button className="apple-button-secondary px-3 py-1.5">{copy.logout}</button></form>
+                <StudyShellLogoutButton language={language} label={copy.logout} />
               ) : (
                 <Link href={localizedHref("/login", language)} className="apple-button-primary px-4 py-1.5">{copy.login}</Link>
               )}
