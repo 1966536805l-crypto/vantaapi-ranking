@@ -1,5 +1,8 @@
 import Link from "next/link";
+import StudyShell from "@/components/layout/StudyShell";
 import { getFallbackTrack } from "@/lib/fallback-learning";
+import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { getLearnPageCopy, getStudyPageCopy } from "@/lib/study-page-copy";
 
 type TrackCourse = {
   id: string;
@@ -15,7 +18,10 @@ type TrackCourse = {
   }[];
 };
 
-export default async function EnglishPage() {
+export default async function EnglishPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const copy = getLearnPageCopy(language);
+  const studyCopy = getStudyPageCopy(language);
   let courses: TrackCourse[];
 
   try {
@@ -55,10 +61,12 @@ export default async function EnglishPage() {
 
   return (
     <TrackPage
-      title="English Learning Path"
-      desc="Move through vocabulary grammar reading quizzes progress and review."
+      title={`${studyCopy.directions.english} ${copy.path}`}
+      desc={language === "zh" ? "按词汇 语法 阅读 测验 进度和复习一路推进" : "Move through vocabulary grammar reading quizzes progress and review."}
       courses={courses}
       direction="english"
+      language={language}
+      copy={copy}
     />
   );
 }
@@ -68,17 +76,20 @@ function TrackPage({
   desc,
   courses,
   direction,
+  language,
+  copy,
 }: {
   title: string;
   desc: string;
   courses: TrackCourse[];
   direction: string;
+  language: InterfaceLanguage;
+  copy: ReturnType<typeof getLearnPageCopy>;
 }) {
   return (
-    <main className="min-h-screen bg-white text-slate-950">
-      <Header />
+    <StudyShell language={language}>
       <section className="mx-auto max-w-6xl px-4 py-7 sm:px-6 sm:py-9">
-        <p className="eyebrow">Learning Path</p>
+        <p className="eyebrow">{copy.path}</p>
         <h1 className="mt-3 font-serif text-4xl">{title}</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">{desc}</p>
         <div className="mt-5 space-y-4">
@@ -90,7 +101,7 @@ function TrackPage({
                 {course.lessons.map((lesson, index) => (
                   <Link
                     key={lesson.id}
-                    href={`/learn/${direction}/${course.slug}/${lesson.slug}`}
+                    href={localizedHref(`/learn/${direction}/${course.slug}/${lesson.slug}`, language)}
                     className="border border-slate-200 bg-slate-50 p-4 hover:border-[color:var(--accent)]"
                   >
                     <p className="font-mono text-xs text-slate-500">
@@ -99,7 +110,7 @@ function TrackPage({
                     <h3 className="mt-2 text-lg font-semibold">{lesson.title}</h3>
                     <p className="mt-2 text-sm text-slate-600">{lesson.summary}</p>
                     <p className="mt-3 text-xs text-emerald-700">
-                      {lesson.progress?.[0]?.status === "COMPLETED" ? "Completed" : "Start"}
+                      {lesson.progress?.[0]?.status === "COMPLETED" ? copy.completed : copy.start}
                     </p>
                   </Link>
                 ))}
@@ -108,21 +119,6 @@ function TrackPage({
           ))}
         </div>
       </section>
-    </main>
-  );
-}
-
-function Header() {
-  return (
-    <header className="border-b border-slate-200">
-      <div className="mx-auto flex max-w-6xl justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="text-xl font-semibold">JinMing Lab</Link>
-        <nav className="flex gap-4 text-sm">
-          <Link href="/learn/cpp">C++</Link>
-          <Link href="/progress">Progress</Link>
-          <Link href="/wrong">Wrong Bank</Link>
-        </nav>
-      </div>
-    </header>
+    </StudyShell>
   );
 }

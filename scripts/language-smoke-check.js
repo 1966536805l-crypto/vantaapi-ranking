@@ -403,6 +403,22 @@ async function main() {
     ["/english/typing?lang=zh", "/english/vocabulary?lang=zh", "/wrong?lang=zh", "/programming?lang=zh"],
     34,
   );
+  await checkPage(
+    "learn-english-ja",
+    "/learn/english?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["学習パス", "/learn/english", "?lang=ja"],
+    ["Learning Path", "Wrong Bank", "Progress"],
+    37,
+  );
+  await checkPage(
+    "learn-cpp-ar",
+    "/learn/cpp?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["مسار التعلم", "دفتر الأخطاء", "?lang=ar"],
+    ["Learning Path", "Wrong Bank", "Progress"],
+    38,
+  );
 
   await checkPage(
     "prompt-ar",
