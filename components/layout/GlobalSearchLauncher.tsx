@@ -891,14 +891,14 @@ function currentLanguageFromLocation(): InterfaceLanguage {
   return isInterfaceLanguage(browserLanguage) ? browserLanguage : "en";
 }
 
-export default function GlobalSearchLauncher() {
+export default function GlobalSearchLauncher({ initialLanguage = "en" }: { initialLanguage?: InterfaceLanguage }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [recentHrefs, setRecentHrefs] = useState<string[]>([]);
-  const [language, setLanguage] = useState<InterfaceLanguage>("en");
+  const [language, setLanguage] = useState<InterfaceLanguage>(initialLanguage);
   const copy = launcherCopy[language];
 
   const defaultItems = useMemo(() => {

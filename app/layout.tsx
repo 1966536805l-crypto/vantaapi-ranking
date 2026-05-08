@@ -74,7 +74,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-white text-slate-900">
         <LanguageDocumentBootstrap />
         <CsrfBootstrap />
-        <GlobalSearchLauncher />
+        <GlobalSearchLauncher initialLanguage={documentLanguage} />
         {children}
       </body>
     </html>
