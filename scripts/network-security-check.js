@@ -9,7 +9,13 @@ const read = (path) => {
 const has = (text, pattern) => typeof pattern === "string" ? text.includes(pattern) : pattern.test(text);
 const add = (level, name, message) => checks.push({ level, name, message });
 
-const proxy = read("proxy.ts");
+const proxy = [
+  "proxy.ts",
+  "lib/proxy/guards.ts",
+  "lib/proxy/language.ts",
+  "lib/proxy/rate-limit.ts",
+  "lib/proxy/response.ts",
+].map(read).join("\n");
 const bot = read("lib/bot-protection.ts");
 const env = read(".env.example");
 const nginx = read("deploy/nginx/vantaapi-security.conf");

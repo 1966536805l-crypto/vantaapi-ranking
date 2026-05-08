@@ -19,7 +19,13 @@ const scripts = pkg.scripts || {};
 const dockerCompose = read("docker-compose.yml");
 const envExample = read(".env.example");
 const vercelIgnore = read(".vercelignore");
-const proxy = read("proxy.ts");
+const proxy = [
+  "proxy.ts",
+  "lib/proxy/guards.ts",
+  "lib/proxy/language.ts",
+  "lib/proxy/rate-limit.ts",
+  "lib/proxy/response.ts",
+].map(read).join("\n");
 const nextConfig = read("next.config.js");
 const deployment = read("DEPLOYMENT.md");
 const edgeSecurity = read("docs/EDGE_SECURITY.md");
@@ -31,6 +37,7 @@ const seed = read("prisma/seed.cjs");
 const aiCoach = read("app/api/ai/coach/route.ts");
 const turnstile = read("lib/turnstile.ts");
 const csrf = read("lib/csrf.ts");
+const apiGuard = read("lib/api-guard.ts");
 const authLogin = read("app/api/auth/login/route.ts");
 const twoFactorSetup = read("app/api/auth/2fa/setup/route.ts");
 const serverAuth = read("lib/server-auth.ts");
@@ -75,7 +82,11 @@ if (has(turnstile, "AUTH_TURNSTILE_REQUIRED") && has(turnstile, "turnstile-not-c
   add("warn", "auth:turnstile-prod", "Turnstile production fail-closed behavior is not clear");
 }
 
-if (has(csrf, "x-csrf-token") && has(csrf, "csrf-signature") && has(deployment, "CSRF token")) {
+if (
+  has(csrf, "x-csrf-token") &&
+  has(csrf, "csrf-signature") &&
+  (has(apiGuard, "validateCsrfRequest") || has(deployment, "CSRF token"))
+) {
   add("pass", "csrf:token", "double-submit CSRF token is wired for unsafe routes");
 } else {
   add("fail", "csrf:token", "CSRF token protection is missing or not documented");

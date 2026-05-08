@@ -64,6 +64,23 @@ async function fetchWithTimeout(path, options = {}) {
   }
 }
 
+async function checkSecurityHeaders(path) {
+  try {
+    const response = await fetchWithTimeout(path);
+    const requiredHeaders = {
+      "x-content-type-options": /nosniff/i,
+      "x-frame-options": /deny/i,
+      "referrer-policy": /strict-origin-when-cross-origin/i,
+      "x-security-mode": /^(normal|elevated|emergency)$/i,
+    };
+    const missing = Object.entries(requiredHeaders).filter(([header, pattern]) => !pattern.test(response.headers.get(header) || ""));
+    if (missing.length) return logFail(`${path}:security-headers`, `missing ${missing.map(([header]) => header).join(", ")}`);
+    logPass(`${path}:security-headers`, "core edge security headers are present");
+  } catch (error) {
+    logFail(`${path}:security-headers`, error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function checkPage(path, mustContain) {
   try {
     const response = await fetchWithTimeout(path);
@@ -71,6 +88,25 @@ async function checkPage(path, mustContain) {
     if (!response.ok) return logFail(path, `HTTP ${response.status}`);
     if (mustContain && !body.includes(mustContain)) return logFail(path, `missing text: ${mustContain}`);
     logPass(path, `HTTP ${response.status}`);
+  } catch (error) {
+    logFail(path, error instanceof Error ? error.message : "request failed");
+  }
+}
+
+async function checkRedirect(path, expectedPathname) {
+  try {
+    const response = await fetchWithTimeout(path, { redirect: "manual" });
+    const location = response.headers.get("location") || "";
+    const locationPath = location
+      ? new URL(location, baseUrl).pathname
+      : "";
+    if (![301, 302, 303, 307, 308].includes(response.status)) {
+      return logFail(path, `expected redirect to ${expectedPathname}, got HTTP ${response.status}`);
+    }
+    if (locationPath !== expectedPathname) {
+      return logFail(path, `expected redirect to ${expectedPathname}, got ${location || "empty location"}`);
+    }
+    logPass(path, `redirects to ${expectedPathname}`);
   } catch (error) {
     logFail(path, error instanceof Error ? error.message : "request failed");
   }
@@ -137,6 +173,35 @@ async function checkRetiredEndpoint(path, method = "GET") {
   }
 }
 
+async function checkQuestionsApiScope() {
+  try {
+    const response = await fetchWithTimeout("/api/questions?lang=ar");
+    const body = await response.text();
+    if (response.status === 429) return logWarn("questions-api", "rate limited; endpoint is protected");
+    if (response.status !== 400) return logFail("questions-api", `expected scoped 400 without lessonId, got HTTP ${response.status}`);
+    if (/\"answer\"|passwordHash|explanation/i.test(body)) return logFail("questions-api", "public error response exposed sensitive fields");
+    logPass("questions-api", "requires lessonId and does not expose answer fields");
+  } catch (error) {
+    logFail("questions-api", error instanceof Error ? error.message : "request failed");
+  }
+}
+
+async function checkAiCoachRequiresLogin() {
+  try {
+    const response = await fetchWithTimeout("/api/ai/coach?lang=zh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: "programming", prompt: "ping" }),
+    });
+    const body = await response.text();
+    if (response.status === 429) return logWarn("ai-coach-auth", "rate limited; endpoint is protected");
+    if (response.status !== 401) return logFail("ai-coach-auth", `expected 401 without login, got HTTP ${response.status}: ${body.slice(0, 120)}`);
+    logPass("ai-coach-auth", "AI coach requires login");
+  } catch (error) {
+    logFail("ai-coach-auth", error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function checkAuditApi() {
   try {
     const response = await fetchWithTimeout("/api/tools/github-repo-analyzer", {
@@ -157,12 +222,19 @@ async function checkAuditApi() {
 async function main() {
   console.log(`JinMing Lab production smoke check: ${baseUrl}\n`);
   await checkPage("/", "JinMing Lab");
+  await checkSecurityHeaders("/");
   await checkPage("/tools/github-repo-analyzer", "GitHub Launch Audit");
+  await checkRedirect("/games?lang=ja", "/");
+  await checkRedirect("/projects?lang=ja", "/tools/github-repo-analyzer");
+  await checkRedirect("/questions?lang=ja", "/tools/github-repo-analyzer");
+  await checkRedirect("/report?lang=ja", "/tools/github-repo-analyzer");
   await checkRobots();
   await checkSitemap();
   await checkRetiredEndpoint("/api/rankings");
   await checkRetiredEndpoint("/api/comments");
   await checkRetiredEndpoint("/api/cpp/run", "POST");
+  await checkQuestionsApiScope();
+  await checkAiCoachRequiresLogin();
   await checkAuditApi();
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (fail > 0) process.exit(1);
