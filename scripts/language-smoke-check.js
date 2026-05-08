@@ -259,6 +259,30 @@ async function main() {
     ["プログラミング教程"],
     19,
   );
+  await checkPage(
+    "programming-rust-ja",
+    "/programming/rust?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["Rust とは", "エントリ", "束縛", "Result の扱い", "fn main は Rust バイナリの入口になる", "main は入口", "println! はマクロ"],
+    ["Entry", "Bindings", "fn main starts a Rust binary", "main is the entry point", "Use braces for blocks"],
+    23,
+  );
+  await checkPage(
+    "programming-python-ja",
+    "/programming/python?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["Python とは", "変数", "ループ", "関数定義", "def で再利用できる関数を作る", "インデントは重要", "値を直接ループする"],
+    ["Variables", "Loops", "function definition", "Use def to name work", "Indentation matters"],
+    24,
+  );
+  await checkPage(
+    "programming-sql-ja",
+    "/programming/sql?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["SQL とは", "列の選択", "データを絞り込む", "データを集計する", "必要な列だけを選ぶ"],
+    ["Select only needed columns", "Filter", "Group", "Read from one table first"],
+    25,
+  );
   await checkDocumentLanguage(
     "document-language:programming-ar",
     "/programming/javascript?lang=ar",
