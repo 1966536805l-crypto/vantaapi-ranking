@@ -160,6 +160,15 @@ button {
   transform: translateY(-1px);
 }
 
+.global-search-mark {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
 .global-search-trigger kbd,
 .global-search-input-wrap kbd {
   display: grid;

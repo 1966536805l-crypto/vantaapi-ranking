@@ -971,8 +971,9 @@ export default function GlobalSearchLauncher() {
         onClick={showLauncher}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-label={copy.aria}
       >
-        <span>{copy.search}</span>
+        <span className="global-search-mark" aria-hidden="true">⌕</span>
         <kbd>/</kbd>
       </button>
 
