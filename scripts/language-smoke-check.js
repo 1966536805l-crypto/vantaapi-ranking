@@ -514,6 +514,22 @@ async function main() {
     40,
   );
   await checkPage(
+    "cpp-hub-es",
+    "/cpp?lang=es",
+    "es-ES,es;q=0.9,en;q=0.2",
+    ["Centro de entrenamiento C++", "Banco de preguntas C++", "/learn/cpp?lang=es", "/cpp/quiz/mega-1000?lang=es"],
+    ["C++ Training Hub", "C++ トレーニングハブ", "مركز تدريب C++"],
+    55,
+  );
+  await checkPage(
+    "cpp-hub-de",
+    "/cpp?lang=de",
+    "de-DE,de;q=0.9,en;q=0.2",
+    ["C++ Trainingszentrum", "C++ Fragenbank", "/learn/cpp?lang=de", "/cpp/quiz/mega-1000?lang=de"],
+    ["C++ Training Hub", "C++ トレーニングハブ", "مركز تدريب C++"],
+    56,
+  );
+  await checkPage(
     "cpp-basics-ja",
     "/cpp/basics?lang=ja",
     "ja-JP,ja;q=0.9,en;q=0.2",
