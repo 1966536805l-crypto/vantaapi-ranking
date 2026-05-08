@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import LearningFullscreenButton from "@/components/learning/LearningFullscreenButton";
+import { localizedHref, type InterfaceLanguage } from "@/lib/language";
 import { recordLocalActivity } from "@/lib/local-progress";
 import { speakMemoryPronunciation } from "@/lib/memory-pronunciation";
 
@@ -104,7 +105,13 @@ function saveMissedIds(ids: string[]) {
   }
 }
 
-export default function EnglishTypingTrainer({ items }: { items: EnglishTypingItem[] }) {
+export default function EnglishTypingTrainer({
+  items,
+  language = "zh",
+}: {
+  items: EnglishTypingItem[];
+  language?: InterfaceLanguage;
+}) {
   const [mode, setMode] = useState<Mode>("mixed");
   const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState("");
@@ -219,7 +226,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     recordLocalActivity({
       id: `english-typing:${current.id}:${Date.now()}`,
       title: current.type === "word" ? `Typing ${current.answer}` : "Typing sentence",
-      href: "/english/typing?lang=zh",
+      href: localizedHref("/english/typing", language),
       kind: "english",
       completed: true,
       correct,
@@ -243,7 +250,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
     setHintMode("shape");
     speak(current.answer);
     window.setTimeout(() => inputRef.current?.focus(), 0);
-  }, [activeIndex, current, draft, forgetMissed, next, persist, rememberMissed, speak, stats.bestStreak, stats.correct, stats.streak, stats.wrong]);
+  }, [activeIndex, current, draft, forgetMissed, language, next, persist, rememberMissed, speak, stats.bestStreak, stats.correct, stats.streak, stats.wrong]);
 
   const giveUp = useCallback(() => {
     if (!current) return;
@@ -371,7 +378,7 @@ export default function EnglishTypingTrainer({ items }: { items: EnglishTypingIt
             </div>
           </div>
           <div className="learning-head-actions">
-            <LearningFullscreenButton language="zh" />
+            <LearningFullscreenButton language={language} />
             <button type="button" className="dense-action" onClick={() => setFocusMode((value) => !value)}>
               {focusMode ? "标准" : "沉浸"}
             </button>

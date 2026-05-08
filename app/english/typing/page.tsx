@@ -56,7 +56,7 @@ export default async function EnglishTypingPage({
   return (
     <main className="typing-fullscreen-page">
       <section className="study-fullscreen-shell">
-        <EnglishTypingTrainer items={items} />
+        <EnglishTypingTrainer items={items} language={language} />
       </section>
     </main>
   );

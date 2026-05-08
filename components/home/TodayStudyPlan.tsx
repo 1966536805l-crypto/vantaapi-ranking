@@ -554,7 +554,7 @@ export default function TodayStudyPlan({ initialLanguage, packs, readingPacks, q
               明日预告只来自本机复习记录和站内原创内容，不需要登录。
             </p>
           </div>
-          <Link href="/today" className="dense-action-primary w-fit">
+          <Link href={localizedHref("/today", language)} className="dense-action-primary w-fit">
             明天继续从这里开始
           </Link>
         </div>
