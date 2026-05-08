@@ -198,6 +198,33 @@ const languageRoleZh: Partial<Record<ProgrammingLanguageSlug, string>> = {
   php: "Web 后端 CMS 和服务端渲染",
 };
 
+const languageRoleJa: Partial<Record<ProgrammingLanguageSlug, string>> = {
+  javascript: "Web アプリ、自動化、API 連携に使う言語",
+  typescript: "大きな JavaScript 製品を型で安全にする言語",
+  python: "自動化、データ処理、バックエンド API に使う言語",
+  cpp: "性能、システム、アルゴリズムを学ぶための言語",
+  java: "バックエンド、Android、企業開発で使う言語",
+  go: "クラウドサービス、CLI、並行処理に向く言語",
+  rust: "安全性と性能を両立するシステム言語",
+  sql: "データを検索、集計、更新するための言語",
+  "html-css": "Web ページの構造と見た目を作る基礎",
+  bash: "ターミナル操作とファイル処理を自動化する言語",
+};
+
+const languageHabitZh: Partial<Record<ProgrammingLanguageSlug, string>> = {
+  javascript: "先用 console.log 和 DevTools 看清值，再抽象",
+  typescript: "让类型错误告诉你缺了哪个数据契约",
+  python: "每次转换数据后都打印一次数据形状",
+  cpp: "编译前先手动跟踪内存、下标和容器状态",
+};
+
+const languageHabitJa: Partial<Record<ProgrammingLanguageSlug, string>> = {
+  javascript: "抽象化する前に console.log と DevTools で値を確認する",
+  typescript: "型エラーから足りないデータ契約を読む",
+  python: "データを変換するたびに形を小さく確認する",
+  cpp: "コンパイル前にメモリ、添字、コンテナ状態を手で追う",
+};
+
 const methodZh: Record<string, string> = {
   "Recall from memory": "回忆输出",
   "Trace the code": "手动跟踪",
@@ -343,6 +370,88 @@ function questionHints(question: ProgrammingQuestion, activeRole: string, langua
   ];
 }
 
+function roleForInterface(activeLanguage: ReturnType<typeof getProgrammingLanguage>, language: InterfaceLanguage) {
+  if (language === "zh") return languageRoleZh[activeLanguage.slug] ?? activeLanguage.role;
+  if (language === "ja") return languageRoleJa[activeLanguage.slug] ?? activeLanguage.role;
+  return activeLanguage.role;
+}
+
+function habitForInterface(activeLanguage: ReturnType<typeof getProgrammingLanguage>, language: InterfaceLanguage) {
+  if (language === "zh") return languageHabitZh[activeLanguage.slug] ?? activeLanguage.dailyHabit;
+  if (language === "ja") return languageHabitJa[activeLanguage.slug] ?? activeLanguage.dailyHabit;
+  return activeLanguage.dailyHabit;
+}
+
+function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage>, activeRole: string, language: InterfaceLanguage) {
+  const starter = activeLanguage.tutorialSections[0];
+  if (language === "zh") {
+    return {
+      aria: `${activeLanguage.title} 定义`,
+      eyebrow: "先定义",
+      title: `${activeLanguage.title} 是什么`,
+      body: `${activeLanguage.title} 是一门用来写精确指令的编程语言，主要用于${activeRole}。你先不用记一堆术语，只要先理解：程序把输入按步骤变成输出。`,
+      runtimeTitle: "最小运行信息",
+      fileLabel: "文件",
+      runLabel: "运行",
+      habitLabel: "习惯",
+      habit: habitForInterface(activeLanguage, language),
+      starterTitle: "第一段可读代码",
+      outputLabel: "输出",
+      cards: [
+        ["程序", "一组按顺序执行的指令。先读输入，再计算，最后得到输出。"],
+        ["值和变量", "值是数据，变量是给数据取的名字。先看名字，再看它保存了什么。"],
+        ["函数", "把一件小事封装起来，给输入，拿输出，之后可以反复用。"],
+        ["运行环境", `${activeLanguage.runtime} 负责真正执行 ${activeLanguage.fileName} 里的代码。`],
+      ],
+      starter,
+    };
+  }
+
+  if (language === "ja") {
+    return {
+      aria: `${activeLanguage.title} の定義`,
+      eyebrow: "まず定義",
+      title: `${activeLanguage.title} とは何か`,
+      body: `${activeLanguage.title} は、コンピューターに正確な手順を伝えるためのプログラミング言語です。最初は暗記ではなく「入力、手順、出力」の流れだけをつかみます。`,
+      runtimeTitle: "最小実行情報",
+      fileLabel: "ファイル",
+      runLabel: "実行",
+      habitLabel: "習慣",
+      habit: habitForInterface(activeLanguage, language),
+      starterTitle: "最初に読むコード",
+      outputLabel: "出力",
+      cards: [
+        ["プログラム", "順番に実行される命令の集まりです。入力を読み、処理し、出力します。"],
+        ["値と変数", "値はデータです。変数はそのデータにつける名前です。"],
+        ["関数", "小さな仕事をまとめたものです。入力を受け取り、結果を返します。"],
+        ["実行環境", `${activeLanguage.runtime} が ${activeLanguage.fileName} のコードを実行します。`],
+      ],
+      starter,
+    };
+  }
+
+  return {
+    aria: `${activeLanguage.title} definition`,
+    eyebrow: "Definition first",
+    title: `What ${activeLanguage.title} means`,
+    body: `${activeLanguage.title} is a programming language for writing exact instructions, often used for ${activeLanguage.role}. Start with one mental model: input goes through steps and becomes output.`,
+    runtimeTitle: "Minimum run facts",
+    fileLabel: "File",
+    runLabel: "Run",
+    habitLabel: "Habit",
+    habit: habitForInterface(activeLanguage, language),
+    starterTitle: "First readable code",
+    outputLabel: "Output",
+    cards: [
+      ["Program", "An ordered set of instructions. It reads input, follows rules, and produces output."],
+      ["Value and variable", "A value is data. A variable is the name you use to hold and reuse that data."],
+      ["Function", "A named piece of work. It takes input, does one job, and can return a result."],
+      ["Runtime", `${activeLanguage.runtime} is the place that actually runs code from ${activeLanguage.fileName}.`],
+    ],
+    starter,
+  };
+}
+
 export default function ProgrammingTrainer({
   initialLanguageSlug = "javascript",
   initialSiteLanguage = "en",
@@ -381,7 +490,7 @@ export default function ProgrammingTrainer({
   const showAnswer = Boolean(answerReveals[question.id]);
   const runnerOutput = runnerOutputs[question.id];
   const activeTrack = trackSegments.find((track) => questionIndex >= track.start && questionIndex <= track.end) || trackSegments[0];
-  const activeRole = language === "zh" ? languageRoleZh[activeLanguage.slug] ?? activeLanguage.role : activeLanguage.role;
+  const activeRole = useMemo(() => roleForInterface(activeLanguage, language), [activeLanguage, language]);
   const activeHints = questionHints(question, activeRole, language);
   const answeredCount = Object.keys(results).filter((id) => id.startsWith(activeLanguage.slug)).length;
   const correctCount = Object.entries(results).filter(([id, state]) => id.startsWith(activeLanguage.slug) && state.correct).length;
@@ -393,6 +502,7 @@ export default function ProgrammingTrainer({
     keyword,
     found: answer.toLowerCase().includes(keyword.toLowerCase()),
   }));
+  const definition = definitionCopy(activeLanguage, activeRole, language);
   const coachContext = useMemo(() => ({
     language: activeLanguage.title,
     languageRole: activeRole,
@@ -668,6 +778,39 @@ export default function ProgrammingTrainer({
               <FlagLanguageToggle initialLanguage={language} onChange={setLanguage} />
             </div>
           </header>
+
+          <section className="dense-panel programming-definition" aria-label={definition.aria}>
+            <div className="programming-definition-head">
+              <div>
+                <p className="eyebrow">{definition.eyebrow}</p>
+                <h2>{definition.title}</h2>
+                <p>{definition.body}</p>
+              </div>
+              <div className="programming-definition-runtime">
+                <strong>{definition.runtimeTitle}</strong>
+                <span>{definition.fileLabel} <code>{activeLanguage.fileName}</code></span>
+                <span>{definition.runLabel} <code>{activeLanguage.runCommand}</code></span>
+                <span>{definition.habitLabel} {definition.habit}</span>
+              </div>
+            </div>
+            <div className="programming-definition-grid">
+              {definition.cards.map(([title, body]) => (
+                <article key={title}>
+                  <strong>{title}</strong>
+                  <p>{body}</p>
+                </article>
+              ))}
+            </div>
+            <div className="programming-definition-starter">
+              <div>
+                <p className="eyebrow">{definition.starterTitle}</p>
+                <h3>{definition.starter.title}</h3>
+                <span>{definition.starter.focus}</span>
+              </div>
+              <pre>{definition.starter.sampleCode}</pre>
+              <code>{definition.outputLabel} {definition.starter.sampleOutput}</code>
+            </div>
+          </section>
 
           <section className="dense-panel programming-track-summary" aria-label={copy.queue}>
             {trackSegments.map((track) => (
