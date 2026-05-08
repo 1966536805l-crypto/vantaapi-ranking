@@ -99,11 +99,17 @@ function scoreItem(item: SiteSearchItem, query: string) {
 export function searchSite(query: string, limit = 36) {
   const cleanQuery = query.trim().slice(0, 80);
   if (!cleanQuery) return [];
+  const seenHrefs = new Set<string>();
 
   return siteSearchItems
     .map((item) => ({ item, score: scoreItem(item, cleanQuery) }))
     .filter((result) => result.score > 0)
     .sort((a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title))
+    .filter((result) => {
+      if (seenHrefs.has(result.item.href)) return false;
+      seenHrefs.add(result.item.href);
+      return true;
+    })
     .slice(0, limit)
     .map((result) => result.item);
 }
