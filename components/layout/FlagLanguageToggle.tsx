@@ -34,6 +34,13 @@ function writeLanguageCookie(language: InterfaceLanguage) {
   }
 }
 
+function writeLanguagePreference(language: InterfaceLanguage) {
+  window.localStorage.setItem("vantaapi-language", language);
+  writeLanguageCookie(language);
+  document.documentElement.lang = languageHtmlLang(language);
+  document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+}
+
 function readStoredLanguage(): InterfaceLanguage | null {
   const local = window.localStorage.getItem("vantaapi-language");
   if (isInterfaceLanguage(local)) return local;
@@ -65,10 +72,7 @@ export default function FlagLanguageToggle({
   });
 
   useEffect(() => {
-    document.documentElement.lang = languageHtmlLang(current);
-    document.documentElement.dir = current === "ar" ? "rtl" : "ltr";
-    window.localStorage.setItem("vantaapi-language", current);
-    writeLanguageCookie(current);
+    writeLanguagePreference(current);
     onChange?.(current);
 
     const url = new URL(window.location.href);
@@ -80,6 +84,7 @@ export default function FlagLanguageToggle({
   }, [current, onChange, router]);
 
   function setLanguage(code: InterfaceLanguage) {
+    writeLanguagePreference(code);
     setCurrent(code);
     onChange?.(code);
     const url = new URL(window.location.href);
