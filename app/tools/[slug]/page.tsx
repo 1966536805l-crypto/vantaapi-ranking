@@ -64,20 +64,20 @@ const auditRouteMeta: Record<InterfaceLanguage, { title: string; description: st
     description: "공개 GitHub 저장소의 점수, 차단 항목, 근거, Issue 초안, PR 설명, 릴리스 체크리스트를 생성합니다.",
   },
   es: {
-    title: "Audit GitHub - Reporte de preparacion | JinMing Lab",
-    description: "Genera un reporte rules first para un repo publico con score bloqueos evidencia issues PR y checklist de release.",
+    title: "Auditoría GitHub - Reporte de preparación | JinMing Lab",
+    description: "Genera un reporte rules first para un repo público con score, bloqueos, evidencia, issues, PR y checklist de release.",
   },
   fr: {
     title: "Audit GitHub - Rapport avant lancement | JinMing Lab",
-    description: "Generez un rapport rules first pour repo public avec score blocages preuves issues PR et checklist release.",
+    description: "Générez un rapport rules first pour repo public avec score, blocages, preuves, issues, PR et checklist release.",
   },
   de: {
-    title: "GitHub Launch Audit - Repo Readiness Bericht | JinMing Lab",
-    description: "Erzeuge einen regelbasierten Bericht fuer ein oeffentliches GitHub Repo mit Score Blockern Evidence Issues PR Text und Release Checkliste.",
+    title: "GitHub Startprüfung - Repo Bereitschaftsbericht | JinMing Lab",
+    description: "Erzeuge einen regelbasierten Bericht für ein öffentliches GitHub Repo mit Score, Blockern, Belegen, Issue Entwürfen, PR Text und Release Checkliste.",
   },
   pt: {
-    title: "Auditoria GitHub - Relatorio de prontidao | JinMing Lab",
-    description: "Gere um relatorio rules first para repo publico com score bloqueios evidencias issues PR e checklist de release.",
+    title: "Auditoria GitHub - Relatório de prontidão | JinMing Lab",
+    description: "Gere um relatório rules first para repo público com score, bloqueios, evidências, issues, PR e checklist de release.",
   },
   ru: {
     title: "GitHub аудит - отчет готовности repo | JinMing Lab",
@@ -88,36 +88,36 @@ const auditRouteMeta: Record<InterfaceLanguage, { title: string; description: st
     description: "أنشئ تقرير جاهزية يعتمد على القواعد لمستودع GitHub عام مع نتيجة وعوائق وأدلة ومسودات Issues ووصف PR وقائمة إطلاق.",
   },
   hi: {
-    title: "GitHub लॉन्च ऑडिट - Repo readiness report | JinMing Lab",
-    description: "Public GitHub repo के लिए score blockers evidence issues PR description और release checklist वाला rules first report बनाएं.",
+    title: "GitHub लॉन्च जांच - Repo तैयारी रिपोर्ट | JinMing Lab",
+    description: "Public GitHub repo के लिए score, blockers, evidence, issue drafts, PR description और release checklist वाली rules first report बनाएं.",
   },
   id: {
     title: "Audit GitHub - Laporan kesiapan repo | JinMing Lab",
     description: "Buat laporan rules first untuk repo publik dengan skor blocker bukti issue PR dan checklist rilis.",
   },
   vi: {
-    title: "Kiem tra GitHub - Bao cao san sang repo | JinMing Lab",
-    description: "Tao bao cao rules first cho repo cong khai voi diem blocker bang chung issue PR va checklist release.",
+    title: "Kiểm tra GitHub - Báo cáo sẵn sàng repo | JinMing Lab",
+    description: "Tạo báo cáo theo quy tắc cho repo GitHub công khai với điểm số, blocker, bằng chứng, issue draft, mô tả PR và checklist release.",
   },
   th: {
     title: "ตรวจ GitHub - รายงานความพร้อม repo | JinMing Lab",
     description: "สร้างรายงาน rules first สำหรับ repo สาธารณะ พร้อมคะแนน blocker หลักฐาน issue PR และ release checklist",
   },
   tr: {
-    title: "GitHub yayin denetimi - Repo hazirlik raporu | JinMing Lab",
-    description: "Public GitHub repo icin skor engeller kanit issues PR ve release checklist iceren rule first rapor olustur.",
+    title: "GitHub yayın denetimi - Repo hazırlık raporu | JinMing Lab",
+    description: "Public GitHub repo için skor, engeller, kanıtlar, issue taslakları, PR açıklaması ve release checklist içeren rule first rapor oluştur.",
   },
   it: {
     title: "Audit GitHub - Report prontezza repo | JinMing Lab",
     description: "Genera un report rules first per repo pubblico con score blocchi evidenze issue PR e checklist release.",
   },
   nl: {
-    title: "GitHub launch audit - Repo readiness report | JinMing Lab",
-    description: "Maak een rule first rapport voor publieke GitHub repo met score blockers bewijs issues PR en release checklist.",
+    title: "GitHub publicatiecontrole - Repo gereedheidsrapport | JinMing Lab",
+    description: "Maak een rule first rapport voor een publieke GitHub repo met score, blockers, bewijs, issue concepten, PR tekst en release checklist.",
   },
   pl: {
-    title: "GitHub audyt - raport gotowosci repo | JinMing Lab",
-    description: "Utworz rule first raport dla publicznego GitHub repo z wynikiem blokerami evidence issues PR i release checklist.",
+    title: "GitHub audyt publikacji - raport gotowości repo | JinMing Lab",
+    description: "Utwórz rule first raport dla publicznego GitHub repo z wynikiem, blokerami, dowodami, szkicami issue, opisem PR i checklistą release.",
   },
 };
 
@@ -240,9 +240,9 @@ const routeToolTranslations: Partial<Record<InterfaceLanguage, Partial<Record<To
   },
   de: {
     "prompt-optimizer": {
-      title: "AI Prompt Optimizer",
+      title: "KI Prompt Optimierer",
       shortTitle: "Prompt",
-      description: "Formt eine grobe Anfrage in einen strukturierten Prompt fuer Code Recherche oder Produktarbeit",
+      description: "Formt eine grobe Anfrage in einen strukturierten Prompt für Code Recherche oder Produktarbeit",
       promise: "Rolle Kontext Aufgaben Ausgabeformat Grenzen Akzeptanzkriterien",
     },
   },

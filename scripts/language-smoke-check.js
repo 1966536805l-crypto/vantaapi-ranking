@@ -794,6 +794,46 @@ async function main() {
     ["أدوات AI", "AI ضعيفا", "AI قوي", "خطة تعلم البرمجة AI"],
     31,
   );
+  await checkVisibleText(
+    "tools-vi-visible-copy",
+    "/tools?lang=vi",
+    "vi-VN,vi;q=0.9,en;q=0.2",
+    ["Công cụ AI cho lập trình viên", "Kiểm tra ra mắt GitHub", "Sẵn sàng kiểm tra", "Báo cáo sẵn sàng ra mắt", "Cần GitHub token không"],
+    ["Cong cu", "Quy trinh", "Kiem tra ra mat", "San sang kiem tra", "Bao cao san sang ra mat"],
+    81,
+  );
+  await checkVisibleText(
+    "tools-tr-visible-copy",
+    "/tools?lang=tr",
+    "tr-TR,tr;q=0.9,en;q=0.2",
+    ["Geliştiriciler için AI araçları", "GitHub yayın denetimi", "Denetime hazır", "Yayın hazırlık raporu", "GitHub token gerekir mi"],
+    ["Yayin", "gelistirici", "araclari", "yapistir", "Denetime hazir"],
+    82,
+  );
+  await checkVisibleText(
+    "tools-nl-visible-copy",
+    "/tools?lang=nl",
+    "nl-NL,nl;q=0.9,en;q=0.2",
+    ["AI gereedschap voor ontwikkelaars", "GitHub publicatiecontrole", "Klaar voor controle", "Publicatie gereedheidsrapport", "Is GitHub token nodig"],
+    ["AI developer tools", "Launch flow", "launch audit"],
+    83,
+  );
+  await checkVisibleText(
+    "tools-pl-visible-copy",
+    "/tools?lang=pl",
+    "pl-PL,pl;q=0.9,en;q=0.2",
+    ["Narzędzia AI dla programistów", "GitHub audyt publikacji", "Raport gotowości publikacji", "Czy potrzeba GitHub token"],
+    ["developerow", "gotowosci", "Utworz", "Bugow", "Podglad raportu"],
+    84,
+  );
+  await checkVisibleText(
+    "tools-hi-visible-copy",
+    "/tools?lang=hi",
+    "hi-IN,hi;q=0.9,en;q=0.2",
+    ["डेवलपर के लिए AI उपकरण", "GitHub लॉन्च जांच", "जांच के लिए तैयार", "GitHub token चाहिए"],
+    ["AI डेवलपर टूल्स", "लॉन्च फ्लो", "Audit के लिए तैयार", "Code Explainer"],
+    85,
+  );
   await checkPage(
     "search-ar",
     "/search?lang=ar&q=github",

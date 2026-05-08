@@ -25,28 +25,28 @@ const toolsMetaCopy: Record<InterfaceLanguage, { title: string; description: str
     name: "JinMing Lab AI 도구",
   },
   es: {
-    title: "Herramientas de auditoria GitHub - JinMing Lab",
-    description: "Empieza con audit de lanzamiento GitHub y usa utilidades para prompts API JSON regex timestamps y rutas de programacion.",
+    title: "Herramientas de auditoría GitHub - JinMing Lab",
+    description: "Empieza con una auditoría de lanzamiento GitHub y usa utilidades para prompts, API, JSON, regex, timestamps y rutas de programación.",
     name: "Herramientas AI JinMing Lab",
   },
   fr: {
-    title: "Outils audit GitHub - JinMing Lab",
-    description: "Commencez par un audit GitHub puis utilisez des outils pour prompts API JSON regex timestamps et parcours de code.",
+    title: "Outils d’audit GitHub - JinMing Lab",
+    description: "Commencez par un audit GitHub puis utilisez des outils pour prompts, API, JSON, regex, timestamps et parcours de code.",
     name: "Outils AI JinMing Lab",
   },
   de: {
-    title: "GitHub Launch Audit Werkzeuge - JinMing Lab",
-    description: "Starte mit GitHub Launch Audit und nutze Werkzeuge fuer Prompts API JSON Regex Zeitstempel und Coding Routen.",
-    name: "JinMing Lab AI Werkzeuge",
+    title: "GitHub Startprüfung Werkzeuge - JinMing Lab",
+    description: "Starte mit einer GitHub Startprüfung und nutze Werkzeuge für Prompts, API Requests, JSON, Regex, Zeitstempel und Programmierwege.",
+    name: "JinMing Lab KI Werkzeuge",
   },
   pt: {
     title: "Ferramentas de auditoria GitHub - JinMing Lab",
-    description: "Comece com auditoria GitHub e use ferramentas para prompts API JSON regex timestamps e roteiros de programacao.",
+    description: "Comece com auditoria GitHub e use ferramentas para prompts, API, JSON, regex, timestamps e roteiros de programação.",
     name: "Ferramentas AI JinMing Lab",
   },
   ru: {
     title: "Инструменты GitHub аудита - JinMing Lab",
-    description: "Начните с GitHub launch audit и используйте инструменты для prompts API JSON regex timestamps и маршрутов программирования.",
+    description: "Начните с аудита запуска GitHub и используйте инструменты для prompt, API, JSON, regex, timestamp и маршрутов программирования.",
     name: "AI инструменты JinMing Lab",
   },
   ar: {
@@ -55,9 +55,9 @@ const toolsMetaCopy: Record<InterfaceLanguage, { title: string; description: str
     name: "أدوات JinMing Lab AI",
   },
   hi: {
-    title: "GitHub लॉन्च ऑडिट टूल्स - JinMing Lab",
-    description: "GitHub launch audit से शुरू करें और prompts API JSON regex timestamps और coding roadmap tools इस्तेमाल करें.",
-    name: "JinMing Lab AI टूल्स",
+    title: "GitHub लॉन्च जांच उपकरण - JinMing Lab",
+    description: "GitHub लॉन्च जांच से शुरू करें और prompt, API, JSON, regex, timestamp तथा coding roadmap उपकरण इस्तेमाल करें.",
+    name: "JinMing Lab AI उपकरण",
   },
   id: {
     title: "Alat audit rilis GitHub - JinMing Lab",
@@ -65,9 +65,9 @@ const toolsMetaCopy: Record<InterfaceLanguage, { title: string; description: str
     name: "Alat AI JinMing Lab",
   },
   vi: {
-    title: "Cong cu kiem tra GitHub - JinMing Lab",
-    description: "Bat dau voi audit GitHub roi dung cong cu prompt API JSON regex timestamp va lo trinh coding.",
-    name: "Cong cu AI JinMing Lab",
+    title: "Công cụ kiểm tra GitHub - JinMing Lab",
+    description: "Bắt đầu với kiểm tra GitHub rồi dùng công cụ prompt, API, JSON, regex, timestamp và lộ trình code.",
+    name: "Công cụ AI JinMing Lab",
   },
   th: {
     title: "เครื่องมือตรวจ GitHub ก่อนปล่อย - JinMing Lab",
@@ -75,23 +75,23 @@ const toolsMetaCopy: Record<InterfaceLanguage, { title: string; description: str
     name: "เครื่องมือ AI JinMing Lab",
   },
   tr: {
-    title: "GitHub yayin denetim araclari - JinMing Lab",
-    description: "GitHub launch audit ile basla ve prompt API JSON regex timestamp coding roadmap araclarini kullan.",
-    name: "JinMing Lab AI araclari",
+    title: "GitHub yayın denetim araçları - JinMing Lab",
+    description: "GitHub yayın denetimiyle başla ve prompt, API, JSON, regex, timestamp, coding roadmap araçlarını kullan.",
+    name: "JinMing Lab AI araçları",
   },
   it: {
     title: "Strumenti audit GitHub - JinMing Lab",
-    description: "Inizia con audit GitHub e usa strumenti per prompt API JSON regex timestamp e percorsi coding.",
+    description: "Inizia con audit GitHub e usa strumenti per prompt, API, JSON, regex, timestamp e percorsi coding.",
     name: "Strumenti AI JinMing Lab",
   },
   nl: {
-    title: "GitHub launch audit tools - JinMing Lab",
-    description: "Start met GitHub launch audit en gebruik tools voor prompts API JSON regex timestamps en coding routes.",
-    name: "JinMing Lab AI tools",
+    title: "GitHub publicatiecontrole gereedschap - JinMing Lab",
+    description: "Start met GitHub publicatiecontrole en gebruik gereedschap voor prompts, API requests, JSON, regex, timestamps en programmeerroutes.",
+    name: "JinMing Lab AI gereedschap",
   },
   pl: {
-    title: "Narzędzia audytu GitHub - JinMing Lab",
-    description: "Zacznij od GitHub launch audit i uzyj narzedzi do promptow API JSON regex timestamp oraz tras kodowania.",
+    title: "Narzędzia audytu publikacji GitHub - JinMing Lab",
+    description: "Zacznij od audytu publikacji GitHub i użyj narzędzi do promptów, API, JSON, regex, timestamp oraz ścieżek kodowania.",
     name: "AI narzędzia JinMing Lab",
   },
 };
