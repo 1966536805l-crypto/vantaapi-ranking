@@ -9,6 +9,9 @@ type SecurityCopy = {
   intro: string;
   updated: string;
   back: string;
+  status: string;
+  privacy: string;
+  terms: string;
   sections: Array<{ title: string; body: string }>;
   checklistTitle: string;
   checklist: string[];
@@ -21,6 +24,9 @@ const copy: Record<"en" | "zh", SecurityCopy> = {
     intro: "JinMing Lab is built to be useful without asking for private code or unnecessary account data. The launch audit is rules first: it checks public repository signals and turns them into a release checklist.",
     updated: "Last updated · 2026-05-08",
     back: "Back home",
+    status: "Status",
+    privacy: "Privacy",
+    terms: "Terms",
     sections: [
       { title: "Public repositories only", body: "GitHub Launch Audit accepts public https://github.com/owner/repo URLs. Do not submit private repository links, API keys, passwords, customer data, or internal company URLs." },
       { title: "No private code requirement", body: "You can use the main audit and tool pages without granting GitHub OAuth access. The product does not need your private repositories to be useful." },
@@ -43,6 +49,9 @@ const copy: Record<"en" | "zh", SecurityCopy> = {
     intro: "JinMing Lab 的设计目标是：不用提交私有代码，也不用交出不必要的账号数据。上线体检以规则为核心，读取公开仓库信号，然后整理成发布清单。",
     updated: "最后更新 · 2026-05-08",
     back: "返回首页",
+    status: "状态",
+    privacy: "隐私",
+    terms: "条款",
     sections: [
       { title: "只支持公开仓库", body: "GitHub 上线体检只接受公开的 https://github.com/owner/repo 地址。不要提交私有仓库链接、API Key、密码、客户数据或公司内部地址。" },
       { title: "不要求私有代码", body: "核心体检和工具页不需要 GitHub OAuth 授权。即使不接入私有仓库，产品也能完成公开仓库上线检查。" },
@@ -115,8 +124,9 @@ export default async function SecurityPage({ searchParams }: { searchParams?: Pr
         </section>
 
         <footer className="mt-7 flex flex-wrap gap-3 border-t border-slate-200 pt-5 text-sm font-bold text-slate-600">
-          <Link href={localizedHref("/privacy", language)} className="link">Privacy</Link>
-          <Link href={localizedHref("/terms", language)} className="link">Terms</Link>
+          <Link href={localizedHref("/status", language)} className="link">{t.status}</Link>
+          <Link href={localizedHref("/privacy", language)} className="link">{t.privacy}</Link>
+          <Link href={localizedHref("/terms", language)} className="link">{t.terms}</Link>
           <span>{t.updated}</span>
         </footer>
       </div>

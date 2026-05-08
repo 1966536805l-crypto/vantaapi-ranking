@@ -237,12 +237,28 @@ async function checkAuditRejectsSensitiveInput() {
   }
 }
 
+async function checkHealthApi() {
+  try {
+    const response = await fetchWithTimeout("/api/health");
+    const body = await response.text();
+    if (response.status === 429) return logWarn("health-api", "rate limited; endpoint is protected");
+    if (!response.ok) return logFail("health-api", `HTTP ${response.status}: ${body.slice(0, 120)}`);
+    if (!body.includes("\"product\":\"JinMing Lab\"") || !body.includes("\"checks\"")) {
+      return logFail("health-api", "response missing public health snapshot");
+    }
+    logPass("health-api", "public health snapshot returned without secrets");
+  } catch (error) {
+    logFail("health-api", error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function main() {
   console.log(`JinMing Lab production smoke check: ${baseUrl}\n`);
   await checkPage("/", "JinMing Lab");
   await checkSecurityHeaders("/");
   await checkPage("/tools/github-repo-analyzer", "GitHub Launch Audit");
   await checkPage("/security", "How JinMing Lab handles your data");
+  await checkPage("/status", "JinMing Lab service status");
   await checkRedirect("/games?lang=ja", "/");
   await checkRedirect("/projects?lang=ja", "/tools/github-repo-analyzer");
   await checkRedirect("/questions?lang=ja", "/tools/github-repo-analyzer");
@@ -256,6 +272,7 @@ async function main() {
   await checkAiCoachRequiresLogin();
   await checkAuditApi();
   await checkAuditRejectsSensitiveInput();
+  await checkHealthApi();
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (fail > 0) process.exit(1);
 }
