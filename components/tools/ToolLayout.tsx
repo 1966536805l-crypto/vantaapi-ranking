@@ -44,6 +44,35 @@ function downloadTextFile(text: string, title: string) {
   URL.revokeObjectURL(url);
 }
 
+const layoutCopy: Record<InterfaceLanguage, {
+  generated: string;
+  lines: string;
+  chars: string;
+  copy: string;
+  copied: string;
+  download: string;
+  downloaded: string;
+}> = {
+  en: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  zh: { generated: "生成结果", lines: "行", chars: "字符", copy: "复制", copied: "已复制", download: "下载", downloaded: "已下载" },
+  ja: { generated: "生成結果", lines: "行", chars: "文字", copy: "コピー", copied: "コピー済み", download: "ダウンロード", downloaded: "完了" },
+  ko: { generated: "생성 결과", lines: "줄", chars: "글자", copy: "복사", copied: "복사됨", download: "다운로드", downloaded: "완료" },
+  es: { generated: "Generado", lines: "líneas", chars: "caracteres", copy: "Copiar", copied: "Copiado", download: "Descargar", downloaded: "Descargado" },
+  fr: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  de: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  pt: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  ru: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  ar: { generated: "النتيجة", lines: "أسطر", chars: "حروف", copy: "نسخ", copied: "تم النسخ", download: "تنزيل", downloaded: "تم التنزيل" },
+  hi: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  id: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  vi: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  th: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  tr: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  it: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  nl: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+  pl: { generated: "Generated", lines: "lines", chars: "chars", copy: "Copy", copied: "Copied", download: "Download", downloaded: "Downloaded" },
+};
+
 export default function ToolLayout({
   children,
   output,
@@ -59,7 +88,7 @@ export default function ToolLayout({
   blocks?: OutputBlock[];
   language?: InterfaceLanguage;
 }) {
-  const zh = language === "zh";
+  const t = layoutCopy[language] || layoutCopy.en;
   const { copied, copy } = useCopy();
   const [downloaded, setDownloaded] = useState(false);
   const outputLines = output.trim() ? output.trim().split(/\r?\n/).length : 0;
@@ -80,17 +109,17 @@ export default function ToolLayout({
       <section className="dense-panel tool-output">
         <div className="tool-output-head">
           <div>
-            <p className="eyebrow">{zh ? "生成结果" : "Generated"}</p>
+            <p className="eyebrow">{t.generated}</p>
             <h2>{outputTitle}</h2>
           </div>
           <div className="tool-output-actions">
-            <span>{outputLines} {zh ? "行" : "lines"}</span>
-            <span>{outputCharacters} {zh ? "字符" : "chars"}</span>
+            <span>{outputLines} {t.lines}</span>
+            <span>{outputCharacters} {t.chars}</span>
             <button type="button" className="dense-action" onClick={() => copy(output, "main")}>
-              {copied === "main" ? (zh ? "已复制" : "Copied") : (zh ? "复制" : "Copy")}
+              {copied === "main" ? t.copied : t.copy}
             </button>
             <button type="button" className="dense-action" onClick={downloadOutput}>
-              {downloaded ? (zh ? "已下载" : "Downloaded") : (zh ? "下载" : "Download")}
+              {downloaded ? t.downloaded : t.download}
             </button>
           </div>
         </div>
@@ -103,7 +132,7 @@ export default function ToolLayout({
                   <span>{block.badge}</span>
                   <strong>{block.title}</strong>
                   <button type="button" onClick={() => copy(block.content, block.title)}>
-                    {copied === block.title ? (zh ? "已复制" : "Copied") : (zh ? "复制" : "Copy")}
+                    {copied === block.title ? t.copied : t.copy}
                   </button>
                 </div>
                 <p>{block.content}</p>

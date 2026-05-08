@@ -264,30 +264,34 @@ Verification
   filesRead: ["README.md", "package.json", ".env.example", ".github/workflows/*", "deployment docs"],
 };
 
-function bulletList(items: string[]) {
-  return items.length ? items.map((item) => `- ${item}`).join("\n") : "- No signal detected";
+function bulletList(items: string[], empty = "No signal detected") {
+  return items.length ? items.map((item) => `- ${item}`).join("\n") : `- ${empty}`;
 }
 
-function numberedList(items: string[]) {
-  return items.length ? items.map((item, index) => `${index + 1}. ${item}`).join("\n") : "1. No action detected";
+function numberedList(items: string[], empty = "No action detected") {
+  return items.length ? items.map((item, index) => `${index + 1}. ${item}`).join("\n") : `1. ${empty}`;
 }
 
-function scorecardList(items: GitHubRepoAnalysis["scorecard"], zh: boolean) {
+function scorecardList(items: GitHubRepoAnalysis["scorecard"], languageOrZh: InterfaceLanguage | boolean) {
+  const language = typeof languageOrZh === "boolean" ? (languageOrZh ? "zh" : "en") : languageOrZh;
+  const t = getAuditCopy(language);
   return items.length
-    ? items.map((item) => `- ${item.label}: ${item.score}/100 · ${scorecardStatusLabel(item.status, zh)} · ${item.note}`).join("\n")
-    : "- No scorecard detected";
+    ? items.map((item) => `- ${item.label}: ${item.score}/100 · ${scorecardStatusLabel(item.status, language)} · ${item.note}`).join("\n")
+    : `- ${t.statusMissing}`;
 }
 
-function priorityFixList(priorityFixes: GitHubRepoAnalysis["priorityFixes"], zh: boolean) {
-  const today = priorityFixes.today.length ? priorityFixes.today : [zh ? "今天没有必须立刻修的阻塞项" : "No same-day blocker detected"];
-  const beforeLaunch = priorityFixes.beforeLaunch.length ? priorityFixes.beforeLaunch : [zh ? "上线前暂无额外必修项" : "No additional pre-launch item detected"];
-  const later = priorityFixes.later.length ? priorityFixes.later : [zh ? "持续保持 README CI 环境变量和发布说明更新" : "Keep README CI env docs and release notes current"];
+function priorityFixList(priorityFixes: GitHubRepoAnalysis["priorityFixes"], languageOrZh: InterfaceLanguage | boolean) {
+  const language = typeof languageOrZh === "boolean" ? (languageOrZh ? "zh" : "en") : languageOrZh;
+  const t = getAuditCopy(language);
+  const today = priorityFixes.today.length ? priorityFixes.today : [t.noSameDayBlocker];
+  const beforeLaunch = priorityFixes.beforeLaunch.length ? priorityFixes.beforeLaunch : [t.noPreLaunch];
+  const later = priorityFixes.later.length ? priorityFixes.later : [t.laterFallback];
   return [
-    zh ? "今天必须修" : "Fix today",
+    t.fixToday,
     numberedList(today),
-    zh ? "上线前修" : "Fix before launch",
+    t.beforeLaunch,
     numberedList(beforeLaunch),
-    zh ? "后面优化" : "Later polish",
+    t.laterPolish,
     numberedList(later),
   ].join("\n");
 }
@@ -356,24 +360,19 @@ function riskTone(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"]) {
 
 function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: string, language: InterfaceLanguage = "en") {
   const zh = language === "zh";
+  const t = getAuditCopy(language);
   if (error) {
-    if (zh) {
-      return `状态\n${error}\n\n支持输入\n粘贴公开 GitHub 仓库地址，例如 ${sampleRepoUrl}`;
-    }
-    return `Status\n${error}\n\nSupported input\nPaste a public GitHub repository URL like ${sampleRepoUrl}`;
+    return `${t.verdict}\n${error}\n\n${t.repoUrl}\n${sampleRepoUrl}`;
   }
   if (!analysis) {
-    if (zh) {
-      return `GitHub 项目体检\n粘贴公开仓库地址。获取评分、阻塞项、GitHub Issue 草稿、README、环境变量、CI、部署、安全和发布清单。\n\n示例\n${sampleRepoUrl}`;
-    }
-    return `GitHub Launch Audit\nPaste a public repo URL. Get score blockers GitHub issue drafts README env CI deploy security and release checklist.\n\nExample\n${sampleRepoUrl}`;
+    return `${t.launchReadinessReport}\n${t.reportShapeBody}\n\n${t.repoUrl}\n${sampleRepoUrl}`;
   }
 
   const sections = zh
     ? [
         `上线体检\n评分：${analysis.launchScore.score}/100\n风险：${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
-        `五维评分卡\n${scorecardList(analysis.scorecard, true)}`,
-        `修复优先级\n${priorityFixList(analysis.priorityFixes, true)}`,
+        `五维评分卡\n${scorecardList(analysis.scorecard, language)}`,
+        `修复优先级\n${priorityFixList(analysis.priorityFixes, language)}`,
         `证据和严重程度\n${findingList(analysis.issueFindings)}`,
         `上线前必须修\n${numberedList(analysis.mustFix)}`,
         `仓库\n${analysis.repository.fullName}\n${analysis.repository.url}`,
@@ -394,12 +393,12 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
         `读取文件\n${bulletList(analysis.filesRead)}`,
       ]
     : [
-        `Launch readiness\nScore: ${analysis.launchScore.score}/100\nRisk: ${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
-        `Five-point scorecard\n${scorecardList(analysis.scorecard, false)}`,
-        `Fix priority\n${priorityFixList(analysis.priorityFixes, false)}`,
+        `${t.launchReadinessReport}\n${t.score}: ${analysis.launchScore.score}/100\n${t.risk}: ${riskLevelLabel(analysis.launchScore.riskLevel, language)}\n${analysis.launchScore.summary}`,
+        `${t.qualityGates}\n${scorecardList(analysis.scorecard, language)}`,
+        `${t.shipNext}\n${priorityFixList(analysis.priorityFixes, language)}`,
         `Evidence and severity\n${findingList(analysis.issueFindings)}`,
-        `Must fix before launch\n${numberedList(analysis.mustFix)}`,
-        `Repository\n${analysis.repository.fullName}\n${analysis.repository.url}`,
+        `${t.mustFixFirst}\n${numberedList(analysis.mustFix)}`,
+        `${t.repository}\n${analysis.repository.fullName}\n${analysis.repository.url}`,
         `Overview\n${bulletList(analysis.overview)}`,
         `Tech stack\n${bulletList(analysis.techStack)}`,
         `How to run\n${numberedList(analysis.howToRun)}`,
@@ -420,50 +419,778 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
   return sections.join("\n\n");
 }
 
-function repoAgeLabel(pushedAt: string, zh: boolean) {
+function repoAgeLabel(pushedAt: string, language: InterfaceLanguage) {
+  const t = getAuditCopy(language);
   const pushedTime = Date.parse(pushedAt);
-  if (!Number.isFinite(pushedTime)) return zh ? "更新时间未知" : "Unknown";
+  if (!Number.isFinite(pushedTime)) return t.unknownUpdate;
   const days = Math.max(0, Math.round((Date.now() - pushedTime) / 86_400_000));
-  if (days === 0) return zh ? "今天更新" : "Updated today";
-  if (days === 1) return zh ? "昨天更新" : "Updated yesterday";
-  if (days < 30) return zh ? `${days} 天前更新` : `${days} days since update`;
+  if (days === 0) return t.updatedToday;
+  if (days === 1) return t.updatedYesterday;
+  if (days < 30) return t.daysSinceUpdate(days);
   const months = Math.round(days / 30);
-  return zh ? `${months} 个月前更新` : `${months} months since update`;
+  return t.monthsSinceUpdate(months);
 }
 
-function qualityGateLabel(analysis: GitHubRepoAnalysis, zh: boolean) {
+function qualityGateLabel(analysis: GitHubRepoAnalysis, language: InterfaceLanguage) {
+  const t = getAuditCopy(language);
   const hasCi = analysis.githubActions.some((item) => !/No GitHub Actions/i.test(item));
   const hasEnv = analysis.envChecklist.some((item) => /Detected env template keys/i.test(item));
   const hasRun = analysis.howToRun.some((item) => !/No package scripts/i.test(item));
   return [
-    hasCi ? (zh ? "发现 CI 信号" : "CI signal found") : (zh ? "CI 需要补强" : "CI needs work"),
-    hasEnv ? (zh ? "发现环境变量模板" : "env template found") : (zh ? "缺少环境变量模板" : "env template missing"),
-    hasRun ? (zh ? "发现运行路径" : "run path found") : (zh ? "运行路径不清楚" : "run path unclear"),
+    hasCi ? t.qualityCiFound : t.qualityCiMissing,
+    hasEnv ? t.qualityEnvFound : t.qualityEnvMissing,
+    hasRun ? t.qualityRunFound : t.qualityRunMissing,
   ];
 }
 
-function impactLabel(score: number, zh: boolean) {
-  if (score >= 82) return zh ? "上线前精修" : "Launch polish";
-  if (score >= 58) return zh ? "预发布清理" : "Staging cleanup";
-  return zh ? "上线被阻塞" : "Launch blocked";
+function impactLabel(score: number, language: InterfaceLanguage) {
+  const t = getAuditCopy(language);
+  if (score >= 82) return t.impactPolish;
+  if (score >= 58) return t.impactCleanup;
+  return t.impactBlocked;
 }
 
-function riskLevelLabel(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"], zh: boolean) {
-  if (!zh) return riskLevel;
-  if (riskLevel === "Low") return "低";
-  if (riskLevel === "Medium") return "中";
-  return "高";
+function riskLevelLabel(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"], language: InterfaceLanguage) {
+  const t = getAuditCopy(language);
+  if (riskLevel === "Low") return t.riskLow;
+  if (riskLevel === "Medium") return t.riskMedium;
+  return t.riskHigh;
 }
 
-function auditModeLabel(mode: NonNullable<GitHubRepoAnalysis["auditEngine"]>["mode"] | undefined, zh: boolean) {
-  if (mode === "raw-fallback") return zh ? "原始文件兜底" : "Raw file fallback";
-  return zh ? "GitHub API 规则检查" : "GitHub API rules";
+function auditModeLabel(mode: NonNullable<GitHubRepoAnalysis["auditEngine"]>["mode"] | undefined, language: InterfaceLanguage) {
+  const t = getAuditCopy(language);
+  if (mode === "raw-fallback") return t.auditModeRaw;
+  return t.auditModeApi;
 }
 
-function scorecardStatusLabel(status: "pass" | "review" | "missing", zh: boolean) {
-  if (status === "pass") return zh ? "通过" : "Pass";
-  if (status === "review") return zh ? "待确认" : "Review";
-  return zh ? "缺失" : "Missing";
+function scorecardStatusLabel(status: "pass" | "review" | "missing", languageOrZh: InterfaceLanguage | boolean) {
+  const language = typeof languageOrZh === "boolean" ? (languageOrZh ? "zh" : "en") : languageOrZh;
+  const t = getAuditCopy(language);
+  if (status === "pass") return t.statusPass;
+  if (status === "review") return t.statusReview;
+  return t.statusMissing;
+}
+
+type AuditCopy = {
+  ready: string;
+  repoUrl: string;
+  auditBlockers: string;
+  auditRepo: string;
+  auditingRepo: string;
+  previewReport: string;
+  liveSample: string;
+  copyShareLink: string;
+  shareLinkCopied: string;
+  openShare: string;
+  copyIssues: string;
+  issuesCopied: string;
+  copyReleaseChecklist: string;
+  releaseChecklistCopied: string;
+  copyPrDescription: string;
+  prDescriptionCopied: string;
+  openRepo: string;
+  resetSample: string;
+  clear: string;
+  verdict: string;
+  conclusion: string;
+  risk: string;
+  nextFix: string;
+  reportShape: string;
+  reportShapeTitle: string;
+  reportShapeBody: string;
+  engine: string;
+  aiDependencyNone: string;
+  repository: string;
+  unknown: string;
+  noLicense: string;
+  impact: string;
+  actionItems: string;
+  issueDrafts: string;
+  qualityGates: string;
+  doThisFirst: string;
+  turnIntoWork: string;
+  copyIntoGithub: string;
+  repoFlow: string[];
+  auditMethod: string;
+  deterministicRules: string;
+  scope: string;
+  publicRepoOnly: string;
+  reads: string;
+  readsValue: string;
+  score: string;
+  fixToday: string;
+  noSameDayBlocker: string;
+  beforeLaunch: string;
+  noPreLaunch: string;
+  laterPolish: string;
+  laterFallback: string;
+  shipNext: string;
+  turnReportIntoTasks: string;
+  actionPanelBody: string;
+  professionalReport: string;
+  launchReadinessReport: string;
+  launchScore: string;
+  mustFixFirst: string;
+  copy: string;
+  copyIssue: string;
+  copied: string;
+  mustFixCopied: string;
+  issueCopied: (index: number) => string;
+  pasteReady: string;
+  items: string;
+  drafts: string;
+  steps: string;
+  downloaded: string;
+  urlRequired: string;
+  readingSignals: string;
+  auditComplete: (score: number) => string;
+  samplePreviewLoaded: string;
+  localSampleLoaded: string;
+  liveAuditBusy: string;
+  homepageSampleLoaded: string;
+  copyFailed: string;
+  qualityCiFound: string;
+  qualityCiMissing: string;
+  qualityEnvFound: string;
+  qualityEnvMissing: string;
+  qualityRunFound: string;
+  qualityRunMissing: string;
+  impactPolish: string;
+  impactCleanup: string;
+  impactBlocked: string;
+  riskLow: string;
+  riskMedium: string;
+  riskHigh: string;
+  riskSuffix: string;
+  auditModeApi: string;
+  auditModeRaw: string;
+  statusPass: string;
+  statusReview: string;
+  statusMissing: string;
+  updatedToday: string;
+  updatedYesterday: string;
+  daysSinceUpdate: (days: number) => string;
+  monthsSinceUpdate: (months: number) => string;
+  unknownUpdate: string;
+};
+
+const auditCopy: Partial<Record<InterfaceLanguage, AuditCopy>> & { en: AuditCopy; zh: AuditCopy } = {
+  en: {
+    ready: "Ready to audit",
+    repoUrl: "Repo URL",
+    auditBlockers: "Audit launch blockers",
+    auditRepo: "Audit repo",
+    auditingRepo: "Auditing repo",
+    previewReport: "Preview report",
+    liveSample: "Live sample",
+    copyShareLink: "Copy share link",
+    shareLinkCopied: "Share link copied",
+    openShare: "Open share",
+    copyIssues: "Copy GitHub issues",
+    issuesCopied: "Issues copied",
+    copyReleaseChecklist: "Copy release checklist",
+    releaseChecklistCopied: "Checklist copied",
+    copyPrDescription: "Copy PR description",
+    prDescriptionCopied: "PR description copied",
+    openRepo: "Open repo",
+    resetSample: "Reset sample",
+    clear: "Clear",
+    verdict: "Verdict",
+    conclusion: "Conclusion",
+    risk: "risk",
+    nextFix: "Next Fix",
+    reportShape: "Report Shape",
+    reportShapeTitle: "Score blockers issues checklist",
+    reportShapeBody: "Paste a public repo. Get the boring launch work turned into tasks.",
+    engine: "Engine",
+    aiDependencyNone: "AI dependency none · rules first",
+    repository: "Repository",
+    unknown: "Unknown",
+    noLicense: "No license",
+    impact: "Impact",
+    actionItems: "action items",
+    issueDrafts: "issue drafts",
+    qualityGates: "Quality Gates",
+    doThisFirst: "Do this first",
+    turnIntoWork: "Turn the audit into GitHub work",
+    copyIntoGithub: "Copy straight into GitHub Issues PR descriptions or release notes",
+    repoFlow: ["Repo", "README", "env", "CI", "Deploy", "Issues"],
+    auditMethod: "Audit method",
+    deterministicRules: "Deterministic rules first",
+    scope: "Scope",
+    publicRepoOnly: "Public repo only",
+    reads: "Reads",
+    readsValue: "README env CI deploy clues",
+    score: "Score",
+    fixToday: "Fix today",
+    noSameDayBlocker: "No same-day blocker detected",
+    beforeLaunch: "Before launch",
+    noPreLaunch: "No additional pre-launch item detected",
+    laterPolish: "Later polish",
+    laterFallback: "Keep README CI env docs and release notes current",
+    shipNext: "Ship Next",
+    turnReportIntoTasks: "Turn report into tasks",
+    actionPanelBody: "Copy issues into GitHub Issues. Copy the checklist into a PR description or release note.",
+    professionalReport: "Professional Report",
+    launchReadinessReport: "Launch readiness report",
+    launchScore: "Launch Score",
+    mustFixFirst: "Must Fix First",
+    copy: "Copy",
+    copyIssue: "Copy Issue",
+    copied: "Copied",
+    mustFixCopied: "Must fix copied",
+    issueCopied: (index) => `Issue ${index} copied`,
+    pasteReady: "paste ready",
+    items: "items",
+    drafts: "drafts",
+    steps: "steps",
+    downloaded: "Downloaded",
+    urlRequired: "Repository URL is required",
+    readingSignals: "Reading public repo signals",
+    auditComplete: (score) => `Audit complete ${score}/100`,
+    samplePreviewLoaded: "Sample preview loaded",
+    localSampleLoaded: "Local sample preview loaded",
+    liveAuditBusy: "Sample preview loaded because live audit is busy",
+    homepageSampleLoaded: "Sample report loaded from homepage input",
+    copyFailed: "Copy failed",
+    qualityCiFound: "CI signal found",
+    qualityCiMissing: "CI needs work",
+    qualityEnvFound: "env template found",
+    qualityEnvMissing: "env template missing",
+    qualityRunFound: "run path found",
+    qualityRunMissing: "run path unclear",
+    impactPolish: "Launch polish",
+    impactCleanup: "Staging cleanup",
+    impactBlocked: "Launch blocked",
+    riskLow: "Low",
+    riskMedium: "Medium",
+    riskHigh: "High",
+    riskSuffix: "risk",
+    auditModeApi: "GitHub API rules",
+    auditModeRaw: "Raw file fallback",
+    statusPass: "Pass",
+    statusReview: "Review",
+    statusMissing: "Missing",
+    updatedToday: "Updated today",
+    updatedYesterday: "Updated yesterday",
+    daysSinceUpdate: (days) => `${days} days since update`,
+    monthsSinceUpdate: (months) => `${months} months since update`,
+    unknownUpdate: "Unknown",
+  },
+  zh: {
+    ready: "准备体检",
+    repoUrl: "仓库地址",
+    auditBlockers: "检查上线阻塞项",
+    auditRepo: "体检仓库",
+    auditingRepo: "体检中",
+    previewReport: "预览报告",
+    liveSample: "真实样例",
+    copyShareLink: "复制分享链接",
+    shareLinkCopied: "分享链接已复制",
+    openShare: "打开分享",
+    copyIssues: "复制 GitHub Issues",
+    issuesCopied: "Issues 已复制",
+    copyReleaseChecklist: "复制发布清单",
+    releaseChecklistCopied: "发布清单已复制",
+    copyPrDescription: "复制 PR 描述",
+    prDescriptionCopied: "PR 描述已复制",
+    openRepo: "打开仓库",
+    resetSample: "重置样例",
+    clear: "清空",
+    verdict: "结论",
+    conclusion: "结论",
+    risk: "风险",
+    nextFix: "下一步修复",
+    reportShape: "报告结构",
+    reportShapeTitle: "评分 阻塞项 Issues 清单",
+    reportShapeBody: "粘贴公开仓库，把上线前的繁琐检查变成任务。",
+    engine: "引擎",
+    aiDependencyNone: "AI 依赖 0 · 规则优先",
+    repository: "仓库",
+    unknown: "未知",
+    noLicense: "无许可证",
+    impact: "影响",
+    actionItems: "个行动项",
+    issueDrafts: "个 Issue 草稿",
+    qualityGates: "质量门禁",
+    doThisFirst: "先做这些",
+    turnIntoWork: "把体检报告变成 GitHub 任务",
+    copyIntoGithub: "复制后可以直接贴进 GitHub Issues PR 描述或发布说明",
+    repoFlow: ["仓库", "README", "环境变量", "CI", "部署", "Issues"],
+    auditMethod: "检查方式",
+    deterministicRules: "确定性规则优先",
+    scope: "范围",
+    publicRepoOnly: "仅公开仓库",
+    reads: "读取",
+    readsValue: "README 环境变量 CI 部署线索",
+    score: "评分",
+    fixToday: "今天必须修",
+    noSameDayBlocker: "今天没有必须立刻修的阻塞项",
+    beforeLaunch: "上线前修",
+    noPreLaunch: "上线前暂无额外必修项",
+    laterPolish: "后面优化",
+    laterFallback: "持续保持 README CI 环境变量和发布说明更新",
+    shipNext: "下一步",
+    turnReportIntoTasks: "把报告变成任务",
+    actionPanelBody: "复制 Issue 后可直接贴进 GitHub Issues；复制清单可放到 PR 描述或发布说明里。",
+    professionalReport: "专业报告",
+    launchReadinessReport: "上线体检报告",
+    launchScore: "上线评分",
+    mustFixFirst: "先修这些",
+    copy: "复制",
+    copyIssue: "复制 Issue",
+    copied: "已复制",
+    mustFixCopied: "必须修清单已复制",
+    issueCopied: (index) => `Issue ${index} 已复制`,
+    pasteReady: "可直接粘贴",
+    items: "项",
+    drafts: "个草稿",
+    steps: "步",
+    downloaded: "已下载",
+    urlRequired: "需要填写仓库地址",
+    readingSignals: "正在读取公开仓库信号",
+    auditComplete: (score) => `体检完成 ${score}/100`,
+    samplePreviewLoaded: "已加载样例报告",
+    localSampleLoaded: "已加载本地样例报告",
+    liveAuditBusy: "真实体检繁忙，已加载样例报告",
+    homepageSampleLoaded: "已根据首页输入生成样例报告",
+    copyFailed: "复制失败",
+    qualityCiFound: "发现 CI 信号",
+    qualityCiMissing: "CI 需要补强",
+    qualityEnvFound: "发现环境变量模板",
+    qualityEnvMissing: "缺少环境变量模板",
+    qualityRunFound: "发现运行路径",
+    qualityRunMissing: "运行路径不清楚",
+    impactPolish: "上线前精修",
+    impactCleanup: "预发布清理",
+    impactBlocked: "上线被阻塞",
+    riskLow: "低",
+    riskMedium: "中",
+    riskHigh: "高",
+    riskSuffix: "风险",
+    auditModeApi: "GitHub API 规则检查",
+    auditModeRaw: "原始文件兜底",
+    statusPass: "通过",
+    statusReview: "待确认",
+    statusMissing: "缺失",
+    updatedToday: "今天更新",
+    updatedYesterday: "昨天更新",
+    daysSinceUpdate: (days) => `${days} 天前更新`,
+    monthsSinceUpdate: (months) => `${months} 个月前更新`,
+    unknownUpdate: "更新时间未知",
+  },
+  ja: {
+    ready: "監査準備完了",
+    repoUrl: "リポジトリ URL",
+    auditBlockers: "リリース阻害要因を監査",
+    auditRepo: "リポジトリを監査",
+    auditingRepo: "監査中",
+    previewReport: "レポートをプレビュー",
+    liveSample: "ライブ例",
+    copyShareLink: "共有リンクをコピー",
+    shareLinkCopied: "共有リンクをコピーしました",
+    openShare: "共有を開く",
+    copyIssues: "GitHub Issues をコピー",
+    issuesCopied: "Issues をコピーしました",
+    copyReleaseChecklist: "リリースチェックリストをコピー",
+    releaseChecklistCopied: "チェックリストをコピーしました",
+    copyPrDescription: "PR 説明をコピー",
+    prDescriptionCopied: "PR 説明をコピーしました",
+    openRepo: "リポジトリを開く",
+    resetSample: "例をリセット",
+    clear: "クリア",
+    verdict: "判定",
+    conclusion: "結論",
+    risk: "リスク",
+    nextFix: "次に直すこと",
+    reportShape: "レポート構成",
+    reportShapeTitle: "スコア ブロッカー Issues チェックリスト",
+    reportShapeBody: "公開リポジトリを貼り付けると、公開前の面倒な作業をタスクに変えます。",
+    engine: "エンジン",
+    aiDependencyNone: "AI 依存なし · ルール優先",
+    repository: "リポジトリ",
+    unknown: "不明",
+    noLicense: "ライセンスなし",
+    impact: "影響",
+    actionItems: "件のアクション",
+    issueDrafts: "件の Issue 下書き",
+    qualityGates: "品質ゲート",
+    doThisFirst: "まずこれを実行",
+    turnIntoWork: "監査を GitHub 作業に変換",
+    copyIntoGithub: "GitHub Issues、PR 説明、リリースノートにそのまま貼り付けられます",
+    repoFlow: ["Repo", "README", "env", "CI", "Deploy", "Issues"],
+    auditMethod: "監査方式",
+    deterministicRules: "決定的ルール優先",
+    scope: "範囲",
+    publicRepoOnly: "公開リポジトリのみ",
+    reads: "読み取り",
+    readsValue: "README env CI deploy の手がかり",
+    score: "スコア",
+    fixToday: "今日直す",
+    noSameDayBlocker: "今日中のブロッカーは検出されていません",
+    beforeLaunch: "公開前に修正",
+    noPreLaunch: "公開前の追加必須項目はありません",
+    laterPolish: "後で改善",
+    laterFallback: "README CI env docs リリースノートを最新に保つ",
+    shipNext: "次の出荷作業",
+    turnReportIntoTasks: "レポートをタスクに変換",
+    actionPanelBody: "Issues を GitHub Issues に、チェックリストを PR 説明やリリースノートに貼り付けます。",
+    professionalReport: "専門レポート",
+    launchReadinessReport: "リリース準備レポート",
+    launchScore: "リリーススコア",
+    mustFixFirst: "最初に直す",
+    copy: "コピー",
+    copyIssue: "Issue をコピー",
+    copied: "コピーしました",
+    mustFixCopied: "最優先修正リストをコピーしました",
+    issueCopied: (index) => `Issue ${index} をコピーしました`,
+    pasteReady: "貼り付け可能",
+    items: "項目",
+    drafts: "下書き",
+    steps: "手順",
+    downloaded: "ダウンロード完了",
+    urlRequired: "リポジトリ URL が必要です",
+    readingSignals: "公開リポジトリの信号を読み取り中",
+    auditComplete: (score) => `監査完了 ${score}/100`,
+    samplePreviewLoaded: "サンプルプレビューを読み込みました",
+    localSampleLoaded: "ローカルサンプルを読み込みました",
+    liveAuditBusy: "ライブ監査が混雑しているためサンプルを読み込みました",
+    homepageSampleLoaded: "ホーム入力からサンプルレポートを読み込みました",
+    copyFailed: "コピー失敗",
+    qualityCiFound: "CI 信号あり",
+    qualityCiMissing: "CI 要改善",
+    qualityEnvFound: "env テンプレートあり",
+    qualityEnvMissing: "env テンプレートなし",
+    qualityRunFound: "実行手順あり",
+    qualityRunMissing: "実行手順が不明",
+    impactPolish: "公開前の仕上げ",
+    impactCleanup: "ステージング整理",
+    impactBlocked: "公開ブロック",
+    riskLow: "低",
+    riskMedium: "中",
+    riskHigh: "高",
+    riskSuffix: "リスク",
+    auditModeApi: "GitHub API ルール",
+    auditModeRaw: "Raw ファイル代替",
+    statusPass: "通過",
+    statusReview: "確認",
+    statusMissing: "不足",
+    updatedToday: "今日更新",
+    updatedYesterday: "昨日更新",
+    daysSinceUpdate: (days) => `${days} 日前に更新`,
+    monthsSinceUpdate: (months) => `${months} か月前に更新`,
+    unknownUpdate: "更新日不明",
+  },
+  ko: {
+    ready: "점검 준비됨",
+    repoUrl: "저장소 URL",
+    auditBlockers: "출시 차단 항목 점검",
+    auditRepo: "저장소 점검",
+    auditingRepo: "점검 중",
+    previewReport: "보고서 미리보기",
+    liveSample: "실제 예시",
+    copyShareLink: "공유 링크 복사",
+    shareLinkCopied: "공유 링크 복사됨",
+    openShare: "공유 열기",
+    copyIssues: "GitHub Issues 복사",
+    issuesCopied: "Issues 복사됨",
+    copyReleaseChecklist: "출시 체크리스트 복사",
+    releaseChecklistCopied: "체크리스트 복사됨",
+    copyPrDescription: "PR 설명 복사",
+    prDescriptionCopied: "PR 설명 복사됨",
+    openRepo: "저장소 열기",
+    resetSample: "예시 초기화",
+    clear: "비우기",
+    verdict: "판정",
+    conclusion: "결론",
+    risk: "위험",
+    nextFix: "다음 수정",
+    reportShape: "보고서 구조",
+    reportShapeTitle: "점수 차단 항목 Issues 체크리스트",
+    reportShapeBody: "공개 저장소를 붙여 넣으면 출시 전 잡일을 작업으로 바꿉니다.",
+    engine: "엔진",
+    aiDependencyNone: "AI 의존 없음 · 규칙 우선",
+    repository: "저장소",
+    unknown: "알 수 없음",
+    noLicense: "라이선스 없음",
+    impact: "영향",
+    actionItems: "개 작업",
+    issueDrafts: "개 Issue 초안",
+    qualityGates: "품질 게이트",
+    doThisFirst: "먼저 할 일",
+    turnIntoWork: "점검을 GitHub 작업으로 전환",
+    copyIntoGithub: "GitHub Issues PR 설명 또는 릴리스 노트에 바로 붙여 넣을 수 있습니다",
+    repoFlow: ["Repo", "README", "env", "CI", "Deploy", "Issues"],
+    auditMethod: "점검 방식",
+    deterministicRules: "결정적 규칙 우선",
+    scope: "범위",
+    publicRepoOnly: "공개 저장소만",
+    reads: "읽는 내용",
+    readsValue: "README env CI deploy 단서",
+    score: "점수",
+    fixToday: "오늘 수정",
+    noSameDayBlocker: "오늘 바로 고칠 차단 항목 없음",
+    beforeLaunch: "출시 전 수정",
+    noPreLaunch: "추가 출시 전 필수 항목 없음",
+    laterPolish: "나중에 개선",
+    laterFallback: "README CI env 문서와 릴리스 노트를 최신으로 유지",
+    shipNext: "다음 출시 작업",
+    turnReportIntoTasks: "보고서를 작업으로 전환",
+    actionPanelBody: "Issues 는 GitHub Issues 에, 체크리스트는 PR 설명이나 릴리스 노트에 붙여 넣으세요.",
+    professionalReport: "전문 보고서",
+    launchReadinessReport: "출시 준비 보고서",
+    launchScore: "출시 점수",
+    mustFixFirst: "먼저 수정",
+    copy: "복사",
+    copyIssue: "Issue 복사",
+    copied: "복사됨",
+    mustFixCopied: "우선 수정 목록 복사됨",
+    issueCopied: (index) => `Issue ${index} 복사됨`,
+    pasteReady: "붙여넣기 가능",
+    items: "개 항목",
+    drafts: "개 초안",
+    steps: "단계",
+    downloaded: "다운로드됨",
+    urlRequired: "저장소 URL이 필요합니다",
+    readingSignals: "공개 저장소 신호 읽는 중",
+    auditComplete: (score) => `점검 완료 ${score}/100`,
+    samplePreviewLoaded: "샘플 미리보기 로드됨",
+    localSampleLoaded: "로컬 샘플 보고서 로드됨",
+    liveAuditBusy: "실시간 점검이 바빠 샘플 보고서를 로드했습니다",
+    homepageSampleLoaded: "홈 입력에서 샘플 보고서를 로드했습니다",
+    copyFailed: "복사 실패",
+    qualityCiFound: "CI 신호 발견",
+    qualityCiMissing: "CI 보강 필요",
+    qualityEnvFound: "env 템플릿 발견",
+    qualityEnvMissing: "env 템플릿 없음",
+    qualityRunFound: "실행 경로 발견",
+    qualityRunMissing: "실행 경로 불명확",
+    impactPolish: "출시 전 마감",
+    impactCleanup: "스테이징 정리",
+    impactBlocked: "출시 차단",
+    riskLow: "낮음",
+    riskMedium: "중간",
+    riskHigh: "높음",
+    riskSuffix: "위험",
+    auditModeApi: "GitHub API 규칙",
+    auditModeRaw: "Raw 파일 대체",
+    statusPass: "통과",
+    statusReview: "검토",
+    statusMissing: "누락",
+    updatedToday: "오늘 업데이트",
+    updatedYesterday: "어제 업데이트",
+    daysSinceUpdate: (days) => `${days}일 전 업데이트`,
+    monthsSinceUpdate: (months) => `${months}개월 전 업데이트`,
+    unknownUpdate: "업데이트 알 수 없음",
+  },
+  es: {
+    ready: "Listo para auditar",
+    repoUrl: "URL del repo",
+    auditBlockers: "Auditar bloqueos de lanzamiento",
+    auditRepo: "Auditar repo",
+    auditingRepo: "Auditando repo",
+    previewReport: "Vista previa",
+    liveSample: "Ejemplo real",
+    copyShareLink: "Copiar enlace",
+    shareLinkCopied: "Enlace copiado",
+    openShare: "Abrir enlace",
+    copyIssues: "Copiar GitHub issues",
+    issuesCopied: "Issues copiados",
+    copyReleaseChecklist: "Copiar checklist",
+    releaseChecklistCopied: "Checklist copiado",
+    copyPrDescription: "Copiar descripción PR",
+    prDescriptionCopied: "Descripción PR copiada",
+    openRepo: "Abrir repo",
+    resetSample: "Reiniciar ejemplo",
+    clear: "Limpiar",
+    verdict: "Veredicto",
+    conclusion: "Conclusión",
+    risk: "riesgo",
+    nextFix: "Siguiente arreglo",
+    reportShape: "Forma del reporte",
+    reportShapeTitle: "Score bloqueos issues checklist",
+    reportShapeBody: "Pega un repo público y convierte el trabajo aburrido de lanzamiento en tareas.",
+    engine: "Motor",
+    aiDependencyNone: "Sin dependencia AI · reglas primero",
+    repository: "Repositorio",
+    unknown: "Desconocido",
+    noLicense: "Sin licencia",
+    impact: "Impacto",
+    actionItems: "acciones",
+    issueDrafts: "borradores de issue",
+    qualityGates: "Puertas de calidad",
+    doThisFirst: "Haz esto primero",
+    turnIntoWork: "Convierte el audit en trabajo GitHub",
+    copyIntoGithub: "Copia directo en GitHub Issues descripciones PR o notas de release",
+    repoFlow: ["Repo", "README", "env", "CI", "Deploy", "Issues"],
+    auditMethod: "Método de audit",
+    deterministicRules: "Reglas deterministas primero",
+    scope: "Alcance",
+    publicRepoOnly: "Solo repos públicos",
+    reads: "Lee",
+    readsValue: "pistas README env CI deploy",
+    score: "Score",
+    fixToday: "Corregir hoy",
+    noSameDayBlocker: "No hay bloqueo para hoy",
+    beforeLaunch: "Antes de lanzar",
+    noPreLaunch: "No hay extra obligatorio antes de lanzar",
+    laterPolish: "Mejora posterior",
+    laterFallback: "Mantén README CI env docs y release notes al día",
+    shipNext: "Siguiente envío",
+    turnReportIntoTasks: "Convertir reporte en tareas",
+    actionPanelBody: "Copia issues a GitHub Issues. Copia checklist a PR o release notes.",
+    professionalReport: "Reporte profesional",
+    launchReadinessReport: "Reporte de preparación",
+    launchScore: "Score de lanzamiento",
+    mustFixFirst: "Corregir primero",
+    copy: "Copiar",
+    copyIssue: "Copiar Issue",
+    copied: "Copiado",
+    mustFixCopied: "Lista prioritaria copiada",
+    issueCopied: (index) => `Issue ${index} copiado`,
+    pasteReady: "listo para pegar",
+    items: "items",
+    drafts: "borradores",
+    steps: "pasos",
+    downloaded: "Descargado",
+    urlRequired: "La URL del repositorio es obligatoria",
+    readingSignals: "Leyendo señales públicas del repo",
+    auditComplete: (score) => `Audit completo ${score}/100`,
+    samplePreviewLoaded: "Vista previa cargada",
+    localSampleLoaded: "Ejemplo local cargado",
+    liveAuditBusy: "Audit real ocupado. Se cargó ejemplo",
+    homepageSampleLoaded: "Reporte de ejemplo cargado desde inicio",
+    copyFailed: "No se pudo copiar",
+    qualityCiFound: "CI encontrado",
+    qualityCiMissing: "CI necesita trabajo",
+    qualityEnvFound: "plantilla env encontrada",
+    qualityEnvMissing: "falta plantilla env",
+    qualityRunFound: "ruta de ejecución encontrada",
+    qualityRunMissing: "ruta de ejecución confusa",
+    impactPolish: "Pulido de lanzamiento",
+    impactCleanup: "Limpieza staging",
+    impactBlocked: "Lanzamiento bloqueado",
+    riskLow: "Bajo",
+    riskMedium: "Medio",
+    riskHigh: "Alto",
+    riskSuffix: "riesgo",
+    auditModeApi: "Reglas GitHub API",
+    auditModeRaw: "Fallback de archivos raw",
+    statusPass: "Pasa",
+    statusReview: "Revisar",
+    statusMissing: "Falta",
+    updatedToday: "Actualizado hoy",
+    updatedYesterday: "Actualizado ayer",
+    daysSinceUpdate: (days) => `${days} días desde actualización`,
+    monthsSinceUpdate: (months) => `${months} meses desde actualización`,
+    unknownUpdate: "Desconocido",
+  },
+  ar: {
+    ready: "جاهز للفحص",
+    repoUrl: "رابط المستودع",
+    auditBlockers: "فحص عوائق الإطلاق",
+    auditRepo: "فحص المستودع",
+    auditingRepo: "جار الفحص",
+    previewReport: "معاينة التقرير",
+    liveSample: "مثال مباشر",
+    copyShareLink: "نسخ رابط المشاركة",
+    shareLinkCopied: "تم نسخ رابط المشاركة",
+    openShare: "فتح المشاركة",
+    copyIssues: "نسخ GitHub Issues",
+    issuesCopied: "تم نسخ Issues",
+    copyReleaseChecklist: "نسخ قائمة الإطلاق",
+    releaseChecklistCopied: "تم نسخ القائمة",
+    copyPrDescription: "نسخ وصف PR",
+    prDescriptionCopied: "تم نسخ وصف PR",
+    openRepo: "فتح المستودع",
+    resetSample: "إعادة المثال",
+    clear: "مسح",
+    verdict: "الحكم",
+    conclusion: "الخلاصة",
+    risk: "مخاطر",
+    nextFix: "الإصلاح التالي",
+    reportShape: "شكل التقرير",
+    reportShapeTitle: "الدرجة العوائق Issues القائمة",
+    reportShapeBody: "الصق مستودعا عاما وحوّل أعمال الإطلاق المملة إلى مهام.",
+    engine: "المحرك",
+    aiDependencyNone: "لا اعتماد على AI · القواعد أولا",
+    repository: "المستودع",
+    unknown: "غير معروف",
+    noLicense: "لا ترخيص",
+    impact: "الأثر",
+    actionItems: "إجراءات",
+    issueDrafts: "مسودات Issue",
+    qualityGates: "بوابات الجودة",
+    doThisFirst: "ابدأ بهذا",
+    turnIntoWork: "حوّل الفحص إلى عمل على GitHub",
+    copyIntoGithub: "انسخ مباشرة إلى GitHub Issues أو وصف PR أو ملاحظات الإصدار",
+    repoFlow: ["Repo", "README", "env", "CI", "Deploy", "Issues"],
+    auditMethod: "طريقة الفحص",
+    deterministicRules: "القواعد الحتمية أولا",
+    scope: "النطاق",
+    publicRepoOnly: "المستودعات العامة فقط",
+    reads: "يقرأ",
+    readsValue: "إشارات README env CI deploy",
+    score: "الدرجة",
+    fixToday: "أصلح اليوم",
+    noSameDayBlocker: "لا يوجد عائق يجب إصلاحه اليوم",
+    beforeLaunch: "قبل الإطلاق",
+    noPreLaunch: "لا يوجد بند إضافي قبل الإطلاق",
+    laterPolish: "تحسين لاحق",
+    laterFallback: "حافظ على README و CI و env docs وملاحظات الإصدار محدثة",
+    shipNext: "الخطوة التالية",
+    turnReportIntoTasks: "حوّل التقرير إلى مهام",
+    actionPanelBody: "انسخ Issues إلى GitHub Issues وانسخ القائمة إلى وصف PR أو ملاحظات الإصدار.",
+    professionalReport: "تقرير احترافي",
+    launchReadinessReport: "تقرير جاهزية الإطلاق",
+    launchScore: "درجة الإطلاق",
+    mustFixFirst: "أصلح أولا",
+    copy: "نسخ",
+    copyIssue: "نسخ Issue",
+    copied: "تم النسخ",
+    mustFixCopied: "تم نسخ قائمة الإصلاحات الأولى",
+    issueCopied: (index) => `تم نسخ Issue ${index}`,
+    pasteReady: "جاهز للصق",
+    items: "عناصر",
+    drafts: "مسودات",
+    steps: "خطوات",
+    downloaded: "تم التنزيل",
+    urlRequired: "رابط المستودع مطلوب",
+    readingSignals: "جار قراءة إشارات المستودع العامة",
+    auditComplete: (score) => `اكتمل الفحص ${score}/100`,
+    samplePreviewLoaded: "تم تحميل معاينة المثال",
+    localSampleLoaded: "تم تحميل تقرير المثال المحلي",
+    liveAuditBusy: "الفحص المباشر مشغول وتم تحميل مثال",
+    homepageSampleLoaded: "تم تحميل تقرير مثال من الصفحة الرئيسية",
+    copyFailed: "فشل النسخ",
+    qualityCiFound: "تم العثور على CI",
+    qualityCiMissing: "CI يحتاج عمل",
+    qualityEnvFound: "تم العثور على قالب env",
+    qualityEnvMissing: "قالب env مفقود",
+    qualityRunFound: "مسار التشغيل موجود",
+    qualityRunMissing: "مسار التشغيل غير واضح",
+    impactPolish: "تحسين قبل الإطلاق",
+    impactCleanup: "تنظيف staging",
+    impactBlocked: "الإطلاق محظور",
+    riskLow: "منخفض",
+    riskMedium: "متوسط",
+    riskHigh: "عال",
+    riskSuffix: "مخاطر",
+    auditModeApi: "قواعد GitHub API",
+    auditModeRaw: "بديل ملفات raw",
+    statusPass: "ناجح",
+    statusReview: "مراجعة",
+    statusMissing: "مفقود",
+    updatedToday: "تحديث اليوم",
+    updatedYesterday: "تحديث أمس",
+    daysSinceUpdate: (days) => `منذ ${days} أيام`,
+    monthsSinceUpdate: (months) => `منذ ${months} أشهر`,
+    unknownUpdate: "غير معروف",
+  },
+};
+
+function getAuditCopy(language: InterfaceLanguage) {
+  return auditCopy[language] || auditCopy.en;
 }
 
 function issueTitle(issue: string, index: number) {
@@ -472,21 +1199,21 @@ function issueTitle(issue: string, index: number) {
 }
 
 function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: InterfaceLanguage; initialRepoUrl?: string }) {
-  const zh = language === "zh";
+  const t = getAuditCopy(language);
   const [url, setUrl] = useState(initialRepoUrl?.trim() || sampleRepoUrl);
   const [analysis, setAnalysis] = useState<GitHubRepoAnalysis | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
   const [actionStatus, setActionStatus] = useState("");
-  const [runStatus, setRunStatus] = useState(zh ? "准备体检" : "Ready to audit");
+  const [runStatus, setRunStatus] = useState(t.ready);
   const hasAutoRunRef = useRef(false);
 
   const output = useMemo(() => formatGitHubRepoOutput(analysis, error, language), [analysis, error, language]);
   const issueBundle = useMemo(() => analysis?.copyableIssues.join("\n\n---\n\n") || "", [analysis]);
   const releaseBundle = useMemo(() => analysis ? numberedList(analysis.releaseChecklist) : "", [analysis]);
   const prDescription = useMemo(() => analysis?.prDescription || "", [analysis]);
-  const qualityGates = useMemo(() => analysis ? qualityGateLabel(analysis, zh) : [], [analysis, zh]);
+  const qualityGates = useMemo(() => analysis ? qualityGateLabel(analysis, language) : [], [analysis, language]);
   const shareUrl = useMemo(() => {
     if (!analysis || typeof window === "undefined") return "";
     const hash = encodeSharedAnalysis(analysis);
@@ -495,15 +1222,15 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
   const blocks = useMemo<OutputBlock[]>(() => {
     if (!analysis) return [];
     return [
-      { badge: `${analysis.launchScore.score}`, title: zh ? `${riskLevelLabel(analysis.launchScore.riskLevel, true)}风险结论` : `${analysis.launchScore.riskLevel} risk verdict`, content: analysis.launchScore.summary },
-      { badge: "01", title: zh ? "必须修" : "Must fix", content: numberedList(analysis.mustFix) },
-      { badge: "02", title: zh ? "GitHub Issues" : "GitHub issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
-      { badge: "03", title: zh ? "PR 描述" : "PR description", content: analysis.prDescription },
-      { badge: "04", title: zh ? "发布清单" : "Release checklist", content: numberedList(analysis.releaseChecklist) },
-      { badge: "05", title: zh ? "证据" : "Evidence", content: findingList(analysis.issueFindings) },
-      { badge: "06", title: zh ? "README 优化" : "README upgrades", content: bulletList(analysis.readmeSuggestions) },
+      { badge: `${analysis.launchScore.score}`, title: `${riskLevelLabel(analysis.launchScore.riskLevel, language)} ${t.riskSuffix}`, content: analysis.launchScore.summary },
+      { badge: "01", title: t.mustFixFirst, content: numberedList(analysis.mustFix) },
+      { badge: "02", title: "GitHub Issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
+      { badge: "03", title: t.copyPrDescription.replace(/^Copy\s+/i, "").replace(/^复制\s*/, ""), content: analysis.prDescription },
+      { badge: "04", title: t.copyReleaseChecklist.replace(/^Copy\s+/i, "").replace(/^复制\s*/, ""), content: numberedList(analysis.releaseChecklist) },
+      { badge: "05", title: t.conclusion, content: findingList(analysis.issueFindings) },
+      { badge: "06", title: "README", content: bulletList(analysis.readmeSuggestions) },
     ];
-  }, [analysis, zh]);
+  }, [analysis, language, t]);
 
   useEffect(() => {
     const shared = decodeSharedAnalysis(window.location.hash);
@@ -520,10 +1247,10 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
     if (!shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareUrl);
-      setShareStatus(zh ? "分享链接已复制" : "Share link copied");
+      setShareStatus(t.shareLinkCopied);
       window.setTimeout(() => setShareStatus(""), 1400);
     } catch {
-      setShareStatus(zh ? "复制失败" : "Copy failed");
+      setShareStatus(t.copyFailed);
       window.setTimeout(() => setShareStatus(""), 1400);
     }
   }
@@ -535,12 +1262,12 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
       setActionStatus(successMessage);
       window.setTimeout(() => setActionStatus(""), 1400);
     } catch {
-      setActionStatus(zh ? "复制失败" : "Copy failed");
+      setActionStatus(t.copyFailed);
       window.setTimeout(() => setActionStatus(""), 1400);
     }
   }
 
-  const loadSamplePreview = useCallback((reason = zh ? "已加载本地样例报告" : "Local sample preview loaded") => {
+  const loadSamplePreview = useCallback((reason = t.localSampleLoaded) => {
     setUrl(sampleRepoUrl);
     setAnalysis(sampleGitHubAnalysis);
     setError("");
@@ -548,21 +1275,21 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
     if (typeof window !== "undefined") {
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     }
-  }, [zh]);
+  }, [t.localSampleLoaded]);
 
   const analyzeRepo = useCallback(async (targetUrl = url) => {
     const trimmed = targetUrl.trim();
     if (!trimmed) {
-      setError(zh ? "需要填写仓库地址" : "Repository URL is required");
+      setError(t.urlRequired);
       setAnalysis(null);
-      setRunStatus(zh ? "需要仓库地址" : "URL required");
+      setRunStatus(t.urlRequired);
       return;
     }
 
     setUrl(trimmed);
     setLoading(true);
     setError("");
-    setRunStatus(zh ? "正在读取公开仓库信号" : "Reading public repo signals");
+    setRunStatus(t.readingSignals);
     try {
       const response = await fetch("/api/tools/github-repo-analyzer", {
         method: "POST",
@@ -574,12 +1301,12 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
         throw new Error(data.error || data.message || "Could not run repository launch audit");
       }
       setAnalysis(data.analysis);
-      setRunStatus(zh ? `体检完成 ${data.analysis.launchScore.score}/100` : `Audit complete ${data.analysis.launchScore.score}/100`);
+      setRunStatus(t.auditComplete(data.analysis.launchScore.score));
       window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     } catch (caught) {
-      const message = caught instanceof Error ? caught.message : (zh ? "无法运行项目体检" : "Could not run repository launch audit");
+      const message = caught instanceof Error ? caught.message : t.copyFailed;
       if (trimmed === sampleRepoUrl) {
-        loadSamplePreview(zh ? "真实体检繁忙，已加载样例报告" : "Sample preview loaded because live audit is busy");
+        loadSamplePreview(t.liveAuditBusy);
         return;
       }
       setAnalysis(null);
@@ -588,10 +1315,10 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
     } finally {
       setLoading(false);
     }
-  }, [loadSamplePreview, url, zh]);
+  }, [loadSamplePreview, t, url]);
 
   function runSampleAudit() {
-    loadSamplePreview(zh ? "已加载本地样例报告" : "Local sample preview loaded");
+    loadSamplePreview(t.localSampleLoaded);
   }
 
   useEffect(() => {
@@ -600,69 +1327,69 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
     const target = initialRepoUrl.trim();
     const timer = window.setTimeout(() => {
       if (target === sampleRepoUrl) {
-        loadSamplePreview(zh ? "已根据首页输入生成样例报告" : "Sample report loaded from homepage input");
+        loadSamplePreview(t.homepageSampleLoaded);
         return;
       }
       void analyzeRepo(target);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [analyzeRepo, initialRepoUrl, loadSamplePreview, zh]);
+  }, [analyzeRepo, initialRepoUrl, loadSamplePreview, t.homepageSampleLoaded]);
 
   return (
     <ToolLayout
       output={output}
-      outputTitle={analysis ? `${analysis.launchScore.score}/100 ${zh ? "上线体检" : "launch audit"}` : (zh ? "上线体检" : "Launch audit")}
+      outputTitle={analysis ? `${analysis.launchScore.score}/100 ${t.launchReadinessReport}` : t.launchReadinessReport}
       language={language}
       blocks={blocks}
       actions={
         <>
           <button type="button" className="dense-action-primary" onClick={() => void analyzeRepo()} disabled={loading}>
-            {loading ? (zh ? "体检中" : "Auditing repo") : (zh ? "体检仓库" : "Audit repo")}
+            {loading ? t.auditingRepo : t.auditRepo}
           </button>
           <button type="button" className="dense-action" onClick={runSampleAudit} disabled={loading}>
-            {zh ? "预览报告" : "Preview report"}
+            {t.previewReport}
           </button>
           <button type="button" className="dense-action" onClick={() => void analyzeRepo(sampleRepoUrl)} disabled={loading}>
-            {zh ? "真实样例" : "Live sample"}
+            {t.liveSample}
           </button>
           {analysis && (
             <>
               <button type="button" className="dense-action" onClick={copyShareLink}>
-                {shareStatus || (zh ? "复制分享链接" : "Copy share link")}
+                {shareStatus || t.copyShareLink}
               </button>
               <a className="dense-action" href={shareUrl} target="_blank" rel="noreferrer">
-                {zh ? "打开分享" : "Open share"}
+                {t.openShare}
               </a>
-              <button type="button" className="dense-action" onClick={() => copyAuditText(issueBundle, zh ? "Issues 已复制" : "Issues copied")}>
-                {zh ? "复制 GitHub Issues" : "Copy GitHub issues"}
+              <button type="button" className="dense-action" onClick={() => copyAuditText(issueBundle, t.issuesCopied)}>
+                {t.copyIssues}
               </button>
-              <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, zh ? "发布清单已复制" : "Checklist copied")}>
-                {zh ? "复制发布清单" : "Copy release checklist"}
+              <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, t.releaseChecklistCopied)}>
+                {t.copyReleaseChecklist}
               </button>
-              <button type="button" className="dense-action" onClick={() => copyAuditText(prDescription, zh ? "PR 描述已复制" : "PR description copied")}>
-                {zh ? "复制 PR 描述" : "Copy PR description"}
+              <button type="button" className="dense-action" onClick={() => copyAuditText(prDescription, t.prDescriptionCopied)}>
+                {t.copyPrDescription}
               </button>
               <a className="dense-action" href={analysis.repository.url} target="_blank" rel="noreferrer">
-                {zh ? "打开仓库" : "Open repo"}
+                {t.openRepo}
               </a>
             </>
           )}
           <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); }}>
-            {zh ? "重置样例" : "Reset sample"}
+            {t.resetSample}
           </button>
           <button type="button" className="dense-action" onClick={() => { setUrl(""); setAnalysis(null); setError(""); }}>
-            {zh ? "清空" : "Clear"}
+            {t.clear}
           </button>
         </>
       }
     >
-      <p className="eyebrow">{zh ? "仓库地址" : "Repo URL"}</p>
-      <h2>{zh ? "检查上线阻塞项" : "Audit launch blockers"}</h2>
+      <p className="eyebrow">{t.repoUrl}</p>
+      <h2>{t.auditBlockers}</h2>
       {analysis ? (
         <section className={`repo-verdict repo-verdict-${riskTone(analysis.launchScore.riskLevel)}`}>
           <div>
-            <p className="eyebrow">{zh ? "结论" : "Verdict"}</p>
-            <strong>{riskLevelLabel(analysis.launchScore.riskLevel, zh)} {zh ? "风险" : "risk"}</strong>
+            <p className="eyebrow">{t.verdict}</p>
+            <strong>{riskLevelLabel(analysis.launchScore.riskLevel, language)} {t.risk}</strong>
             <span>{analysis.launchScore.summary}</span>
           </div>
           <div className="repo-score">
@@ -670,38 +1397,38 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
             <span>/100</span>
           </div>
           <div className="repo-next-step">
-            <p className="eyebrow">{zh ? "下一步修复" : "Next Fix"}</p>
+            <p className="eyebrow">{t.nextFix}</p>
             <span>{analysis.mustFix[0]}</span>
           </div>
         </section>
       ) : (
         <section className="repo-verdict repo-verdict-empty">
           <div>
-            <p className="eyebrow">{zh ? "报告结构" : "Report Shape"}</p>
-            <strong>{zh ? "评分 阻塞项 Issues 清单" : "Score blockers issues checklist"}</strong>
-            <span>{zh ? "粘贴公开仓库，把上线前的繁琐检查变成任务。" : "Paste a public repo. Get the boring launch work turned into tasks."}</span>
+            <p className="eyebrow">{t.reportShape}</p>
+            <strong>{t.reportShapeTitle}</strong>
+            <span>{t.reportShapeBody}</span>
           </div>
         </section>
       )}
       {analysis && (
         <section className="repo-audit-brief">
           <div>
-            <p className="eyebrow">{zh ? "引擎" : "Engine"}</p>
-            <strong>{auditModeLabel(analysis.auditEngine?.mode, zh)}</strong>
-            <span>{zh ? "AI 依赖 0 · 规则优先" : "AI dependency none · rules first"}</span>
+            <p className="eyebrow">{t.engine}</p>
+            <strong>{auditModeLabel(analysis.auditEngine?.mode, language)}</strong>
+            <span>{t.aiDependencyNone}</span>
           </div>
           <div>
-            <p className="eyebrow">{zh ? "仓库" : "Repository"}</p>
+            <p className="eyebrow">{t.repository}</p>
             <strong>{analysis.repository.fullName}</strong>
-            <span>{analysis.repository.language || (zh ? "未知" : "Unknown")} · {analysis.repository.license || (zh ? "无许可证" : "No license")} · {repoAgeLabel(analysis.repository.pushedAt, zh)}</span>
+            <span>{analysis.repository.language || t.unknown} · {analysis.repository.license || t.noLicense} · {repoAgeLabel(analysis.repository.pushedAt, language)}</span>
           </div>
           <div>
-            <p className="eyebrow">{zh ? "影响" : "Impact"}</p>
-            <strong>{impactLabel(analysis.launchScore.score, zh)}</strong>
-            <span>{analysis.mustFix.length} {zh ? "个行动项" : "action items"} · {analysis.copyableIssues.length} {zh ? "个 Issue 草稿" : "issue drafts"}</span>
+            <p className="eyebrow">{t.impact}</p>
+            <strong>{impactLabel(analysis.launchScore.score, language)}</strong>
+            <span>{analysis.mustFix.length} {t.actionItems} · {analysis.copyableIssues.length} {t.issueDrafts}</span>
           </div>
           <div>
-            <p className="eyebrow">{zh ? "质量门禁" : "Quality Gates"}</p>
+            <p className="eyebrow">{t.qualityGates}</p>
             <strong>{qualityGates[0]}</strong>
             <span>{qualityGates.slice(1).join(" · ")}</span>
           </div>
@@ -711,38 +1438,38 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
         <section className="repo-command-board">
           <div className="repo-command-head">
             <div>
-              <p className="eyebrow">{zh ? "先做这些" : "Do this first"}</p>
-              <h3>{zh ? "把体检报告变成 GitHub 任务" : "Turn the audit into GitHub work"}</h3>
-              <span>{actionStatus || (zh ? "复制后可以直接贴进 GitHub Issues PR 描述或发布说明" : "Copy straight into GitHub Issues PR descriptions or release notes")}</span>
+              <p className="eyebrow">{t.doThisFirst}</p>
+              <h3>{t.turnIntoWork}</h3>
+              <span>{actionStatus || t.copyIntoGithub}</span>
             </div>
-            <a href={analysis.repository.url} target="_blank" rel="noreferrer">{zh ? "打开仓库" : "Open repo"}</a>
+            <a href={analysis.repository.url} target="_blank" rel="noreferrer">{t.openRepo}</a>
           </div>
           <div className="repo-command-grid">
-            <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), zh ? "先修清单已复制" : "Must fix copied")}>
+            <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), t.mustFixCopied)}>
               <span>01</span>
-              <strong>{zh ? "复制先修清单" : "Copy must fix"}</strong>
-              <em>{analysis.mustFix.length} {zh ? "项" : "items"}</em>
+              <strong>{t.copy} {t.mustFixFirst}</strong>
+              <em>{analysis.mustFix.length} {t.items}</em>
             </button>
-            <button type="button" onClick={() => copyAuditText(issueBundle, zh ? "Issues 已复制" : "Issues copied")}>
+            <button type="button" onClick={() => copyAuditText(issueBundle, t.issuesCopied)}>
               <span>02</span>
-              <strong>{zh ? "复制 GitHub Issues" : "Copy GitHub issues"}</strong>
-              <em>{analysis.copyableIssues.length} {zh ? "个草稿" : "drafts"}</em>
+              <strong>{t.copyIssues}</strong>
+              <em>{analysis.copyableIssues.length} {t.drafts}</em>
             </button>
-            <button type="button" onClick={() => copyAuditText(prDescription, zh ? "PR 描述已复制" : "PR description copied")}>
+            <button type="button" onClick={() => copyAuditText(prDescription, t.prDescriptionCopied)}>
               <span>03</span>
-              <strong>{zh ? "复制 PR 描述" : "Copy PR description"}</strong>
-              <em>{zh ? "可直接粘贴" : "paste ready"}</em>
+              <strong>{t.copyPrDescription}</strong>
+              <em>{t.pasteReady}</em>
             </button>
-            <button type="button" onClick={() => copyAuditText(releaseBundle, zh ? "发布清单已复制" : "Checklist copied")}>
+            <button type="button" onClick={() => copyAuditText(releaseBundle, t.releaseChecklistCopied)}>
               <span>04</span>
-              <strong>{zh ? "复制发布清单" : "Copy release checklist"}</strong>
-              <em>{analysis.releaseChecklist.length} {zh ? "步" : "steps"}</em>
+              <strong>{t.copyReleaseChecklist}</strong>
+              <em>{analysis.releaseChecklist.length} {t.steps}</em>
             </button>
           </div>
         </section>
       )}
       <section className="repo-flow-strip">
-        {(zh ? ["仓库", "README", "环境变量", "CI", "部署", "Issues"] : ["Repo", "README", "env", "CI", "Deploy", "Issues"]).map((item, index) => (
+        {t.repoFlow.map((item, index) => (
           <span key={item} className={loading && index > 0 ? "repo-flow-pending" : ""}>
             {item}
           </span>
@@ -750,7 +1477,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
         <strong>{runStatus}</strong>
       </section>
       <label className="block">
-        <span className="tool-label">GitHub URL</span>
+        <span className="tool-label">{t.repoUrl}</span>
         <input
           value={url}
           onChange={(event) => setUrl(event.target.value)}
@@ -763,21 +1490,21 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
       </label>
       <div className="tool-field-grid">
         <div className="dense-row">
-          <span className="text-sm font-semibold">{zh ? "检查方式" : "Audit method"}</span>
-          <span className="text-xs text-[color:var(--muted)]">{zh ? "确定性规则优先" : "Deterministic rules first"}</span>
+          <span className="text-sm font-semibold">{t.auditMethod}</span>
+          <span className="text-xs text-[color:var(--muted)]">{t.deterministicRules}</span>
         </div>
         <div className="dense-row">
-          <span className="text-sm font-semibold">{zh ? "范围" : "Scope"}</span>
-          <span className="text-xs text-[color:var(--muted)]">{zh ? "仅公开仓库" : "Public repo only"}</span>
+          <span className="text-sm font-semibold">{t.scope}</span>
+          <span className="text-xs text-[color:var(--muted)]">{t.publicRepoOnly}</span>
         </div>
         <div className="dense-row">
-          <span className="text-sm font-semibold">{zh ? "读取" : "Reads"}</span>
-          <span className="text-xs text-[color:var(--muted)]">{zh ? "README 环境变量 CI 部署线索" : "README env CI deploy clues"}</span>
+          <span className="text-sm font-semibold">{t.reads}</span>
+          <span className="text-xs text-[color:var(--muted)]">{t.readsValue}</span>
         </div>
         {analysis && (
           <div className="dense-row">
-            <span className="text-sm font-semibold">{zh ? "评分" : "Score"}</span>
-            <span className="text-xs text-[color:var(--muted)]">{analysis.launchScore.score}/100 {riskLevelLabel(analysis.launchScore.riskLevel, zh)}</span>
+            <span className="text-sm font-semibold">{t.score}</span>
+            <span className="text-xs text-[color:var(--muted)]">{analysis.launchScore.score}/100 {riskLevelLabel(analysis.launchScore.riskLevel, language)}</span>
           </div>
         )}
       </div>
@@ -789,7 +1516,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
                 <p className="eyebrow">{item.label}</p>
                 <strong>{item.score}</strong>
               </div>
-              <span>{scorecardStatusLabel(item.status, zh)}</span>
+              <span>{scorecardStatusLabel(item.status, language)}</span>
               <p>{item.note}</p>
             </article>
           ))}
@@ -798,25 +1525,25 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
       {analysis && (
         <section className="repo-priority-grid">
           <article className="repo-priority-card repo-priority-today">
-            <p className="eyebrow">{zh ? "今天必须修" : "Fix today"}</p>
+            <p className="eyebrow">{t.fixToday}</p>
             <ol className="repo-check-list">
-              {(analysis.priorityFixes.today.length ? analysis.priorityFixes.today : [zh ? "今天没有必须立刻修的阻塞项" : "No same-day blocker detected"]).map((item) => (
+              {(analysis.priorityFixes.today.length ? analysis.priorityFixes.today : [t.noSameDayBlocker]).map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ol>
           </article>
           <article className="repo-priority-card">
-            <p className="eyebrow">{zh ? "上线前修" : "Before launch"}</p>
+            <p className="eyebrow">{t.beforeLaunch}</p>
             <ol className="repo-check-list">
-              {(analysis.priorityFixes.beforeLaunch.length ? analysis.priorityFixes.beforeLaunch : [zh ? "上线前暂无额外必修项" : "No additional pre-launch item detected"]).map((item) => (
+              {(analysis.priorityFixes.beforeLaunch.length ? analysis.priorityFixes.beforeLaunch : [t.noPreLaunch]).map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ol>
           </article>
           <article className="repo-priority-card">
-            <p className="eyebrow">{zh ? "后面优化" : "Later polish"}</p>
+            <p className="eyebrow">{t.laterPolish}</p>
             <ol className="repo-check-list">
-              {(analysis.priorityFixes.later.length ? analysis.priorityFixes.later : [zh ? "持续保持 README CI 环境变量和发布说明更新" : "Keep README CI env docs and release notes current"]).map((item) => (
+              {(analysis.priorityFixes.later.length ? analysis.priorityFixes.later : [t.laterFallback]).map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ol>
@@ -840,9 +1567,9 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
       {analysis && (
         <section className="repo-action-panel">
           <div>
-            <p className="eyebrow">{zh ? "下一步" : "Ship Next"}</p>
-            <h3>{zh ? "把报告变成任务" : "Turn report into tasks"}</h3>
-            <p>{actionStatus || (zh ? "复制 Issue 后可直接贴进 GitHub Issues；复制清单可放到 PR 描述或发布说明里。" : "Copy issues into GitHub Issues. Copy the checklist into a PR description or release note.")}</p>
+            <p className="eyebrow">{t.shipNext}</p>
+            <h3>{t.turnReportIntoTasks}</h3>
+            <p>{actionStatus || t.actionPanelBody}</p>
           </div>
           <div className="repo-action-list">
             {analysis.mustFix.slice(0, 3).map((item, index) => (
@@ -858,22 +1585,22 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
         <section className="repo-report-board">
           <div className="repo-report-head">
             <div>
-              <p className="eyebrow">{zh ? "专业报告" : "Professional Report"}</p>
-              <h3>{zh ? "上线体检报告" : "Launch readiness report"}</h3>
-              <span>{analysis.repository.fullName} · {riskLevelLabel(analysis.launchScore.riskLevel, zh)} {zh ? "风险" : "risk"} · {analysis.copyableIssues.length} {zh ? "个 Issue 草稿" : "issue drafts"}</span>
+              <p className="eyebrow">{t.professionalReport}</p>
+              <h3>{t.launchReadinessReport}</h3>
+              <span>{analysis.repository.fullName} · {riskLevelLabel(analysis.launchScore.riskLevel, language)} {t.risk} · {analysis.copyableIssues.length} {t.issueDrafts}</span>
             </div>
             <div className="repo-report-score">
               <strong>{analysis.launchScore.score}</strong>
-              <span>{zh ? "上线评分" : "Launch Score"}</span>
+              <span>{t.launchScore}</span>
             </div>
           </div>
 
           <div className="repo-report-grid">
             <div className="repo-report-section repo-report-section-primary">
               <div className="repo-report-section-head">
-                <p className="eyebrow">{zh ? "先修这些" : "Must Fix First"}</p>
-                <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), zh ? "必须修清单已复制" : "Must fix copied")}>
-                  {zh ? "复制" : "Copy"}
+                <p className="eyebrow">{t.mustFixFirst}</p>
+                <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), t.mustFixCopied)}>
+                  {t.copy}
                 </button>
               </div>
               <ol className="repo-check-list">
@@ -885,9 +1612,9 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
 
             <div className="repo-report-section">
               <div className="repo-report-section-head">
-                <p className="eyebrow">{zh ? "PR 描述" : "PR Description"}</p>
-                <button type="button" onClick={() => copyAuditText(prDescription, zh ? "PR 描述已复制" : "PR description copied")}>
-                  {zh ? "复制" : "Copy"}
+                <p className="eyebrow">{t.copyPrDescription.replace(/^Copy\s+/i, "").replace(/^复制\s*/, "")}</p>
+                <button type="button" onClick={() => copyAuditText(prDescription, t.prDescriptionCopied)}>
+                  {t.copy}
                 </button>
               </div>
               <pre className="repo-pr-description">{analysis.prDescription}</pre>
@@ -901,8 +1628,8 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
                   <p className="eyebrow">Issue {String(index + 1).padStart(2, "0")}</p>
                   <h4>{issueTitle(issue, index)}</h4>
                 </div>
-                <button type="button" onClick={() => copyAuditText(issue, zh ? `Issue ${index + 1} 已复制` : `Issue ${index + 1} copied`)}>
-                  {zh ? "复制 Issue" : "Copy Issue"}
+                <button type="button" onClick={() => copyAuditText(issue, t.issueCopied(index + 1))}>
+                  {t.copyIssue}
                 </button>
               </article>
             ))}

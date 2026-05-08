@@ -202,6 +202,305 @@ const launchWorkflow = [
   },
 ];
 
+function launchWorkflowCopy(item: (typeof launchWorkflow)[number], language: InterfaceLanguage) {
+  if (language === "zh") return { title: item.titleZh, body: item.bodyZh };
+  const localized: Partial<Record<InterfaceLanguage, Partial<Record<ToolSlug, { title: string; body: string }>>>> = {
+    ja: {
+      "github-repo-analyzer": { title: "監査", body: "README env CI デプロイ セキュリティの阻害要因を確認します" },
+      "bug-finder": { title: "デバッグ", body: "エラーを原因 手順 修正メモ 検証に分けます" },
+      "api-request-generator": { title: "API", body: "curl fetch axios Python requests の例を生成します" },
+      "dev-utilities": { title: "ユーティリティ", body: "JSON 正規表現 タイムスタンプを確認します" },
+      "learning-roadmap": { title: "ロードマップ", body: "リリース後 30 日の学習と開発を計画します" },
+    },
+    ko: {
+      "github-repo-analyzer": { title: "점검", body: "README env CI 배포 보안 출시 차단 항목을 확인합니다" },
+      "bug-finder": { title: "디버그", body: "오류를 원인 단계 수정 메모 검증으로 정리합니다" },
+      "api-request-generator": { title: "API", body: "curl fetch axios Python requests 예시를 생성합니다" },
+      "dev-utilities": { title: "유틸리티", body: "JSON 정규식 타임스탬프를 확인합니다" },
+      "learning-roadmap": { title: "로드맵", body: "첫 출시 후 30일 학습과 개발을 계획합니다" },
+    },
+    es: {
+      "github-repo-analyzer": { title: "Audit", body: "Revisa README env CI deploy seguridad y bloqueos de release" },
+      "bug-finder": { title: "Debug", body: "Convierte errores en causas pasos arreglo y verificación" },
+      "api-request-generator": { title: "API", body: "Genera ejemplos curl fetch axios y Python requests" },
+      "dev-utilities": { title: "Utilidades", body: "Valida JSON regex timestamps y copia resultados limpios" },
+      "learning-roadmap": { title: "Ruta", body: "Planifica los próximos 30 días después del primer lanzamiento" },
+    },
+    ar: {
+      "github-repo-analyzer": { title: "فحص", body: "يفحص README و env و CI والنشر والأمان وعوائق الإطلاق" },
+      "bug-finder": { title: "تصحيح", body: "يحوّل الأخطاء إلى أسباب وخطوات وإصلاحات وتحقق" },
+      "api-request-generator": { title: "API", body: "ينشئ أمثلة curl و fetch و axios و Python requests" },
+      "dev-utilities": { title: "أدوات", body: "يفحص JSON و regex والطوابع الزمنية وينسخ نتائج نظيفة" },
+      "learning-roadmap": { title: "مسار", body: "يخطط للأيام الثلاثين بعد أول إطلاق" },
+    },
+  };
+  return localized[language]?.[item.tool] || { title: item.title, body: item.body };
+}
+
+type WorkbenchCopy = {
+  navKicker: string;
+  heroEyebrow: string;
+  proof: [string, string, string];
+  inputPattern: string;
+  localFirst: string;
+  privateDefault: string;
+  launchFlowLabel: string;
+  recommendedOrder: string;
+  workflowTitle: string;
+  startWithAudit: string;
+  whatItDoes: string;
+  workflow: (shortTitle: string) => string;
+  goodFor: string;
+  who: string;
+  examples: string;
+  inputOutput: string;
+  input: string;
+  output: string;
+  faqLimits: string;
+  beforeUse: string;
+  usageLimits: string;
+  helperLine: string;
+};
+
+const workbenchCopy: Partial<Record<InterfaceLanguage, WorkbenchCopy>> & { en: WorkbenchCopy; zh: WorkbenchCopy } = {
+  en: {
+    navKicker: "Launch flow",
+    heroEyebrow: "AI Developer Tools",
+    proof: ["Fast", "Copyable", "No login required"],
+    inputPattern: "Input Pattern",
+    localFirst: "Local first",
+    privateDefault: "Private by default",
+    launchFlowLabel: "Launch workflow",
+    recommendedOrder: "Recommended order",
+    workflowTitle: "From repo audit to release tasks",
+    startWithAudit: "Start with audit",
+    whatItDoes: "What It Does",
+    workflow: (shortTitle) => `${shortTitle} workflow`,
+    goodFor: "Good For",
+    who: "Who should use it",
+    examples: "Examples",
+    inputOutput: "Input and output",
+    input: "Input:",
+    output: "Output:",
+    faqLimits: "FAQ And Limits",
+    beforeUse: "Before you use it",
+    usageLimits: "Usage limits",
+    helperLine: "Built for fast copyable work",
+  },
+  zh: {
+    navKicker: "上线流程",
+    heroEyebrow: "AI 开发者工具",
+    proof: ["快速", "可复制", "无需登录"],
+    inputPattern: "输入方式",
+    localFirst: "本地优先",
+    privateDefault: "默认隐私",
+    launchFlowLabel: "上线工作流",
+    recommendedOrder: "推荐顺序",
+    workflowTitle: "从仓库体检到发布任务",
+    startWithAudit: "先跑体检",
+    whatItDoes: "能做什么",
+    workflow: (shortTitle) => `${shortTitle} 工作流`,
+    goodFor: "适合谁",
+    who: "谁最适合用",
+    examples: "示例",
+    inputOutput: "输入和输出",
+    input: "输入：",
+    output: "输出：",
+    faqLimits: "常见问题和限制",
+    beforeUse: "使用前知道这些",
+    usageLimits: "使用限制",
+    helperLine: "适合快速复制和执行",
+  },
+  ja: {
+    navKicker: "リリース手順",
+    heroEyebrow: "AI 開発ツール",
+    proof: ["高速", "コピー可能", "ログイン不要"],
+    inputPattern: "入力形式",
+    localFirst: "ローカル優先",
+    privateDefault: "既定でプライベート",
+    launchFlowLabel: "リリースワークフロー",
+    recommendedOrder: "推奨順序",
+    workflowTitle: "リポジトリ監査からリリース作業へ",
+    startWithAudit: "監査から始める",
+    whatItDoes: "できること",
+    workflow: (shortTitle) => `${shortTitle} ワークフロー`,
+    goodFor: "向いている人",
+    who: "誰が使うべきか",
+    examples: "例",
+    inputOutput: "入力と出力",
+    input: "入力：",
+    output: "出力：",
+    faqLimits: "FAQ と制限",
+    beforeUse: "使う前に",
+    usageLimits: "利用制限",
+    helperLine: "すぐコピーして実行しやすい形式",
+  },
+  ko: {
+    navKicker: "출시 흐름",
+    heroEyebrow: "AI 개발자 도구",
+    proof: ["빠름", "복사 가능", "로그인 불필요"],
+    inputPattern: "입력 방식",
+    localFirst: "로컬 우선",
+    privateDefault: "기본 비공개",
+    launchFlowLabel: "출시 워크플로",
+    recommendedOrder: "추천 순서",
+    workflowTitle: "저장소 점검에서 출시 작업까지",
+    startWithAudit: "점검부터 시작",
+    whatItDoes: "무엇을 하는가",
+    workflow: (shortTitle) => `${shortTitle} 워크플로`,
+    goodFor: "적합한 사용자",
+    who: "누가 쓰면 좋은가",
+    examples: "예시",
+    inputOutput: "입력과 출력",
+    input: "입력:",
+    output: "출력:",
+    faqLimits: "FAQ 및 제한",
+    beforeUse: "사용 전 확인",
+    usageLimits: "사용 제한",
+    helperLine: "빠르게 복사해 실행하기 좋습니다",
+  },
+  es: {
+    navKicker: "Flujo de lanzamiento",
+    heroEyebrow: "Herramientas AI para devs",
+    proof: ["Rápido", "Copiable", "Sin iniciar sesión"],
+    inputPattern: "Patrón de entrada",
+    localFirst: "Local primero",
+    privateDefault: "Privado por defecto",
+    launchFlowLabel: "Flujo de lanzamiento",
+    recommendedOrder: "Orden recomendado",
+    workflowTitle: "Del audit del repo a tareas de release",
+    startWithAudit: "Empezar con audit",
+    whatItDoes: "Qué hace",
+    workflow: (shortTitle) => `flujo de ${shortTitle}`,
+    goodFor: "Ideal para",
+    who: "Quién debería usarlo",
+    examples: "Ejemplos",
+    inputOutput: "Entrada y salida",
+    input: "Entrada:",
+    output: "Salida:",
+    faqLimits: "FAQ y límites",
+    beforeUse: "Antes de usar",
+    usageLimits: "Límites de uso",
+    helperLine: "Pensado para copiar y actuar rápido",
+  },
+  ar: {
+    navKicker: "مسار الإطلاق",
+    heroEyebrow: "أدوات AI للمطورين",
+    proof: ["سريع", "قابل للنسخ", "لا يحتاج تسجيل دخول"],
+    inputPattern: "طريقة الإدخال",
+    localFirst: "محلي أولا",
+    privateDefault: "خاص افتراضيا",
+    launchFlowLabel: "سير عمل الإطلاق",
+    recommendedOrder: "الترتيب المقترح",
+    workflowTitle: "من فحص المستودع إلى مهام الإطلاق",
+    startWithAudit: "ابدأ بالفحص",
+    whatItDoes: "ماذا يفعل",
+    workflow: (shortTitle) => `سير عمل ${shortTitle}`,
+    goodFor: "مناسب لـ",
+    who: "من يستفيد منه",
+    examples: "أمثلة",
+    inputOutput: "الإدخال والإخراج",
+    input: "الإدخال:",
+    output: "الإخراج:",
+    faqLimits: "أسئلة وحدود",
+    beforeUse: "قبل الاستخدام",
+    usageLimits: "حدود الاستخدام",
+    helperLine: "مصمم لنسخ العمل وتنفيذه بسرعة",
+  },
+};
+
+function getWorkbenchCopy(language: InterfaceLanguage) {
+  return workbenchCopy[language]?.navKicker ? workbenchCopy[language] : workbenchCopy.en;
+}
+
+const auditTranslations: Partial<Record<InterfaceLanguage, Partial<ToolDefinition>>> = {
+  zh: {
+    title: "GitHub 项目体检",
+    shortTitle: "体检",
+    description: "把公开 GitHub 仓库变成规则优先的上线体检报告",
+    promise: "确定性检查 评分 阻塞项 Issue 草稿 发布清单 README 环境变量 CI 部署 安全",
+    inputHint: "粘贴公开仓库地址，例如 https://github.com/vercel/next.js",
+    useCases: ["上线前体检", "准备公开发布", "项目交接"],
+    whatItDoes: ["读取公开仓库信息和根目录配置文件", "先用确定性规则检查，再做报告整理", "把上线阻塞项和优化项分开", "生成 GitHub Issue 草稿和发布检查清单"],
+    audience: ["开源项目维护者", "准备上线的独立开发者", "接手陌生仓库的程序员"],
+    outputExample: "规则优先的上线评分、阻塞项、GitHub Issue 草稿、README、环境变量、CI、部署、安全和发布清单",
+    limitations: ["仅支持公开仓库", "不会执行代码或深度分析源码", "核心检查不依赖强 AI", "私有仓库需要先做授权和审计控制"],
+    faq: [
+      { question: "需要 GitHub token 吗", answer: "不需要。第一版只读取公开仓库信息和公开配置文件。" },
+      { question: "AI 不强可以用吗", answer: "可以。核心是确定性规则检查：README、环境变量、CI、部署、安全和发布清单。AI 只负责把报告整理得更好读。" },
+      { question: "为什么不直接让 AI 看代码", answer: "这里专门处理上线前最耗时间的杂事：README、环境变量、临时文件、CI、部署、安全提示和 PR 清单。" },
+    ],
+  },
+  ja: {
+    title: "GitHub リリース監査",
+    shortTitle: "監査",
+    description: "公開 GitHub リポジトリをリリース準備レポートに変換します",
+    promise: "ルール検査 スコア ブロッカー Issue 下書き README 環境変数 CI デプロイ セキュリティ",
+    inputHint: "公開リポジトリ URL を貼り付けます 例 https://github.com/vercel/next.js",
+    useCases: ["公開前の確認", "リリース準備", "リポジトリ引き継ぎ"],
+    whatItDoes: ["公開メタデータとルート設定ファイルを読む", "AI 風の文章より先に決定的ルールで確認する", "リリース阻害要因と磨き込みを分ける", "GitHub Issue 下書きとリリースチェックリストを作る"],
+    audience: ["OSS メンテナー", "公開前の個人開発者", "知らないリポジトリに参加する開発者"],
+    outputExample: "リリーススコア ブロッカー Issue 下書き README env CI デプロイ セキュリティ チェックリスト",
+    limitations: ["公開リポジトリのみ", "コード実行や深いソース解析はしません", "中心機能は強い AI に依存しません", "プライベートリポジトリは認可と監査制御が必要です"],
+    faq: [
+      { question: "GitHub token は必要ですか", answer: "不要です。初版は公開リポジトリ情報と公開設定ファイルだけを読みます。" },
+      { question: "強い AI がなくても使えますか", answer: "使えます。中心は README env CI デプロイ セキュリティ リリース手順のルール検査です。" },
+      { question: "AI にコードを読ませるだけと何が違いますか", answer: "README 不備 env 一時ファイル CI デプロイ セキュリティ PR チェックなど公開前の面倒な作業に絞っています。" },
+    ],
+  },
+  ko: {
+    title: "GitHub 출시 점검",
+    shortTitle: "점검",
+    description: "공개 GitHub 저장소를 규칙 우선 출시 준비 보고서로 바꿉니다",
+    promise: "규칙 검사 점수 차단 항목 Issue 초안 README 환경변수 CI 배포 보안",
+    inputHint: "공개 저장소 URL을 붙여 넣으세요 예 https://github.com/vercel/next.js",
+    useCases: ["출시 전 점검", "공개 릴리스 준비", "저장소 인수인계"],
+    whatItDoes: ["공개 저장소 메타데이터와 루트 설정 파일을 읽습니다", "AI 문장보다 먼저 결정적 규칙으로 확인합니다", "출시 차단 항목과 개선 항목을 분리합니다", "GitHub Issue 초안과 출시 체크리스트를 만듭니다"],
+    audience: ["오픈소스 메인테이너", "출시 준비 중인 개인 개발자", "낯선 저장소에 합류한 개발자"],
+    outputExample: "출시 점수 차단 항목 GitHub Issue 초안 README env CI 배포 보안 출시 체크리스트",
+    limitations: ["공개 저장소만 지원", "코드를 실행하거나 깊게 분석하지 않습니다", "핵심 검사는 강한 AI에 의존하지 않습니다", "비공개 저장소는 권한과 감사 제어가 먼저 필요합니다"],
+    faq: [
+      { question: "GitHub token 이 필요한가요", answer: "필요 없습니다. 첫 버전은 공개 저장소 정보와 공개 설정 파일만 읽습니다." },
+      { question: "AI 가 약해도 쓸 수 있나요", answer: "가능합니다. 핵심은 README 환경변수 CI 배포 보안 출시 체크리스트의 규칙 기반 검사입니다." },
+      { question: "AI 에게 코드를 읽히는 것과 다른 점은요", answer: "README env 임시 파일 CI 배포 보안 PR 체크리스트처럼 출시 전에 시간을 잡아먹는 일을 처리합니다." },
+    ],
+  },
+  es: {
+    title: "Audit de lanzamiento GitHub",
+    shortTitle: "Audit",
+    description: "Convierte un repo público de GitHub en un reporte de preparación para lanzar",
+    promise: "Reglas score bloqueos issues README env CI deploy seguridad checklist",
+    inputHint: "Pega una URL pública de repo por ejemplo https://github.com/vercel/next.js",
+    useCases: ["Auditar antes de lanzar", "Preparar release público", "Entregar un repo"],
+    whatItDoes: ["Lee metadata pública y archivos raíz de configuración", "Usa reglas deterministas antes de redactar", "Separa bloqueos de lanzamiento de mejoras", "Crea borradores de GitHub Issues y checklist de release"],
+    audience: ["Mantenedores open source", "Indie builders antes del release", "Devs entrando a un repo desconocido"],
+    outputExample: "Score de lanzamiento bloqueos issues README env CI deploy seguridad y checklist de release",
+    limitations: ["Solo repos públicos", "No ejecuta ni analiza a fondo el código fuente", "El núcleo no depende de un AI fuerte", "Repos privados necesitan auth y controles de auditoría"],
+    faq: [
+      { question: "Necesita GitHub token", answer: "No. La primera versión solo lee metadata pública y archivos públicos seleccionados." },
+      { question: "Funciona si el AI no es fuerte", answer: "Sí. El producto central es de reglas: README env CI deploy seguridad y release checklist." },
+      { question: "Por qué no pedirle a AI que lea código", answer: "Esto ataca tareas lentas sin buen reemplazo: README env archivos temporales CI deploy seguridad y PR checklist." },
+    ],
+  },
+  ar: {
+    title: "فحص إطلاق GitHub",
+    shortTitle: "فحص",
+    description: "حوّل مستودع GitHub عاما إلى تقرير جاهزية للإطلاق يعتمد على القواعد",
+    promise: "قواعد درجة عوائق Issues README env CI نشر أمان قائمة إطلاق",
+    inputHint: "الصق رابط مستودع عام مثل https://github.com/vercel/next.js",
+    useCases: ["فحص قبل الإطلاق", "تحضير إصدار عام", "تسليم مستودع"],
+    whatItDoes: ["يقرأ بيانات المستودع العامة وملفات الإعداد الجذرية", "يفحص بقواعد حتمية قبل أي صياغة", "يفصل عوائق الإطلاق عن التحسينات", "ينشئ مسودات GitHub Issues وقائمة إطلاق"],
+    audience: ["مشرفو المشاريع المفتوحة", "مطورو المنتجات قبل الإطلاق", "مطورو يدخلون مستودعا غير مألوف"],
+    outputExample: "درجة الإطلاق العوائق مسودات Issues README env CI نشر أمان وقائمة إطلاق",
+    limitations: ["يدعم المستودعات العامة فقط", "لا يشغل الكود ولا يحلل المصدر بعمق", "الفحص الأساسي لا يعتمد على AI قوي", "المستودعات الخاصة تحتاج صلاحيات وضوابط تدقيق"],
+    faq: [
+      { question: "هل يحتاج GitHub token", answer: "لا. النسخة الأولى تقرأ بيانات عامة وملفات عامة مختارة فقط." },
+      { question: "هل يعمل إذا كان AI ضعيفا", answer: "نعم. القلب هو فحص قواعد README و env و CI والنشر والأمان وقائمة الإطلاق." },
+      { question: "ما الفرق عن جعل AI يقرأ الكود", answer: "هذه الأداة تركز على أعمال الإطلاق المملة: README و env والملفات المؤقتة و CI والنشر والأمان وقائمة PR." },
+    ],
+  },
+};
+
 function detectLanguage(code: string) {
   const source = code.trim();
   if (!source) return "Unknown";
@@ -282,29 +581,11 @@ function toolHref(slug: ToolSlug, language: InterfaceLanguage) {
 }
 
 function toolDisplay(tool: ToolDefinition, language: InterfaceLanguage) {
-  if (language !== "zh") return tool;
   if (tool.slug === "github-repo-analyzer") {
-    return {
-      ...tool,
-      title: "GitHub 项目体检",
-      shortTitle: "体检",
-      description: "把公开 GitHub 仓库变成规则优先的上线体检报告",
-      promise: "确定性检查 评分 阻塞项 Issue 草稿 发布清单 README 环境变量 CI 部署 安全",
-      inputHint: "粘贴公开仓库地址，例如 https://github.com/vercel/next.js",
-      useCases: ["上线前体检", "准备公开发布", "项目交接"],
-      whatItDoes: ["读取公开仓库信息和根目录配置文件", "先用确定性规则检查，再做报告整理", "把上线阻塞项和优化项分开", "生成 GitHub Issue 草稿和发布检查清单"],
-      audience: ["开源项目维护者", "准备上线的独立开发者", "接手陌生仓库的程序员"],
-      inputExample: "https://github.com/vercel/swr",
-      outputExample: "规则优先的上线评分、阻塞项、GitHub Issue 草稿、README、环境变量、CI、部署、安全和发布清单",
-      limitations: ["仅支持公开仓库", "不会执行代码或深度分析源码", "核心检查不依赖强 AI", "私有仓库需要先做授权和审计控制"],
-      faq: [
-        { question: "需要 GitHub token 吗", answer: "不需要。第一版只读取公开仓库信息和公开配置文件。" },
-        { question: "AI 不强可以用吗", answer: "可以。核心是确定性规则检查：README、环境变量、CI、部署、安全和发布清单。AI 只负责把报告整理得更好读。" },
-        { question: "为什么不直接让 AI 看代码", answer: "这里专门处理上线前最耗时间的杂事：README、环境变量、临时文件、CI、部署、安全提示和 PR 清单。" },
-      ],
-    };
+    return { ...tool, ...auditTranslations[language], inputExample: tool.inputExample };
   }
 
+  if (language !== "zh") return tool;
   const shortTitles: Partial<Record<ToolSlug, string>> = {
     "prompt-optimizer": "提示词",
     "code-explainer": "代码笔记",
@@ -331,7 +612,7 @@ export default function ToolWorkbench({
 }) {
   const pathname = usePathname();
   const language = initialLanguage;
-  const zh = language === "zh";
+  const t = getWorkbenchCopy(language);
   const active = useMemo<ToolSlug>(() => {
     const routeTool = toolDefinitions.find((tool) => pathname?.endsWith(`/tools/${tool.slug}`));
     return routeTool?.slug || initialSlug;
@@ -359,7 +640,7 @@ export default function ToolWorkbench({
           </Link>
           <FlagLanguageToggle initialLanguage={language} />
           <nav className="tool-nav">
-            <p className="tool-nav-kicker">{zh ? "上线流程" : "Launch flow"}</p>
+            <p className="tool-nav-kicker">{t.navKicker}</p>
             {toolDefinitions.map((tool) => {
               const display = toolDisplay(tool, language);
               return (
@@ -379,50 +660,51 @@ export default function ToolWorkbench({
         <section className="min-w-0">
           <div className="dense-panel tool-hero">
             <div>
-              <p className="eyebrow">{zh ? "AI 开发者工具" : "AI Developer Tools"}</p>
+              <p className="eyebrow">{t.heroEyebrow}</p>
               <h1>{activeToolDisplay.title}</h1>
               <p>{activeToolDisplay.description}</p>
             </div>
             <div className="tool-proof-grid">
-              <span>{zh ? "快速" : "Fast"}</span>
-              <span>{zh ? "可复制" : "Copyable"}</span>
-              <span>{zh ? "无需登录" : "No login required"}</span>
+              {t.proof.map((item) => <span key={item}>{item}</span>)}
             </div>
           </div>
 
           <div className="tool-command-strip dense-panel">
             <div>
-              <p className="eyebrow">{zh ? "输入方式" : "Input Pattern"}</p>
+              <p className="eyebrow">{t.inputPattern}</p>
               <strong>{activeToolDisplay.inputHint}</strong>
             </div>
             <div className="tool-command-tags">
               <span>{activeToolDisplay.promise}</span>
-              <span>{zh ? "本地优先" : "Local first"}</span>
-              <span>{zh ? "默认隐私" : "Private by default"}</span>
+              <span>{t.localFirst}</span>
+              <span>{t.privateDefault}</span>
             </div>
           </div>
 
           {active === "github-repo-analyzer" && (
-            <section className="tool-launch-flow dense-panel" aria-label={zh ? "上线工作流" : "Launch workflow"}>
+            <section className="tool-launch-flow dense-panel" aria-label={t.launchFlowLabel}>
               <div className="tool-launch-flow-head">
                 <div>
-                  <p className="eyebrow">{zh ? "推荐顺序" : "Recommended order"}</p>
-                  <h2>{zh ? "从仓库体检到发布任务" : "From repo audit to release tasks"}</h2>
+                  <p className="eyebrow">{t.recommendedOrder}</p>
+                  <h2>{t.workflowTitle}</h2>
                 </div>
-                <Link href={toolHref("github-repo-analyzer", language)}>{zh ? "先跑体检" : "Start with audit"}</Link>
+                <Link href={toolHref("github-repo-analyzer", language)}>{t.startWithAudit}</Link>
               </div>
               <div className="tool-launch-flow-grid">
-                {launchWorkflow.map((item) => (
-                  <Link
-                    key={item.tool}
-                    href={toolHref(item.tool, language)}
-                    className={item.tool === active ? "tool-launch-card tool-launch-card-active" : "tool-launch-card"}
-                  >
-                    <span>{item.step}</span>
-                    <strong>{zh ? item.titleZh : item.title}</strong>
-                    <p>{zh ? item.bodyZh : item.body}</p>
-                  </Link>
-                ))}
+                {launchWorkflow.map((item) => {
+                  const copy = launchWorkflowCopy(item, language);
+                  return (
+                    <Link
+                      key={item.tool}
+                      href={toolHref(item.tool, language)}
+                      className={item.tool === active ? "tool-launch-card tool-launch-card-active" : "tool-launch-card"}
+                    >
+                      <span>{item.step}</span>
+                      <strong>{copy.title}</strong>
+                      <p>{copy.body}</p>
+                    </Link>
+                  );
+                })}
               </div>
             </section>
           )}
@@ -475,27 +757,27 @@ function toolExamples(tool: ToolDefinition) {
 }
 
 function ToolSeoPanel({ tool, language = "en" }: { tool: ToolDefinition; language?: InterfaceLanguage }) {
-  const zh = language === "zh";
+  const t = getWorkbenchCopy(language);
   const examples = toolExamples(tool);
 
   return (
     <section className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       <div className="dense-panel p-5">
-        <p className="eyebrow">{zh ? "能做什么" : "What It Does"}</p>
-        <h2 className="mt-2 text-2xl font-semibold">{zh ? `${tool.shortTitle} 工作流` : `${tool.shortTitle} workflow`}</h2>
+        <p className="eyebrow">{t.whatItDoes}</p>
+        <h2 className="mt-2 text-2xl font-semibold">{t.workflow(tool.shortTitle)}</h2>
         <div className="mt-4 grid gap-2">
           {tool.whatItDoes.map((item) => (
             <div key={item} className="dense-row">
               <span className="text-sm font-semibold">{item}</span>
-              <span className="text-xs text-[color:var(--muted)]">{zh ? "适合快速复制和执行" : "Built for fast copyable work"}</span>
+              <span className="text-xs text-[color:var(--muted)]">{t.helperLine}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="dense-panel p-5">
-        <p className="eyebrow">{zh ? "适合谁" : "Good For"}</p>
-        <h2 className="mt-2 text-2xl font-semibold">{zh ? "谁最适合用" : "Who should use it"}</h2>
+        <p className="eyebrow">{t.goodFor}</p>
+        <h2 className="mt-2 text-2xl font-semibold">{t.who}</h2>
         <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
           {tool.audience.map((item) => (
             <div key={item} className="rounded-[8px] border border-slate-200 bg-white/70 p-3 text-sm font-semibold">
@@ -506,22 +788,22 @@ function ToolSeoPanel({ tool, language = "en" }: { tool: ToolDefinition; languag
       </div>
 
       <div className="dense-panel p-5">
-        <p className="eyebrow">{zh ? "示例" : "Examples"}</p>
-        <h2 className="mt-2 text-2xl font-semibold">{zh ? "输入和输出" : "Input and output"}</h2>
+        <p className="eyebrow">{t.examples}</p>
+        <h2 className="mt-2 text-2xl font-semibold">{t.inputOutput}</h2>
         <div className="mt-4 grid gap-3">
           {examples.map((example) => (
             <article key={example.title} className="rounded-[8px] border border-slate-200 bg-white/75 p-3">
               <p className="eyebrow">{example.title}</p>
-              <p className="mt-2 text-sm leading-6 text-slate-800"><strong>{zh ? "输入：" : "Input:"}</strong> {example.input}</p>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]"><strong>{zh ? "输出：" : "Output:"}</strong> {example.output}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-800"><strong>{t.input}</strong> {example.input}</p>
+              <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]"><strong>{t.output}</strong> {example.output}</p>
             </article>
           ))}
         </div>
       </div>
 
       <div className="dense-panel p-5">
-        <p className="eyebrow">{zh ? "常见问题和限制" : "FAQ And Limits"}</p>
-        <h2 className="mt-2 text-2xl font-semibold">{zh ? "使用前知道这些" : "Before you use it"}</h2>
+        <p className="eyebrow">{t.faqLimits}</p>
+        <h2 className="mt-2 text-2xl font-semibold">{t.beforeUse}</h2>
         <div className="mt-4 grid gap-2">
           {tool.faq.map((item) => (
             <details key={item.question} className="rounded-[8px] border border-slate-200 bg-white/70 p-3">
@@ -530,7 +812,7 @@ function ToolSeoPanel({ tool, language = "en" }: { tool: ToolDefinition; languag
             </details>
           ))}
           <div className="rounded-[8px] border border-slate-200 bg-white/70 p-3">
-            <p className="text-sm font-semibold">{zh ? "使用限制" : "Usage limits"}</p>
+            <p className="text-sm font-semibold">{t.usageLimits}</p>
             <ul className="mt-2 space-y-1 text-sm leading-6 text-[color:var(--muted)]">
               {tool.limitations.map((item) => (
                 <li key={item}>{item}</li>
