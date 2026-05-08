@@ -2,7 +2,7 @@
 
 /**
  * 生产环境就绪检查和配置助手
- * 帮助快速识别和修复 vantaapi.com 部署前的配置问题
+ * 帮助快速识别和修复 JinMing Lab 部署前的配置问题
  */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -13,6 +13,9 @@ const path = require("path");
 const dotenv = require("dotenv");
 
 const root = process.cwd();
+const BRAND_NAME = "JinMing Lab";
+const DEFAULT_PRODUCTION_HOSTS = ["vantaapi.com", "www.vantaapi.com"];
+const ENV_FILES = [".env", ".env.local", ".env.production", ".env.production.local", ".env.vercel.production.local"];
 
 function loadEnvFile(file) {
   const full = path.join(root, file);
@@ -21,8 +24,7 @@ function loadEnvFile(file) {
 }
 
 const env = {
-  ...loadEnvFile(".env"),
-  ...loadEnvFile(".env.production"),
+  ...ENV_FILES.reduce((loaded, file) => ({ ...loaded, ...loadEnvFile(file) }), {}),
   ...process.env,
 };
 
@@ -30,8 +32,11 @@ function envValue(name) {
   return String(env[name] || "").trim();
 }
 
-console.log("🚀 vantaapi.com 生产环境就绪检查\n");
+const loadedEnvFiles = ENV_FILES.filter((file) => fs.existsSync(path.join(root, file)));
+
+console.log(`🚀 ${BRAND_NAME} 生产环境就绪检查\n`);
 console.log("=" .repeat(60));
+console.log(`读取环境文件: ${loadedEnvFiles.length ? loadedEnvFiles.join(", ") : "仅 process.env"}`);
 
 // 关键配置检查
 const checks = {
@@ -106,8 +111,13 @@ console.log("\n🤖 Turnstile Bot 保护");
 console.log("-".repeat(60));
 const turnstileSiteKey = envValue("NEXT_PUBLIC_TURNSTILE_SITE_KEY");
 const turnstileSecret = envValue("TURNSTILE_SECRET_KEY");
+const turnstileRequired = envValue("AUTH_TURNSTILE_REQUIRED") !== "false";
 
-if (!turnstileSiteKey || !turnstileSecret) {
+if (!turnstileRequired) {
+  checks.critical.push("AUTH_TURNSTILE_REQUIRED 被禁用（登录/注册无机器人保护）");
+  console.log("❌ AUTH_TURNSTILE_REQUIRED: false");
+  console.log("   建议: 公开上线前启用 Turnstile，除非登录入口完全下线");
+} else if (!turnstileSiteKey || !turnstileSecret) {
   checks.critical.push("Turnstile 未配置（登录/注册无保护）");
   console.log("❌ Turnstile: 未配置");
   console.log("   影响: 登录和注册页面没有机器人保护");
@@ -124,13 +134,31 @@ const allowedHosts = envValue("APP_ALLOWED_HOSTS");
 if (!allowedHosts) {
   checks.critical.push("APP_ALLOWED_HOSTS 未设置（Host header 攻击风险）");
   console.log("❌ APP_ALLOWED_HOSTS: 未配置");
-  console.log("   需要: vantaapi.com,www.vantaapi.com");
-} else if (!allowedHosts.includes("vantaapi.com")) {
-  checks.critical.push("APP_ALLOWED_HOSTS 未包含 vantaapi.com");
-  console.log("❌ APP_ALLOWED_HOSTS: 未包含 vantaapi.com");
+  console.log(`   当前生产域默认建议: ${DEFAULT_PRODUCTION_HOSTS.join(",")}`);
 } else {
-  console.log("✅ APP_ALLOWED_HOSTS: 已配置");
-  console.log(`   值: ${allowedHosts}`);
+  const hosts = allowedHosts.split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+  const invalidHosts = hosts.filter((host) =>
+    host === "*" ||
+    host.includes(" ") ||
+    host.includes("/") ||
+    host.includes(":") ||
+    host === "localhost" ||
+    host === "127.0.0.1",
+  );
+
+  if (invalidHosts.length > 0) {
+    checks.critical.push("APP_ALLOWED_HOSTS 包含不安全或无效主机名");
+    console.log("❌ APP_ALLOWED_HOSTS: 包含不安全或无效主机名");
+    console.log(`   问题值: ${invalidHosts.join(",")}`);
+  } else {
+    console.log("✅ APP_ALLOWED_HOSTS: 已配置");
+    console.log(`   值: ${hosts.join(",")}`);
+    if (!DEFAULT_PRODUCTION_HOSTS.some((host) => hosts.includes(host))) {
+      checks.recommended.push("APP_ALLOWED_HOSTS 未包含当前文档默认生产域，请确认真实上线域名");
+      console.log(`⚠️  未包含默认生产域: ${DEFAULT_PRODUCTION_HOSTS.join(",")}`);
+      console.log("   如果你已经换域名，这条可以忽略");
+    }
+  }
 }
 
 // 5. 2FA 和安全设置
@@ -176,12 +204,13 @@ if (enableRedis === "true" && !redisUrl) {
 }
 
 // 7. AI 功能（可选）
-console.log("\n🤖 AI 功能（可选）");
+console.log("\n🤖 AI 功能");
 console.log("-".repeat(60));
 const aiApiKey = envValue("AI_API_KEY");
 if (!aiApiKey) {
-  console.log("ℹ️  AI_API_KEY: 未配置（AI 功能将不可用）");
-  checks.optional.push("AI 功能未配置");
+  checks.critical.push("AI_API_KEY 未配置（AI 工具已作为公开主功能）");
+  console.log("❌ AI_API_KEY: 未配置");
+  console.log("   建议: 配置服务端 AI key，或隐藏所有 AI 工具入口");
 } else {
   console.log("✅ AI_API_KEY: 已配置");
 }
@@ -192,12 +221,27 @@ console.log("-".repeat(60));
 const githubToken = envValue("GITHUB_READ_TOKEN");
 if (!githubToken) {
   console.log("ℹ️  GITHUB_READ_TOKEN: 未配置（仓库分析功能受限）");
-  checks.optional.push("GitHub 仓库分析功能未配置");
+  checks.recommended.push("GITHUB_READ_TOKEN 未配置（GitHub Launch Audit 容易触发低额度限制）");
 } else {
   console.log("✅ GITHUB_READ_TOKEN: 已配置");
 }
 
-// 9. 管理员初始化
+// 9. Sitemap 稳定性
+console.log("\n🗺️  Sitemap 稳定性");
+console.log("-".repeat(60));
+const sitemapLastmod = envValue("SITEMAP_LASTMOD");
+if (!sitemapLastmod) {
+  checks.recommended.push("SITEMAP_LASTMOD 未设置，建议上线后用稳定日期减少 sitemap 抖动");
+  console.log("⚠️  SITEMAP_LASTMOD: 未配置");
+  console.log("   建议: 只在真实内容发布时更新这个值");
+} else if (Number.isNaN(new Date(sitemapLastmod).getTime())) {
+  checks.recommended.push("SITEMAP_LASTMOD 格式无效");
+  console.log("⚠️  SITEMAP_LASTMOD: 日期格式无效");
+} else {
+  console.log("✅ SITEMAP_LASTMOD: 已配置");
+}
+
+// 10. 管理员初始化
 console.log("\n👤 管理员账号初始化");
 console.log("-".repeat(60));
 const seedAdminEmail = envValue("SEED_ADMIN_EMAIL");
