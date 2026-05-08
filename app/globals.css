@@ -3403,6 +3403,7 @@ body:has(.home-audit-page) .global-search-trigger {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .programming-definition-runtime {
@@ -3415,6 +3416,8 @@ body:has(.home-audit-page) .global-search-trigger {
   color: var(--foreground);
   font-size: 12px;
   line-height: 1.5;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .programming-definition-runtime strong {
@@ -3444,6 +3447,7 @@ body:has(.home-audit-page) .global-search-trigger {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.72);
   padding: 11px;
+  min-width: 0;
 }
 
 .programming-definition-grid strong {
@@ -3456,6 +3460,7 @@ body:has(.home-audit-page) .global-search-trigger {
   color: var(--muted);
   font-size: 12px;
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .programming-definition-starter {
@@ -3544,9 +3549,13 @@ body:has(.home-audit-page) .global-search-trigger {
 }
 
 .programming-track-summary strong {
+  min-width: 0;
+  overflow: hidden;
   font-size: 22px;
   font-weight: 780;
   line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .programming-track-summary small {
