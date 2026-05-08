@@ -545,6 +545,38 @@ async function main() {
     ["Developer Tool Search", "Run GitHub Launch Audit"],
     6,
   );
+  await checkVisibleText(
+    "search-de-visible-copy",
+    "/search?lang=de&q=github",
+    "de-DE,de;q=0.9,en;q=0.2",
+    ["Entwickler Tool Suche", "Startprüfungen KI Werkzeuge", "KI Werkzeuge", "Programmierlabor", "GitHub Prüfung starten"],
+    ["AI Tools", "Coding Lab", "Run GitHub Launch Audit"],
+    74,
+  );
+  await checkVisibleText(
+    "search-hi-visible-copy",
+    "/search?lang=hi&q=github",
+    "hi-IN,hi;q=0.9,en;q=0.2",
+    ["डेवलपर टूल खोज", "AI उपकरण", "कोडिंग लैब", "सार्वजनिक प्रवेश", "स्थानीय सूचकांक"],
+    ["AI Tools", "Coding Lab", "public entries", "local index"],
+    75,
+  );
+  await checkVisibleText(
+    "search-th-visible-copy",
+    "/search?lang=th&q=github",
+    "th-TH,th;q=0.9,en;q=0.2",
+    ["ค้นหาเครื่องมือนักพัฒนา", "เครื่องมือ AI", "แล็บเขียนโค้ด", "รัน GitHub audit"],
+    ["AI Tools", "Coding Lab", "Developer Tool Search"],
+    76,
+  );
+  await checkVisibleText(
+    "search-nl-visible-copy",
+    "/search?lang=nl&q=github",
+    "nl-NL,nl;q=0.9,en;q=0.2",
+    ["Developer tool zoeken", "AI gereedschap", "Programmeerlab", "GitHub controle starten"],
+    ["AI Tools", "Coding Lab", "Run GitHub Launch Audit"],
+    77,
+  );
   await checkPage(
     "today-ja-language-links",
     "/today?lang=ja",
