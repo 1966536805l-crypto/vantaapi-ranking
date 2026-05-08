@@ -5318,7 +5318,10 @@ export default function ProgrammingTrainer({
                   className={item.slug === activeLanguage.slug ? "programming-language active" : "programming-language"}
                 >
                   <span>{item.shortTitle}</span>
-                  <strong>{item.title}</strong>
+                  <div className="programming-language-label">
+                    <strong>{item.title}</strong>
+                    <small>{roleForInterface(item, language)}</small>
+                  </div>
                 </Link>
               ))}
             </nav>

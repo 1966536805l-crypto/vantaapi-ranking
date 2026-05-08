@@ -2987,7 +2987,7 @@ body:has(.home-audit-page) .global-search-trigger {
   grid-template-columns: 42px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  min-height: 50px;
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 5px;
@@ -3010,6 +3010,20 @@ body:has(.home-audit-page) .global-search-trigger {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 12px;
+}
+
+.programming-language-label {
+  min-width: 0;
+}
+
+.programming-language-label small {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 1.35;
 }
 
 .programming-language:hover,
