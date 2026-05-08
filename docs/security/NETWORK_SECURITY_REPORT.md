@@ -106,11 +106,11 @@ Risk: enabling firewall can block inbound LAN access for apps/services. It shoul
 Additional code/deployment hardening completed without touching system firewall or stopping services:
 
 - `docker-compose.yml`
-  - MariaDB port binding changed from `3306:3306` to `127.0.0.1:3306:3306` so the database is not exposed to LAN/Internet by Docker.
-  - Removed hardcoded weak `root` password from compose; now requires strong values through environment variables.
-  - Added app DB user/password variables instead of relying on root-only local DB access.
+  - Postgres port binding uses `127.0.0.1:5432:5432` so the database is not exposed to LAN/Internet by Docker.
+  - Requires strong values through environment variables.
+  - Uses app DB user/password variables instead of root-style local DB access.
 - `.env.example`
-  - Added MariaDB root/app password placeholders.
+  - Added Postgres database/user/password placeholders.
   - Production `APP_ALLOWED_HOSTS` now documents only canonical public hosts (`vantaapi.com,www.vantaapi.com`); local dev should omit the variable or override it locally.
 - `deploy-baota.sh`
   - Production `.env` generation now sets:

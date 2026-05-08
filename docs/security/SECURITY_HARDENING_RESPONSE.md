@@ -53,7 +53,7 @@ Demo users are opt-in only with `SEED_DEMO_USERS=true` and a strong `SEED_STUDEN
 - AI coach requires login and per-user limits
 - production Turnstile fail-closed behavior exists
 - localhost-only dev/start scripts
-- MariaDB localhost-only Docker binding
+- Postgres localhost-only Docker binding
 - production host allowlist
 - proxy cross-site/rate/body guards
 - CSP/HSTS/frame/nosniff headers

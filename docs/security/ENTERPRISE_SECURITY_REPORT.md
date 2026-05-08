@@ -58,7 +58,7 @@ This pass moves the app from MVP security toward an enterprise baseline. “Ente
 
 ### Secrets / environment documentation
 
-- `.env.example` now reflects MySQL/MariaDB production reality instead of PostgreSQL.
+- `.env.example` now reflects the current Postgres production reality.
 - Documents strong JWT generation and host allowlist requirements.
 - AI keys are empty by default because AI features are outside the MVP.
 
@@ -82,7 +82,7 @@ This pass moves the app from MVP security toward an enterprise baseline. “Ente
 2. Add database-backed session rotation / revocation if stricter compliance is required.
 3. Add 2FA for admin accounts.
 4. Add admin audit tables for course/lesson/question mutations, not only stdout logs.
-5. Add backup/restore runbook and tested restore drills for MySQL/MariaDB.
+5. Add backup/restore runbook and tested restore drills for Postgres.
 6. Add dependency scanning in CI and block deploys on high/critical vulnerabilities.
 7. Add WAF rules for production domain and bot protection for auth endpoints.
 8. Set production environment variables:

@@ -1,6 +1,6 @@
 # VantaAPI 部署说明
 
-这份文档只描述当前 Next.js + Prisma + MySQL/MariaDB MVP 的部署方式。
+这份文档只描述当前 Next.js + Prisma + Postgres 生产部署方式。
 
 > 重点：不要使用固定示例密码；当前 Prisma schema 没有 `Admin` 表，管理员是 `User.role = ADMIN`。
 
@@ -156,7 +156,7 @@ chmod +x deploy-baota.sh
 2. SSL -> Let's Encrypt -> 申请证书。
 3. 反向代理目标：`http://127.0.0.1:3000`。
 4. 云服务器安全组只开放 `80/tcp` 和 `443/tcp`。
-5. 不开放 `3000`、`3306`、Redis、PM2/internal dashboard。
+5. 不开放 `3000`、`5432`、Redis、PM2/internal dashboard。
 
 Nginx 示例：
 
@@ -216,7 +216,7 @@ server {
 - Security Level: Medium
 - Bot Fight / Managed Challenge: 只针对可疑流量、登录/注册/AI/admin 等高成本入口，不要全站强挑战
 - Block probes: `/.env`、`/.git/*`、`/wp-login.php`、`/xmlrpc.php`、`/phpmyadmin/*`
-- Origin firewall: 如果自建服务器，源站只允许 CDN/WAF IP 访问 `80/443`，不要公开 `3000`、`3306`、Redis、PM2 dashboard
+- Origin firewall: 如果自建服务器，源站只允许 CDN/WAF IP 访问 `80/443`，不要公开 `3000`、`5432`、Redis、PM2 dashboard
 - Turnstile 接登录/注册，不建议 MVP 阶段给全站页面强上验证码
 
 ---

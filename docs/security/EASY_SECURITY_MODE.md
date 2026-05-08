@@ -14,7 +14,7 @@
 - API same-origin guard and `Sec-Fetch-Site` cross-site block
 - API/body/rate-limit protections
 - Bot trap and suspicious scanner blocking
-- MariaDB Docker binding: `127.0.0.1:3306:3306`
+- Postgres Docker binding: `127.0.0.1:5432:5432`
 - Daily read-only security audit scheduled
 
 ## Recommended low-friction production settings
@@ -63,7 +63,7 @@ On production server/cloud panel, keep only these inbound ports public:
 Do not expose:
 
 - 3000/tcp
-- 3306/tcp
+- 5432/tcp
 - Redis ports
 - PM2/internal dashboards
 

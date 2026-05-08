@@ -2,7 +2,7 @@
 
 ## Supported scope
 
-This repository is an MVP learning platform built with Next.js, Prisma, and MySQL/MariaDB.
+This repository is a focused GitHub launch audit and AI developer tools platform built with Next.js, Prisma, and Postgres.
 Security fixes are accepted for the current `main` branch.
 
 ## Reporting a vulnerability
@@ -77,10 +77,11 @@ npm run security:secrets
 npm run typecheck
 npm run lint
 npm run build
+npm run language:smoke -- --base=http://127.0.0.1:3003
 npm audit --audit-level=high
 ```
 
-GitHub Actions also run CodeQL, dependency audit, and secret scanning.
+GitHub Actions also run CodeQL, dependency audit, secret scanning, production build, and multilingual smoke checks.
 
 ## Out of scope for public testing
 

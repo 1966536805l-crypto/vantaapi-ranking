@@ -71,6 +71,24 @@ if (has("docs/SUPPLY_CHAIN_SECURITY.md", "Supply Chain Security") && has("script
   fail("supply-chain-doc", "supply-chain baseline is incomplete");
 }
 
+const databaseDocs = [
+  "SECURITY.md",
+  "DEPLOYMENT.md",
+  "docs/security/ENTERPRISE_SECURITY_REPORT.md",
+  "docs/security/SECURITY_HARDENING_RESPONSE.md",
+  "docs/security/EASY_SECURITY_MODE.md",
+  "docs/security/NETWORK_SECURITY_REPORT.md",
+];
+const legacyDatabaseMentions = databaseDocs
+  .map((file) => [file, read(file)])
+  .filter(([, body]) => /\b(?:MySQL|MariaDB|3306)\b/i.test(body))
+  .map(([file]) => file);
+if (legacyDatabaseMentions.length) {
+  fail("docs:database-stack", `legacy MySQL/MariaDB or 3306 mentions remain: ${legacyDatabaseMentions.join(", ")}`);
+} else {
+  pass("docs:database-stack", "current security and deployment docs use Postgres wording");
+}
+
 const ignore = read(".gitignore") + "\n" + read(".vercelignore");
 const ignoreMarkers = [".env", "*.db", "*.sqlite", "node_modules", ".next"];
 const missingIgnores = ignoreMarkers.filter((marker) => !ignore.includes(marker));
