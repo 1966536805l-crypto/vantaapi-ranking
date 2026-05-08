@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CUSTOM_WORDBOOK_SLUG, readCustomWords } from "@/lib/custom-wordbook";
+import { localizedHref, type InterfaceLanguage } from "@/lib/language";
 import {
   localProgressSummary,
   readLocalProgress,
@@ -57,6 +58,7 @@ type TodayCompletionState = {
 };
 
 type TodayStudyPlanProps = {
+  initialLanguage: InterfaceLanguage;
   packs: TodayPack[];
   readingPacks: ReadingPack[];
   questionPacks: QuestionPack[];
@@ -181,7 +183,8 @@ function previewVocabularyForDate(packs: TodayPack[], offset: number) {
   };
 }
 
-export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: TodayStudyPlanProps) {
+export default function TodayStudyPlan({ initialLanguage, packs, readingPacks, questionPacks }: TodayStudyPlanProps) {
+  const language = initialLanguage;
   const [progress, setProgress] = useState<LocalProgressState>(() => readLocalProgress());
   const [version, setVersion] = useState(0);
   const [typingStats, setTypingStats] = useState(() => readTypingStats());
@@ -239,11 +242,14 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
 
   const newWords = useMemo(() => buildNewWords(activePack, seed), [activePack, seed]);
   const completion = Math.min(100, Math.round((finishedTasks / DAILY_TARGET) * 100));
-  const firstHref = vocabQueue[0]?.pack.route
-    ? `${vocabQueue[0].pack.route}?lang=zh`
-    : activePack
-      ? `${activePack.route}?lang=zh`
-      : "/english/vocabulary?lang=zh";
+  const firstHref = localizedHref(
+    vocabQueue[0]?.pack.route
+      ? vocabQueue[0].pack.route
+      : activePack
+        ? activePack.route
+        : "/english/vocabulary",
+    language,
+  );
   const week = useMemo(() => Array.from({ length: 7 }, (_, index) => {
     const date = dateFromToday(index - 6);
     const key = todayKey(date);
@@ -367,7 +373,7 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
       eyebrow: "02 Typing",
       title: "英文听写打字",
       body: `当前打字进度 ${typingStats.index + 1} 正确 ${typingStats.correct} 错误 ${typingStats.wrong}`,
-      href: "/english/typing?lang=zh",
+      href: localizedHref("/english/typing", language),
       action: "开始听写",
     },
     {
@@ -375,7 +381,7 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
       eyebrow: "03 Reading",
       title: activeReading?.zhTitle || "原创阅读",
       body: `今日第 ${chapter} 章 先读主旨 再圈逻辑词`,
-      href: activeReading ? `/english/reading/${activeReading.slug}?lang=zh&page=${chapter}` : "/english/reading?lang=zh",
+      href: localizedHref(activeReading ? `/english/reading/${activeReading.slug}?page=${chapter}` : "/english/reading", language),
       action: "开始阅读",
     },
     {
@@ -383,7 +389,7 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
       eyebrow: "04 Questions",
       title: activeQuestionPack?.zhTitle || "原创题库",
       body: "做一页选择填空 5 秒内先答 再看解析",
-      href: activeQuestionPack ? `/english/question-bank/${activeQuestionPack.slug}?lang=zh&page=${questionPage}` : "/english/question-bank?lang=zh",
+      href: localizedHref(activeQuestionPack ? `/english/question-bank/${activeQuestionPack.slug}?page=${questionPage}` : "/english/question-bank", language),
       action: "开始刷题",
     },
   ];
@@ -406,10 +412,10 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
               <Link href={firstHref} className="dense-action-primary px-4 py-2.5" onClick={() => startTask("start", "Today learning started", firstHref)}>
                 {isDayComplete ? "继续加练" : "一键开始"}
               </Link>
-              <Link href="/english/typing?lang=zh" className="dense-action px-4 py-2.5">
+              <Link href={localizedHref("/english/typing", language)} className="dense-action px-4 py-2.5">
                 直接听写
               </Link>
-              <Link href="/wrong" className="dense-action px-4 py-2.5">
+              <Link href={localizedHref("/wrong", language)} className="dense-action px-4 py-2.5">
                 错题复习
               </Link>
             </div>
@@ -443,7 +449,7 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
                 复习 新学 听写 阅读/刷题已经闭环。今天可以收手，也可以继续加练。
               </p>
             </div>
-            <Link href="/english/typing?lang=zh" className="dense-action-primary w-fit">
+            <Link href={localizedHref("/english/typing", language)} className="dense-action-primary w-fit">
               继续加练
             </Link>
           </div>
@@ -508,7 +514,7 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
           <div className="mt-4 grid gap-2">
             {vocabQueue.length > 0 ? (
               vocabQueue.slice(0, 6).map((word) => (
-                <Link key={`${word.pack.slug}-${word.word}`} href={`${word.pack.route}?lang=zh`} className="rounded-[8px] border border-white/10 bg-white/[0.07] p-3 text-white transition hover:border-sky-200/50">
+                <Link key={`${word.pack.slug}-${word.word}`} href={localizedHref(word.pack.route, language)} className="rounded-[8px] border border-white/10 bg-white/[0.07] p-3 text-white transition hover:border-sky-200/50">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold">{word.word}</span>
                     <span className="text-xs text-slate-300">stage {word.stage}</span>
@@ -518,7 +524,7 @@ export default function TodayStudyPlan({ packs, readingPacks, questionPacks }: T
               ))
             ) : (
               newWords.slice(0, 6).map((word) => (
-                <Link key={`${activePack.slug}-${word.word}`} href={`${activePack.route}?lang=zh`} className="rounded-[8px] border border-white/10 bg-white/[0.07] p-3 text-white transition hover:border-sky-200/50">
+                <Link key={`${activePack.slug}-${word.word}`} href={localizedHref(activePack.route, language)} className="rounded-[8px] border border-white/10 bg-white/[0.07] p-3 text-white transition hover:border-sky-200/50">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold">{word.word}</span>
                     <span className="text-xs text-slate-300">new</span>

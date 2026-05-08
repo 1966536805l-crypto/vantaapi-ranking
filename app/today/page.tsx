@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import TodayStudyPlan from "@/components/home/TodayStudyPlan";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import { examVocabularyPacks } from "@/lib/exam-content";
+import { resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { originalQuestionPacks, originalReadingPacks } from "@/lib/original-english-bank";
 
 export const metadata: Metadata = {
@@ -21,7 +22,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TodayPage() {
+export default async function TodayPage({
+  searchParams,
+}: {
+  searchParams?: Promise<PageSearchParams>;
+}) {
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   const packs = examVocabularyPacks.map((pack) => ({
     slug: pack.slug,
     shortTitle: pack.shortTitle,
@@ -36,8 +42,9 @@ export default function TodayPage() {
 
   return (
     <main className="apple-page pb-12 pt-4">
-      <AppleStudyHeader language="zh" />
+      <AppleStudyHeader language={language} />
       <TodayStudyPlan
+        initialLanguage={language}
         packs={packs}
         readingPacks={originalReadingPacks}
         questionPacks={originalQuestionPacks.map((pack) => ({
