@@ -878,14 +878,17 @@ export default async function ProgrammingPage({
   const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   const t = copy[language];
   const zeroStepList = localizedZeroSteps[language] || zeroSteps.en;
-  const languageItems: ProgrammingFinderItem[] = programmingLanguages.map((item) => ({
-    slug: item.slug,
-    title: item.title,
-    shortTitle: item.shortTitle,
-    description: programmingCardDescription[language](item.title, item.role),
-    searchText: [item.slug, item.title, item.shortTitle, item.role, item.runtime, item.runCommand, item.fileName, ...item.strengths].join(" "),
-    isFirstChoice: firstLanguageSlugs.has(item.slug),
-  }));
+  const languageItems: ProgrammingFinderItem[] = programmingLanguages.map((item) => {
+    const description = programmingCardDescription[language](item.title, item.role);
+    return {
+      slug: item.slug,
+      title: item.title,
+      shortTitle: item.shortTitle,
+      description,
+      searchText: [item.slug, item.title, item.shortTitle, description, item.role, item.runtime, item.runCommand, item.fileName, ...item.strengths].join(" "),
+      isFirstChoice: firstLanguageSlugs.has(item.slug),
+    };
+  });
 
   return (
     <main className="apple-page pb-12 pt-4">
