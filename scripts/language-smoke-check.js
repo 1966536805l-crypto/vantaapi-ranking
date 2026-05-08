@@ -89,6 +89,27 @@ async function checkPage(name, path, acceptLanguage, requiredSnippets, forbidden
   }
 }
 
+async function checkSitemapAlternates() {
+  try {
+    const response = await fetchWithTimeout("/sitemap.xml", browserHeaders("en-US,en;q=0.9", 8), { redirect: "follow" });
+    const body = await response.text();
+    if (!response.ok) return bad("sitemap-hreflang", `HTTP ${response.status}`);
+
+    const required = [
+      "<loc>https://vantaapi.com/programming/javascript</loc>",
+      "hreflang=\"ar\" href=\"https://vantaapi.com/programming/javascript?lang=ar\"",
+      "hreflang=\"ja-JP\" href=\"https://vantaapi.com/tools/github-repo-analyzer?lang=ja\"",
+      "<loc>https://vantaapi.com/privacy</loc>",
+    ];
+    const missing = required.filter((snippet) => !body.includes(snippet));
+    if (missing.length) return bad("sitemap-hreflang", `missing snippets: ${missing.join(" | ")}`);
+
+    return ok("sitemap-hreflang", "core multilingual alternates are present");
+  } catch (error) {
+    bad("sitemap-hreflang", error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function main() {
   console.log(`JinMing Lab language smoke check: ${baseUrl}\n`);
 
@@ -131,6 +152,8 @@ async function main() {
     ["AI Prompt Optimizer", "Turn a rough request into"],
     7,
   );
+
+  await checkSitemapAlternates();
 
   console.log(`\nSummary: pass=${pass} fail=${fail}`);
   if (fail > 0) process.exit(1);
