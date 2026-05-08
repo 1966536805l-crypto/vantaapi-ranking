@@ -1100,6 +1100,80 @@ function displayQuickSearchLabel(query: string, fallback: string, language: Inte
   return fallback;
 }
 
+function normalizeSearchText(value: string) {
+  return value
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function scoreSearchField(text: string, query: string, terms: string[], weight: number) {
+  const normalized = normalizeSearchText(text);
+  if (!normalized) return 0;
+
+  let score = 0;
+  if (normalized === query) score += weight * 5;
+  if (normalized.startsWith(query)) score += weight * 3;
+  if (normalized.includes(query)) score += weight * 2;
+
+  for (const term of terms) {
+    if (term.length >= 2 && normalized.includes(term)) {
+      score += weight;
+    }
+  }
+
+  return score;
+}
+
+function searchLocalizedSite(query: string, language: InterfaceLanguage, copy: SearchCopy, limit = 36) {
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) return [];
+
+  const terms = normalizedQuery.split(" ").filter(Boolean);
+
+  return siteSearchItems
+    .map((item) => {
+      const displayItem = displaySearchItem(item, language, copy);
+      const fields = [
+        { text: displayItem.title, weight: 12 },
+        { text: displayItem.category, weight: 9 },
+        { text: displayItem.description, weight: 6 },
+        { text: displayItem.tags.join(" "), weight: 5 },
+        { text: item.title, weight: 8 },
+        { text: item.category, weight: 6 },
+        { text: item.description, weight: 4 },
+        { text: item.tags.join(" "), weight: 4 },
+        { text: item.href, weight: 3 },
+      ];
+
+      const score = fields.reduce(
+        (sum, field) => sum + scoreSearchField(field.text, normalizedQuery, terms, field.weight),
+        0,
+      );
+
+      return { item, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title))
+    .slice(0, limit)
+    .map((entry) => entry.item);
+}
+
+function mergeSearchResults(primary: SiteSearchItem[], fallback: SiteSearchItem[], limit = 36) {
+  const seen = new Set<string>();
+  const merged: SiteSearchItem[] = [];
+
+  for (const item of [...primary, ...fallback]) {
+    if (seen.has(item.href)) continue;
+    seen.add(item.href);
+    merged.push(item);
+    if (merged.length >= limit) break;
+  }
+
+  return merged;
+}
+
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = searchParams ? await searchParams : undefined;
   const language = resolveInterfaceLanguage(params);
@@ -1107,7 +1181,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const isRtl = language === "ar";
   const rawQuery = Array.isArray(params?.q) ? params?.q[0] : params?.q;
   const query = (rawQuery || "").trim().slice(0, 80);
-  const results = searchSite(query);
+  const results = query
+    ? mergeSearchResults(searchLocalizedSite(query, language, copy), searchSite(query))
+    : [];
   const groupedCount = new Map<string, number>();
 
   for (const item of siteSearchItems) {
@@ -1185,12 +1261,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <p className="eyebrow">{copy.index}</p>
             <h2 className="mt-2 text-2xl font-semibold">{siteSearchItems.length} {copy.entries}</h2>
             <div className="mt-4 grid gap-2">
-              {Array.from(groupedCount.entries()).map(([category, count]) => (
-                <Link key={category} href={localizedHref(`/search?q=${encodeURIComponent(category)}`, language)} className="dense-row">
-                  <span className="text-sm font-semibold">{copy.categories[category] || category}</span>
-                  <span className="dense-status">{count}</span>
-                </Link>
-              ))}
+              {Array.from(groupedCount.entries()).map(([category, count]) => {
+                const categoryLabel = copy.categories[category] || category;
+                return (
+                  <Link key={category} href={localizedHref(`/search?q=${encodeURIComponent(categoryLabel)}`, language)} className="dense-row">
+                    <span className="text-sm font-semibold">{categoryLabel}</span>
+                    <span className="dense-status">{count}</span>
+                  </Link>
+                );
+              })}
             </div>
             <div className="mt-5 border-t border-slate-200 pt-4">
               <p className="eyebrow">{copy.fastStart}</p>
