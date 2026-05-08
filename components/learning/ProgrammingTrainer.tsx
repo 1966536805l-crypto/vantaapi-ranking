@@ -6,6 +6,7 @@ import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import AICoachPanel from "@/components/learning/AICoachPanel";
 import LearningFullscreenButton from "@/components/learning/LearningFullscreenButton";
+import ProgrammingQuestionBank from "@/components/learning/ProgrammingQuestionBank";
 import { localizedHref, type InterfaceLanguage } from "@/lib/language";
 import { recordLocalActivity } from "@/lib/local-progress";
 import {
@@ -5155,6 +5156,21 @@ export default function ProgrammingTrainer({
     setQuestionIndex(Math.min(programmingBankPlan.perLanguage, Math.max(1, Math.trunc(nextIndex) || 1)));
   }, []);
 
+  const jumpToQuestion = useCallback((nextIndex: number) => {
+    goToQuestion(nextIndex);
+    window.setTimeout(() => {
+      document.getElementById("trainer")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  }, [goToQuestion]);
+
+  const getBankQuestionTitle = useCallback((item: ProgrammingQuestion) => (
+    questionTitle(item, language, activeLanguage.title)
+  ), [activeLanguage.title, language]);
+
+  const getBankQuestionPrompt = useCallback((item: ProgrammingQuestion) => (
+    questionPrompt(item, language, activeLanguage.title)
+  ), [activeLanguage.title, language]);
+
   const submit = useCallback(() => {
     const correct = checkQuestion(question, answersRef.current[question.id] || "");
     recordLocalActivity({
@@ -5491,6 +5507,17 @@ export default function ProgrammingTrainer({
               ))}
             </div>
           </section>
+
+          <ProgrammingQuestionBank
+            language={language}
+            activeLanguage={activeLanguage}
+            questionIndex={questionIndex}
+            questionShort={copy.questionShort}
+            typeLabels={typeLabel[language]}
+            getQuestionTitle={getBankQuestionTitle}
+            getQuestionPrompt={getBankQuestionPrompt}
+            onJump={jumpToQuestion}
+          />
 
           <section id="trainer" className="programming-board-grid">
             <div className="dense-panel programming-question-pane">

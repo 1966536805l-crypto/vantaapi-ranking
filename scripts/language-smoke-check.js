@@ -306,32 +306,32 @@ async function main() {
     "programming-ar",
     "/programming/javascript?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
-    ["ما هي JavaScript", "التعريف أولا", "تطبيقات الويب والأتمتة وربط الواجهات", "قيد التوسيع", "مدخلات مخرجات return", "أدوات المطور", "الذكاء الاصطناعي للكود", "ذكاء اصطناعي سريع", "ابحث عن لغة", "53 من 53", "Enter يفتح أول نتيجة", "hrefLang=\"ar\"", "https://vantaapi.com/programming/javascript?lang=ar", "/programming/python?lang=ar"],
-    ["What is JavaScript", "Full screen", "input output return reusable actions", "DevTools", "AI للكود", "AI سريع", "لغة لتطبيقات الويب", "مناسب لـ لغة"],
+    ["ما هي JavaScript", "التعريف أولا", "تطبيقات الويب والأتمتة وربط الواجهات", "قيد التوسيع", "مدخلات مخرجات return", "أدوات المطور", "الذكاء الاصطناعي للكود", "ذكاء اصطناعي سريع", "ابحث عن لغة", "53 من 53", "Enter يفتح أول نتيجة", "بنك الأسئلة", "ابحث ثم تدرب", "hrefLang=\"ar\"", "https://vantaapi.com/programming/javascript?lang=ar", "/programming/python?lang=ar"],
+    ["What is JavaScript", "Full screen", "input output return reusable actions", "DevTools", "AI للكود", "AI سريع", "Question bank", "Search before practice", "لغة لتطبيقات الويب", "مناسب لـ لغة"],
     4,
   );
   await checkVisibleText(
     "programming-ar-visible-copy",
     "/programming/javascript?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
-    ["ما هي JavaScript", "س 1", "أدوات المطور", "الذكاء الاصطناعي للكود", "ذكاء اصطناعي سريع"],
-    ["What is JavaScript", "Definition first", "Full screen", "Q 1", "DevTools", "AI للكود", "AI سريع"],
+    ["ما هي JavaScript", "س 1", "أدوات المطور", "الذكاء الاصطناعي للكود", "ذكاء اصطناعي سريع", "بنك الأسئلة"],
+    ["What is JavaScript", "Definition first", "Full screen", "Q 1", "DevTools", "Question bank", "AI للكود", "AI سريع"],
     30,
   );
   await checkPage(
     "programming-javascript-zh",
     "/programming/javascript?lang=zh",
     "zh-CN,zh;q=0.9,en;q=0.2",
-    ["JavaScript 是什么", "先定义", "开发者工具", "编程陪练"],
-    ["What is JavaScript", "Definition first", "DevTools", "Code AI"],
+    ["JavaScript 是什么", "先定义", "开发者工具", "编程陪练", "编程题库", "先搜题 再练习"],
+    ["What is JavaScript", "Definition first", "DevTools", "Code AI", "Question bank", "Search before practice"],
     26,
   );
   await checkPage(
     "programming-javascript-ja",
     "/programming/javascript?lang=ja",
     "ja-JP,ja;q=0.9,en;q=0.2",
-    ["JavaScript とは何か", "まず定義", "開発者ツール", "プログラミング コンパニオン"],
-    ["What is JavaScript", "Definition first", "DevTools", "Code AI"],
+    ["JavaScript とは何か", "まず定義", "開発者ツール", "プログラミング コンパニオン", "問題バンク", "検索してから練習"],
+    ["What is JavaScript", "Definition first", "DevTools", "Code AI", "Question bank", "Search before practice"],
     27,
   );
   await checkPage(
