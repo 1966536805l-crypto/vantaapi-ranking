@@ -125,10 +125,10 @@ if (has(edgeSecurity, "DDoS protection") && has(edgeSecurity, "Origin isolation"
   add("warn", "edge:ddos-waf", "CDN/WAF DDoS baseline is incomplete");
 }
 
-if (has(githubSecurityWorkflow, "Security baseline") && has(githubSecurityWorkflow, 'DATABASE_URL: "postgresql://') && has(githubSecurityWorkflow, "npm run security:check") && has(githubSecurityWorkflow, "npm run build") && has(githubSecurityWorkflow, "npm run language:smoke")) {
-  add("pass", "ci:security-baseline", "GitHub CI runs security checks, a Postgres-shaped env, production build, and multilingual smoke checks");
+if (has(githubSecurityWorkflow, "Security baseline") && has(githubSecurityWorkflow, 'DATABASE_URL: "postgresql://') && has(githubSecurityWorkflow, "npm run security:check") && has(githubSecurityWorkflow, "npm run content:check") && has(githubSecurityWorkflow, "npm run build") && has(githubSecurityWorkflow, "npm run language:smoke")) {
+  add("pass", "ci:security-baseline", "GitHub CI runs security checks, content strategy checks, a Postgres-shaped env, production build, and multilingual smoke checks");
 } else {
-  add("warn", "ci:security-baseline", "GitHub CI security baseline, Postgres env, production build, or multilingual smoke check is missing");
+  add("warn", "ci:security-baseline", "GitHub CI security baseline, content strategy check, Postgres env, production build, or multilingual smoke check is missing");
 }
 
 if (has(networkHardening, "SECURITY_MODE") && has(nginxSecurity, "limit_req_zone") && has(proxy, "globalRateGuard") && has(proxy, "expensiveApiGuard")) {
