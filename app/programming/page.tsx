@@ -320,7 +320,7 @@ const copy: Record<InterfaceLanguage, ProgrammingPageCopy> = {
     zeroEyebrow: "基礎",
     groupsTitle: "方向を選ぶ",
     groupsEyebrow: "言語マップ",
-    allTitle: "プログラミング教程",
+    allTitle: "プログラミング教材",
     allEyebrow: "ワークベンチ",
     open: "開く",
     drillsEach: "オリジナル練習",
