@@ -490,6 +490,22 @@ async function main() {
     39,
   );
   await checkPage(
+    "english-hub-es",
+    "/english?lang=es",
+    "es-ES,es;q=0.9,en;q=0.2",
+    ["Centro de entrenamiento de ingles", "Dictado en ingles", "/learn/english?lang=es", "/english/vocabulary?lang=es"],
+    ["English Training Center", "英語トレーニングセンター", "مركز تدريب الإنجليزية"],
+    53,
+  );
+  await checkPage(
+    "english-hub-de",
+    "/english?lang=de",
+    "de-DE,de;q=0.9,en;q=0.2",
+    ["Englisch Trainingszentrum", "Englisches Diktat", "/learn/english?lang=de", "/english/vocabulary?lang=de"],
+    ["English Training Center", "英語トレーニングセンター", "مركز تدريب الإنجليزية"],
+    54,
+  );
+  await checkPage(
     "cpp-hub-ar",
     "/cpp?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
