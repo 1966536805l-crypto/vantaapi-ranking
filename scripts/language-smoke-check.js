@@ -219,6 +219,22 @@ async function main() {
     ["What is JavaScript", "Full screen", "input output return reusable actions", "لغة لتطبيقات الويب", "مناسب لـ لغة"],
     4,
   );
+  await checkPage(
+    "programming-hub-ar",
+    "/programming?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["ابحث عن لغة", "53 من 53", 'placeholder="Python JavaScript Rust SQL Bash"', "/programming/javascript?lang=ar"],
+    ["مناسب لـ لغة", "لغة لتطبيقات"],
+    18,
+  );
+  await checkPage(
+    "programming-hub-ja",
+    "/programming?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["言語を探す", "53 / 53", "プログラミング教材", "/programming/javascript?lang=ja"],
+    ["プログラミング教程"],
+    19,
+  );
   await checkDocumentLanguage(
     "document-language:programming-ar",
     "/programming/javascript?lang=ar",

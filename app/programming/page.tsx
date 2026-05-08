@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
+import ProgrammingLanguageFinder, { type ProgrammingFinderItem } from "@/components/learning/ProgrammingLanguageFinder";
 import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { programmingLanguages, type ProgrammingLanguage, type ProgrammingLanguageSlug } from "@/lib/programming-content";
 
@@ -877,6 +878,14 @@ export default async function ProgrammingPage({
   const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   const t = copy[language];
   const zeroStepList = localizedZeroSteps[language] || zeroSteps.en;
+  const languageItems: ProgrammingFinderItem[] = programmingLanguages.map((item) => ({
+    slug: item.slug,
+    title: item.title,
+    shortTitle: item.shortTitle,
+    description: programmingCardDescription[language](item.title, item.role),
+    searchText: [item.slug, item.title, item.shortTitle, item.role, item.runtime, item.runCommand, item.fileName, ...item.strengths].join(" "),
+    isFirstChoice: firstLanguageSlugs.has(item.slug),
+  }));
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -965,26 +974,14 @@ export default async function ProgrammingPage({
           <div className="dense-panel p-5">
             <p className="eyebrow">{t.allEyebrow}</p>
             <h2 className="mt-2 text-2xl font-semibold">{t.allTitle}</h2>
-            <div className="mt-4 grid gap-2 md:grid-cols-2">
-              {programmingLanguages.map((item) => (
-                <Link key={item.slug} href={localizedHref(`/programming/${item.slug}`, language)} className="dense-card p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="eyebrow">{item.shortTitle}</p>
-                      <h3 className="mt-1 truncate text-lg font-semibold">{item.title}</h3>
-                    </div>
-                    <span className="dense-status">{t.open}</span>
-                  </div>
-                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-[color:var(--muted)]">
-                    {programmingCardDescription[language](item.title, item.role)}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="dense-status">{t.drillsEach}</span>
-                    <span className="dense-status">{firstLanguageSlugs.has(item.slug) ? t.firstChoice : t.advanced}</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <ProgrammingLanguageFinder
+              language={language}
+              items={languageItems}
+              open={t.open}
+              drillsEach={t.drillsEach}
+              firstChoice={t.firstChoice}
+              advanced={t.advanced}
+            />
           </div>
         </section>
       </section>
