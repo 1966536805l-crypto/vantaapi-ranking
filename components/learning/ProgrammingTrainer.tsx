@@ -1599,35 +1599,35 @@ const languageRoleAr: Partial<Record<ProgrammingLanguageSlug, string>> = {
 };
 
 const languageHabitZh: Partial<Record<ProgrammingLanguageSlug, string>> = {
-  javascript: "先用 console.log 和 DevTools 看清值，再抽象",
+  javascript: "先用 console.log 和开发者工具看清值，再抽象",
   typescript: "让类型错误告诉你缺了哪个数据契约",
   python: "每次转换数据后都打印一次数据形状",
   cpp: "编译前先手动跟踪内存、下标和容器状态",
 };
 
 const languageHabitJa: Partial<Record<ProgrammingLanguageSlug, string>> = {
-  javascript: "抽象化する前に console.log と DevTools で値を確認する",
+  javascript: "抽象化する前に console.log と開発者ツールで値を確認する",
   typescript: "型エラーから足りないデータ契約を読む",
   python: "データを変換するたびに形を小さく確認する",
   cpp: "コンパイル前にメモリ、添字、コンテナ状態を手で追う",
 };
 
 const languageHabitEs: Partial<Record<ProgrammingLanguageSlug, string>> = {
-  javascript: "mira valores con console.log y DevTools antes de abstraer",
+  javascript: "mira valores con console.log y herramientas de desarrollo antes de abstraer",
   typescript: "deja que los tipos indiquen el contrato que falta",
   python: "comprueba la forma de los datos después de cada transformación",
   cpp: "rastrea memoria, índices y contenedores antes de compilar",
 };
 
 const languageHabitKo: Partial<Record<ProgrammingLanguageSlug, string>> = {
-  javascript: "추상화 전에 console.log 와 DevTools 로 값을 확인합니다",
+  javascript: "추상화 전에 console.log 와 개발자 도구로 값을 확인합니다",
   typescript: "타입 오류가 알려주는 빠진 데이터 계약을 읽습니다",
   python: "데이터를 변환할 때마다 형태를 작게 확인합니다",
   cpp: "컴파일 전에 메모리 인덱스 컨테이너 상태를 손으로 추적합니다",
 };
 
 const languageHabitAr: Partial<Record<ProgrammingLanguageSlug, string>> = {
-  javascript: "افحص القيم عبر console.log و DevTools قبل التجريد",
+  javascript: "افحص القيم عبر console.log وأدوات المطور قبل التجريد",
   typescript: "دع أخطاء الأنواع تكشف عقد البيانات الناقص",
   python: "افحص شكل البيانات بعد كل تحويل",
   cpp: "تتبع الذاكرة والفهارس والحاويات قبل التجميع",
