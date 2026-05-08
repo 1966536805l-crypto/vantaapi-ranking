@@ -865,6 +865,50 @@ function localizedSearchItem(item: SiteSearchItem, language: InterfaceLanguage) 
   };
 }
 
+function normalizeSearchText(value: string) {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function scoreLocalizedSearchItem(item: SiteSearchItem, language: InterfaceLanguage, query: string) {
+  const displayItem = localizedSearchItem(item, language);
+  const title = normalizeSearchText(displayItem.title);
+  const category = normalizeSearchText(displayItem.category);
+  const description = normalizeSearchText(displayItem.description);
+  const original = normalizeSearchText([item.title, item.category, item.description, item.tags.join(" ")].join(" "));
+  const haystack = `${title} ${category} ${description} ${original}`;
+  const terms = normalizeSearchText(query).split(" ").filter(Boolean);
+
+  if (terms.length === 0) return 0;
+
+  return terms.reduce((score, term) => {
+    if (title === term) return score + 130;
+    if (title.includes(term)) return score + 80;
+    if (category.includes(term)) return score + 48;
+    if (description.includes(term)) return score + 32;
+    if (original.includes(term)) return score + 18;
+    if (haystack.includes(term)) return score + 8;
+    return score;
+  }, 0);
+}
+
+function searchLocalizedSite(query: string, language: InterfaceLanguage, limit = 36) {
+  const cleanQuery = query.trim().slice(0, 80);
+  if (!cleanQuery) return [];
+  const seenHrefs = new Set<string>();
+
+  return siteSearchItems
+    .map((item) => ({ item, score: scoreLocalizedSearchItem(item, language, cleanQuery) }))
+    .filter((result) => result.score > 0)
+    .sort((a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title))
+    .filter((result) => {
+      if (seenHrefs.has(result.item.href)) return false;
+      seenHrefs.add(result.item.href);
+      return true;
+    })
+    .slice(0, limit)
+    .map((result) => result.item);
+}
+
 function currentLanguageFromLocation(): InterfaceLanguage {
   if (typeof window === "undefined") return "en";
   const queryLanguage = new URL(window.location.href).searchParams.get("lang");
@@ -909,8 +953,12 @@ export default function GlobalSearchLauncher({ initialLanguage = "en" }: { initi
 
   const results = useMemo(() => {
     const cleanQuery = query.trim();
-    return cleanQuery ? searchSite(cleanQuery, 8) : defaultItems;
-  }, [defaultItems, query]);
+    if (!cleanQuery) return defaultItems;
+    return uniqueItems([
+      ...searchLocalizedSite(cleanQuery, language, 10),
+      ...searchSite(cleanQuery, 10),
+    ]).slice(0, 8);
+  }, [defaultItems, language, query]);
 
   const selectedItem = results[Math.min(selectedIndex, Math.max(results.length - 1, 0))];
 
