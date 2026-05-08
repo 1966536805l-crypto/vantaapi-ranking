@@ -6,6 +6,27 @@ import { interfaceLanguages, isInterfaceLanguage, languageHtmlLang, type Interfa
 
 const languageCookieNames = ["jinming_language", "vantaapi-language"];
 
+const toggleCopy: Record<InterfaceLanguage, { region: string; choose: string }> = {
+  en: { region: "Language switcher", choose: "Choose site language" },
+  zh: { region: "语言切换器", choose: "选择网站语言" },
+  ja: { region: "言語切替", choose: "サイト言語を選択" },
+  ko: { region: "언어 전환", choose: "사이트 언어 선택" },
+  es: { region: "Selector de idioma", choose: "Elegir idioma del sitio" },
+  fr: { region: "Selecteur de langue", choose: "Choisir la langue du site" },
+  de: { region: "Sprachwechsel", choose: "Seitensprache waehlen" },
+  pt: { region: "Seletor de idioma", choose: "Escolher idioma do site" },
+  ru: { region: "Переключатель языка", choose: "Выбрать язык сайта" },
+  ar: { region: "مبدل اللغة", choose: "اختر لغة الموقع" },
+  hi: { region: "भाषा बदलें", choose: "साइट भाषा चुनें" },
+  id: { region: "Pengalih bahasa", choose: "Pilih bahasa situs" },
+  vi: { region: "Bo chuyen ngon ngu", choose: "Chon ngon ngu trang" },
+  th: { region: "ตัวเลือกภาษา", choose: "เลือกภาษาของไซต์" },
+  tr: { region: "Dil degistirici", choose: "Site dilini sec" },
+  it: { region: "Selettore lingua", choose: "Scegli lingua del sito" },
+  nl: { region: "Taalwisselaar", choose: "Kies sitetaal" },
+  pl: { region: "Przelacznik jezyka", choose: "Wybierz jezyk strony" },
+};
+
 function writeLanguageCookie(language: InterfaceLanguage) {
   const maxAge = 60 * 60 * 24 * 365;
   for (const name of languageCookieNames) {
@@ -68,9 +89,10 @@ export default function FlagLanguageToggle({
   }
 
   const activeLanguage = interfaceLanguages.find((language) => language.code === current) ?? interfaceLanguages[0];
+  const copy = toggleCopy[current];
 
   return (
-    <div className="flag-toggle" aria-label="Language switcher">
+    <div className="flag-toggle" aria-label={copy.region}>
       <label className="flag-toggle-label">
         <span aria-hidden="true">{activeLanguage.flag}</span>
         <span>{activeLanguage.nativeName}</span>
@@ -78,8 +100,8 @@ export default function FlagLanguageToggle({
       <select
         className="flag-toggle-select"
         value={current}
-        aria-label="Choose site language"
-        title="Choose site language"
+        aria-label={copy.choose}
+        title={copy.choose}
         onChange={(event) => {
           const next = event.target.value;
           if (isInterfaceLanguage(next)) setLanguage(next);

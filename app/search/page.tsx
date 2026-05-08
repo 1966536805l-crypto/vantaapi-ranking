@@ -2,26 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
-import { searchSite, siteSearchItems } from "@/lib/site-search";
+import { searchSite, siteSearchItems, type SiteSearchItem } from "@/lib/site-search";
 
 type SearchPageProps = {
   searchParams?: Promise<PageSearchParams & { q?: string }>;
-};
-
-export const metadata: Metadata = {
-  title: "开发者工具搜索 - GitHub 上线体检 AI 工具 - JinMing Lab",
-  description: "搜索 JinMing Lab 的 GitHub 上线体检、Prompt 优化、Bug 定位、API 请求生成、JSON 正则时间戳工具和编程路线。",
-  keywords: ["GitHub 上线体检", "AI 开发者工具", "Prompt 优化", "Bug 定位", "API 请求生成", "编程路线"],
-  alternates: {
-    canonical: "/search",
-  },
-  openGraph: {
-    title: "开发者工具搜索 - JinMing Lab",
-    description: "搜索 GitHub 上线体检、AI 开发者工具、Bug 定位、Prompt 优化和 API 请求生成页面。",
-    url: "https://vantaapi.com/search",
-    siteName: "JinMing Lab",
-    type: "website",
-  },
 };
 
 const quickSearches = [
@@ -529,6 +513,592 @@ function getSearchCopy(language: InterfaceLanguage) {
   return searchCopy[language] || searchCopy.en;
 }
 
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const params = searchParams ? await searchParams : undefined;
+  const language = resolveInterfaceLanguage(params);
+  const copy = getSearchCopy(language);
+  return {
+    title: `${copy.title} - JinMing Lab`,
+    description: copy.body,
+    keywords: ["GitHub launch audit", "AI developer tools", "Prompt", "Bug", "API", "coding roadmap"],
+    alternates: {
+      canonical: "/search",
+    },
+    openGraph: {
+      title: `${copy.title} - JinMing Lab`,
+      description: copy.body,
+      url: "https://vantaapi.com/search",
+      siteName: "JinMing Lab",
+      type: "website",
+    },
+  };
+}
+
+type SearchResultDisplayCopy = {
+  staticItems: Record<string, { title: string; description: string; tags: string[] }>;
+  toolTitles: Record<string, string>;
+  toolDescriptions: Record<string, string>;
+  programmingTitle: (name: string) => string;
+  programmingDescription: (name: string) => string;
+  programmingTag: string;
+};
+
+const searchResultDisplayCopy: Record<InterfaceLanguage, SearchResultDisplayCopy> = {
+  en: {
+    staticItems: {
+      "/search": { title: "Site Search", description: "Find tools routes and launch checklists from one box", tags: ["search", "index"] },
+      "/tools/github-repo-analyzer": { title: "GitHub Launch Audit", description: "Paste a public repo and get blockers score and a fix checklist", tags: ["GitHub", "launch"] },
+      "/programming": { title: "Programming Learning Lab", description: "Zero foundation routes for languages used by real developers", tags: ["coding", "zero base"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "GitHub Launch Audit",
+      "prompt-optimizer": "AI Prompt Optimizer",
+      "code-explainer": "Code Explainer",
+      "bug-finder": "Bug Finder",
+      "api-request-generator": "API Request Generator",
+      "dev-utilities": "JSON Regex Timestamp Utilities",
+      "learning-roadmap": "AI Coding Roadmap",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Audit public repositories for release blockers and readiness",
+      "prompt-optimizer": "Turn rough requests into clearer AI prompts",
+      "code-explainer": "Read code faster with purpose risks and learning notes",
+      "bug-finder": "Turn errors and snippets into a debug path",
+      "api-request-generator": "Generate curl fetch axios and Python requests examples",
+      "dev-utilities": "Format JSON test regex and convert timestamps",
+      "learning-roadmap": "Build a practical programming plan from zero",
+    },
+    programmingTitle: (name) => `${name} Learning Lab`,
+    programmingDescription: (name) => `Definitions syntax drills and practice path for ${name}`,
+    programmingTag: "practice",
+  },
+  zh: {
+    staticItems: {
+      "/search": { title: "站内搜索", description: "一个入口搜索工具 路线和上线检查清单", tags: ["搜索", "索引"] },
+      "/tools/github-repo-analyzer": { title: "GitHub 上线体检", description: "粘贴公开仓库 生成阻塞项 评分和修复清单", tags: ["GitHub", "上线"] },
+      "/programming": { title: "编程学习实验室", description: "面向零基础的真实开发语言学习路径", tags: ["编程", "零基础"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "GitHub 上线体检",
+      "prompt-optimizer": "AI 提示词优化器",
+      "code-explainer": "代码解释器",
+      "bug-finder": "Bug 定位助手",
+      "api-request-generator": "API 请求生成器",
+      "dev-utilities": "JSON 正则 时间戳工具",
+      "learning-roadmap": "AI 编程路线",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "检查公开仓库的上线阻塞项和发布准备度",
+      "prompt-optimizer": "把粗糙需求改成更清晰的 AI 提示词",
+      "code-explainer": "快速看懂代码作用 风险和学习要点",
+      "bug-finder": "把报错和片段整理成排查路径",
+      "api-request-generator": "生成 curl fetch axios 和 Python requests 示例",
+      "dev-utilities": "格式化 JSON 测试正则 转换时间戳",
+      "learning-roadmap": "从零生成可执行的编程学习路线",
+    },
+    programmingTitle: (name) => `${name} 学习实验室`,
+    programmingDescription: (name) => `${name} 的定义 语法训练和练习路径`,
+    programmingTag: "练习",
+  },
+  ja: {
+    staticItems: {
+      "/search": { title: "サイト検索", description: "ツール ルート 公開前チェックを一つの検索で探す", tags: ["検索", "索引"] },
+      "/tools/github-repo-analyzer": { title: "GitHub 公開前監査", description: "公開リポジトリから課題 スコア 修正チェックを作成", tags: ["GitHub", "公開"] },
+      "/programming": { title: "プログラミング学習ラボ", description: "ゼロから実務言語を学ぶためのルート", tags: ["練習", "基礎"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "GitHub 公開前監査",
+      "prompt-optimizer": "AI プロンプト最適化",
+      "code-explainer": "コード解説",
+      "bug-finder": "バグ発見",
+      "api-request-generator": "API リクエスト生成",
+      "dev-utilities": "JSON 正規表現 時刻ツール",
+      "learning-roadmap": "AI コーディングロードマップ",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "公開リポジトリの公開準備と阻害要因を確認",
+      "prompt-optimizer": "粗い依頼を明確な AI プロンプトに整える",
+      "code-explainer": "コードの目的 リスク 学習ポイントを素早く読む",
+      "bug-finder": "エラーとコードから調査手順を作る",
+      "api-request-generator": "curl fetch axios Python requests の例を生成",
+      "dev-utilities": "JSON 整形 正規表現テスト タイムスタンプ変換",
+      "learning-roadmap": "ゼロから実行できる学習計画を作る",
+    },
+    programmingTitle: (name) => `${name} 学習ラボ`,
+    programmingDescription: (name) => `${name} の定義 文法練習 実践ルート`,
+    programmingTag: "練習",
+  },
+  ko: {
+    staticItems: {
+      "/search": { title: "사이트 검색", description: "도구 경로 출시 체크리스트를 한 번에 찾기", tags: ["검색", "색인"] },
+      "/tools/github-repo-analyzer": { title: "GitHub 출시 점검", description: "공개 저장소로 차단 이슈 점수 수정 목록 생성", tags: ["GitHub", "출시"] },
+      "/programming": { title: "프로그래밍 학습 랩", description: "초보자를 위한 실제 개발 언어 학습 경로", tags: ["연습", "기초"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "GitHub 출시 점검",
+      "prompt-optimizer": "AI 프롬프트 최적화",
+      "code-explainer": "코드 설명",
+      "bug-finder": "버그 찾기",
+      "api-request-generator": "API 요청 생성기",
+      "dev-utilities": "JSON 정규식 시간 도구",
+      "learning-roadmap": "AI 코딩 로드맵",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "공개 저장소의 출시 준비도와 차단 요소 확인",
+      "prompt-optimizer": "거친 요청을 명확한 AI 프롬프트로 정리",
+      "code-explainer": "코드 목적 위험 학습 포인트를 빠르게 읽기",
+      "bug-finder": "오류와 코드로 디버그 경로 만들기",
+      "api-request-generator": "curl fetch axios Python requests 예제 생성",
+      "dev-utilities": "JSON 포맷 정규식 테스트 타임스탬프 변환",
+      "learning-roadmap": "실행 가능한 코딩 학습 계획 만들기",
+    },
+    programmingTitle: (name) => `${name} 학습 랩`,
+    programmingDescription: (name) => `${name} 정의 문법 훈련 실습 경로`,
+    programmingTag: "연습",
+  },
+  es: {
+    staticItems: {
+      "/search": { title: "Busqueda del sitio", description: "Encuentra herramientas rutas y checklists desde una caja", tags: ["buscar", "indice"] },
+      "/tools/github-repo-analyzer": { title: "Auditoria de lanzamiento GitHub", description: "Pega un repo publico y recibe bloqueos puntuacion y checklist", tags: ["GitHub", "lanzamiento"] },
+      "/programming": { title: "Laboratorio de programacion", description: "Rutas desde cero para lenguajes usados por desarrolladores", tags: ["practica", "desde cero"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "Auditoria de lanzamiento GitHub",
+      "prompt-optimizer": "Optimizador de prompts AI",
+      "code-explainer": "Explicador de codigo",
+      "bug-finder": "Detector de bugs",
+      "api-request-generator": "Generador de solicitudes API",
+      "dev-utilities": "Utilidades JSON Regex Tiempo",
+      "learning-roadmap": "Ruta de programacion AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Revisa repos publicos para bloqueos y preparacion de lanzamiento",
+      "prompt-optimizer": "Convierte peticiones vagas en prompts claros",
+      "code-explainer": "Lee codigo con proposito riesgos y notas",
+      "bug-finder": "Convierte errores y snippets en pasos de depuracion",
+      "api-request-generator": "Genera ejemplos curl fetch axios y Python requests",
+      "dev-utilities": "Formatea JSON prueba regex y convierte timestamps",
+      "learning-roadmap": "Crea un plan practico para aprender a programar",
+    },
+    programmingTitle: (name) => `Laboratorio de ${name}`,
+    programmingDescription: (name) => `Definiciones sintaxis ejercicios y ruta practica para ${name}`,
+    programmingTag: "practica",
+  },
+  fr: {
+    staticItems: {
+      "/search": { title: "Recherche du site", description: "Trouver outils parcours et checklists en un seul champ", tags: ["recherche", "index"] },
+      "/tools/github-repo-analyzer": { title: "Audit de lancement GitHub", description: "Coller un repo public et obtenir blocages score et checklist", tags: ["GitHub", "lancement"] },
+      "/programming": { title: "Lab d apprentissage code", description: "Parcours debutant pour les langages de developpeurs", tags: ["pratique", "debutant"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "Audit de lancement GitHub",
+      "prompt-optimizer": "Optimiseur de prompts AI",
+      "code-explainer": "Explication de code",
+      "bug-finder": "Detecteur de bugs",
+      "api-request-generator": "Generateur de requetes API",
+      "dev-utilities": "Outils JSON Regex Temps",
+      "learning-roadmap": "Roadmap de code AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Verifier les repos publics avant lancement",
+      "prompt-optimizer": "Transformer une demande vague en prompt clair",
+      "code-explainer": "Lire le code avec but risques et notes",
+      "bug-finder": "Transformer erreurs et snippets en plan de debug",
+      "api-request-generator": "Generer curl fetch axios et Python requests",
+      "dev-utilities": "Formater JSON tester regex convertir dates",
+      "learning-roadmap": "Creer un plan pratique pour apprendre le code",
+    },
+    programmingTitle: (name) => `Lab ${name}`,
+    programmingDescription: (name) => `Definitions syntaxe exercices et parcours pratique pour ${name}`,
+    programmingTag: "pratique",
+  },
+  de: {
+    staticItems: {
+      "/search": { title: "Seitensuche", description: "Werkzeuge Lernwege und Launch Checklisten in einem Feld finden", tags: ["Suche", "Index"] },
+      "/tools/github-repo-analyzer": { title: "GitHub Launch Audit", description: "Oeffentliches Repo einfuegen und Blocker Score Checkliste erhalten", tags: ["GitHub", "Launch"] },
+      "/programming": { title: "Programmier Lernlabor", description: "Einsteigerpfade fuer echte Entwicklersprachen", tags: ["Praxis", "Basis"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "GitHub Launch Audit",
+      "prompt-optimizer": "AI Prompt Optimierer",
+      "code-explainer": "Code Erklaerer",
+      "bug-finder": "Bug Finder",
+      "api-request-generator": "API Request Generator",
+      "dev-utilities": "JSON Regex Zeit Werkzeuge",
+      "learning-roadmap": "AI Coding Roadmap",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Oeffentliche Repos auf Launch Blocker pruefen",
+      "prompt-optimizer": "Grobe Anfragen in klare AI Prompts verwandeln",
+      "code-explainer": "Code mit Zweck Risiken und Notizen lesen",
+      "bug-finder": "Fehler und Snippets in Debug Schritte verwandeln",
+      "api-request-generator": "curl fetch axios und Python requests erzeugen",
+      "dev-utilities": "JSON formatieren Regex testen Zeitstempel wandeln",
+      "learning-roadmap": "Praktischen Programmierplan ab null bauen",
+    },
+    programmingTitle: (name) => `${name} Lernlabor`,
+    programmingDescription: (name) => `Definitionen Syntax Uebungen und Praxisroute fuer ${name}`,
+    programmingTag: "Praxis",
+  },
+  pt: {
+    staticItems: {
+      "/search": { title: "Busca do site", description: "Encontre ferramentas rotas e checklists em uma caixa", tags: ["busca", "indice"] },
+      "/tools/github-repo-analyzer": { title: "Auditoria GitHub", description: "Cole um repo publico e receba bloqueios pontuacao e checklist", tags: ["GitHub", "lancamento"] },
+      "/programming": { title: "Laboratorio de programacao", description: "Rotas do zero para linguagens usadas por devs", tags: ["pratica", "zero"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "Auditoria GitHub",
+      "prompt-optimizer": "Otimizador de prompt AI",
+      "code-explainer": "Explicador de codigo",
+      "bug-finder": "Detector de bugs",
+      "api-request-generator": "Gerador de requisicoes API",
+      "dev-utilities": "Utilitarios JSON Regex Tempo",
+      "learning-roadmap": "Roteiro de codigo AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Audite repos publicos para bloqueios de lancamento",
+      "prompt-optimizer": "Transforme pedidos vagos em prompts claros",
+      "code-explainer": "Leia codigo com objetivo riscos e notas",
+      "bug-finder": "Transforme erros e snippets em passos de debug",
+      "api-request-generator": "Gere exemplos curl fetch axios e Python requests",
+      "dev-utilities": "Formate JSON teste regex converta timestamps",
+      "learning-roadmap": "Crie um plano pratico para aprender programacao",
+    },
+    programmingTitle: (name) => `Laboratorio de ${name}`,
+    programmingDescription: (name) => `Definicoes sintaxe exercicios e rota pratica para ${name}`,
+    programmingTag: "pratica",
+  },
+  ru: {
+    staticItems: {
+      "/search": { title: "Поиск по сайту", description: "Инструменты маршруты и чеклисты запуска в одном поиске", tags: ["поиск", "индекс"] },
+      "/tools/github-repo-analyzer": { title: "Аудит запуска GitHub", description: "Вставь публичный repo и получи блокеры оценку и чеклист", tags: ["GitHub", "запуск"] },
+      "/programming": { title: "Лаборатория программирования", description: "Маршруты с нуля для языков разработчиков", tags: ["практика", "с нуля"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "Аудит запуска GitHub",
+      "prompt-optimizer": "AI оптимизатор prompt",
+      "code-explainer": "Объяснение кода",
+      "bug-finder": "Поиск bugs",
+      "api-request-generator": "Генератор API запросов",
+      "dev-utilities": "JSON Regex время",
+      "learning-roadmap": "AI roadmap кода",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Проверяет публичные repo перед запуском",
+      "prompt-optimizer": "Делает грубую задачу ясным AI prompt",
+      "code-explainer": "Быстро читает смысл риски и заметки кода",
+      "bug-finder": "Делает из ошибки путь отладки",
+      "api-request-generator": "Создает curl fetch axios и Python requests",
+      "dev-utilities": "Форматирует JSON тестирует regex переводит время",
+      "learning-roadmap": "Создает практичный план обучения коду",
+    },
+    programmingTitle: (name) => `Лаборатория ${name}`,
+    programmingDescription: (name) => `Определения синтаксис упражнения и практика для ${name}`,
+    programmingTag: "практика",
+  },
+  ar: {
+    staticItems: {
+      "/search": { title: "بحث الموقع", description: "ابحث عن الأدوات والمسارات وقوائم الإطلاق من مكان واحد", tags: ["بحث", "فهرس"] },
+      "/tools/github-repo-analyzer": { title: "فحص إطلاق GitHub", description: "الصق مستودعا عاما لتحصل على العوائق والنتيجة وقائمة الإصلاح", tags: ["GitHub", "إطلاق"] },
+      "/programming": { title: "مختبر تعلم البرمجة", description: "مسارات من الصفر للغات التي يستخدمها المطورون", tags: ["تدريب", "من الصفر"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "فحص إطلاق GitHub",
+      "prompt-optimizer": "محسن Prompt بالذكاء الاصطناعي",
+      "code-explainer": "شارح الكود",
+      "bug-finder": "محدد الأخطاء",
+      "api-request-generator": "منشئ طلبات API",
+      "dev-utilities": "أدوات JSON و Regex والوقت",
+      "learning-roadmap": "خطة تعلم البرمجة AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "يفحص المستودعات العامة قبل الإطلاق ويكشف العوائق",
+      "prompt-optimizer": "يحول الطلب الخام إلى Prompt أوضح",
+      "code-explainer": "يشرح الهدف والمخاطر وملاحظات التعلم في الكود",
+      "bug-finder": "يحول الخطأ والمقطع إلى خطوات تصحيح",
+      "api-request-generator": "ينشئ أمثلة curl و fetch و axios و Python requests",
+      "dev-utilities": "ينسق JSON ويختبر Regex ويحول الطوابع الزمنية",
+      "learning-roadmap": "يبني خطة عملية لتعلم البرمجة من الصفر",
+    },
+    programmingTitle: (name) => `مختبر ${name}`,
+    programmingDescription: (name) => `تعريفات وقواعد وتدريب عملي لتعلم ${name}`,
+    programmingTag: "تدريب",
+  },
+  hi: {
+    staticItems: {
+      "/search": { title: "site search", description: "tools routes aur launch checklist ek jagah search karein", tags: ["खोज", "index"] },
+      "/tools/github-repo-analyzer": { title: "GitHub launch audit", description: "public repo paste karke blockers score aur checklist paayein", tags: ["GitHub", "launch"] },
+      "/programming": { title: "programming learning lab", description: "zero base se developer languages seekhne ke routes", tags: ["practice", "zero"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "GitHub launch audit",
+      "prompt-optimizer": "AI prompt optimizer",
+      "code-explainer": "code explainer",
+      "bug-finder": "bug finder",
+      "api-request-generator": "API request generator",
+      "dev-utilities": "JSON regex time tools",
+      "learning-roadmap": "AI coding roadmap",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "public repos ko launch blockers ke liye check karein",
+      "prompt-optimizer": "rough request ko clear AI prompt banayein",
+      "code-explainer": "code ka purpose risk aur notes jaldi samjhein",
+      "bug-finder": "error aur snippet se debug steps banayein",
+      "api-request-generator": "curl fetch axios aur Python requests examples banayein",
+      "dev-utilities": "JSON format regex test timestamp convert",
+      "learning-roadmap": "zero se practical coding plan banayein",
+    },
+    programmingTitle: (name) => `${name} learning lab`,
+    programmingDescription: (name) => `${name} ke definitions syntax drills aur practice route`,
+    programmingTag: "practice",
+  },
+  id: {
+    staticItems: {
+      "/search": { title: "Pencarian situs", description: "Cari alat rute dan checklist rilis dari satu kotak", tags: ["cari", "indeks"] },
+      "/tools/github-repo-analyzer": { title: "Audit rilis GitHub", description: "Tempel repo publik untuk blocker skor dan checklist", tags: ["GitHub", "rilis"] },
+      "/programming": { title: "Lab belajar programming", description: "Rute nol dasar untuk bahasa developer", tags: ["praktik", "nol dasar"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "Audit rilis GitHub",
+      "prompt-optimizer": "Optimasi prompt AI",
+      "code-explainer": "Penjelas kode",
+      "bug-finder": "Pencari bug",
+      "api-request-generator": "Generator request API",
+      "dev-utilities": "Alat JSON Regex Waktu",
+      "learning-roadmap": "Roadmap coding AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Audit repo publik untuk kesiapan rilis",
+      "prompt-optimizer": "Ubah permintaan kasar menjadi prompt jelas",
+      "code-explainer": "Baca kode dengan tujuan risiko dan catatan",
+      "bug-finder": "Ubah error dan snippet menjadi langkah debug",
+      "api-request-generator": "Buat contoh curl fetch axios dan Python requests",
+      "dev-utilities": "Format JSON uji regex konversi timestamp",
+      "learning-roadmap": "Buat rencana coding praktis dari nol",
+    },
+    programmingTitle: (name) => `Lab ${name}`,
+    programmingDescription: (name) => `Definisi sintaks latihan dan rute praktik untuk ${name}`,
+    programmingTag: "praktik",
+  },
+  vi: {
+    staticItems: {
+      "/search": { title: "Tim kiem site", description: "Tim cong cu lo trinh va checklist phat hanh trong mot o", tags: ["tim", "chi muc"] },
+      "/tools/github-repo-analyzer": { title: "Kiem tra ra mat GitHub", description: "Dan repo cong khai de co diem blocker va checklist", tags: ["GitHub", "ra mat"] },
+      "/programming": { title: "Lab hoc lap trinh", description: "Lo trinh tu con so 0 cho ngon ngu developer", tags: ["thuc hanh", "co ban"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "Kiem tra ra mat GitHub",
+      "prompt-optimizer": "Toi uu prompt AI",
+      "code-explainer": "Giai thich code",
+      "bug-finder": "Tim bug",
+      "api-request-generator": "Tao request API",
+      "dev-utilities": "Cong cu JSON Regex Thoi gian",
+      "learning-roadmap": "Lo trinh code AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Kiem tra repo cong khai truoc khi ra mat",
+      "prompt-optimizer": "Bien yeu cau tho thanh prompt ro rang",
+      "code-explainer": "Doc code voi muc dich rui ro va ghi chu",
+      "bug-finder": "Bien loi va snippet thanh buoc debug",
+      "api-request-generator": "Tao curl fetch axios va Python requests",
+      "dev-utilities": "Format JSON test regex doi timestamp",
+      "learning-roadmap": "Tao ke hoach hoc code tu so 0",
+    },
+    programmingTitle: (name) => `Lab ${name}`,
+    programmingDescription: (name) => `Dinh nghia cu phap bai tap va lo trinh cho ${name}`,
+    programmingTag: "thuc hanh",
+  },
+  th: {
+    staticItems: {
+      "/search": { title: "ค้นหาในไซต์", description: "ค้นหาเครื่องมือ เส้นทาง และ checklist เปิดตัวในช่องเดียว", tags: ["ค้นหา", "ดัชนี"] },
+      "/tools/github-repo-analyzer": { title: "ตรวจเปิดตัว GitHub", description: "วาง repo สาธารณะเพื่อดู blocker score และ checklist", tags: ["GitHub", "เปิดตัว"] },
+      "/programming": { title: "แล็บเรียนเขียนโปรแกรม", description: "เส้นทางจากศูนย์สำหรับภาษา developer", tags: ["ฝึก", "พื้นฐาน"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "ตรวจเปิดตัว GitHub",
+      "prompt-optimizer": "ปรับ Prompt AI",
+      "code-explainer": "อธิบายโค้ด",
+      "bug-finder": "ค้นหา bug",
+      "api-request-generator": "สร้าง request API",
+      "dev-utilities": "เครื่องมือ JSON Regex เวลา",
+      "learning-roadmap": "Roadmap เขียนโค้ด AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "ตรวจ repo สาธารณะก่อนเปิดตัว",
+      "prompt-optimizer": "เปลี่ยนคำขอคร่าวๆ ให้เป็น prompt ชัดเจน",
+      "code-explainer": "อ่านโค้ดพร้อมเป้าหมาย ความเสี่ยง และโน้ต",
+      "bug-finder": "เปลี่ยน error และ snippet เป็นขั้นตอน debug",
+      "api-request-generator": "สร้างตัวอย่าง curl fetch axios และ Python requests",
+      "dev-utilities": "จัด JSON ทดสอบ regex แปลง timestamp",
+      "learning-roadmap": "สร้างแผนเรียนโค้ดจากศูนย์",
+    },
+    programmingTitle: (name) => `แล็บ ${name}`,
+    programmingDescription: (name) => `นิยาม syntax แบบฝึก และเส้นทางฝึกสำหรับ ${name}`,
+    programmingTag: "ฝึก",
+  },
+  tr: {
+    staticItems: {
+      "/search": { title: "Site arama", description: "Araclari rotalari ve launch checklistleri tek kutuda bul", tags: ["arama", "dizin"] },
+      "/tools/github-repo-analyzer": { title: "GitHub launch denetimi", description: "Public repo yapistir blocker skor ve checklist al", tags: ["GitHub", "launch"] },
+      "/programming": { title: "Programlama ogrenme lab", description: "Sifirdan developer dilleri icin rotalar", tags: ["pratik", "sifir"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "GitHub launch denetimi",
+      "prompt-optimizer": "AI prompt iyilestirici",
+      "code-explainer": "Kod aciklayici",
+      "bug-finder": "Bug bulucu",
+      "api-request-generator": "API request olusturucu",
+      "dev-utilities": "JSON Regex Zaman araclari",
+      "learning-roadmap": "AI kod roadmap",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Public repolari launch blocker icin denetler",
+      "prompt-optimizer": "Kaba istegi net AI prompt haline getirir",
+      "code-explainer": "Kodu amac risk ve notlarla okur",
+      "bug-finder": "Hata ve snippetten debug adimlari cikarir",
+      "api-request-generator": "curl fetch axios ve Python requests uretir",
+      "dev-utilities": "JSON formatlar regex test eder timestamp cevirir",
+      "learning-roadmap": "Sifirdan pratik kod plani olusturur",
+    },
+    programmingTitle: (name) => `${name} lab`,
+    programmingDescription: (name) => `${name} icin tanimlar soz dizimi alistirma ve rota`,
+    programmingTag: "pratik",
+  },
+  it: {
+    staticItems: {
+      "/search": { title: "Ricerca sito", description: "Trova strumenti percorsi e checklist di lancio in una sola casella", tags: ["cerca", "indice"] },
+      "/tools/github-repo-analyzer": { title: "Audit lancio GitHub", description: "Incolla un repo pubblico e ottieni blocchi score e checklist", tags: ["GitHub", "lancio"] },
+      "/programming": { title: "Lab di programmazione", description: "Percorsi da zero per linguaggi usati dai developer", tags: ["pratica", "base"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "Audit lancio GitHub",
+      "prompt-optimizer": "Ottimizzatore prompt AI",
+      "code-explainer": "Spiegatore codice",
+      "bug-finder": "Trova bug",
+      "api-request-generator": "Generatore richieste API",
+      "dev-utilities": "Strumenti JSON Regex Tempo",
+      "learning-roadmap": "Roadmap codice AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Controlla repo pubblici prima del lancio",
+      "prompt-optimizer": "Trasforma richieste grezze in prompt chiari",
+      "code-explainer": "Legge codice con scopo rischi e note",
+      "bug-finder": "Trasforma errori e snippet in passi debug",
+      "api-request-generator": "Genera curl fetch axios e Python requests",
+      "dev-utilities": "Formatta JSON prova regex converte timestamp",
+      "learning-roadmap": "Crea un piano pratico per imparare codice",
+    },
+    programmingTitle: (name) => `Lab ${name}`,
+    programmingDescription: (name) => `Definizioni sintassi esercizi e percorso pratico per ${name}`,
+    programmingTag: "pratica",
+  },
+  nl: {
+    staticItems: {
+      "/search": { title: "Site zoeken", description: "Vind tools routes en launch checklists vanuit een zoekvak", tags: ["zoeken", "index"] },
+      "/tools/github-repo-analyzer": { title: "GitHub launch audit", description: "Plak een publiek repo en krijg blockers score en checklist", tags: ["GitHub", "launch"] },
+      "/programming": { title: "Programmeer leerlab", description: "Nul basis routes voor talen van developers", tags: ["praktijk", "basis"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "GitHub launch audit",
+      "prompt-optimizer": "AI prompt optimizer",
+      "code-explainer": "Code uitlegger",
+      "bug-finder": "Bug finder",
+      "api-request-generator": "API request generator",
+      "dev-utilities": "JSON Regex Tijd tools",
+      "learning-roadmap": "AI coding roadmap",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Controleer publieke repos op launch blockers",
+      "prompt-optimizer": "Maak ruwe verzoeken heldere AI prompts",
+      "code-explainer": "Lees code met doel risico en notities",
+      "bug-finder": "Maak debug stappen uit errors en snippets",
+      "api-request-generator": "Genereer curl fetch axios en Python requests",
+      "dev-utilities": "Format JSON test regex converteer timestamps",
+      "learning-roadmap": "Maak een praktisch code leerplan vanaf nul",
+    },
+    programmingTitle: (name) => `${name} leerlab`,
+    programmingDescription: (name) => `Definities syntax oefeningen en praktijkroute voor ${name}`,
+    programmingTag: "praktijk",
+  },
+  pl: {
+    staticItems: {
+      "/search": { title: "Wyszukiwanie", description: "Znajdz narzedzia sciezki i checklisty launch w jednym polu", tags: ["szukaj", "indeks"] },
+      "/tools/github-repo-analyzer": { title: "Audyt launch GitHub", description: "Wklej publiczne repo aby dostac blokery score i checklist", tags: ["GitHub", "launch"] },
+      "/programming": { title: "Lab nauki programowania", description: "Sciezki od zera dla jezykow developerow", tags: ["praktyka", "od zera"] },
+    },
+    toolTitles: {
+      "github-repo-analyzer": "Audyt launch GitHub",
+      "prompt-optimizer": "Optymalizator prompt AI",
+      "code-explainer": "Wyjasniacz kodu",
+      "bug-finder": "Wyszukiwacz bugow",
+      "api-request-generator": "Generator requestow API",
+      "dev-utilities": "Narzędzia JSON Regex Czas",
+      "learning-roadmap": "Roadmap kodowania AI",
+    },
+    toolDescriptions: {
+      "github-repo-analyzer": "Sprawdza publiczne repo przed launch",
+      "prompt-optimizer": "Zmienia surowe prosby w jasne prompty",
+      "code-explainer": "Czyta kod z celem ryzykiem i notatkami",
+      "bug-finder": "Z errorow i snippetow robi kroki debug",
+      "api-request-generator": "Generuje curl fetch axios i Python requests",
+      "dev-utilities": "Formatuje JSON testuje regex konwertuje czas",
+      "learning-roadmap": "Tworzy praktyczny plan nauki kodu od zera",
+    },
+    programmingTitle: (name) => `Lab ${name}`,
+    programmingDescription: (name) => `Definicje skladnia cwiczenia i trasa praktyki dla ${name}`,
+    programmingTag: "praktyka",
+  },
+};
+
+function programmingNameFromTitle(title: string) {
+  return title.replace(/\s+Learning Lab$/i, "");
+}
+
+function displaySearchItem(item: SiteSearchItem, language: InterfaceLanguage, copy: SearchCopy) {
+  const resultCopy = searchResultDisplayCopy[language];
+  const category = copy.categories[item.category] || item.category;
+  const staticItem = resultCopy.staticItems[item.href];
+  if (staticItem) {
+    return { ...staticItem, category };
+  }
+
+  const toolSlug = item.href.match(/^\/tools\/([^/?#]+)/)?.[1];
+  if (toolSlug && resultCopy.toolTitles[toolSlug]) {
+    return {
+      title: resultCopy.toolTitles[toolSlug],
+      category,
+      description: resultCopy.toolDescriptions[toolSlug],
+      tags: [category, resultCopy.toolTitles[toolSlug].split(" ")[0], copy.open],
+    };
+  }
+
+  const programmingSlug = item.href.match(/^\/programming\/([^/?#]+)/)?.[1];
+  if (programmingSlug) {
+    const name = programmingNameFromTitle(item.title);
+    return {
+      title: resultCopy.programmingTitle(name),
+      category,
+      description: resultCopy.programmingDescription(name),
+      tags: [category, name, resultCopy.programmingTag],
+    };
+  }
+
+  return {
+    title: item.title,
+    category,
+    description: item.description,
+    tags: [category],
+  };
+}
+
+function displayQuickSearchLabel(query: string, fallback: string, language: InterfaceLanguage, copy: SearchCopy) {
+  if (query === "github audit") return copy.launchAudit;
+  if (query === "prompt") return copy.optimizePrompt;
+  if (query === "bug") return copy.findBug;
+  if (query === "roadmap") return searchResultDisplayCopy[language].toolTitles["learning-roadmap"];
+  return fallback;
+}
+
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = searchParams ? await searchParams : undefined;
   const language = resolveInterfaceLanguage(params);
@@ -603,7 +1173,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="mt-4 flex flex-wrap gap-2">
             {quickSearches.map((item) => (
               <Link key={item.query} href={localizedHref(`/search?q=${encodeURIComponent(item.query)}`, language)} className="dense-status">
-                {item.label}
+                {displayQuickSearchLabel(item.query, item.label, language, copy)}
               </Link>
             ))}
           </div>
@@ -651,23 +1221,26 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </div>
             ) : (
               <div className="grid gap-2 md:grid-cols-2">
-                {resultItems.map((item) => (
-                  <Link key={`${item.category}-${item.href}`} href={localizedHref(item.href, language)} className="dense-card p-4 transition hover:-translate-y-0.5 hover:border-slate-300">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="eyebrow">{item.category}</p>
-                        <h3 className="mt-2 truncate text-xl font-semibold">{item.title}</h3>
+                {resultItems.map((item) => {
+                  const displayItem = displaySearchItem(item, language, copy);
+                  return (
+                    <Link key={`${item.category}-${item.href}`} href={localizedHref(item.href, language)} className="dense-card p-4 transition hover:-translate-y-0.5 hover:border-slate-300">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="eyebrow">{displayItem.category}</p>
+                          <h3 className="mt-2 truncate text-xl font-semibold">{displayItem.title}</h3>
+                        </div>
+                        <span className="dense-status">{copy.open}</span>
                       </div>
-                      <span className="dense-status">{copy.open}</span>
-                    </div>
-                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-[color:var(--muted)]">{item.description}</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {item.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="dense-status">{tag}</span>
-                      ))}
-                    </div>
-                  </Link>
-                ))}
+                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-[color:var(--muted)]">{displayItem.description}</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {displayItem.tags.map((tag) => (
+                          <span key={tag} className="dense-status">{tag}</span>
+                        ))}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </section>
