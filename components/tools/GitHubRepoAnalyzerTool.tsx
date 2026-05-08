@@ -4,6 +4,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ToolLayout, { type OutputBlock } from "@/components/tools/ToolLayout";
 
 type GitHubRepoAnalysis = {
+  auditEngine?: {
+    mode: "github-api" | "raw-fallback";
+    aiDependency: "none";
+    ruleVersion: string;
+    checks: string[];
+  };
   repository: {
     fullName: string;
     url: string;
@@ -448,6 +454,11 @@ function riskLevelLabel(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"
   return "高";
 }
 
+function auditModeLabel(mode: NonNullable<GitHubRepoAnalysis["auditEngine"]>["mode"] | undefined, zh: boolean) {
+  if (mode === "raw-fallback") return zh ? "原始文件兜底" : "Raw file fallback";
+  return zh ? "GitHub API 规则检查" : "GitHub API rules";
+}
+
 function scorecardStatusLabel(status: "pass" | "review" | "missing", zh: boolean) {
   if (status === "pass") return zh ? "通过" : "Pass";
   if (status === "review") return zh ? "待确认" : "Review";
@@ -674,6 +685,11 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
       {analysis && (
         <section className="repo-audit-brief">
           <div>
+            <p className="eyebrow">{zh ? "引擎" : "Engine"}</p>
+            <strong>{auditModeLabel(analysis.auditEngine?.mode, zh)}</strong>
+            <span>{zh ? "AI 依赖 0 · 规则优先" : "AI dependency none · rules first"}</span>
+          </div>
+          <div>
             <p className="eyebrow">{zh ? "仓库" : "Repository"}</p>
             <strong>{analysis.repository.fullName}</strong>
             <span>{analysis.repository.language || (zh ? "未知" : "Unknown")} · {analysis.repository.license || (zh ? "无许可证" : "No license")} · {repoAgeLabel(analysis.repository.pushedAt, zh)}</span>
@@ -745,6 +761,10 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: "e
         />
       </label>
       <div className="tool-field-grid">
+        <div className="dense-row">
+          <span className="text-sm font-semibold">{zh ? "检查方式" : "Audit method"}</span>
+          <span className="text-xs text-[color:var(--muted)]">{zh ? "确定性规则优先" : "Deterministic rules first"}</span>
+        </div>
         <div className="dense-row">
           <span className="text-sm font-semibold">{zh ? "范围" : "Scope"}</span>
           <span className="text-xs text-[color:var(--muted)]">{zh ? "仅公开仓库" : "Public repo only"}</span>

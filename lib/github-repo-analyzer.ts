@@ -3,6 +3,12 @@ export type GitHubRepoInput = {
 };
 
 export type GitHubRepoAnalysis = {
+  auditEngine: {
+    mode: "github-api" | "raw-fallback";
+    aiDependency: "none";
+    ruleVersion: string;
+    checks: string[];
+  };
   repository: {
     owner: string;
     name: string;
@@ -107,6 +113,17 @@ const ANALYSIS_CACHE_TTL_MS = 10 * 60_000;
 const ANALYSIS_CACHE_MAX = 40;
 const MAX_FILE_BYTES = 180_000;
 const OWNER_REPO_RE = /^[A-Za-z0-9_.-]+$/;
+const RULE_VERSION = "rules-first-2026-05";
+const RULE_CHECKS = [
+  "README quick start",
+  "environment template",
+  "CI workflow",
+  "build and quality scripts",
+  "deployment notes",
+  "security and risky files",
+  "license signal",
+  "release checklist",
+];
 const analysisCache = new Map<string, CachedAnalysis>();
 
 const candidateFiles = [
@@ -677,6 +694,7 @@ function buildAnalysis({
   files,
   workflows,
   fileStructure,
+  mode,
   riskyFiles = [],
   extraOverview = [],
 }: {
@@ -686,6 +704,7 @@ function buildAnalysis({
   files: Map<string, string | null>;
   workflows: string[];
   fileStructure: string[];
+  mode: GitHubRepoAnalysis["auditEngine"]["mode"];
   riskyFiles?: string[];
   extraOverview?: string[];
 }): GitHubRepoAnalysis {
@@ -706,6 +725,12 @@ function buildAnalysis({
   ];
 
   return {
+    auditEngine: {
+      mode,
+      aiDependency: "none",
+      ruleVersion: RULE_VERSION,
+      checks: RULE_CHECKS,
+    },
     repository: {
       owner,
       name: repo,
@@ -731,6 +756,7 @@ function buildAnalysis({
     copyableIssues: audit.copyableIssues,
     overview: [
       ...extraOverview,
+      `Audit engine: deterministic ${RULE_VERSION}. AI dependency: none.`,
       meta.description ?? "No description was provided by the repository.",
       `Primary language signal: ${meta.language ?? "unknown"}.`,
       `Default branch: ${meta.default_branch}. Recent push: ${meta.pushed_at}.`,
@@ -792,6 +818,7 @@ async function analyzeWithGitHubApi(owner: string, repo: string) {
     files,
     workflows: readWorkflowNames(tree),
     fileStructure: rootStructureFromTree(tree),
+    mode: "github-api",
     riskyFiles: riskyPublicFiles(tree),
   });
 }
@@ -828,6 +855,7 @@ async function analyzeWithRawFallback(owner: string, repo: string) {
     files,
     workflows: [],
     fileStructure: fallbackFileStructure(files),
+    mode: "raw-fallback",
     extraOverview: [
       "Fast fallback mode: GitHub API metadata was unavailable, so this audit was built from public raw files only.",
     ],
