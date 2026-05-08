@@ -35,6 +35,19 @@ function browserHeaders(acceptLanguage, index = 1) {
   };
 }
 
+function apiHeaders(acceptLanguage, index = 20) {
+  return {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+    Accept: "application/json",
+    "Accept-Language": acceptLanguage,
+    "Content-Type": "application/json",
+    Origin: baseUrl,
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
+    "X-Forwarded-For": `127.0.0.${40 + index}`,
+  };
+}
+
 async function fetchWithTimeout(path, headers, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -47,6 +60,27 @@ async function fetchWithTimeout(path, headers, options = {}) {
     });
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+async function checkApiJson(name, path, acceptLanguage, options, requiredSnippets, forbiddenSnippets, index) {
+  try {
+    const response = await fetchWithTimeout(path, apiHeaders(acceptLanguage, index), {
+      ...options,
+      redirect: "follow",
+    });
+    const body = await response.text();
+    if (response.ok) return bad(name, `expected an error response, got HTTP ${response.status}`);
+
+    const missing = requiredSnippets.filter((snippet) => !body.includes(snippet));
+    if (missing.length) return bad(name, `missing localized JSON snippets: ${missing.join(" | ")}`);
+
+    const exposed = forbiddenSnippets.filter((snippet) => body.includes(snippet));
+    if (exposed.length) return bad(name, `unexpected English fallback snippets: ${exposed.join(" | ")}`);
+
+    return ok(name, `${path} returned localized JSON error`);
+  } catch (error) {
+    bad(name, error instanceof Error ? error.message : "request failed");
   }
 }
 
@@ -151,6 +185,26 @@ async function main() {
     ["محسن Prompt بالذكاء الاصطناعي", "يحول الطلب الخام", "مثال ابن صفحة"],
     ["AI Prompt Optimizer", "Turn a rough request into"],
     7,
+  );
+
+  await checkApiJson(
+    "api-github-ja",
+    "/api/tools/github-repo-analyzer?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    { method: "POST", body: "{}" },
+    ["GitHub リポジトリ URL を入力してください"],
+    ["Repository URL is required", "Invalid request"],
+    9,
+  );
+
+  await checkApiJson(
+    "api-questions-ar",
+    "/api/questions?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    { method: "GET" },
+    ["طلب غير صالح"],
+    ["lessonId is required", "Invalid request"],
+    10,
   );
 
   await checkSitemapAlternates();
