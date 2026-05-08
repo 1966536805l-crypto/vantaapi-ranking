@@ -2473,6 +2473,116 @@ function questionHints(question: ProgrammingQuestion, activeRole: string, langua
   );
 }
 
+type QuestionExplanationCopy = {
+  choice: (concept: string) => string;
+  fill: (concept: string, answer: string) => string;
+  practical: (languageTitle: string, keywords: string) => string;
+};
+
+const questionExplanationCopy: Record<InterfaceLanguage, QuestionExplanationCopy> = {
+  en: {
+    choice: (concept) => `The correct choice matches ${concept} and avoids guessing before running the code.`,
+    fill: (_concept, answer) => `The missing part is ${answer}. Put it back and read the line from left to right.`,
+    practical: (languageTitle, keywords) => `A working ${languageTitle} answer should include the required parts ${keywords}.`,
+  },
+  zh: {
+    choice: (concept) => `正确选项对应 ${concept}，不要靠猜语法，要看它是否能解释代码行为。`,
+    fill: (_concept, answer) => `缺失部分是 ${answer}。把它放回代码里，再从左到右读一遍这一行。`,
+    practical: (languageTitle, keywords) => `${languageTitle} 实操答案要先满足这些关键部分 ${keywords}，再考虑写得漂亮。`,
+  },
+  ja: {
+    choice: (concept) => `正しい選択肢は ${concept} に合っています。構文を暗記するより、コードの動きを説明できるかを見ます。`,
+    fill: (_concept, answer) => `空欄に入るのは ${answer} です。戻したあと、その行を左から右へ読み直してください。`,
+    practical: (languageTitle, keywords) => `${languageTitle} の実践回答では、まず ${keywords} を含めることを確認します。`,
+  },
+  ko: {
+    choice: (concept) => `정답은 ${concept} 와 맞습니다. 문법을 외우기보다 코드 동작을 설명할 수 있는지 확인하세요.`,
+    fill: (_concept, answer) => `빈칸은 ${answer} 입니다. 다시 넣고 그 줄을 왼쪽에서 오른쪽으로 읽어 보세요.`,
+    practical: (languageTitle, keywords) => `${languageTitle} 실습 답안은 먼저 ${keywords} 를 포함해야 합니다.`,
+  },
+  es: {
+    choice: (concept) => `La opción correcta encaja con ${concept}. No memorices al azar, comprueba si explica el comportamiento del código.`,
+    fill: (_concept, answer) => `La parte que falta es ${answer}. Vuelve a ponerla y lee la línea de izquierda a derecha.`,
+    practical: (languageTitle, keywords) => `Una solución de ${languageTitle} debe incluir primero estas partes clave ${keywords}.`,
+  },
+  fr: {
+    choice: (concept) => `Le bon choix correspond a ${concept}. Ne devine pas la syntaxe, verifie si elle explique le comportement du code.`,
+    fill: (_concept, answer) => `La partie manquante est ${answer}. Remets-la puis relis la ligne de gauche a droite.`,
+    practical: (languageTitle, keywords) => `Une reponse ${languageTitle} doit d abord contenir ces elements ${keywords}.`,
+  },
+  de: {
+    choice: (concept) => `Die richtige Auswahl passt zu ${concept}. Rate keine Syntax, sondern pruefe ob sie das Codeverhalten erklaert.`,
+    fill: (_concept, answer) => `Der fehlende Teil ist ${answer}. Setze ihn ein und lies die Zeile von links nach rechts.`,
+    practical: (languageTitle, keywords) => `Eine ${languageTitle} Loesung sollte zuerst diese Teile enthalten ${keywords}.`,
+  },
+  pt: {
+    choice: (concept) => `A opcao correta combina com ${concept}. Nao chute sintaxe, veja se ela explica o comportamento do codigo.`,
+    fill: (_concept, answer) => `A parte que falta e ${answer}. Recoloque e leia a linha da esquerda para a direita.`,
+    practical: (languageTitle, keywords) => `Uma solucao em ${languageTitle} deve incluir primeiro estas partes ${keywords}.`,
+  },
+  ru: {
+    choice: (concept) => `Правильный вариант соответствует теме ${concept}. Не угадывай синтаксис, проверь объясняет ли он поведение кода.`,
+    fill: (_concept, answer) => `Пропущенная часть это ${answer}. Верни ее и прочитай строку слева направо.`,
+    practical: (languageTitle, keywords) => `Решение на ${languageTitle} сначала должно содержать эти части ${keywords}.`,
+  },
+  ar: {
+    choice: (concept) => `الخيار الصحيح يطابق ${concept}. لا تحفظ الصياغة عشوائيا، بل تأكد أنه يشرح سلوك الكود.`,
+    fill: (_concept, answer) => `الجزء الناقص هو ${answer}. أعده إلى السطر ثم اقرأ السطر من البداية إلى النهاية.`,
+    practical: (languageTitle, keywords) => `إجابة ${languageTitle} العملية يجب أن تحتوي أولا على هذه الأجزاء ${keywords}.`,
+  },
+  hi: {
+    choice: (concept) => `सही विकल्प ${concept} से मेल खाता है. Syntax guess मत करें, देखें कि यह code behavior समझाता है या नहीं.`,
+    fill: (_concept, answer) => `Missing part ${answer} है. इसे वापस रखें और line को शुरू से अंत तक पढ़ें.`,
+    practical: (languageTitle, keywords) => `${languageTitle} solution में पहले ये required parts होने चाहिए ${keywords}.`,
+  },
+  id: {
+    choice: (concept) => `Pilihan benar cocok dengan ${concept}. Jangan menebak sintaks, cek apakah ia menjelaskan perilaku kode.`,
+    fill: (_concept, answer) => `Bagian yang hilang adalah ${answer}. Masukkan kembali lalu baca barisnya dari awal sampai akhir.`,
+    practical: (languageTitle, keywords) => `Jawaban ${languageTitle} harus memuat bagian wajib ini lebih dulu ${keywords}.`,
+  },
+  vi: {
+    choice: (concept) => `Lua chon dung khop voi ${concept}. Dung doan cu phap, hay xem no giai thich duoc hanh vi code khong.`,
+    fill: (_concept, answer) => `Phan bi thieu la ${answer}. Dat lai vao dong roi doc tu trai sang phai.`,
+    practical: (languageTitle, keywords) => `Loi giai ${languageTitle} truoc het can co cac phan ${keywords}.`,
+  },
+  th: {
+    choice: (concept) => `ตัวเลือกที่ถูกต้องตรงกับ ${concept} อย่าเดา syntax ให้ดูว่ามันอธิบายพฤติกรรมของโค้ดได้หรือไม่`,
+    fill: (_concept, answer) => `ส่วนที่หายไปคือ ${answer} ใส่กลับเข้าไปแล้วอ่านบรรทัดนั้นตั้งแต่ต้นจนจบ`,
+    practical: (languageTitle, keywords) => `คำตอบ ${languageTitle} ควรมีส่วนสำคัญเหล่านี้ก่อน ${keywords}`,
+  },
+  tr: {
+    choice: (concept) => `Dogru secenek ${concept} ile eslesir. Syntax tahmin etme, kod davranisini aciklayip aciklamadigina bak.`,
+    fill: (_concept, answer) => `Eksik parca ${answer}. Onu geri koy ve satiri bastan sona oku.`,
+    practical: (languageTitle, keywords) => `${languageTitle} cozumu once bu gerekli parcalari icermeli ${keywords}.`,
+  },
+  it: {
+    choice: (concept) => `La scelta corretta corrisponde a ${concept}. Non indovinare la sintassi, verifica se spiega il comportamento del codice.`,
+    fill: (_concept, answer) => `La parte mancante e ${answer}. Rimettila e rileggi la riga da sinistra a destra.`,
+    practical: (languageTitle, keywords) => `Una soluzione ${languageTitle} deve prima contenere queste parti ${keywords}.`,
+  },
+  nl: {
+    choice: (concept) => `De juiste keuze past bij ${concept}. Raad geen syntax, maar kijk of die het codegedrag verklaart.`,
+    fill: (_concept, answer) => `Het ontbrekende deel is ${answer}. Zet het terug en lees de regel van begin tot eind.`,
+    practical: (languageTitle, keywords) => `Een ${languageTitle} antwoord moet eerst deze verplichte delen bevatten ${keywords}.`,
+  },
+  pl: {
+    choice: (concept) => `Poprawna opcja pasuje do ${concept}. Nie zgaduj skladni, sprawdz czy wyjasnia zachowanie kodu.`,
+    fill: (_concept, answer) => `Brakujaca czesc to ${answer}. Wstaw ja z powrotem i przeczytaj linie od poczatku do konca.`,
+    practical: (languageTitle, keywords) => `Rozwiazanie ${languageTitle} powinno najpierw zawierac te czesci ${keywords}.`,
+  },
+};
+
+function questionExplanation(question: ProgrammingQuestion, language: InterfaceLanguage, languageTitle: string) {
+  if (language === "en") return question.explanation;
+  const copy = questionExplanationCopy[language];
+  const concept = conceptLabel(question, language);
+  const answerHead = question.answer.split(/\r?\n/)[0];
+  const keywords = question.requiredKeywords.slice(0, 3).join(" ");
+  if (question.type === "MULTIPLE_CHOICE") return copy.choice(concept);
+  if (question.type === "FILL_BLANK") return copy.fill(concept, answerHead);
+  return copy.practical(languageTitle, keywords);
+}
+
 function roleForInterface(activeLanguage: ReturnType<typeof getProgrammingLanguage>, language: InterfaceLanguage) {
   if (language === "zh") return languageRoleZh[activeLanguage.slug] ?? activeLanguage.role;
   if (language === "ja") return languageRoleJa[activeLanguage.slug] ?? activeLanguage.role;
@@ -4713,7 +4823,7 @@ export default function ProgrammingTrainer({
               <section className="programming-inspector-card">
                 <h3>{copy.answer}</h3>
                 {showAnswer ? <pre>{question.answer}</pre> : <p className="programming-muted">{copy.answerEmpty}</p>}
-                {showAnswer && <p className="programming-muted">{question.explanation}</p>}
+                {showAnswer && <p className="programming-muted">{questionExplanation(question, language, activeLanguage.title)}</p>}
               </section>
 
               <section className="programming-inspector-card">
