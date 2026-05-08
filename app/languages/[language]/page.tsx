@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import { WorldLanguageStarterTrainer } from "@/components/learning/WorldLanguageStarterTrainer";
-import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import {
   worldLanguages,
   worldLanguageStarterPlan,
@@ -263,8 +263,11 @@ export function generateStaticParams() {
   return worldLanguages.map((language) => ({ language: language.slug }));
 }
 
-export async function generateMetadata({ params }: WorldLanguagePageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: WorldLanguagePageProps): Promise<Metadata> {
   const { language } = await params;
+  const interfaceLanguage = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const copyLanguage = detailLanguage(interfaceLanguage);
+  const copy = detailCopy[copyLanguage];
   const current = getLanguage(language);
   if (!current) {
     return {
@@ -272,16 +275,22 @@ export async function generateMetadata({ params }: WorldLanguagePageProps): Prom
     };
   }
 
+  const path = `/languages/${current.slug}`;
+  const canonical = localizedHref(path, interfaceLanguage);
+  const title = `${current.name} ${copy.zero} - JinMing Lab`;
+  const description = copy.heroBody(current.script);
+
   return {
-    title: `${current.name} Zero Foundation Course - JinMing Lab`,
-    description: `Learn ${current.name} from zero with pronunciation script first phrases sentence slots and a seven day plan.`,
+    title,
+    description,
     alternates: {
-      canonical: `/languages/${current.slug}`,
+      canonical,
+      languages: localizedLanguageAlternates(path),
     },
     openGraph: {
-      title: `${current.name} Zero Foundation Course - JinMing Lab`,
-      description: `Start ${current.name} from zero with sound script first phrases and daily review.`,
-      url: `https://vantaapi.com/languages/${current.slug}`,
+      title,
+      description,
+      url: `https://vantaapi.com${canonical}`,
       siteName: "JinMing Lab",
       type: "website",
     },

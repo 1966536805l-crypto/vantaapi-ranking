@@ -2,29 +2,39 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import { WorldLanguageExplorer } from "@/components/learning/WorldLanguageExplorer";
-import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import {
   worldLanguageFamilies,
   worldLanguages,
   worldLanguageStarterPlan,
 } from "@/lib/world-language-content";
 
-export const metadata: Metadata = {
-  title: "World Languages Zero Foundation - JinMing Lab",
-  description:
-    "A zero foundation world language learning hub for pronunciation script first phrases sentence patterns and daily review.",
-  alternates: {
-    canonical: "/languages",
-  },
-  openGraph: {
-    title: "World Languages Zero Foundation - JinMing Lab",
-    description:
-      "Start human languages from zero with sound script first phrases sentence patterns and daily review.",
-    url: "https://vantaapi.com/languages",
-    siteName: "JinMing Lab",
-    type: "website",
-  },
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<PageSearchParams>;
+}): Promise<Metadata> {
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const copyLanguage = languagesPageLanguage(language);
+  const page = pageCopy[copyLanguage];
+  const canonical = localizedHref("/languages", language);
+
+  return {
+    title: `${page.title} - JinMing Lab`,
+    description: page.body,
+    alternates: {
+      canonical,
+      languages: localizedLanguageAlternates("/languages"),
+    },
+    openGraph: {
+      title: `${page.title} - JinMing Lab`,
+      description: page.body,
+      url: `https://vantaapi.com${canonical}`,
+      siteName: "JinMing Lab",
+      type: "website",
+    },
+  };
+}
 
 const featuredSlugs = [
   "english",
