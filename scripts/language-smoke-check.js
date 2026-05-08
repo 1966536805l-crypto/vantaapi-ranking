@@ -109,7 +109,7 @@ async function main() {
     "github-audit-de",
     "/tools/github-repo-analyzer?lang=de",
     "de-DE,de;q=0.9,en;q=0.2",
-    ["Bereit fuer Audit", "Repo auditieren", "Ergebnis"],
+    ["Bereit fuer Audit", "Repo auditieren", "Ergebnis", "hrefLang=\"de-DE\"", "https://vantaapi.com/tools/github-repo-analyzer?lang=de"],
     ["Ready to audit", "Audit repo", "GENERATED"],
     5,
   );
@@ -118,7 +118,7 @@ async function main() {
     "search-ja",
     "/search?lang=ja&q=github",
     "ja-JP,ja;q=0.9,en;q=0.2",
-    ["開発者ツール検索", "GitHub 公開前監査", "/tools/github-repo-analyzer?lang=ja"],
+    ["開発者ツール検索", "GitHub 公開前監査", "hrefLang=\"ja-JP\"", "https://vantaapi.com/search?lang=ja", "/tools/github-repo-analyzer?lang=ja"],
     ["Developer Tool Search", "Run GitHub Launch Audit"],
     6,
   );

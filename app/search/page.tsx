@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
-import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { searchSite, siteSearchItems, type SiteSearchItem } from "@/lib/site-search";
 
 type SearchPageProps = {
@@ -522,7 +522,8 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     description: copy.body,
     keywords: ["GitHub launch audit", "AI developer tools", "Prompt", "Bug", "API", "coding roadmap"],
     alternates: {
-      canonical: "/search",
+      canonical: localizedHref("/search", language),
+      languages: localizedLanguageAlternates("/search"),
     },
     openGraph: {
       title: `${copy.title} - JinMing Lab`,

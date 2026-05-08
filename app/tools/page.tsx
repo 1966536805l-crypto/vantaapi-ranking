@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ToolWorkbench from "@/components/tools/ToolWorkbench";
-import { resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { toolDefinitions } from "@/lib/tool-definitions";
 
 const toolsMetaCopy: Record<InterfaceLanguage, { title: string; description: string; name: string }> = {
@@ -104,7 +104,8 @@ export async function generateMetadata({ searchParams }: { searchParams?: Promis
     title: meta.title,
     description: meta.description,
     alternates: {
-      canonical: "/tools",
+      canonical: localizedHref("/tools", language),
+      languages: localizedLanguageAlternates("/tools"),
     },
     openGraph: {
       title: meta.title,

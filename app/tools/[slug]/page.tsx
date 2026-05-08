@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ToolWorkbench from "@/components/tools/ToolWorkbench";
-import { resolveInterfaceLanguage, type InterfaceLanguage } from "@/lib/language";
+import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage } from "@/lib/language";
 import { getToolDefinition, toolDefinitions, type ToolDefinition } from "@/lib/tool-definitions";
 
 type ToolRouteProps = {
@@ -321,7 +321,8 @@ export async function generateMetadata({ params, searchParams }: ToolRouteProps)
     description,
     keywords: toolKeywords(localizedTool),
     alternates: {
-      canonical: `/tools/${tool.slug}`,
+      canonical: localizedHref(`/tools/${tool.slug}`, language),
+      languages: localizedLanguageAlternates(`/tools/${tool.slug}`),
     },
     openGraph: {
       title,

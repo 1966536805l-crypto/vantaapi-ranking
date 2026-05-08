@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import RepoAuditForm from "@/components/home/RepoAuditForm";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
-import { isInterfaceLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
+import { isInterfaceLanguage, localizedHref, localizedLanguageAlternates, type InterfaceLanguage } from "@/lib/language";
 
 type HomeSearchParams = Promise<{ ui?: string | string[]; lang?: string | string[] }>;
 
@@ -547,7 +547,8 @@ export async function generateMetadata({ searchParams }: { searchParams: HomeSea
       "GitHub 项目体检",
     ],
     alternates: {
-      canonical: "/",
+      canonical: localizedHref("/", language),
+      languages: localizedLanguageAlternates("/"),
     },
     openGraph: {
       title,
