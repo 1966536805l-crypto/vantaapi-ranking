@@ -3,14 +3,7 @@
 import { useState } from "react";
 import type { InterfaceLanguage } from "@/lib/language";
 
-type WrongActionLanguage = "en" | "zh" | "ja" | "ar";
-
-function actionLanguage(language: InterfaceLanguage): WrongActionLanguage {
-  if (language === "zh" || language === "ja" || language === "ar") return language;
-  return "en";
-}
-
-const copy: Record<WrongActionLanguage, {
+const copy: Record<InterfaceLanguage, {
   removed: string;
   removeFailed: string;
   reviewed: string;
@@ -42,6 +35,12 @@ const copy: Record<WrongActionLanguage, {
     remove: "削除",
     reviewHint: "よし。次はレッスンに戻ってもう一度解きます。",
   },
+  ko: { removed: "오답 복습에서 제거했습니다", removeFailed: "제거 실패", reviewed: "이번 회차 복습 완료", markReviewed: "복습 완료 표시", remove: "제거", reviewHint: "좋아요. 다시 레슨으로 돌아가 한 번 더 풀어보세요." },
+  es: { removed: "Eliminado de la revision de errores", removeFailed: "No se pudo eliminar", reviewed: "Revisado esta ronda", markReviewed: "Marcar revisado", remove: "Eliminar", reviewHint: "Bien. Vuelve a la leccion y resuelvelo una vez mas." },
+  fr: { removed: "Retire de la revision des erreurs", removeFailed: "Suppression echouee", reviewed: "Revise ce tour", markReviewed: "Marquer revise", remove: "Retirer", reviewHint: "Bien. Retourne a la lecon et resous le encore une fois." },
+  de: { removed: "Aus der Fehlerwiederholung entfernt", removeFailed: "Entfernen fehlgeschlagen", reviewed: "In dieser Runde wiederholt", markReviewed: "Als wiederholt markieren", remove: "Entfernen", reviewHint: "Gut. Geh zur Lektion zurueck und loese es noch einmal." },
+  pt: { removed: "Removido da revisao de erros", removeFailed: "Falha ao remover", reviewed: "Revisado nesta rodada", markReviewed: "Marcar revisado", remove: "Remover", reviewHint: "Bom. Volte para a aula e resolva mais uma vez." },
+  ru: { removed: "Удалено из повторения ошибок", removeFailed: "Не удалось удалить", reviewed: "Повторено в этом раунде", markReviewed: "Отметить повторенным", remove: "Удалить", reviewHint: "Хорошо. Вернись к уроку и реши еще раз." },
   ar: {
     removed: "تمت الإزالة من مراجعة الأخطاء",
     removeFailed: "فشلت الإزالة",
@@ -50,6 +49,14 @@ const copy: Record<WrongActionLanguage, {
     remove: "إزالة",
     reviewHint: "جيد. ارجع إلى الدرس وحلها مرة أخرى.",
   },
+  hi: { removed: "गलत प्रश्न समीक्षा से हटाया गया", removeFailed: "हटाना विफल", reviewed: "इस दौर में समीक्षा हुई", markReviewed: "समीक्षित चिह्नित करें", remove: "हटाएं", reviewHint: "अच्छा. पाठ पर लौटकर इसे फिर हल करें." },
+  id: { removed: "Dihapus dari ulasan salah", removeFailed: "Gagal hapus", reviewed: "Sudah ditinjau putaran ini", markReviewed: "Tandai ditinjau", remove: "Hapus", reviewHint: "Bagus. Kembali ke pelajaran dan selesaikan sekali lagi." },
+  vi: { removed: "Da xoa khoi on cau sai", removeFailed: "Xoa that bai", reviewed: "Da on trong luot nay", markReviewed: "Danh dau da on", remove: "Xoa", reviewHint: "Tot. Quay lai bai hoc va lam lai mot lan nua." },
+  th: { removed: "ลบออกจากรายการทบทวนข้อผิดแล้ว", removeFailed: "ลบไม่สำเร็จ", reviewed: "ทบทวนรอบนี้แล้ว", markReviewed: "ทำเครื่องหมายว่าทบทวนแล้ว", remove: "ลบ", reviewHint: "ดีมาก กลับไปที่บทเรียนแล้วลองทำอีกครั้ง" },
+  tr: { removed: "Yanlis tekrarindan kaldirildi", removeFailed: "Kaldirma basarisiz", reviewed: "Bu turde tekrarlandi", markReviewed: "Tekrarlandi isaretle", remove: "Kaldir", reviewHint: "Guzel. Derse don ve bir kez daha coz." },
+  it: { removed: "Rimosso dal ripasso errori", removeFailed: "Rimozione fallita", reviewed: "Ripassato in questo turno", markReviewed: "Segna ripassato", remove: "Rimuovi", reviewHint: "Bene. Torna alla lezione e risolvilo ancora una volta." },
+  nl: { removed: "Verwijderd uit foutenherhaling", removeFailed: "Verwijderen mislukt", reviewed: "Deze ronde herhaald", markReviewed: "Markeer herhaald", remove: "Verwijderen", reviewHint: "Goed. Ga terug naar de les en los het nog eens op." },
+  pl: { removed: "Usunieto z powtorki bledow", removeFailed: "Usuwanie nieudane", reviewed: "Powtorzone w tej rundzie", markReviewed: "Oznacz jako powtorzone", remove: "Usun", reviewHint: "Dobrze. Wroc do lekcji i rozwiaz to jeszcze raz." },
 };
 
 export default function WrongQuestionActions({
@@ -59,7 +66,7 @@ export default function WrongQuestionActions({
   id: string;
   language?: InterfaceLanguage;
 }) {
-  const t = copy[actionLanguage(language)];
+  const t = copy[language];
   const [removed, setRemoved] = useState(false);
   const [reviewed, setReviewed] = useState(false);
   const [message, setMessage] = useState("");
