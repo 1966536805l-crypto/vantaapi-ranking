@@ -4247,6 +4247,98 @@ function tutorialText(text: string, language: InterfaceLanguage) {
   return tutorialI18n[language]?.[text] ?? compactTutorialI18n[language]?.[text] ?? text;
 }
 
+const tutorialFocusI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
+  zh: {
+    "const let string number boolean object array": "常量 变量 字符串 数字 布尔 对象 数组",
+    "input output return reusable actions": "输入 输出 return 可复用动作",
+    "fetch promise await error handling": "fetch Promise await 错误处理",
+  },
+  ja: {
+    "const let string number boolean object array": "値 変数 文字列 数値 真偽値 オブジェクト 配列",
+    "input output return reusable actions": "入力 出力 return 再利用できる処理",
+    "fetch promise await error handling": "fetch Promise await エラー処理",
+  },
+  ko: {
+    "const let string number boolean object array": "값 변수 문자열 숫자 불리언 객체 배열",
+    "input output return reusable actions": "입력 출력 return 재사용 동작",
+    "fetch promise await error handling": "fetch Promise await 오류 처리",
+  },
+  es: {
+    "const let string number boolean object array": "valores variables texto números booleanos objetos arreglos",
+    "input output return reusable actions": "entrada salida return acciones reutilizables",
+    "fetch promise await error handling": "fetch Promise await manejo de errores",
+  },
+  fr: {
+    "const let string number boolean object array": "valeurs variables texte nombres booleens objets tableaux",
+    "input output return reusable actions": "entree sortie return actions reutilisables",
+    "fetch promise await error handling": "fetch Promise await gestion des erreurs",
+  },
+  de: {
+    "const let string number boolean object array": "werte variablen text zahlen booleans objekte arrays",
+    "input output return reusable actions": "eingabe ausgabe return wiederverwendbare aktionen",
+    "fetch promise await error handling": "fetch Promise await fehlerbehandlung",
+  },
+  pt: {
+    "const let string number boolean object array": "valores variaveis texto numeros booleanos objetos arrays",
+    "input output return reusable actions": "entrada saida return acoes reutilizaveis",
+    "fetch promise await error handling": "fetch Promise await tratamento de erros",
+  },
+  ru: {
+    "const let string number boolean object array": "значения переменные строки числа boolean объекты массивы",
+    "input output return reusable actions": "вход выход return переиспользуемые действия",
+    "fetch promise await error handling": "fetch Promise await обработка ошибок",
+  },
+  ar: {
+    "const let string number boolean object array": "القيم والمتغيرات والنصوص والأرقام والقوائم والكائنات",
+    "input output return reusable actions": "مدخلات مخرجات return وأفعال قابلة لإعادة الاستخدام",
+    "fetch promise await error handling": "fetch و Promise و await ومعالجة الأخطاء",
+  },
+  hi: {
+    "const let string number boolean object array": "मान variable string number boolean object array",
+    "input output return reusable actions": "इनपुट आउटपुट return दोबारा इस्तेमाल होने वाले काम",
+    "fetch promise await error handling": "fetch Promise await और error handling",
+  },
+  id: {
+    "const let string number boolean object array": "nilai variabel teks angka boolean objek array",
+    "input output return reusable actions": "input output return aksi yang bisa dipakai ulang",
+    "fetch promise await error handling": "fetch Promise await penanganan error",
+  },
+  vi: {
+    "const let string number boolean object array": "gia tri bien chuoi so boolean doi tuong mang",
+    "input output return reusable actions": "dau vao dau ra return hanh dong dung lai",
+    "fetch promise await error handling": "fetch Promise await xu ly loi",
+  },
+  th: {
+    "const let string number boolean object array": "ค่า ตัวแปร ข้อความ ตัวเลข boolean object array",
+    "input output return reusable actions": "input output return งานที่ใช้ซ้ำได้",
+    "fetch promise await error handling": "fetch Promise await การจัดการ error",
+  },
+  tr: {
+    "const let string number boolean object array": "degerler degiskenler metin sayilar boolean nesneler diziler",
+    "input output return reusable actions": "girdi cikti return yeniden kullanilabilir eylemler",
+    "fetch promise await error handling": "fetch Promise await hata yonetimi",
+  },
+  it: {
+    "const let string number boolean object array": "valori variabili testo numeri boolean oggetti array",
+    "input output return reusable actions": "input output return azioni riutilizzabili",
+    "fetch promise await error handling": "fetch Promise await gestione errori",
+  },
+  nl: {
+    "const let string number boolean object array": "waarden variabelen tekst getallen boolean objecten arrays",
+    "input output return reusable actions": "input output return herbruikbare acties",
+    "fetch promise await error handling": "fetch Promise await foutafhandeling",
+  },
+  pl: {
+    "const let string number boolean object array": "wartosci zmienne tekst liczby boolean obiekty tablice",
+    "input output return reusable actions": "wejscie wyjscie return akcje wielokrotnego uzycia",
+    "fetch promise await error handling": "fetch Promise await obsluga bledow",
+  },
+};
+
+function tutorialFocusText(text: string, language: InterfaceLanguage) {
+  return tutorialFocusI18n[language]?.[text] ?? text;
+}
+
 export default function ProgrammingTrainer({
   initialLanguageSlug = "javascript",
   initialSiteLanguage = "en",
@@ -4605,7 +4697,7 @@ export default function ProgrammingTrainer({
               <div>
                 <p className="eyebrow">{definition.starterTitle}</p>
                 <h3>{tutorialText(definition.starter.title, language)}</h3>
-                <span>{definition.starter.focus}</span>
+                <span>{tutorialFocusText(definition.starter.focus, language)}</span>
               </div>
               <pre>{definition.starter.sampleCode}</pre>
               <code>{definition.outputLabel} {definition.starter.sampleOutput}</code>
@@ -4868,7 +4960,7 @@ export default function ProgrammingTrainer({
             <div className="programming-tutorial-grid">
               {activeLanguage.tutorialSections.map((section) => (
                 <article key={section.title} className="programming-tutorial">
-                  <p className="eyebrow">{section.focus}</p>
+                  <p className="eyebrow">{tutorialFocusText(section.focus, language)}</p>
                   <h3>{tutorialText(section.title, language)}</h3>
                   <pre>{section.sampleCode}</pre>
                   <button
