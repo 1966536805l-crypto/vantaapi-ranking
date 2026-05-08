@@ -71,7 +71,7 @@ export default async function WrongPage({ searchParams }: { searchParams?: Promi
               </div>
 
               {item.question.explanation && <p className="mt-3 rounded-[8px] border border-black/5 bg-white/65 p-3 text-sm leading-6 text-[color:var(--muted)]">{copy.wrong.explanation}: {item.question.explanation}</p>}
-              <WrongQuestionActions id={item.id} />
+              <WrongQuestionActions id={item.id} language={language} />
             </article>
           );
         })}
