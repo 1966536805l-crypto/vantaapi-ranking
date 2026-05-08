@@ -8,6 +8,8 @@ import { isInterfaceLanguage, localizedHref, type InterfaceLanguage } from "@/li
 import { searchSite, siteSearchItems, type SiteSearchItem } from "@/lib/site-search";
 
 const RECENT_STORAGE_KEY = "vantaapi-search-recents-v1";
+const LANGUAGE_STORAGE_KEY = "vantaapi-language";
+const languageCookieNames = ["jinming_language", "vantaapi-language"];
 const defaultHrefs = [
   "/tools/github-repo-analyzer",
   "/tools",
@@ -865,8 +867,28 @@ function localizedSearchItem(item: SiteSearchItem, language: InterfaceLanguage) 
 
 function currentLanguageFromLocation(): InterfaceLanguage {
   if (typeof window === "undefined") return "en";
-  const value = new URL(window.location.href).searchParams.get("lang");
-  return isInterfaceLanguage(value) ? value : "en";
+  const queryLanguage = new URL(window.location.href).searchParams.get("lang");
+  if (isInterfaceLanguage(queryLanguage)) return queryLanguage;
+
+  try {
+    const storedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (isInterfaceLanguage(storedLanguage)) return storedLanguage;
+  } catch {
+    // Storage can be unavailable in strict privacy modes.
+  }
+
+  const cookieLanguage = document.cookie
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => languageCookieNames.some((name) => item.startsWith(`${name}=`)))
+    ?.split("=")[1];
+  if (isInterfaceLanguage(cookieLanguage)) return cookieLanguage;
+
+  const htmlLanguage = document.documentElement.lang.toLowerCase().split("-")[0];
+  if (isInterfaceLanguage(htmlLanguage)) return htmlLanguage;
+
+  const browserLanguage = window.navigator.language.toLowerCase().split("-")[0];
+  return isInterfaceLanguage(browserLanguage) ? browserLanguage : "en";
 }
 
 export default function GlobalSearchLauncher() {
