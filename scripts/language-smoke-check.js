@@ -565,8 +565,8 @@ async function main() {
     "search-th-visible-copy",
     "/search?lang=th&q=github",
     "th-TH,th;q=0.9,en;q=0.2",
-    ["ค้นหาเครื่องมือนักพัฒนา", "เครื่องมือ AI", "แล็บเขียนโค้ด", "รัน GitHub audit"],
-    ["AI Tools", "Coding Lab", "Developer Tool Search"],
+    ["ค้นหาเครื่องมือนักพัฒนา", "เครื่องมือ AI", "แล็บเขียนโค้ด", "รันตรวจ GitHub"],
+    ["AI Tools", "Coding Lab", "Developer Tool Search", "GitHub audit"],
     76,
   );
   await checkVisibleText(
@@ -576,6 +576,30 @@ async function main() {
     ["Developer tool zoeken", "AI gereedschap", "Programmeerlab", "GitHub controle starten"],
     ["AI Tools", "Coding Lab", "Run GitHub Launch Audit"],
     77,
+  );
+  await checkVisibleText(
+    "search-vi-visible-copy",
+    "/search?lang=vi&q=github",
+    "vi-VN,vi;q=0.9,en;q=0.2",
+    ["Tìm công cụ lập trình", "Tìm kiểm tra ra mắt", "Chạy kiểm tra GitHub", "chỉ mục cục bộ"],
+    ["Tìm công cụ developer", "GitHub audit", "chỉ mục local", "Developer Tool Search"],
+    78,
+  );
+  await checkVisibleText(
+    "search-tr-visible-copy",
+    "/search?lang=tr&q=github",
+    "tr-TR,tr;q=0.9,en;q=0.2",
+    ["Geliştirici araç arama", "GitHub denetimi çalıştır", "Kod laboratuvarı", "açık girişler"],
+    ["GitHub audit çalıştır", "Kod Lab", "Developer Tool Search"],
+    79,
+  );
+  await checkVisibleText(
+    "search-pl-visible-copy",
+    "/search?lang=pl&q=github",
+    "pl-PL,pl;q=0.9,en;q=0.2",
+    ["Wyszukiwarka narzędzi", "Uruchom audyt GitHub", "Narzędzia AI", "Programowanie"],
+    ["GitHub audit", "Developer Tool Search", "Run GitHub Launch Audit"],
+    80,
   );
   await checkPage(
     "today-ja-language-links",
