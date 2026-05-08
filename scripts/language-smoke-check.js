@@ -158,6 +158,38 @@ async function checkPage(name, path, acceptLanguage, requiredSnippets, forbidden
   }
 }
 
+function visibleText(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<pre[\s\S]*?<\/pre>/gi, " ")
+    .replace(/<code[\s\S]*?<\/code>/gi, " ")
+    .replace(/<select[\s\S]*?<\/select>/gi, " ")
+    .replace(/<nav class="programming-language-list"[\s\S]*?<\/nav>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[^;]+;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function checkVisibleText(name, path, acceptLanguage, requiredSnippets, forbiddenSnippets, index) {
+  try {
+    const response = await fetchWithTimeout(path, browserHeaders(acceptLanguage, index), { redirect: "follow" });
+    const text = visibleText(await response.text());
+    if (!response.ok) return bad(name, `HTTP ${response.status}`);
+
+    const missing = requiredSnippets.filter((snippet) => !text.includes(snippet));
+    if (missing.length) return bad(name, `missing visible snippets: ${missing.join(" | ")}`);
+
+    const exposed = forbiddenSnippets.filter((snippet) => text.includes(snippet));
+    if (exposed.length) return bad(name, `unexpected visible fallback snippets: ${exposed.join(" | ")}`);
+
+    return ok(name, `${path} rendered expected visible localized copy`);
+  } catch (error) {
+    bad(name, error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function checkDocumentLanguage(name, path, acceptLanguage, expectedHtmlAttrs, index) {
   try {
     const response = await fetchWithTimeout(path, browserHeaders(acceptLanguage, index), { redirect: "follow" });
@@ -218,6 +250,14 @@ async function main() {
     ["ما هي JavaScript", "التعريف أولا", "تطبيقات الويب والأتمتة وربط الواجهات", "قيد التوسيع", "مدخلات مخرجات return", "أدوات المطور", "الذكاء الاصطناعي للكود", "ذكاء اصطناعي سريع", "ابحث عن لغة", "53 من 53", "Enter يفتح أول نتيجة", "hrefLang=\"ar\"", "https://vantaapi.com/programming/javascript?lang=ar", "/programming/python?lang=ar"],
     ["What is JavaScript", "Full screen", "input output return reusable actions", "DevTools", "AI للكود", "AI سريع", "لغة لتطبيقات الويب", "مناسب لـ لغة"],
     4,
+  );
+  await checkVisibleText(
+    "programming-ar-visible-copy",
+    "/programming/javascript?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["ما هي JavaScript", "أدوات المطور", "الذكاء الاصطناعي للكود", "ذكاء اصطناعي سريع"],
+    ["What is JavaScript", "Definition first", "Full screen", "DevTools", "AI للكود", "AI سريع"],
+    30,
   );
   await checkPage(
     "programming-javascript-zh",
