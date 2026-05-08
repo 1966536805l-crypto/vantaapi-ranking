@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { interfaceLanguages, isInterfaceLanguage, languageHtmlLang, type InterfaceLanguage } from "@/lib/language";
 
 const languageCookieNames = ["jinming_language", "vantaapi-language"];
@@ -53,6 +53,12 @@ function readStoredLanguage(): InterfaceLanguage | null {
   return isInterfaceLanguage(value) ? value : null;
 }
 
+function currentUrlLanguage() {
+  if (typeof window === "undefined") return null;
+  const language = new URL(window.location.href).searchParams.get("lang");
+  return isInterfaceLanguage(language) ? language : null;
+}
+
 export default function FlagLanguageToggle({
   initialLanguage = "en",
   onChange,
@@ -61,36 +67,38 @@ export default function FlagLanguageToggle({
   onChange?: (language: InterfaceLanguage) => void;
 }) {
   const router = useRouter();
-  const [current, setCurrent] = useState<InterfaceLanguage>(() => {
-    if (typeof window === "undefined") return initialLanguage;
-    const url = new URL(window.location.href);
-    const queryLanguage = url.searchParams.get("lang");
-    const storedLanguage = readStoredLanguage();
-    return isInterfaceLanguage(queryLanguage)
-      ? queryLanguage
-      : storedLanguage ?? initialLanguage;
+  const searchParams = useSearchParams();
+  const queryLanguage = searchParams.get("lang");
+  const [preferredLanguage, setPreferredLanguage] = useState<InterfaceLanguage | null>(() => {
+    if (typeof window === "undefined") return null;
+    return currentUrlLanguage() ?? readStoredLanguage();
   });
+  const current = isInterfaceLanguage(queryLanguage)
+    ? queryLanguage
+    : preferredLanguage ?? initialLanguage;
 
   useEffect(() => {
     writeLanguagePreference(current);
     onChange?.(current);
 
     const url = new URL(window.location.href);
-    const queryLanguage = url.searchParams.get("lang");
-    if (!queryLanguage && current !== "en") {
+    const urlLanguage = url.searchParams.get("lang");
+    if (!urlLanguage && current !== "en") {
       url.searchParams.set("lang", current);
       router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+      window.setTimeout(() => router.refresh(), 0);
     }
   }, [current, onChange, router]);
 
   function setLanguage(code: InterfaceLanguage) {
     writeLanguagePreference(code);
-    setCurrent(code);
+    setPreferredLanguage(code);
     onChange?.(code);
     const url = new URL(window.location.href);
     if (code === "en") url.searchParams.delete("lang");
     else url.searchParams.set("lang", code);
     router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+    window.setTimeout(() => router.refresh(), 0);
   }
 
   const activeLanguage = interfaceLanguages.find((language) => language.code === current) ?? interfaceLanguages[0];
@@ -103,6 +111,7 @@ export default function FlagLanguageToggle({
         <span>{activeLanguage.nativeName}</span>
       </label>
       <select
+        key={current}
         className="flag-toggle-select"
         value={current}
         aria-label={copy.choose}
