@@ -228,6 +228,22 @@ async function main() {
     20,
   );
   await checkPage(
+    "programming-python-ar",
+    "/programming/python?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["ما هي Python", "المتغيرات", "الحلقات", "تعريف الدالة", "استخدم def", "المسافات البادئة مهمة", "مر على القيم مباشرة"],
+    ["Variables", "Loops", "function definition", "Use def to name work", "Indentation matters"],
+    21,
+  );
+  await checkPage(
+    "programming-sql-ar",
+    "/programming/sql?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["ما هي SQL", "اختيار البيانات", "تصفية البيانات", "تجميع البيانات", "اختر الأعمدة المطلوبة فقط"],
+    ["Select only needed columns", "Filter", "Group", "Read from one table first"],
+    22,
+  );
+  await checkPage(
     "programming-hub-ar",
     "/programming?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
