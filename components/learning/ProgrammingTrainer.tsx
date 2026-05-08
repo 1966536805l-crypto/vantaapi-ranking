@@ -1939,72 +1939,26 @@ function checkQuestion(question: ProgrammingQuestion, answer: string) {
 }
 
 function runnerText(question: ProgrammingQuestion, answer: string, language: InterfaceLanguage) {
-  const sampleLabel = language === "zh" ? "样例" : language === "ja" ? "サンプル" : language === "ko" ? "샘플" : language === "es" ? "Ejemplo" : language === "ar" ? "مثال" : "Sample";
-  const outputLabel = language === "zh" ? "输出" : language === "ja" ? "出力" : language === "ko" ? "출력" : language === "es" ? "Salida" : language === "ar" ? "الناتج" : "Output";
+  const copy = questionUiCopy[language];
 
   if (question.type !== "PRACTICAL") {
-    return `${sampleLabel}\n${question.codeSnippet}\n\n${outputLabel}\n${question.runOutput}`;
+    return `${copy.sample}\n${question.codeSnippet}\n\n${copy.output}\n${question.runOutput}`;
   }
 
   const raw = answer.trim();
   if (!raw) {
-    return `${sampleLabel}\n${question.answer}\n\n${outputLabel}\n${question.runOutput}`;
+    return `${copy.sample}\n${question.answer}\n\n${copy.output}\n${question.runOutput}`;
   }
 
   const lowered = raw.toLowerCase();
   const found = question.requiredKeywords.filter((keyword) => lowered.includes(keyword.toLowerCase()));
   const missing = question.requiredKeywords.filter((keyword) => !lowered.includes(keyword.toLowerCase()));
 
-  if (language === "zh") {
-    return [
-      "代码检查",
-      `${found.length}/${question.requiredKeywords.length} 个必需部分已出现`,
-      found.length ? `已找到 ${found.join(" ")}` : "暂时还没找到关键部分",
-      missing.length ? `还缺 ${missing.join(" ")}` : `输出 ${question.runOutput}`,
-    ].join("\n");
-  }
-
-  if (language === "ja") {
-    return [
-      "コードチェック",
-      `${found.length}/${question.requiredKeywords.length} 個の必須部分を確認`,
-      found.length ? `見つかったもの ${found.join(" ")}` : "まだ重要部分は見つかっていません",
-      missing.length ? `不足 ${missing.join(" ")}` : `出力 ${question.runOutput}`,
-    ].join("\n");
-  }
-
-  if (language === "ko") {
-    return [
-      "코드 검사",
-      `${found.length}/${question.requiredKeywords.length} 필수 부분 확인`,
-      found.length ? `찾음 ${found.join(" ")}` : "아직 핵심 부분을 찾지 못했습니다",
-      missing.length ? `부족 ${missing.join(" ")}` : `출력 ${question.runOutput}`,
-    ].join("\n");
-  }
-
-  if (language === "es") {
-    return [
-      "Revisión de código",
-      `${found.length}/${question.requiredKeywords.length} partes requeridas encontradas`,
-      found.length ? `Encontrado ${found.join(" ")}` : "todavía no se encontró una parte clave",
-      missing.length ? `Falta ${missing.join(" ")}` : `Salida ${question.runOutput}`,
-    ].join("\n");
-  }
-
-  if (language === "ar") {
-    return [
-      "فحص الكود",
-      `${found.length}/${question.requiredKeywords.length} أجزاء مطلوبة موجودة`,
-      found.length ? `تم العثور على ${found.join(" ")}` : "لم يتم العثور على الأجزاء المهمة بعد",
-      missing.length ? `ينقص ${missing.join(" ")}` : `الناتج ${question.runOutput}`,
-    ].join("\n");
-  }
-
   return [
-    "Code check",
-    `${found.length}/${question.requiredKeywords.length} required parts found`,
-    found.length ? `Found ${found.join(" ")}` : "Found none yet",
-    missing.length ? `Missing ${missing.join(" ")}` : `Output ${question.runOutput}`,
+    copy.codeCheck,
+    copy.requiredFound(found.length, question.requiredKeywords.length),
+    found.length ? copy.foundLabel(found.join(" ")) : copy.foundNone,
+    missing.length ? copy.missingLabel(missing.join(" ")) : `${copy.output} ${question.runOutput}`,
   ].join("\n");
 }
 
@@ -2084,114 +2038,24 @@ function conceptLabel(question: ProgrammingQuestion, language: InterfaceLanguage
 
 function questionTitle(question: ProgrammingQuestion, language: InterfaceLanguage, languageTitle: string) {
   if (language === "en") return question.title;
-  if (language === "zh") return `${languageTitle} 第 ${question.index} 题`;
-  if (language === "ja") return `${languageTitle} 問題 ${question.index}`;
-  if (language === "ko") return `${languageTitle} 문제 ${question.index}`;
-  if (language === "es") return `${languageTitle} pregunta ${question.index}`;
-  if (language === "ar") return `${languageTitle} السؤال ${question.index}`;
-  return `${languageTitle} Question ${question.index}`;
+  return questionUiCopy[language].title(languageTitle, question.index);
 }
 
 function questionPrompt(question: ProgrammingQuestion, language: InterfaceLanguage, languageTitle: string) {
   if (language === "en") return question.prompt;
-
-  if (language === "zh") {
-    if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} 第 ${question.index} 题 选择和 ${conceptLabel(question, language)} 最匹配的说法`;
-    }
-    if (question.type === "FILL_BLANK") {
-      return `看代码里的空白处 填出这道 ${languageTitle} 题缺失的部分`;
-    }
-    return `先自己写一遍 ${languageTitle} 小练习 出错后再开提示或对照答案`;
-  }
-
-  if (language === "ja") {
-    if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} 問題 ${question.index} ${conceptLabel(question, language)} に最も合う説明を選んでください`;
-    }
-    if (question.type === "FILL_BLANK") {
-      return `コードの空欄を見て 欠けている部分を埋めてください`;
-    }
-    return `${languageTitle} の小さな練習をまず自分で書いてみてください`;
-  }
-
-  if (language === "ko") {
-    if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} 문제 ${question.index} ${conceptLabel(question, language)} 와 가장 일치하는 설명을 선택하세요`;
-    }
-    if (question.type === "FILL_BLANK") {
-      return `코드의 빈칸을 보고 빠진 부분을 채우세요`;
-    }
-    return `${languageTitle} 작은 연습을 먼저 직접 작성해 보세요`;
-  }
-
-  if (language === "es") {
-    if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} pregunta ${question.index}. Elige la explicacion que mejor coincide con ${conceptLabel(question, language)}`;
-    }
-    if (question.type === "FILL_BLANK") {
-      return `Mira el espacio en blanco del codigo y completa la parte que falta`;
-    }
-    return `Escribe una solucion pequeña de ${languageTitle} antes de mirar pistas o respuesta`;
-  }
-
-  if (language === "ar") {
-    if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} السؤال ${question.index}. اختر الوصف الأقرب إلى ${conceptLabel(question, language)}`;
-    }
-    if (question.type === "FILL_BLANK") {
-      return `انظر إلى الفراغ داخل الكود ثم املأ الجزء الناقص`;
-    }
-    return `اكتب حلا صغيرا في ${languageTitle} أولا ثم افتح التلميحات أو الإجابة`;
-  }
-
-  return question.prompt;
+  const copy = questionUiCopy[language];
+  if (question.type === "MULTIPLE_CHOICE") return copy.choicePrompt(languageTitle, question.index, conceptLabel(question, language));
+  if (question.type === "FILL_BLANK") return copy.fillPrompt(languageTitle);
+  return copy.practicalPrompt(languageTitle);
 }
 
 function questionHints(question: ProgrammingQuestion, activeRole: string, language: InterfaceLanguage) {
   if (language === "en") return question.hints;
-
-  if (language === "zh") {
-    return [
-      `先看 ${conceptLabel(question, language)} 找出缺的那一块`,
-      `保持这个练习习惯 ${activeRole}`,
-      `大概率需要 ${question.answer.split("\n")[0]} 答案里应该包含 ${question.requiredKeywords.slice(0, 3).join(" ")}`,
-    ];
-  }
-
-  if (language === "ja") {
-    return [
-      `${conceptLabel(question, language)} を確認して足りない部分を見つけてください`,
-      `この練習習慣を続けてください ${activeRole}`,
-      `答えには ${question.requiredKeywords.slice(0, 3).join(" ")} が含まれるはずです`,
-    ];
-  }
-
-  if (language === "ko") {
-    return [
-      `${conceptLabel(question, language)} 를 확인하고 빠진 부분을 찾으세요`,
-      `이 연습 습관을 유지하세요 ${activeRole}`,
-      `답에는 ${question.requiredKeywords.slice(0, 3).join(" ")} 가 포함되어야 합니다`,
-    ];
-  }
-
-  if (language === "es") {
-    return [
-      `mira ${conceptLabel(question, language)} y encuentra la pieza que falta`,
-      `mantén este hábito de práctica ${activeRole}`,
-      `la respuesta debería incluir ${question.requiredKeywords.slice(0, 3).join(" ")}`,
-    ];
-  }
-
-  if (language === "ar") {
-    return [
-      `راجع ${conceptLabel(question, language)} وابحث عن الجزء الناقص`,
-      `حافظ على عادة التدريب هذه ${activeRole}`,
-      `غالبا يجب أن تحتوي الإجابة على ${question.requiredKeywords.slice(0, 3).join(" ")}`,
-    ];
-  }
-
-  return question.hints;
+  return questionUiCopy[language].hints(
+    conceptLabel(question, language),
+    activeRole,
+    question.requiredKeywords.slice(0, 3).join(" "),
+  );
 }
 
 function roleForInterface(activeLanguage: ReturnType<typeof getProgrammingLanguage>, language: InterfaceLanguage) {
@@ -2643,6 +2507,357 @@ function pendingResultLabel(language: InterfaceLanguage) {
   return "not submitted";
 }
 
+type QuestionUiCopy = {
+  sample: string;
+  output: string;
+  codeCheck: string;
+  foundNone: string;
+  foundLabel: (items: string) => string;
+  missingLabel: (items: string) => string;
+  requiredFound: (found: number, total: number) => string;
+  title: (languageTitle: string, index: number) => string;
+  choicePrompt: (languageTitle: string, index: number, concept: string) => string;
+  fillPrompt: (languageTitle: string) => string;
+  practicalPrompt: (languageTitle: string) => string;
+  hints: (concept: string, activeRole: string, keywords: string) => string[];
+};
+
+const englishQuestionUiCopy: QuestionUiCopy = {
+  sample: "Sample",
+  output: "Output",
+  codeCheck: "Code check",
+  foundNone: "Found none yet",
+  foundLabel: (items) => `Found ${items}`,
+  missingLabel: (items) => `Missing ${items}`,
+  requiredFound: (found, total) => `${found}/${total} required parts found`,
+  title: (_languageTitle, index) => `Question ${index}`,
+  choicePrompt: (languageTitle, index, concept) => `${languageTitle} question ${index}. Choose the statement that best matches ${concept}.`,
+  fillPrompt: (languageTitle) => `Look at the blank in the ${languageTitle} code and type the missing part.`,
+  practicalPrompt: (languageTitle) => `Write a small ${languageTitle} solution first. Open hints only after trying.`,
+  hints: (concept, activeRole, keywords) => [
+    `Find the missing part around ${concept}.`,
+    `Keep the practice habit for ${activeRole}.`,
+    `The answer should usually include ${keywords}.`,
+  ],
+};
+
+function questionUiFromEnglish(overrides: Partial<QuestionUiCopy>): QuestionUiCopy {
+  return {
+    ...englishQuestionUiCopy,
+    ...overrides,
+  };
+}
+
+const questionUiCopy: Record<InterfaceLanguage, QuestionUiCopy> = {
+  en: englishQuestionUiCopy,
+  zh: {
+    sample: "样例",
+    output: "输出",
+    codeCheck: "代码检查",
+    foundNone: "暂时还没找到关键部分",
+    foundLabel: (items) => `已找到 ${items}`,
+    missingLabel: (items) => `还缺 ${items}`,
+    requiredFound: (found, total) => `${found}/${total} 个必需部分已出现`,
+    title: (languageTitle, index) => `${languageTitle} 第 ${index} 题`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} 第 ${index} 题 选择和 ${concept} 最匹配的说法`,
+    fillPrompt: (languageTitle) => `看代码里的空白处 填出这道 ${languageTitle} 题缺失的部分`,
+    practicalPrompt: (languageTitle) => `先自己写一遍 ${languageTitle} 小练习 出错后再开提示或对照答案`,
+    hints: (concept, activeRole, keywords) => [
+      `先看 ${concept} 找出缺的那一块`,
+      `保持这个练习习惯 ${activeRole}`,
+      `答案里通常应该包含 ${keywords}`,
+    ],
+  },
+  ja: {
+    sample: "サンプル",
+    output: "出力",
+    codeCheck: "コードチェック",
+    foundNone: "まだ重要部分は見つかっていません",
+    foundLabel: (items) => `見つかったもの ${items}`,
+    missingLabel: (items) => `不足 ${items}`,
+    requiredFound: (found, total) => `${found}/${total} 個の必須部分を確認`,
+    title: (languageTitle, index) => `${languageTitle} 問題 ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} 問題 ${index} ${concept} に最も合う説明を選んでください`,
+    fillPrompt: () => "コードの空欄を見て 欠けている部分を埋めてください",
+    practicalPrompt: (languageTitle) => `${languageTitle} の小さな練習をまず自分で書いてみてください`,
+    hints: (concept, activeRole, keywords) => [
+      `${concept} を確認して足りない部分を見つけてください`,
+      `この練習習慣を続けてください ${activeRole}`,
+      `答えには ${keywords} が含まれるはずです`,
+    ],
+  },
+  ko: {
+    sample: "샘플",
+    output: "출력",
+    codeCheck: "코드 검사",
+    foundNone: "아직 핵심 부분을 찾지 못했습니다",
+    foundLabel: (items) => `찾음 ${items}`,
+    missingLabel: (items) => `부족 ${items}`,
+    requiredFound: (found, total) => `${found}/${total} 필수 부분 확인`,
+    title: (languageTitle, index) => `${languageTitle} 문제 ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} 문제 ${index} ${concept} 와 가장 일치하는 설명을 선택하세요`,
+    fillPrompt: () => "코드의 빈칸을 보고 빠진 부분을 채우세요",
+    practicalPrompt: (languageTitle) => `${languageTitle} 작은 연습을 먼저 직접 작성해 보세요`,
+    hints: (concept, activeRole, keywords) => [
+      `${concept} 를 확인하고 빠진 부분을 찾으세요`,
+      `이 연습 습관을 유지하세요 ${activeRole}`,
+      `답에는 ${keywords} 가 포함되어야 합니다`,
+    ],
+  },
+  es: {
+    sample: "Ejemplo",
+    output: "Salida",
+    codeCheck: "Revisión de código",
+    foundNone: "todavía no se encontró una parte clave",
+    foundLabel: (items) => `Encontrado ${items}`,
+    missingLabel: (items) => `Falta ${items}`,
+    requiredFound: (found, total) => `${found}/${total} partes requeridas encontradas`,
+    title: (languageTitle, index) => `${languageTitle} pregunta ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} pregunta ${index}. Elige la explicacion que mejor coincide con ${concept}`,
+    fillPrompt: () => "Mira el espacio en blanco del codigo y completa la parte que falta",
+    practicalPrompt: (languageTitle) => `Escribe una solucion pequeña de ${languageTitle} antes de mirar pistas o respuesta`,
+    hints: (concept, activeRole, keywords) => [
+      `revisa ${concept} y busca la parte faltante`,
+      `mantén este hábito de práctica ${activeRole}`,
+      `la respuesta debería incluir ${keywords}`,
+    ],
+  },
+  fr: questionUiFromEnglish({
+    sample: "Exemple",
+    output: "Sortie",
+    codeCheck: "Verification du code",
+    foundNone: "aucune partie cle trouvee pour l instant",
+    foundLabel: (items) => `Trouve ${items}`,
+    missingLabel: (items) => `Manque ${items}`,
+    requiredFound: (found, total) => `${found}/${total} parties requises trouvees`,
+    title: (languageTitle, index) => `${languageTitle} question ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} question ${index}. Choisis l explication qui correspond le mieux a ${concept}.`,
+    fillPrompt: (languageTitle) => `Regarde le blanc dans le code ${languageTitle} et tape la partie manquante.`,
+    practicalPrompt: (languageTitle) => `Ecris d abord une petite solution en ${languageTitle}, puis ouvre les indices.`,
+    hints: (concept, activeRole, keywords) => [
+      `repere la partie manquante autour de ${concept}`,
+      `garde cette habitude de pratique ${activeRole}`,
+      `la reponse doit souvent contenir ${keywords}`,
+    ],
+  }),
+  de: questionUiFromEnglish({
+    sample: "Beispiel",
+    output: "Ausgabe",
+    codeCheck: "Codepruefung",
+    foundNone: "noch kein wichtiger Teil gefunden",
+    foundLabel: (items) => `Gefunden ${items}`,
+    missingLabel: (items) => `Fehlt ${items}`,
+    requiredFound: (found, total) => `${found}/${total} benoetigte Teile gefunden`,
+    title: (languageTitle, index) => `${languageTitle} Frage ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} Frage ${index}. Waehle die Aussage, die am besten zu ${concept} passt.`,
+    fillPrompt: (languageTitle) => `Sieh dir die Luecke im ${languageTitle} Code an und gib den fehlenden Teil ein.`,
+    practicalPrompt: (languageTitle) => `Schreibe zuerst eine kleine ${languageTitle} Loesung. Oeffne Hinweise erst danach.`,
+    hints: (concept, activeRole, keywords) => [
+      `suche den fehlenden Teil rund um ${concept}`,
+      `halte diese Uebungsgewohnheit fuer ${activeRole}`,
+      `die Antwort sollte meist ${keywords} enthalten`,
+    ],
+  }),
+  pt: questionUiFromEnglish({
+    sample: "Exemplo",
+    output: "Saida",
+    codeCheck: "Verificacao de codigo",
+    foundNone: "nenhuma parte chave encontrada ainda",
+    foundLabel: (items) => `Encontrado ${items}`,
+    missingLabel: (items) => `Falta ${items}`,
+    requiredFound: (found, total) => `${found}/${total} partes obrigatorias encontradas`,
+    title: (languageTitle, index) => `${languageTitle} questao ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} questao ${index}. Escolha a frase que melhor combina com ${concept}.`,
+    fillPrompt: (languageTitle) => `Veja o espaco vazio no codigo ${languageTitle} e digite a parte que falta.`,
+    practicalPrompt: (languageTitle) => `Escreva primeiro uma pequena solucao em ${languageTitle}. Abra dicas depois.`,
+    hints: (concept, activeRole, keywords) => [
+      `encontre a parte faltando em ${concept}`,
+      `mantenha este habito de treino ${activeRole}`,
+      `a resposta geralmente deve conter ${keywords}`,
+    ],
+  }),
+  ru: questionUiFromEnglish({
+    sample: "Пример",
+    output: "Вывод",
+    codeCheck: "Проверка кода",
+    foundNone: "ключевые части пока не найдены",
+    foundLabel: (items) => `Найдено ${items}`,
+    missingLabel: (items) => `Не хватает ${items}`,
+    requiredFound: (found, total) => `${found}/${total} обязательных частей найдено`,
+    title: (languageTitle, index) => `${languageTitle} вопрос ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} вопрос ${index}. Выбери утверждение, которое лучше всего описывает ${concept}.`,
+    fillPrompt: (languageTitle) => `Посмотри на пропуск в коде ${languageTitle} и введи недостающую часть.`,
+    practicalPrompt: (languageTitle) => `Сначала напиши маленькое решение на ${languageTitle}. Подсказки открывай после попытки.`,
+    hints: (concept, activeRole, keywords) => [
+      `найди недостающую часть рядом с ${concept}`,
+      `сохраняй эту привычку практики ${activeRole}`,
+      `ответ обычно должен содержать ${keywords}`,
+    ],
+  }),
+  ar: {
+    sample: "مثال",
+    output: "الناتج",
+    codeCheck: "فحص الكود",
+    foundNone: "لم يتم العثور على الأجزاء المهمة بعد",
+    foundLabel: (items) => `تم العثور على ${items}`,
+    missingLabel: (items) => `ينقص ${items}`,
+    requiredFound: (found, total) => `${found}/${total} أجزاء مطلوبة موجودة`,
+    title: (languageTitle, index) => `${languageTitle} السؤال ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} السؤال ${index}. اختر الوصف الأقرب إلى ${concept}`,
+    fillPrompt: () => "انظر إلى الفراغ داخل الكود ثم املأ الجزء الناقص",
+    practicalPrompt: (languageTitle) => `اكتب حلا صغيرا في ${languageTitle} أولا ثم افتح التلميحات أو الإجابة`,
+    hints: (concept, activeRole, keywords) => [
+      `راجع ${concept} وابحث عن الجزء الناقص`,
+      `حافظ على عادة التدريب هذه ${activeRole}`,
+      `غالبا يجب أن تحتوي الإجابة على ${keywords}`,
+    ],
+  },
+  hi: questionUiFromEnglish({
+    sample: "नमूना",
+    output: "आउटपुट",
+    codeCheck: "कोड जांच",
+    foundNone: "अभी कोई जरूरी हिस्सा नहीं मिला",
+    foundLabel: (items) => `मिला ${items}`,
+    missingLabel: (items) => `कम है ${items}`,
+    requiredFound: (found, total) => `${found}/${total} जरूरी हिस्से मिले`,
+    title: (languageTitle, index) => `${languageTitle} प्रश्न ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} प्रश्न ${index}. ${concept} से सबसे मिलती बात चुनें.`,
+    fillPrompt: (languageTitle) => `${languageTitle} code के खाली स्थान को देखें और missing part लिखें.`,
+    practicalPrompt: (languageTitle) => `पहले ${languageTitle} में छोटा solution लिखें. फिर hints खोलें.`,
+    hints: (concept, activeRole, keywords) => [
+      `${concept} के आसपास missing part खोजें`,
+      `${activeRole} के लिए यह practice habit रखें`,
+      `answer में आमतौर पर ${keywords} होना चाहिए`,
+    ],
+  }),
+  id: questionUiFromEnglish({
+    sample: "Contoh",
+    output: "Output",
+    codeCheck: "Cek kode",
+    foundNone: "belum ada bagian penting yang ditemukan",
+    foundLabel: (items) => `Ditemukan ${items}`,
+    missingLabel: (items) => `Kurang ${items}`,
+    requiredFound: (found, total) => `${found}/${total} bagian wajib ditemukan`,
+    title: (languageTitle, index) => `${languageTitle} soal ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} soal ${index}. Pilih pernyataan yang paling cocok dengan ${concept}.`,
+    fillPrompt: (languageTitle) => `Lihat bagian kosong pada kode ${languageTitle} dan isi bagian yang hilang.`,
+    practicalPrompt: (languageTitle) => `Tulis solusi kecil ${languageTitle} dulu. Buka petunjuk setelah mencoba.`,
+    hints: (concept, activeRole, keywords) => [
+      `cari bagian yang hilang di sekitar ${concept}`,
+      `pertahankan kebiasaan latihan untuk ${activeRole}`,
+      `jawaban biasanya perlu memuat ${keywords}`,
+    ],
+  }),
+  vi: questionUiFromEnglish({
+    sample: "Vi du",
+    output: "Dau ra",
+    codeCheck: "Kiem tra code",
+    foundNone: "chua thay phan quan trong",
+    foundLabel: (items) => `Da thay ${items}`,
+    missingLabel: (items) => `Con thieu ${items}`,
+    requiredFound: (found, total) => `${found}/${total} phan bat buoc da co`,
+    title: (languageTitle, index) => `${languageTitle} cau ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} cau ${index}. Chon mo ta phu hop nhat voi ${concept}.`,
+    fillPrompt: (languageTitle) => `Nhin vao cho trong trong code ${languageTitle} va dien phan bi thieu.`,
+    practicalPrompt: (languageTitle) => `Hay tu viet mot loi giai ${languageTitle} nho truoc, sau do mo goi y.`,
+    hints: (concept, activeRole, keywords) => [
+      `tim phan bi thieu quanh ${concept}`,
+      `giu thoi quen luyen tap nay cho ${activeRole}`,
+      `dap an thuong can co ${keywords}`,
+    ],
+  }),
+  th: questionUiFromEnglish({
+    sample: "ตัวอย่าง",
+    output: "ผลลัพธ์",
+    codeCheck: "ตรวจโค้ด",
+    foundNone: "ยังไม่พบส่วนสำคัญ",
+    foundLabel: (items) => `พบ ${items}`,
+    missingLabel: (items) => `ยังขาด ${items}`,
+    requiredFound: (found, total) => `พบส่วนที่ต้องมี ${found}/${total}`,
+    title: (languageTitle, index) => `${languageTitle} ข้อ ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} ข้อ ${index} เลือกคำอธิบายที่ตรงกับ ${concept} ที่สุด`,
+    fillPrompt: (languageTitle) => `ดูช่องว่างในโค้ด ${languageTitle} แล้วเติมส่วนที่ขาด`,
+    practicalPrompt: (languageTitle) => `เขียนคำตอบ ${languageTitle} สั้นๆ ก่อน แล้วค่อยเปิดคำใบ้`,
+    hints: (concept, activeRole, keywords) => [
+      `หาส่วนที่ขาดใกล้กับ ${concept}`,
+      `รักษานิสัยฝึกสำหรับ ${activeRole}`,
+      `คำตอบมักต้องมี ${keywords}`,
+    ],
+  }),
+  tr: questionUiFromEnglish({
+    sample: "Ornek",
+    output: "Cikti",
+    codeCheck: "Kod kontrolu",
+    foundNone: "henuz ana parca bulunmadi",
+    foundLabel: (items) => `Bulundu ${items}`,
+    missingLabel: (items) => `Eksik ${items}`,
+    requiredFound: (found, total) => `${found}/${total} gerekli parca bulundu`,
+    title: (languageTitle, index) => `${languageTitle} soru ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} soru ${index}. ${concept} icin en uygun ifadeyi sec.`,
+    fillPrompt: (languageTitle) => `${languageTitle} kodundaki bosluga bak ve eksik parcayi yaz.`,
+    practicalPrompt: (languageTitle) => `Once kucuk bir ${languageTitle} cozumu yaz. Sonra ipucu ac.`,
+    hints: (concept, activeRole, keywords) => [
+      `${concept} etrafinda eksik parcayi bul`,
+      `${activeRole} icin bu pratik aliskanligini koru`,
+      `cevap genelde ${keywords} icermeli`,
+    ],
+  }),
+  it: questionUiFromEnglish({
+    sample: "Esempio",
+    output: "Output",
+    codeCheck: "Controllo codice",
+    foundNone: "nessuna parte chiave trovata",
+    foundLabel: (items) => `Trovato ${items}`,
+    missingLabel: (items) => `Manca ${items}`,
+    requiredFound: (found, total) => `${found}/${total} parti richieste trovate`,
+    title: (languageTitle, index) => `${languageTitle} domanda ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} domanda ${index}. Scegli la frase che corrisponde meglio a ${concept}.`,
+    fillPrompt: (languageTitle) => `Guarda il vuoto nel codice ${languageTitle} e scrivi la parte mancante.`,
+    practicalPrompt: (languageTitle) => `Scrivi prima una piccola soluzione in ${languageTitle}. Poi apri gli indizi.`,
+    hints: (concept, activeRole, keywords) => [
+      `trova la parte mancante vicino a ${concept}`,
+      `mantieni questa abitudine di pratica per ${activeRole}`,
+      `la risposta di solito deve contenere ${keywords}`,
+    ],
+  }),
+  nl: questionUiFromEnglish({
+    sample: "Voorbeeld",
+    output: "Output",
+    codeCheck: "Codecontrole",
+    foundNone: "nog geen belangrijk deel gevonden",
+    foundLabel: (items) => `Gevonden ${items}`,
+    missingLabel: (items) => `Mist ${items}`,
+    requiredFound: (found, total) => `${found}/${total} vereiste delen gevonden`,
+    title: (languageTitle, index) => `${languageTitle} vraag ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} vraag ${index}. Kies de uitspraak die het best past bij ${concept}.`,
+    fillPrompt: (languageTitle) => `Bekijk de lege plek in de ${languageTitle} code en typ het ontbrekende deel.`,
+    practicalPrompt: (languageTitle) => `Schrijf eerst een kleine ${languageTitle} oplossing. Open daarna hints.`,
+    hints: (concept, activeRole, keywords) => [
+      `zoek het ontbrekende deel rond ${concept}`,
+      `houd deze oefengewoonte voor ${activeRole}`,
+      `het antwoord bevat meestal ${keywords}`,
+    ],
+  }),
+  pl: questionUiFromEnglish({
+    sample: "Przyklad",
+    output: "Wyjscie",
+    codeCheck: "Kontrola kodu",
+    foundNone: "nie znaleziono jeszcze kluczowej czesci",
+    foundLabel: (items) => `Znaleziono ${items}`,
+    missingLabel: (items) => `Brakuje ${items}`,
+    requiredFound: (found, total) => `${found}/${total} wymaganych czesci znaleziono`,
+    title: (languageTitle, index) => `${languageTitle} pytanie ${index}`,
+    choicePrompt: (languageTitle, index, concept) => `${languageTitle} pytanie ${index}. Wybierz zdanie najlepiej pasujace do ${concept}.`,
+    fillPrompt: (languageTitle) => `Sprawdz luke w kodzie ${languageTitle} i wpisz brakujaca czesc.`,
+    practicalPrompt: (languageTitle) => `Najpierw napisz male rozwiazanie w ${languageTitle}. Potem otworz podpowiedzi.`,
+    hints: (concept, activeRole, keywords) => [
+      `znajdz brakujaca czesc wokol ${concept}`,
+      `utrzymaj ten nawyk cwiczen dla ${activeRole}`,
+      `odpowiedz zwykle powinna zawierac ${keywords}`,
+    ],
+  }),
+};
+
 function methodTitle(methodTitleValue: string, language: InterfaceLanguage) {
   return methodI18n[language]?.title[methodTitleValue] ?? methodTitleValue;
 }
@@ -2719,9 +2934,210 @@ const optionI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
   },
 };
 
+type OptionUiCopy = {
+  memorize: string;
+  skipErrors: string;
+  rewriteWholeFile: string;
+  hintsFirst: string;
+  constValue: string;
+  functionReturn: string;
+  arrayMap: string;
+  asyncAwait: string;
+  printValue: string;
+  nameValue: string;
+  focusedFunction: string;
+  collection: (collection: string) => string;
+};
+
+const optionUiCopy: Partial<Record<InterfaceLanguage, OptionUiCopy>> = {
+  fr: {
+    memorize: "memoriser une syntaxe au hasard sans rien executer",
+    skipErrors: "ignorer les erreurs et deviner",
+    rewriteWholeFile: "reecrire tout le fichier avant d isoler le probleme",
+    hintsFirst: "dependre des indices avant le premier essai",
+    constValue: "utilise const pour une valeur qui ne doit pas etre reassignee",
+    functionReturn: "une fonction doit retourner la valeur calculee si un autre code en a besoin",
+    arrayMap: "map cree un nouveau tableau en transformant chaque element",
+    asyncAwait: "await attend une promesse dans une fonction async",
+    printValue: "utilise l instruction d affichage standard du langage pour inspecter une valeur",
+    nameValue: "range une valeur dans un nom lisible avant de la passer ailleurs",
+    focusedFunction: "une fonction doit prendre une entree et produire un resultat precis",
+    collection: (collection) => `utilise ${collection} pour garder des valeurs liees ensemble`,
+  },
+  de: {
+    memorize: "zufaellige Syntax auswendig lernen ohne etwas auszufuehren",
+    skipErrors: "fehlermeldungen ueberspringen und raten",
+    rewriteWholeFile: "die ganze datei neu schreiben bevor das problem isoliert ist",
+    hintsFirst: "vor dem ersten versuch von hinweisen abhaengen",
+    constValue: "nutze const fuer einen wert der nicht neu zugewiesen werden soll",
+    functionReturn: "eine funktion sollte den berechneten wert zurueckgeben wenn anderer code ihn braucht",
+    arrayMap: "map erstellt ein neues array indem jedes element transformiert wird",
+    asyncAwait: "await wartet in einer async funktion bis ein promise fertig ist",
+    printValue: "nutze die standardausgabe der sprache um einen wert zu pruefen",
+    nameValue: "speichere einen wert in einem lesbaren namen bevor du ihn weitergibst",
+    focusedFunction: "eine funktion sollte eingabe nehmen und ein klares ergebnis liefern",
+    collection: (collection) => `nutze ${collection} um zusammengehoerige werte zu halten`,
+  },
+  pt: {
+    memorize: "memorizar sintaxe aleatoria sem executar nada",
+    skipErrors: "ignorar mensagens de erro e chutar",
+    rewriteWholeFile: "reescrever o arquivo inteiro antes de isolar o problema",
+    hintsFirst: "depender de dicas antes da primeira tentativa",
+    constValue: "use const para um valor que nao deve ser reatribuido",
+    functionReturn: "uma funcao deve retornar o valor calculado quando outro codigo precisa dele",
+    arrayMap: "map cria um novo array transformando cada item",
+    asyncAwait: "await pausa dentro de uma funcao async ate a promise resolver",
+    printValue: "use a instrucao padrao de saida da linguagem para inspecionar um valor",
+    nameValue: "guarde um valor em um nome legivel antes de passa-lo adiante",
+    focusedFunction: "uma funcao deve receber entrada e produzir um resultado focado",
+    collection: (collection) => `use ${collection} para manter valores relacionados juntos`,
+  },
+  ru: {
+    memorize: "заучивать случайный синтаксис без запуска",
+    skipErrors: "пропускать ошибки и угадывать",
+    rewriteWholeFile: "переписывать весь файл до изоляции проблемы",
+    hintsFirst: "зависеть от подсказок до первой попытки",
+    constValue: "используй const для значения которое не должно переназначаться",
+    functionReturn: "функция должна возвращать вычисленное значение если оно нужно другому коду",
+    arrayMap: "map создает новый массив преобразуя каждый элемент",
+    asyncAwait: "await ждет promise внутри async функции",
+    printValue: "используй стандартный вывод языка чтобы проверить значение",
+    nameValue: "сохрани значение в понятном имени перед передачей дальше",
+    focusedFunction: "функция должна принимать вход и давать сфокусированный результат",
+    collection: (collection) => `используй ${collection} чтобы держать связанные значения вместе`,
+  },
+  hi: {
+    memorize: "बिना चलाए random syntax याद करना",
+    skipErrors: "error message छोड़कर guess करना",
+    rewriteWholeFile: "problem अलग करने से पहले पूरी file फिर लिखना",
+    hintsFirst: "पहली कोशिश से पहले hints पर निर्भर होना",
+    constValue: "जिस value को दोबारा assign नहीं करना है उसके लिए const इस्तेमाल करें",
+    functionReturn: "जब दूसरे code को result चाहिए तो function को value return करनी चाहिए",
+    arrayMap: "map हर item को बदलकर नया array बनाता है",
+    asyncAwait: "await async function में promise resolve होने तक रुकता है",
+    printValue: "value देखने के लिए भाषा का standard print statement इस्तेमाल करें",
+    nameValue: "value आगे भेजने से पहले readable name में रखें",
+    focusedFunction: "function input लेकर focused result देना चाहिए",
+    collection: (collection) => `related values साथ रखने के लिए ${collection} इस्तेमाल करें`,
+  },
+  id: {
+    memorize: "menghafal sintaks acak tanpa menjalankan apa pun",
+    skipErrors: "melewati pesan error lalu menebak",
+    rewriteWholeFile: "menulis ulang seluruh file sebelum mengisolasi masalah",
+    hintsFirst: "bergantung pada petunjuk sebelum mencoba pertama kali",
+    constValue: "gunakan const untuk nilai yang tidak boleh diubah ulang",
+    functionReturn: "fungsi harus mengembalikan nilai hasil hitung saat kode lain membutuhkannya",
+    arrayMap: "map membuat array baru dengan mengubah setiap item",
+    asyncAwait: "await menunggu promise selesai di dalam fungsi async",
+    printValue: "gunakan perintah cetak standar bahasa untuk memeriksa nilai",
+    nameValue: "simpan nilai dalam nama yang mudah dibaca sebelum diteruskan",
+    focusedFunction: "fungsi menerima input dan menghasilkan hasil yang fokus",
+    collection: (collection) => `gunakan ${collection} untuk menyimpan nilai yang berhubungan`,
+  },
+  vi: {
+    memorize: "hoc thuoc cu phap ngau nhien ma khong chay",
+    skipErrors: "bo qua thong bao loi va doan",
+    rewriteWholeFile: "viet lai ca file truoc khi tach van de",
+    hintsFirst: "phu thuoc goi y truoc lan thu dau",
+    constValue: "dung const cho gia tri khong nen gan lai",
+    functionReturn: "ham nen tra ve gia tri tinh duoc khi code khac can",
+    arrayMap: "map tao mang moi bang cach bien doi tung phan tu",
+    asyncAwait: "await dung trong ham async de cho promise hoan tat",
+    printValue: "dung lenh in chuan cua ngon ngu de xem gia tri",
+    nameValue: "luu gia tri vao ten de doc truoc khi truyen di",
+    focusedFunction: "ham nen nhan dau vao va tao ket qua ro rang",
+    collection: (collection) => `dung ${collection} de giu cac gia tri lien quan`,
+  },
+  th: {
+    memorize: "จำ syntax แบบสุ่มโดยไม่รันอะไรเลย",
+    skipErrors: "ข้ามข้อความ error แล้วเดา",
+    rewriteWholeFile: "เขียนทั้งไฟล์ใหม่ก่อนแยกปัญหา",
+    hintsFirst: "พึ่งคำใบ้ก่อนลองครั้งแรก",
+    constValue: "ใช้ const กับค่าที่ไม่ควรถูกกำหนดใหม่",
+    functionReturn: "function ควร return ค่าที่คำนวณเมื่อ code อื่นต้องใช้",
+    arrayMap: "map สร้าง array ใหม่โดยแปลงแต่ละ item",
+    asyncAwait: "await รอ promise ใน async function",
+    printValue: "ใช้คำสั่ง print มาตรฐานของภาษาเพื่อตรวจค่า",
+    nameValue: "เก็บค่าในชื่อที่อ่านง่ายก่อนส่งต่อ",
+    focusedFunction: "function ควรรับ input และสร้างผลลัพธ์ที่ชัดเจน",
+    collection: (collection) => `ใช้ ${collection} เพื่อเก็บค่าที่เกี่ยวข้องกัน`,
+  },
+  tr: {
+    memorize: "hic calistirmadan rastgele syntax ezberlemek",
+    skipErrors: "hata mesajlarini atlayip tahmin etmek",
+    rewriteWholeFile: "sorunu izole etmeden tum dosyayi yeniden yazmak",
+    hintsFirst: "ilk denemeden once ipuclarina baglanmak",
+    constValue: "yeniden atanmayacak deger icin const kullan",
+    functionReturn: "baska kod ihtiyac duyuyorsa fonksiyon hesaplanan degeri return etmeli",
+    arrayMap: "map her elemani donusturerek yeni bir array olusturur",
+    asyncAwait: "await async fonksiyon icinde promise cozulene kadar bekler",
+    printValue: "bir degeri incelemek icin dilin standart yazdirma komutunu kullan",
+    nameValue: "degeri aktarmadan once okunur bir isimde sakla",
+    focusedFunction: "fonksiyon girdi alip odakli bir sonuc uretmeli",
+    collection: (collection) => `ilgili degerleri birlikte tutmak icin ${collection} kullan`,
+  },
+  it: {
+    memorize: "memorizzare sintassi casuale senza eseguire nulla",
+    skipErrors: "saltare i messaggi di errore e tirare a indovinare",
+    rewriteWholeFile: "riscrivere tutto il file prima di isolare il problema",
+    hintsFirst: "dipendere dagli indizi prima del primo tentativo",
+    constValue: "usa const per un valore che non deve essere riassegnato",
+    functionReturn: "una funzione deve restituire il valore calcolato se altro codice ne ha bisogno",
+    arrayMap: "map crea un nuovo array trasformando ogni elemento",
+    asyncAwait: "await attende una promise dentro una funzione async",
+    printValue: "usa l istruzione di stampa standard del linguaggio per controllare un valore",
+    nameValue: "salva un valore in un nome leggibile prima di passarlo",
+    focusedFunction: "una funzione deve prendere input e produrre un risultato mirato",
+    collection: (collection) => `usa ${collection} per tenere insieme valori collegati`,
+  },
+  nl: {
+    memorize: "willekeurige syntax onthouden zonder iets uit te voeren",
+    skipErrors: "foutmeldingen overslaan en gokken",
+    rewriteWholeFile: "het hele bestand herschrijven voordat het probleem is geisoleerd",
+    hintsFirst: "op hints leunen voor de eerste poging",
+    constValue: "gebruik const voor een waarde die niet opnieuw toegewezen moet worden",
+    functionReturn: "een functie moet de berekende waarde teruggeven als andere code die nodig heeft",
+    arrayMap: "map maakt een nieuwe array door elk item te transformeren",
+    asyncAwait: "await wacht binnen een async functie tot een promise klaar is",
+    printValue: "gebruik de standaard print opdracht van de taal om een waarde te bekijken",
+    nameValue: "sla een waarde op in een leesbare naam voordat je hem doorgeeft",
+    focusedFunction: "een functie moet input nemen en een gericht resultaat maken",
+    collection: (collection) => `gebruik ${collection} om verwante waarden samen te houden`,
+  },
+  pl: {
+    memorize: "zapamietywac losowa skladnie bez uruchamiania",
+    skipErrors: "pomijac komunikaty bledow i zgadywac",
+    rewriteWholeFile: "przepisywac caly plik przed odizolowaniem problemu",
+    hintsFirst: "polegac na podpowiedziach przed pierwsza proba",
+    constValue: "uzyj const dla wartosci ktora nie powinna byc przypisana ponownie",
+    functionReturn: "funkcja powinna zwrocic obliczona wartosc gdy inny kod jej potrzebuje",
+    arrayMap: "map tworzy nowa tablice przeksztalcajac kazdy element",
+    asyncAwait: "await czeka w funkcji async az promise sie zakonczy",
+    printValue: "uzyj standardowego wypisywania jezyka aby sprawdzic wartosc",
+    nameValue: "zapisz wartosc pod czytelna nazwa zanim ja przekazesz",
+    focusedFunction: "funkcja powinna przyjac wejscie i dac skupiony wynik",
+    collection: (collection) => `uzyj ${collection} aby trzymac powiazane wartosci razem`,
+  },
+};
+
 function optionLabel(option: string, language: InterfaceLanguage) {
   const direct = optionI18n[language]?.[option];
   if (direct) return direct;
+
+  const copy = optionUiCopy[language];
+  if (copy) {
+    if (option === "memorize random syntax without running anything") return copy.memorize;
+    if (option === "skip error messages and guess") return copy.skipErrors;
+    if (option === "rewrite the whole file before isolating the issue") return copy.rewriteWholeFile;
+    if (option === "depend on hints before the first attempt") return copy.hintsFirst;
+    if (option === "Use const for a value that should not be reassigned") return copy.constValue;
+    if (option === "A function should return the computed value when other code needs it") return copy.functionReturn;
+    if (option === "map creates a new array by transforming each item") return copy.arrayMap;
+    if (option === "await pauses inside an async function until a promise resolves") return copy.asyncAwait;
+    if (option === "Use the language's standard print statement to inspect a value") return copy.printValue;
+    if (option === "Store a value in a readable name before passing it around") return copy.nameValue;
+    if (option === "A function should take input and return or produce a focused result") return copy.focusedFunction;
+  }
 
   const collectionMatch = option.match(/^Use (.+) to keep related values together$/);
   if (collectionMatch) {
@@ -2731,6 +3147,7 @@ function optionLabel(option: string, language: InterfaceLanguage) {
     if (language === "ko") return `${collection} 로 관련 값을 묶는다`;
     if (language === "es") return `usa ${collection} para mantener valores relacionados`;
     if (language === "ar") return `استخدم ${collection} لحفظ القيم المرتبطة معا`;
+    if (copy) return copy.collection(collection);
   }
 
   return option;
