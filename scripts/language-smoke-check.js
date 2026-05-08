@@ -161,6 +161,15 @@ async function main() {
   );
 
   await checkPage(
+    "programming-ar-fallback",
+    "/programming/elixir?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["ما هي Elixir", "مسار عملي لتعلم Elixir من الصفر", "تعلم جزءا صغيرا من Elixir", "/programming/erlang?lang=ar"],
+    ["typed BEAM services", "Learn one small", "Definition first"],
+    11,
+  );
+
+  await checkPage(
     "github-audit-de",
     "/tools/github-repo-analyzer?lang=de",
     "de-DE,de;q=0.9,en;q=0.2",

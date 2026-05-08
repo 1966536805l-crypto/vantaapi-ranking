@@ -1480,10 +1480,15 @@ const languageHabitAr: Partial<Record<ProgrammingLanguageSlug, string>> = {
 function genericRoleForInterface(activeLanguage: ReturnType<typeof getProgrammingLanguage>, language: InterfaceLanguage) {
   const title = activeLanguage.title;
   const roles: Partial<Record<InterfaceLanguage, string>> = {
+    zh: `从零学习 ${title} 的核心语法 运行方式 和基础实战`,
+    ja: `${title} をゼロから学ぶための基本構文、実行、実践`,
+    ko: `${title} 를 처음부터 배우기 위한 기본 문법 실행 실습`,
+    es: `ruta practica para aprender ${title} desde cero`,
     fr: `parcours pratique pour apprendre ${title} depuis zero`,
     de: `praktischer Lernpfad fuer ${title} von null an`,
     pt: `trilha pratica para aprender ${title} do zero`,
     ru: `практический путь для изучения ${title} с нуля`,
+    ar: `مسار عملي لتعلم ${title} من الصفر`,
     hi: `${title} को शून्य से सीखने का व्यावहारिक रास्ता`,
     id: `jalur praktis untuk belajar ${title} dari nol`,
     vi: `lo trinh thuc hanh de hoc ${title} tu con so 0`,
@@ -1494,6 +1499,30 @@ function genericRoleForInterface(activeLanguage: ReturnType<typeof getProgrammin
     pl: `praktyczna sciezka nauki ${title} od zera`,
   };
   return roles[language] ?? activeLanguage.role;
+}
+
+function genericHabitForInterface(activeLanguage: ReturnType<typeof getProgrammingLanguage>, language: InterfaceLanguage) {
+  const title = activeLanguage.title;
+  const habits: Partial<Record<InterfaceLanguage, string>> = {
+    zh: `每学一个 ${title} 小语法 立刻写一个最小例子并运行`,
+    ja: `${title} の小さな構文を一つ学んだら、すぐ最小例を入力して実行する`,
+    ko: `${title} 작은 문법 하나를 배우면 바로 최소 예제를 입력하고 실행합니다`,
+    es: `aprende una pieza pequena de ${title}, escribe un ejemplo minimo y ejecútalo`,
+    fr: `apprends une petite piece de ${title}, tape un exemple minimal et execute-le`,
+    de: `lerne ein kleines ${title} Stueck, tippe ein Minimalbeispiel und fuehre es aus`,
+    pt: `aprenda uma parte pequena de ${title}, digite um exemplo minimo e execute`,
+    ru: `изучи маленькую часть ${title}, набери минимальный пример и запусти`,
+    ar: `تعلم جزءا صغيرا من ${title} ثم اكتب مثالا صغيرا وشغله`,
+    hi: `${title} का छोटा हिस्सा सीखें, minimal example टाइप करें और चलाएं`,
+    id: `pelajari satu bagian kecil ${title}, ketik contoh minimal, lalu jalankan`,
+    vi: `hoc mot phan nho cua ${title}, go vi du toi thieu roi chay`,
+    th: `เรียน ${title} ทีละส่วนเล็ก แล้วพิมพ์ตัวอย่างสั้นและรัน`,
+    tr: `${title} icin kucuk bir parca ogren, minimal ornek yaz ve calistir`,
+    it: `impara un piccolo pezzo di ${title}, scrivi un esempio minimo ed eseguilo`,
+    nl: `leer een klein deel van ${title}, typ een minimaal voorbeeld en voer het uit`,
+    pl: `poznaj maly fragment ${title}, wpisz minimalny przyklad i uruchom go`,
+  };
+  return habits[language] ?? activeLanguage.dailyHabit;
 }
 
 const methodZh: Record<string, string> = {
@@ -2584,21 +2613,21 @@ function questionExplanation(question: ProgrammingQuestion, language: InterfaceL
 }
 
 function roleForInterface(activeLanguage: ReturnType<typeof getProgrammingLanguage>, language: InterfaceLanguage) {
-  if (language === "zh") return languageRoleZh[activeLanguage.slug] ?? activeLanguage.role;
-  if (language === "ja") return languageRoleJa[activeLanguage.slug] ?? activeLanguage.role;
-  if (language === "ko") return languageRoleKo[activeLanguage.slug] ?? activeLanguage.role;
-  if (language === "es") return languageRoleEs[activeLanguage.slug] ?? activeLanguage.role;
-  if (language === "ar") return languageRoleAr[activeLanguage.slug] ?? activeLanguage.role;
+  if (language === "zh") return languageRoleZh[activeLanguage.slug] ?? genericRoleForInterface(activeLanguage, language);
+  if (language === "ja") return languageRoleJa[activeLanguage.slug] ?? genericRoleForInterface(activeLanguage, language);
+  if (language === "ko") return languageRoleKo[activeLanguage.slug] ?? genericRoleForInterface(activeLanguage, language);
+  if (language === "es") return languageRoleEs[activeLanguage.slug] ?? genericRoleForInterface(activeLanguage, language);
+  if (language === "ar") return languageRoleAr[activeLanguage.slug] ?? genericRoleForInterface(activeLanguage, language);
   return genericRoleForInterface(activeLanguage, language);
 }
 
 function habitForInterface(activeLanguage: ReturnType<typeof getProgrammingLanguage>, language: InterfaceLanguage) {
-  if (language === "zh") return languageHabitZh[activeLanguage.slug] ?? activeLanguage.dailyHabit;
-  if (language === "ja") return languageHabitJa[activeLanguage.slug] ?? activeLanguage.dailyHabit;
-  if (language === "ko") return languageHabitKo[activeLanguage.slug] ?? activeLanguage.dailyHabit;
-  if (language === "es") return languageHabitEs[activeLanguage.slug] ?? activeLanguage.dailyHabit;
-  if (language === "ar") return languageHabitAr[activeLanguage.slug] ?? activeLanguage.dailyHabit;
-  return activeLanguage.dailyHabit;
+  if (language === "zh") return languageHabitZh[activeLanguage.slug] ?? genericHabitForInterface(activeLanguage, language);
+  if (language === "ja") return languageHabitJa[activeLanguage.slug] ?? genericHabitForInterface(activeLanguage, language);
+  if (language === "ko") return languageHabitKo[activeLanguage.slug] ?? genericHabitForInterface(activeLanguage, language);
+  if (language === "es") return languageHabitEs[activeLanguage.slug] ?? genericHabitForInterface(activeLanguage, language);
+  if (language === "ar") return languageHabitAr[activeLanguage.slug] ?? genericHabitForInterface(activeLanguage, language);
+  return genericHabitForInterface(activeLanguage, language);
 }
 
 const genericDefinitionI18n: Partial<Record<InterfaceLanguage, {
