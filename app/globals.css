@@ -3513,6 +3513,146 @@ body:has(.home-audit-page) .global-search-trigger {
   white-space: nowrap;
 }
 
+.programming-lineage {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.programming-lineage-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.programming-lineage-head h2 {
+  margin-top: 5px;
+  font-size: 22px;
+  font-weight: 820;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.programming-lineage-head p {
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.programming-lineage-map {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 0.62fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: stretch;
+}
+
+.programming-lineage-map article,
+.programming-lineage-cards article {
+  min-width: 0;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.68);
+  padding: 10px;
+}
+
+.programming-lineage-map article {
+  display: grid;
+  gap: 8px;
+}
+
+.programming-lineage-map article.current {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #0f172a;
+  color: white;
+}
+
+.programming-lineage-map span,
+.programming-lineage-cards span {
+  color: var(--muted);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.programming-lineage-map article.current span,
+.programming-lineage-map article.current small {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.programming-lineage-map strong {
+  font-size: 18px;
+  font-weight: 840;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.programming-lineage-map small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1.45;
+}
+
+.programming-lineage-map div,
+.programming-lineage-cards div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.programming-lineage-map em,
+.programming-lineage-map a,
+.programming-lineage-cards a {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  background: white;
+  padding: 6px 8px;
+  color: #0f172a;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.programming-lineage-map a:hover,
+.programming-lineage-cards a:hover {
+  border-color: rgba(0, 113, 227, 0.34);
+  color: var(--accent-link);
+}
+
+.programming-lineage-cards {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.66fr) minmax(0, 1fr) minmax(220px, 0.82fr);
+  gap: 8px;
+}
+
+.programming-lineage-cards article {
+  display: grid;
+  gap: 7px;
+  align-content: start;
+}
+
+.programming-lineage-cards strong {
+  font-size: 14px;
+  font-weight: 840;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.programming-lineage-cards p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
 .programming-track-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3931,11 +4071,13 @@ body:has(.home-audit-page) .global-search-trigger {
 [dir="rtl"] .programming-definition-head,
 [dir="rtl"] .programming-reference-head,
 [dir="rtl"] .programming-question-head,
-[dir="rtl"] .programming-inspector-head {
+[dir="rtl"] .programming-inspector-head,
+[dir="rtl"] .programming-lineage-head {
   text-align: right;
 }
 
 [dir="rtl"] .programming-definition-starter,
+[dir="rtl"] .programming-lineage-map,
 [dir="rtl"] .programming-track-summary button,
 [dir="rtl"] .programming-zero-path > div {
   direction: rtl;
@@ -3980,6 +4122,8 @@ body:has(.home-audit-page) .global-search-trigger {
   .programming-topbar,
   .programming-definition-head,
   .programming-definition-starter,
+  .programming-lineage-head,
+  .programming-lineage-cards,
   .programming-zero-path,
   .programming-question-head,
   .programming-inspector-head,
@@ -3991,6 +4135,10 @@ body:has(.home-audit-page) .global-search-trigger {
   .programming-question-nav,
   .programming-runtime-inline {
     justify-content: flex-start;
+  }
+
+  .programming-lineage-map {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -4015,7 +4163,8 @@ body:has(.home-audit-page) .global-search-trigger {
     grid-template-columns: 1fr;
   }
 
-  .programming-definition-grid {
+  .programming-definition-grid,
+  .programming-lineage-cards {
     grid-template-columns: 1fr;
   }
 
