@@ -240,6 +240,17 @@ function withLanguagePreference(response: NextResponse, request: NextRequest) {
   return response;
 }
 
+function nextWithRequestLanguage(request: NextRequest, botVerdict: BotVerdict) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-jinming-language", securityLanguage(request));
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+  return withLanguagePreference(withSecurityHeaders(response, botVerdict), request);
+}
+
 function securityLanguage(request: NextRequest): SiteLanguage {
   const explicitLanguage = request.nextUrl.searchParams.get("lang");
   return isSupportedSiteLanguage(explicitLanguage)
@@ -783,7 +794,7 @@ export function proxy(request: NextRequest) {
     return withSecurityHeaders(NextResponse.redirect(loginUrl), botVerdict);
   }
 
-  return withLanguagePreference(withSecurityHeaders(NextResponse.next(), botVerdict), request);
+  return nextWithRequestLanguage(request, botVerdict);
 }
 
 export const config = {

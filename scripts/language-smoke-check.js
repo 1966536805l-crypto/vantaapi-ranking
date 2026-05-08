@@ -158,6 +158,22 @@ async function checkPage(name, path, acceptLanguage, requiredSnippets, forbidden
   }
 }
 
+async function checkDocumentLanguage(name, path, acceptLanguage, expectedHtmlAttrs, index) {
+  try {
+    const response = await fetchWithTimeout(path, browserHeaders(acceptLanguage, index), { redirect: "follow" });
+    const body = await response.text();
+    if (!response.ok) return bad(name, `HTTP ${response.status}`);
+
+    const htmlTag = body.match(/<html[^>]*>/)?.[0] || "";
+    const missing = expectedHtmlAttrs.filter((snippet) => !htmlTag.includes(snippet));
+    if (missing.length) return bad(name, `html tag ${htmlTag || "(missing)"} missing ${missing.join(" | ")}`);
+
+    return ok(name, `document starts with ${expectedHtmlAttrs.join(" ")}`);
+  } catch (error) {
+    bad(name, error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function checkSitemapAlternates() {
   try {
     const response = await fetchWithTimeout("/sitemap.xml", browserHeaders("en-US,en;q=0.9", 8), { redirect: "follow" });
@@ -202,6 +218,13 @@ async function main() {
     ["ما هي JavaScript", "التعريف أولا", "مدخلات مخرجات return", "hrefLang=\"ar\"", "https://vantaapi.com/programming/javascript?lang=ar", "/programming/python?lang=ar"],
     ["What is JavaScript", "Full screen", "input output return reusable actions"],
     4,
+  );
+  await checkDocumentLanguage(
+    "document-language:programming-ar",
+    "/programming/javascript?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ['lang="ar"', 'dir="rtl"'],
+    17,
   );
 
   await checkPage(
