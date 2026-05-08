@@ -296,10 +296,11 @@ function priorityFixList(priorityFixes: GitHubRepoAnalysis["priorityFixes"], lan
   ].join("\n");
 }
 
-function findingList(findings: GitHubRepoAnalysis["issueFindings"]) {
+function findingList(findings: GitHubRepoAnalysis["issueFindings"], language: InterfaceLanguage = "en") {
+  const r = getReportCopy(language);
   return findings.length
-    ? findings.map((item) => `- ${item.severity} ${item.title}\n  Source: ${item.source}\n  Evidence: ${item.evidence}`).join("\n")
-    : "- No evidence-backed findings detected";
+    ? findings.map((item) => `- ${item.severity} ${item.title}\n  ${r.source}: ${item.source}\n  ${r.evidenceLabel}: ${item.evidence}`).join("\n")
+    : `- ${r.noFindings}`;
 }
 
 function base64UrlEncode(value: string) {
@@ -359,8 +360,8 @@ function riskTone(riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"]) {
 }
 
 function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: string, language: InterfaceLanguage = "en") {
-  const zh = language === "zh";
   const t = getAuditCopy(language);
+  const r = getReportCopy(language);
   if (error) {
     return `${t.verdict}\n${error}\n\n${t.repoUrl}\n${sampleRepoUrl}`;
   }
@@ -368,53 +369,30 @@ function formatGitHubRepoOutput(analysis: GitHubRepoAnalysis | null, error: stri
     return `${t.launchReadinessReport}\n${t.reportShapeBody}\n\n${t.repoUrl}\n${sampleRepoUrl}`;
   }
 
-  const sections = zh
-    ? [
-        `上线体检\n评分：${analysis.launchScore.score}/100\n风险：${analysis.launchScore.riskLevel}\n${analysis.launchScore.summary}`,
-        `五维评分卡\n${scorecardList(analysis.scorecard, language)}`,
-        `修复优先级\n${priorityFixList(analysis.priorityFixes, language)}`,
-        `证据和严重程度\n${findingList(analysis.issueFindings)}`,
-        `上线前必须修\n${numberedList(analysis.mustFix)}`,
-        `仓库\n${analysis.repository.fullName}\n${analysis.repository.url}`,
-        `概览\n${bulletList(analysis.overview)}`,
-        `技术栈\n${bulletList(analysis.techStack)}`,
-        `如何运行\n${numberedList(analysis.howToRun)}`,
-        `环境变量清单\n${bulletList(analysis.envChecklist)}`,
-        `项目交接\n${bulletList(analysis.fileStructure)}`,
-        `Issue 标签建议\n${bulletList(analysis.issueLabelPlan)}`,
-        `安全提示\n${bulletList(analysis.securityNotes)}`,
-        `README 建议\n${bulletList(analysis.readmeSuggestions)}`,
-        `CI 建议\n${bulletList(analysis.githubActions)}`,
-        `部署清单\n${numberedList(analysis.deploymentChecklist)}`,
-        `PR 检查清单\n${numberedList(analysis.prReviewChecklist)}`,
-        `可复制 PR 描述\n${analysis.prDescription}`,
-        `发布清单\n${numberedList(analysis.releaseChecklist)}`,
-        `可复制 GitHub Issues\n${analysis.copyableIssues.join("\n\n---\n\n")}`,
-        `读取文件\n${bulletList(analysis.filesRead)}`,
-      ]
-    : [
-        `${t.launchReadinessReport}\n${t.score}: ${analysis.launchScore.score}/100\n${t.risk}: ${riskLevelLabel(analysis.launchScore.riskLevel, language)}\n${analysis.launchScore.summary}`,
-        `${t.qualityGates}\n${scorecardList(analysis.scorecard, language)}`,
-        `${t.shipNext}\n${priorityFixList(analysis.priorityFixes, language)}`,
-        `Evidence and severity\n${findingList(analysis.issueFindings)}`,
-        `${t.mustFixFirst}\n${numberedList(analysis.mustFix)}`,
-        `${t.repository}\n${analysis.repository.fullName}\n${analysis.repository.url}`,
-        `Overview\n${bulletList(analysis.overview)}`,
-        `Tech stack\n${bulletList(analysis.techStack)}`,
-        `How to run\n${numberedList(analysis.howToRun)}`,
-        `Environment checklist\n${bulletList(analysis.envChecklist)}`,
-        `Project handoff\n${bulletList(analysis.fileStructure)}`,
-        `Issue label plan\n${bulletList(analysis.issueLabelPlan)}`,
-        `Security notes\n${bulletList(analysis.securityNotes)}`,
-        `README fixes\n${bulletList(analysis.readmeSuggestions)}`,
-        `CI suggestions\n${bulletList(analysis.githubActions)}`,
-        `Deployment checklist\n${numberedList(analysis.deploymentChecklist)}`,
-        `PR review checklist\n${numberedList(analysis.prReviewChecklist)}`,
-        `Copyable PR description\n${analysis.prDescription}`,
-        `Release checklist\n${numberedList(analysis.releaseChecklist)}`,
-        `Copyable GitHub issues\n${analysis.copyableIssues.join("\n\n---\n\n")}`,
-        `Files read\n${bulletList(analysis.filesRead)}`,
-      ];
+  const view = localizeAnalysisForDisplay(analysis, language);
+  const sections = [
+    `${t.launchReadinessReport}\n${t.score}: ${view.launchScore.score}/100\n${t.risk}: ${riskLevelLabel(view.launchScore.riskLevel, language)}\n${view.launchScore.summary}`,
+    `${r.scorecard}\n${scorecardList(view.scorecard, language)}`,
+    `${r.priority}\n${priorityFixList(view.priorityFixes, language)}`,
+    `${r.evidence}\n${findingList(view.issueFindings, language)}`,
+    `${t.mustFixFirst}\n${numberedList(view.mustFix, r.noAction)}`,
+    `${t.repository}\n${view.repository.fullName}\n${view.repository.url}`,
+    `${r.overview}\n${bulletList(view.overview, r.noSignal)}`,
+    `${r.techStack}\n${bulletList(view.techStack, r.noSignal)}`,
+    `${r.howToRun}\n${numberedList(view.howToRun, r.noAction)}`,
+    `${r.envChecklist}\n${bulletList(view.envChecklist, r.noSignal)}`,
+    `${r.handoff}\n${bulletList(view.fileStructure, r.noSignal)}`,
+    `${r.issueLabels}\n${bulletList(view.issueLabelPlan, r.noSignal)}`,
+    `${r.securityNotes}\n${bulletList(view.securityNotes, r.noSignal)}`,
+    `${r.readmeFixes}\n${bulletList(view.readmeSuggestions, r.noSignal)}`,
+    `${r.ciSuggestions}\n${bulletList(view.githubActions, r.noSignal)}`,
+    `${r.deploymentChecklist}\n${numberedList(view.deploymentChecklist, r.noAction)}`,
+    `${r.prReviewChecklist}\n${numberedList(view.prReviewChecklist, r.noAction)}`,
+    `${r.prDescription}\n${view.prDescription}`,
+    `${r.releaseChecklist}\n${numberedList(view.releaseChecklist, r.noAction)}`,
+    `${r.githubIssues}\n${view.copyableIssues.join("\n\n---\n\n")}`,
+    `${r.filesRead}\n${bulletList(view.filesRead, r.noSignal)}`,
+  ];
 
   return sections.join("\n\n");
 }
@@ -469,6 +447,833 @@ function scorecardStatusLabel(status: "pass" | "review" | "missing", languageOrZ
   if (status === "pass") return t.statusPass;
   if (status === "review") return t.statusReview;
   return t.statusMissing;
+}
+
+type ReportCopy = {
+  scorecard: string;
+  priority: string;
+  evidence: string;
+  source: string;
+  evidenceLabel: string;
+  overview: string;
+  techStack: string;
+  howToRun: string;
+  envChecklist: string;
+  handoff: string;
+  issueLabels: string;
+  securityNotes: string;
+  readmeFixes: string;
+  ciSuggestions: string;
+  deploymentChecklist: string;
+  prReviewChecklist: string;
+  prDescription: string;
+  releaseChecklist: string;
+  githubIssues: string;
+  filesRead: string;
+  issuePriority: string;
+  issueLabelsText: string;
+  whyMatters: string;
+  suggestedFix: string;
+  doneWhen: string;
+  verification: string;
+  noFindings: string;
+  noSignal: string;
+  noAction: string;
+  issueTemplateFallback: string;
+  prTitle: string;
+  today: string;
+  beforePublicLaunch: string;
+  laterPolish: string;
+  cleanVerification: string;
+};
+
+const reportCopy: Partial<Record<InterfaceLanguage, ReportCopy>> & { en: ReportCopy; zh: ReportCopy } = {
+  en: {
+    scorecard: "Scorecard",
+    priority: "Fix priority",
+    evidence: "Evidence and severity",
+    source: "Source",
+    evidenceLabel: "Evidence",
+    overview: "Overview",
+    techStack: "Tech stack",
+    howToRun: "How to run",
+    envChecklist: "Environment checklist",
+    handoff: "Project handoff",
+    issueLabels: "Issue label plan",
+    securityNotes: "Security notes",
+    readmeFixes: "README fixes",
+    ciSuggestions: "CI suggestions",
+    deploymentChecklist: "Deployment checklist",
+    prReviewChecklist: "PR review checklist",
+    prDescription: "Copyable PR description",
+    releaseChecklist: "Release checklist",
+    githubIssues: "Copyable GitHub issues",
+    filesRead: "Files read",
+    issuePriority: "Priority",
+    issueLabelsText: "Labels",
+    whyMatters: "Why this matters",
+    suggestedFix: "Suggested fix",
+    doneWhen: "Done when",
+    verification: "Verification",
+    noFindings: "No evidence-backed findings detected",
+    noSignal: "No signal detected",
+    noAction: "No action detected",
+    issueTemplateFallback: "No blocking issue template needed from this audit.",
+    prTitle: "Launch readiness audit",
+    today: "Today",
+    beforePublicLaunch: "Before public launch",
+    laterPolish: "Later polish",
+    cleanVerification: "Clean verification",
+  },
+  zh: {
+    scorecard: "五维评分卡",
+    priority: "修复优先级",
+    evidence: "证据和严重程度",
+    source: "来源",
+    evidenceLabel: "证据",
+    overview: "概览",
+    techStack: "技术栈",
+    howToRun: "如何运行",
+    envChecklist: "环境变量清单",
+    handoff: "项目交接",
+    issueLabels: "Issue 标签建议",
+    securityNotes: "安全提示",
+    readmeFixes: "README 建议",
+    ciSuggestions: "CI 建议",
+    deploymentChecklist: "部署清单",
+    prReviewChecklist: "PR 检查清单",
+    prDescription: "可复制 PR 描述",
+    releaseChecklist: "发布清单",
+    githubIssues: "可复制 GitHub Issues",
+    filesRead: "读取文件",
+    issuePriority: "优先级",
+    issueLabelsText: "标签",
+    whyMatters: "为什么重要",
+    suggestedFix: "建议修复",
+    doneWhen: "完成标准",
+    verification: "验证",
+    noFindings: "没有检测到带证据的风险项",
+    noSignal: "没有检测到信号",
+    noAction: "没有检测到行动项",
+    issueTemplateFallback: "本次体检不需要创建阻塞 Issue 模板。",
+    prTitle: "上线体检",
+    today: "今天",
+    beforePublicLaunch: "公开上线前",
+    laterPolish: "后续打磨",
+    cleanVerification: "干净验证",
+  },
+  ja: {
+    scorecard: "スコアカード",
+    priority: "修正優先度",
+    evidence: "証拠と重要度",
+    source: "出典",
+    evidenceLabel: "証拠",
+    overview: "概要",
+    techStack: "技術スタック",
+    howToRun: "実行方法",
+    envChecklist: "環境変数チェックリスト",
+    handoff: "引き継ぎ",
+    issueLabels: "Issue ラベル案",
+    securityNotes: "セキュリティメモ",
+    readmeFixes: "README 修正",
+    ciSuggestions: "CI 提案",
+    deploymentChecklist: "デプロイチェックリスト",
+    prReviewChecklist: "PR レビューリスト",
+    prDescription: "コピー用 PR 説明",
+    releaseChecklist: "リリースチェックリスト",
+    githubIssues: "コピー用 GitHub Issues",
+    filesRead: "読み取ったファイル",
+    issuePriority: "優先度",
+    issueLabelsText: "ラベル",
+    whyMatters: "重要な理由",
+    suggestedFix: "修正案",
+    doneWhen: "完了条件",
+    verification: "検証",
+    noFindings: "証拠付きの指摘はありません",
+    noSignal: "信号なし",
+    noAction: "対応なし",
+    issueTemplateFallback: "この監査ではブロッカー Issue テンプレートは不要です。",
+    prTitle: "公開前診断",
+    today: "今日",
+    beforePublicLaunch: "公開前",
+    laterPolish: "後で磨く",
+    cleanVerification: "クリーン検証",
+  },
+  ar: {
+    scorecard: "بطاقة التقييم",
+    priority: "أولوية الإصلاح",
+    evidence: "الأدلة والشدة",
+    source: "المصدر",
+    evidenceLabel: "الدليل",
+    overview: "نظرة عامة",
+    techStack: "التقنيات",
+    howToRun: "طريقة التشغيل",
+    envChecklist: "قائمة متغيرات البيئة",
+    handoff: "تسليم المشروع",
+    issueLabels: "خطة تسميات Issues",
+    securityNotes: "ملاحظات الأمان",
+    readmeFixes: "تحسينات README",
+    ciSuggestions: "اقتراحات CI",
+    deploymentChecklist: "قائمة النشر",
+    prReviewChecklist: "قائمة مراجعة PR",
+    prDescription: "وصف PR قابل للنسخ",
+    releaseChecklist: "قائمة الإطلاق",
+    githubIssues: "GitHub Issues قابلة للنسخ",
+    filesRead: "الملفات المقروءة",
+    issuePriority: "الأولوية",
+    issueLabelsText: "التسميات",
+    whyMatters: "لماذا يهم",
+    suggestedFix: "الإصلاح المقترح",
+    doneWhen: "يكتمل عندما",
+    verification: "التحقق",
+    noFindings: "لا توجد ملاحظات مدعومة بأدلة",
+    noSignal: "لم يتم العثور على إشارة",
+    noAction: "لم يتم العثور على إجراء",
+    issueTemplateFallback: "لا حاجة لقالب Issue مانع من هذا الفحص.",
+    prTitle: "تدقيق جاهزية الإطلاق",
+    today: "اليوم",
+    beforePublicLaunch: "قبل الإطلاق العام",
+    laterPolish: "تحسين لاحق",
+    cleanVerification: "تحقق نظيف",
+  },
+  de: {
+    scorecard: "Scorecard",
+    priority: "Fix Priorität",
+    evidence: "Belege und Schweregrad",
+    source: "Quelle",
+    evidenceLabel: "Beleg",
+    overview: "Überblick",
+    techStack: "Technik Stack",
+    howToRun: "Ausführen",
+    envChecklist: "Umgebungsvariablen Checkliste",
+    handoff: "Projekt Übergabe",
+    issueLabels: "Issue Label Plan",
+    securityNotes: "Sicherheitsnotizen",
+    readmeFixes: "README Korrekturen",
+    ciSuggestions: "CI Vorschläge",
+    deploymentChecklist: "Deployment Checkliste",
+    prReviewChecklist: "PR Review Checkliste",
+    prDescription: "Kopierbare PR Beschreibung",
+    releaseChecklist: "Release Checkliste",
+    githubIssues: "Kopierbare GitHub Issues",
+    filesRead: "Gelesene Dateien",
+    issuePriority: "Priorität",
+    issueLabelsText: "Labels",
+    whyMatters: "Warum das wichtig ist",
+    suggestedFix: "Vorgeschlagener Fix",
+    doneWhen: "Fertig wenn",
+    verification: "Verifikation",
+    noFindings: "Keine belegten Befunde erkannt",
+    noSignal: "Kein Signal erkannt",
+    noAction: "Keine Aktion erkannt",
+    issueTemplateFallback: "Aus dieser Prüfung ist kein Blocker Issue Template nötig.",
+    prTitle: "Startprüfung",
+    today: "Heute",
+    beforePublicLaunch: "Vor der Veröffentlichung",
+    laterPolish: "Späterer Feinschliff",
+    cleanVerification: "Saubere Verifikation",
+  },
+  vi: {
+    scorecard: "Bảng điểm",
+    priority: "Ưu tiên sửa",
+    evidence: "Bằng chứng và mức độ",
+    source: "Nguồn",
+    evidenceLabel: "Bằng chứng",
+    overview: "Tổng quan",
+    techStack: "Công nghệ",
+    howToRun: "Cách chạy",
+    envChecklist: "Checklist biến môi trường",
+    handoff: "Bàn giao dự án",
+    issueLabels: "Kế hoạch nhãn Issue",
+    securityNotes: "Ghi chú bảo mật",
+    readmeFixes: "Sửa README",
+    ciSuggestions: "Gợi ý CI",
+    deploymentChecklist: "Checklist deploy",
+    prReviewChecklist: "Checklist review PR",
+    prDescription: "Mô tả PR có thể copy",
+    releaseChecklist: "Checklist release",
+    githubIssues: "GitHub Issues có thể copy",
+    filesRead: "File đã đọc",
+    issuePriority: "Ưu tiên",
+    issueLabelsText: "Nhãn",
+    whyMatters: "Vì sao quan trọng",
+    suggestedFix: "Cách sửa gợi ý",
+    doneWhen: "Hoàn thành khi",
+    verification: "Xác minh",
+    noFindings: "Không có phát hiện có bằng chứng",
+    noSignal: "Không phát hiện tín hiệu",
+    noAction: "Không phát hiện hành động",
+    issueTemplateFallback: "Lần kiểm tra này không cần issue blocker.",
+    prTitle: "Kiểm tra sẵn sàng ra mắt",
+    today: "Hôm nay",
+    beforePublicLaunch: "Trước khi ra mắt công khai",
+    laterPolish: "Tối ưu sau",
+    cleanVerification: "Xác minh sạch",
+  },
+  tr: {
+    scorecard: "Skor kartı",
+    priority: "Düzeltme önceliği",
+    evidence: "Kanıt ve önem",
+    source: "Kaynak",
+    evidenceLabel: "Kanıt",
+    overview: "Genel bakış",
+    techStack: "Teknoloji yığını",
+    howToRun: "Nasıl çalıştırılır",
+    envChecklist: "Ortam değişkenleri checklist",
+    handoff: "Proje devri",
+    issueLabels: "Issue etiket planı",
+    securityNotes: "Güvenlik notları",
+    readmeFixes: "README düzeltmeleri",
+    ciSuggestions: "CI önerileri",
+    deploymentChecklist: "Deploy checklist",
+    prReviewChecklist: "PR review checklist",
+    prDescription: "Kopyalanabilir PR açıklaması",
+    releaseChecklist: "Release checklist",
+    githubIssues: "Kopyalanabilir GitHub Issues",
+    filesRead: "Okunan dosyalar",
+    issuePriority: "Öncelik",
+    issueLabelsText: "Etiketler",
+    whyMatters: "Neden önemli",
+    suggestedFix: "Önerilen düzeltme",
+    doneWhen: "Bitti sayılır",
+    verification: "Doğrulama",
+    noFindings: "Kanıta dayalı bulgu yok",
+    noSignal: "Sinyal bulunmadı",
+    noAction: "Aksiyon bulunmadı",
+    issueTemplateFallback: "Bu denetim için blocker issue şablonu gerekmiyor.",
+    prTitle: "Yayın hazırlık denetimi",
+    today: "Bugün",
+    beforePublicLaunch: "Public yayından önce",
+    laterPolish: "Sonraki iyileştirme",
+    cleanVerification: "Temiz doğrulama",
+  },
+  nl: {
+    scorecard: "Scorekaart",
+    priority: "Fix prioriteit",
+    evidence: "Bewijs en ernst",
+    source: "Bron",
+    evidenceLabel: "Bewijs",
+    overview: "Overzicht",
+    techStack: "Tech stack",
+    howToRun: "Zo draai je het",
+    envChecklist: "Omgevingsvariabelen checklist",
+    handoff: "Project overdracht",
+    issueLabels: "Issue label plan",
+    securityNotes: "Security notities",
+    readmeFixes: "README fixes",
+    ciSuggestions: "CI suggesties",
+    deploymentChecklist: "Deployment checklist",
+    prReviewChecklist: "PR review checklist",
+    prDescription: "Kopieerbare PR beschrijving",
+    releaseChecklist: "Release checklist",
+    githubIssues: "Kopieerbare GitHub issues",
+    filesRead: "Gelezen bestanden",
+    issuePriority: "Prioriteit",
+    issueLabelsText: "Labels",
+    whyMatters: "Waarom dit belangrijk is",
+    suggestedFix: "Voorgestelde fix",
+    doneWhen: "Klaar wanneer",
+    verification: "Verificatie",
+    noFindings: "Geen bevindingen met bewijs gevonden",
+    noSignal: "Geen signaal gevonden",
+    noAction: "Geen actie gevonden",
+    issueTemplateFallback: "Geen blocker issue template nodig voor deze controle.",
+    prTitle: "Publicatie gereedheidscontrole",
+    today: "Vandaag",
+    beforePublicLaunch: "Voor publieke release",
+    laterPolish: "Latere polish",
+    cleanVerification: "Schone verificatie",
+  },
+  pl: {
+    scorecard: "Karta wyników",
+    priority: "Priorytet napraw",
+    evidence: "Dowody i ważność",
+    source: "Źródło",
+    evidenceLabel: "Dowód",
+    overview: "Przegląd",
+    techStack: "Stack technologiczny",
+    howToRun: "Jak uruchomić",
+    envChecklist: "Checklist zmiennych środowiskowych",
+    handoff: "Przekazanie projektu",
+    issueLabels: "Plan etykiet Issue",
+    securityNotes: "Notatki bezpieczeństwa",
+    readmeFixes: "Poprawki README",
+    ciSuggestions: "Sugestie CI",
+    deploymentChecklist: "Checklist deploy",
+    prReviewChecklist: "Checklist review PR",
+    prDescription: "Opis PR do skopiowania",
+    releaseChecklist: "Checklist release",
+    githubIssues: "GitHub Issues do skopiowania",
+    filesRead: "Przeczytane pliki",
+    issuePriority: "Priorytet",
+    issueLabelsText: "Etykiety",
+    whyMatters: "Dlaczego to ważne",
+    suggestedFix: "Sugerowana poprawka",
+    doneWhen: "Gotowe gdy",
+    verification: "Weryfikacja",
+    noFindings: "Brak ustaleń opartych na dowodach",
+    noSignal: "Nie wykryto sygnału",
+    noAction: "Nie wykryto działania",
+    issueTemplateFallback: "Ten audyt nie wymaga blocker issue template.",
+    prTitle: "Audyt gotowości publikacji",
+    today: "Dzisiaj",
+    beforePublicLaunch: "Przed publiczną publikacją",
+    laterPolish: "Późniejsze dopracowanie",
+    cleanVerification: "Czysta weryfikacja",
+  },
+  hi: {
+    scorecard: "Scorecard",
+    priority: "Fix priority",
+    evidence: "Evidence और severity",
+    source: "Source",
+    evidenceLabel: "Evidence",
+    overview: "Overview",
+    techStack: "Tech stack",
+    howToRun: "कैसे चलाएं",
+    envChecklist: "Environment checklist",
+    handoff: "Project handoff",
+    issueLabels: "Issue label plan",
+    securityNotes: "Security notes",
+    readmeFixes: "README fixes",
+    ciSuggestions: "CI suggestions",
+    deploymentChecklist: "Deployment checklist",
+    prReviewChecklist: "PR review checklist",
+    prDescription: "Copyable PR description",
+    releaseChecklist: "Release checklist",
+    githubIssues: "Copyable GitHub issues",
+    filesRead: "Files read",
+    issuePriority: "Priority",
+    issueLabelsText: "Labels",
+    whyMatters: "यह क्यों जरूरी है",
+    suggestedFix: "Suggested fix",
+    doneWhen: "Done when",
+    verification: "Verification",
+    noFindings: "Evidence backed findings नहीं मिले",
+    noSignal: "Signal नहीं मिला",
+    noAction: "Action नहीं मिला",
+    issueTemplateFallback: "इस audit से blocking issue template की जरूरत नहीं.",
+    prTitle: "Launch readiness audit",
+    today: "आज",
+    beforePublicLaunch: "Public launch से पहले",
+    laterPolish: "बाद में polish",
+    cleanVerification: "Clean verification",
+  },
+};
+
+function getReportCopy(language: InterfaceLanguage) {
+  return reportCopy[language] || reportCopy.en;
+}
+
+const auditTextTranslations: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
+  zh: {
+    "Public launch shape is strong. The remaining work is mostly release polish, contributor handoff, and keeping setup steps copy ready.": "公开发布形态已经比较稳，剩下主要是发布细节、贡献者交接和可复制的启动步骤。",
+    "Purpose, install, and usage are easy to find.": "用途、安装和使用方式容易找到。",
+    "Env expectations should stay explicit for examples and release docs.": "示例和发布文档里要继续明确环境变量要求。",
+    "Quality commands should stay visible in pull requests.": "质量检查命令应该在 PR 中保持可见。",
+    "Release notes and rollback steps are the remaining launch polish.": "发布说明和回滚步骤是剩余的上线打磨项。",
+    "No obvious committed local secrets in the sample report.": "样例报告里没有明显提交到仓库的本地密钥。",
+    "Keep the README quick start path under five minutes for a new contributor.": "让新贡献者在五分钟内按 README 完成快速启动。",
+    "Make required environment variables explicit in one env example section.": "在一个环境变量示例区域里明确必填变量。",
+    "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.": "把发布和 PR 清单放到可见位置，不要让上线流程只存在维护者脑子里。",
+    "Add a recurring release review for docs, examples, and CI drift.": "为文档、示例和 CI 偏移增加定期发布复查。",
+    "Repository presents a focused public developer library with active maintenance signals.": "仓库呈现为聚焦的公开开发者库，并有活跃维护信号。",
+    "The project has enough public metadata for a launch handoff and contributor review.": "项目有足够公开元数据，适合做上线交接和贡献者审查。",
+    "Launch risk is low when docs, env, CI, and release steps stay explicit.": "只要文档、环境变量、CI 和发布步骤保持明确，上线风险较低。",
+    "Install dependencies": "安装依赖",
+    "Run the development command from package scripts": "运行 package scripts 里的开发命令",
+    "Run tests or type checks before a release": "发布前运行测试或类型检查",
+    "Package scripts": "Package scripts",
+    "GitHub based contribution flow": "基于 GitHub 的贡献流程",
+    "README explains the public purpose": "README 说明公开用途",
+    "Root config files make project tooling discoverable": "根目录配置文件让工具链可发现",
+    "Docs and examples should stay close to the first contributor path": "文档和示例应贴近首次贡献者路径",
+    "Do not commit production secrets or tokens.": "不要提交生产密钥或 token。",
+    "Keep env examples as placeholders only.": "环境变量示例只保留占位值。",
+    "Review dependency updates and public issue reports before release.": "发布前复查依赖更新和公开 issue 报告。",
+    "Keep the first screen focused on what the package does and how to start.": "首屏聚焦说明包的作用和启动方式。",
+    "Move deeper architecture notes below install and usage examples.": "把更深的架构说明放到安装和使用示例之后。",
+    "Add a short release or deployment checklist when the project has a public website.": "如果项目有公开网站，补一份短发布或部署清单。",
+    "Keep lint typecheck test and build visible in CI.": "在 CI 中保持 lint、typecheck、test 和 build 可见。",
+    "Fail pull requests on broken formatting or type errors.": "格式或类型错误时让 PR 失败。",
+    "Cache dependencies only after the install path is stable.": "安装路径稳定后再缓存依赖。",
+    "Detected env template keys should be documented with purpose and required status.": "检测到的环境变量模板 key 应标注用途和是否必填。",
+    "Production secrets belong in the host environment dashboard.": "生产密钥应放在托管平台环境变量面板里。",
+    "Local optional variables should have safe defaults.": "本地可选变量应有安全默认值。",
+    "Run lint typecheck tests and build.": "运行 lint、typecheck、tests 和 build。",
+    "Confirm production environment variables.": "确认生产环境变量。",
+    "Review README quick start and env docs.": "复查 README 快速启动和环境变量文档。",
+    "Publish release notes and rollback steps.": "发布 release notes 和回滚步骤。",
+    "Does the PR change public setup commands?": "这个 PR 是否改变公开安装或启动命令？",
+    "Does the PR require new env variables?": "这个 PR 是否需要新增环境变量？",
+    "Are docs examples and tests updated together?": "文档、示例和测试是否一起更新？",
+    "Can a new contributor verify the change locally?": "新贡献者能否在本地验证这个变更？",
+    "Update the repository files that create this launch risk": "更新造成该上线风险的仓库文件",
+    "Document the expected local or production behavior": "记录预期的本地或生产行为",
+    "Keep secrets and machine-specific files out of public source control": "不要把密钥和机器相关文件放进公开源码",
+    "The launch risk is no longer present in the public repository": "公开仓库中不再存在该上线风险",
+    "README, CI, or deployment docs explain how to verify the fix": "README、CI 或部署文档说明如何验证修复",
+    "A maintainer can confirm it from a clean checkout": "维护者可以从干净 checkout 中确认修复",
+    "Clean working tree and passing CI.": "工作区干净且 CI 通过。",
+    "No committed secrets or temporary local files.": "没有提交密钥或临时本地文件。",
+    "README quick start still works.": "README 快速启动仍然可用。",
+    "Release notes include user visible changes.": "发布说明包含用户可见变更。",
+    "Monitoring or rollback path is known before launch.": "上线前明确监控或回滚路径。",
+  },
+  vi: {
+    "Public launch shape is strong. The remaining work is mostly release polish, contributor handoff, and keeping setup steps copy ready.": "Hình thái ra mắt công khai khá vững. Phần còn lại chủ yếu là polish release, bàn giao contributor và giữ bước setup dễ copy.",
+    "Purpose, install, and usage are easy to find.": "Mục đích, cài đặt và cách dùng dễ tìm.",
+    "Env expectations should stay explicit for examples and release docs.": "Yêu cầu env cần rõ trong ví dụ và tài liệu release.",
+    "Quality commands should stay visible in pull requests.": "Lệnh kiểm tra chất lượng nên hiển thị rõ trong pull request.",
+    "Release notes and rollback steps are the remaining launch polish.": "Release notes và bước rollback là phần polish còn lại.",
+    "No obvious committed local secrets in the sample report.": "Báo cáo mẫu không thấy secret local bị commit rõ ràng.",
+    "Keep the README quick start path under five minutes for a new contributor.": "Giữ đường dẫn quick start trong README dưới năm phút cho contributor mới.",
+    "Make required environment variables explicit in one env example section.": "Làm rõ biến môi trường bắt buộc trong một phần env example.",
+    "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.": "Giữ checklist release và PR ở nơi dễ thấy để việc ra mắt không nằm trong đầu maintainer.",
+    "Add a recurring release review for docs, examples, and CI drift.": "Thêm lịch review release định kỳ cho docs, examples và CI drift.",
+    "Repository presents a focused public developer library with active maintenance signals.": "Repo thể hiện một thư viện developer công khai có trọng tâm và tín hiệu bảo trì tốt.",
+    "The project has enough public metadata for a launch handoff and contributor review.": "Dự án có đủ metadata công khai cho bàn giao ra mắt và review contributor.",
+    "Launch risk is low when docs, env, CI, and release steps stay explicit.": "Rủi ro ra mắt thấp nếu docs, env, CI và bước release luôn rõ ràng.",
+    "Install dependencies": "Cài dependencies",
+    "Run the development command from package scripts": "Chạy lệnh development từ package scripts",
+    "Run tests or type checks before a release": "Chạy test hoặc type check trước release",
+    "GitHub based contribution flow": "Luồng đóng góp dựa trên GitHub",
+    "README explains the public purpose": "README giải thích mục đích công khai",
+    "Root config files make project tooling discoverable": "File config gốc giúp nhận diện tooling",
+    "Docs and examples should stay close to the first contributor path": "Docs và examples nên gần với đường đi đầu tiên của contributor",
+    "Do not commit production secrets or tokens.": "Không commit production secrets hoặc tokens.",
+    "Keep env examples as placeholders only.": "Env examples chỉ nên dùng placeholder.",
+    "Review dependency updates and public issue reports before release.": "Review dependency updates và public issue reports trước release.",
+    "Keep the first screen focused on what the package does and how to start.": "Giữ màn đầu tập trung vào package làm gì và bắt đầu thế nào.",
+    "Move deeper architecture notes below install and usage examples.": "Đưa ghi chú kiến trúc sâu xuống sau install và usage examples.",
+    "Add a short release or deployment checklist when the project has a public website.": "Thêm checklist release hoặc deploy ngắn khi dự án có website công khai.",
+    "Keep lint typecheck test and build visible in CI.": "Giữ lint typecheck test và build rõ trong CI.",
+    "Fail pull requests on broken formatting or type errors.": "Cho PR fail khi format hoặc type lỗi.",
+    "Cache dependencies only after the install path is stable.": "Chỉ cache dependencies sau khi đường cài đặt ổn định.",
+    "Detected env template keys should be documented with purpose and required status.": "Env template keys phát hiện được cần ghi rõ mục đích và trạng thái bắt buộc.",
+    "Production secrets belong in the host environment dashboard.": "Production secrets thuộc dashboard môi trường của host.",
+    "Local optional variables should have safe defaults.": "Biến optional local nên có default an toàn.",
+    "Update the repository files that create this launch risk": "Cập nhật file trong repo tạo ra rủi ro ra mắt này",
+    "Document the expected local or production behavior": "Ghi lại hành vi mong đợi ở local hoặc production",
+    "Keep secrets and machine-specific files out of public source control": "Giữ secrets và file theo máy ra khỏi source public",
+    "The launch risk is no longer present in the public repository": "Rủi ro ra mắt không còn trong repo công khai",
+    "README, CI, or deployment docs explain how to verify the fix": "README, CI hoặc docs deploy giải thích cách xác minh fix",
+    "A maintainer can confirm it from a clean checkout": "Maintainer có thể xác nhận từ clean checkout",
+  },
+  tr: {
+    "Public launch shape is strong. The remaining work is mostly release polish, contributor handoff, and keeping setup steps copy ready.": "Public yayın yapısı güçlü. Kalan iş çoğunlukla release polish, contributor handoff ve setup adımlarını kopyalanabilir tutmak.",
+    "Purpose, install, and usage are easy to find.": "Amaç, kurulum ve kullanım kolay bulunuyor.",
+    "Env expectations should stay explicit for examples and release docs.": "Env beklentileri örneklerde ve release dokümanlarında açık kalmalı.",
+    "Quality commands should stay visible in pull requests.": "Kalite komutları pull request içinde görünür kalmalı.",
+    "Release notes and rollback steps are the remaining launch polish.": "Release notes ve rollback adımları kalan yayın polish işidir.",
+    "No obvious committed local secrets in the sample report.": "Örnek raporda commit edilmiş belirgin local secret görünmüyor.",
+    "Keep the README quick start path under five minutes for a new contributor.": "Yeni contributor için README quick start yolunu beş dakikanın altında tut.",
+    "Make required environment variables explicit in one env example section.": "Gerekli environment variables bilgisini tek env example bölümünde açık yap.",
+    "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.": "Release ve PR checklist görünür kalsın; yayın işi maintainer hafızasında kalmasın.",
+    "Add a recurring release review for docs, examples, and CI drift.": "Docs, examples ve CI drift için tekrar eden release review ekle.",
+    "Repository presents a focused public developer library with active maintenance signals.": "Repo odaklı bir public developer library ve aktif bakım sinyalleri gösteriyor.",
+    "The project has enough public metadata for a launch handoff and contributor review.": "Proje launch handoff ve contributor review için yeterli public metadata taşıyor.",
+    "Launch risk is low when docs, env, CI, and release steps stay explicit.": "Docs, env, CI ve release adımları açık kaldığında yayın riski düşük.",
+    "Install dependencies": "Dependencies kur",
+    "Run the development command from package scripts": "Package scripts içinden development komutunu çalıştır",
+    "Run tests or type checks before a release": "Release öncesi test veya type check çalıştır",
+    "GitHub based contribution flow": "GitHub tabanlı contribution flow",
+    "README explains the public purpose": "README public amacı açıklıyor",
+    "Root config files make project tooling discoverable": "Root config files project tooling bilgisini bulunabilir yapıyor",
+    "Docs and examples should stay close to the first contributor path": "Docs ve examples ilk contributor yoluna yakın kalmalı",
+    "Do not commit production secrets or tokens.": "Production secrets veya token commit etme.",
+    "Keep env examples as placeholders only.": "Env examples sadece placeholder olsun.",
+    "Review dependency updates and public issue reports before release.": "Release öncesi dependency updates ve public issue reports review et.",
+    "Update the repository files that create this launch risk": "Bu yayın riskini oluşturan repo dosyalarını güncelle",
+    "Document the expected local or production behavior": "Beklenen local veya production davranışını dokümante et",
+    "Keep secrets and machine-specific files out of public source control": "Secrets ve makineye özel dosyaları public source control dışında tut",
+    "The launch risk is no longer present in the public repository": "Yayın riski public repository içinde artık yok",
+    "README, CI, or deployment docs explain how to verify the fix": "README, CI veya deployment docs fix doğrulamasını açıklıyor",
+    "A maintainer can confirm it from a clean checkout": "Maintainer temiz checkout ile doğrulayabiliyor",
+  },
+  nl: {
+    "Public launch shape is strong. The remaining work is mostly release polish, contributor handoff, and keeping setup steps copy ready.": "De publieke release vorm is sterk. Het resterende werk is vooral release polish, overdracht aan contributors en setup stappen kopieerbaar houden.",
+    "Purpose, install, and usage are easy to find.": "Doel, installatie en gebruik zijn makkelijk te vinden.",
+    "Env expectations should stay explicit for examples and release docs.": "Env verwachtingen moeten expliciet blijven in voorbeelden en release docs.",
+    "Quality commands should stay visible in pull requests.": "Kwaliteitscommando's moeten zichtbaar blijven in pull requests.",
+    "Release notes and rollback steps are the remaining launch polish.": "Release notes en rollback stappen zijn de resterende publicatie polish.",
+    "No obvious committed local secrets in the sample report.": "Geen duidelijke gecommitte lokale secrets in het voorbeeldrapport.",
+    "Keep the README quick start path under five minutes for a new contributor.": "Houd de README quick start onder vijf minuten voor een nieuwe contributor.",
+    "Make required environment variables explicit in one env example section.": "Maak verplichte omgevingsvariabelen expliciet in een env voorbeeldsectie.",
+    "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.": "Houd release en PR checklists zichtbaar zodat publicatiewerk niet alleen in hoofden van maintainers zit.",
+    "Add a recurring release review for docs, examples, and CI drift.": "Voeg een terugkerende release review toe voor docs, voorbeelden en CI drift.",
+    "Repository presents a focused public developer library with active maintenance signals.": "De repo toont een gerichte publieke developer library met actieve onderhoudssignalen.",
+    "The project has enough public metadata for a launch handoff and contributor review.": "Het project heeft genoeg publieke metadata voor release overdracht en contributor review.",
+    "Launch risk is low when docs, env, CI, and release steps stay explicit.": "Publicatierisico is laag wanneer docs, env, CI en release stappen expliciet blijven.",
+    "Install dependencies": "Installeer dependencies",
+    "Run the development command from package scripts": "Draai het development commando uit package scripts",
+    "Run tests or type checks before a release": "Draai tests of type checks voor release",
+    "GitHub based contribution flow": "GitHub gebaseerde contribution flow",
+    "README explains the public purpose": "README legt het publieke doel uit",
+    "Root config files make project tooling discoverable": "Root config files maken tooling vindbaar",
+    "Docs and examples should stay close to the first contributor path": "Docs en voorbeelden moeten dicht bij het eerste contributor pad blijven",
+    "Do not commit production secrets or tokens.": "Commit geen production secrets of tokens.",
+    "Keep env examples as placeholders only.": "Houd env voorbeelden alleen als placeholders.",
+    "Review dependency updates and public issue reports before release.": "Review dependency updates en publieke issue reports voor release.",
+    "Update the repository files that create this launch risk": "Werk de repo bestanden bij die dit publicatierisico veroorzaken",
+    "Document the expected local or production behavior": "Documenteer het verwachte lokale of production gedrag",
+    "Keep secrets and machine-specific files out of public source control": "Houd secrets en machine-specifieke bestanden buiten publieke source control",
+    "The launch risk is no longer present in the public repository": "Het publicatierisico staat niet meer in de publieke repository",
+    "README, CI, or deployment docs explain how to verify the fix": "README, CI of deployment docs leggen uit hoe je de fix verifieert",
+    "A maintainer can confirm it from a clean checkout": "Een maintainer kan dit bevestigen vanaf een clean checkout",
+  },
+  pl: {
+    "Public launch shape is strong. The remaining work is mostly release polish, contributor handoff, and keeping setup steps copy ready.": "Publiczna forma publikacji jest mocna. Pozostała praca to głównie polish release, przekazanie contributorom i utrzymanie kroków setup jako łatwych do kopiowania.",
+    "Purpose, install, and usage are easy to find.": "Cel, instalacja i użycie są łatwe do znalezienia.",
+    "Env expectations should stay explicit for examples and release docs.": "Wymagania env powinny być jasne w przykładach i dokumentacji release.",
+    "Quality commands should stay visible in pull requests.": "Komendy jakości powinny być widoczne w pull requestach.",
+    "Release notes and rollback steps are the remaining launch polish.": "Release notes i kroki rollback to pozostałe dopracowanie publikacji.",
+    "No obvious committed local secrets in the sample report.": "W raporcie przykładowym nie widać oczywistych commitowanych local secrets.",
+    "Keep the README quick start path under five minutes for a new contributor.": "Utrzymaj README quick start poniżej pięciu minut dla nowego contributora.",
+    "Make required environment variables explicit in one env example section.": "Opisz wymagane zmienne środowiskowe w jednej sekcji env example.",
+    "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.": "Utrzymaj checklisty release i PR jako widoczne, żeby praca publikacji nie była tylko w głowach maintainerów.",
+    "Add a recurring release review for docs, examples, and CI drift.": "Dodaj cykliczny release review dla docs, examples i CI drift.",
+    "Repository presents a focused public developer library with active maintenance signals.": "Repo wygląda jak skupiona publiczna biblioteka developerska z aktywnymi sygnałami utrzymania.",
+    "The project has enough public metadata for a launch handoff and contributor review.": "Projekt ma dość publicznych metadata do handoffu publikacji i contributor review.",
+    "Launch risk is low when docs, env, CI, and release steps stay explicit.": "Ryzyko publikacji jest niskie, gdy docs, env, CI i kroki release są jasne.",
+    "Install dependencies": "Zainstaluj dependencies",
+    "Run the development command from package scripts": "Uruchom komendę development z package scripts",
+    "Run tests or type checks before a release": "Uruchom testy lub type checks przed release",
+    "GitHub based contribution flow": "GitHub based contribution flow",
+    "README explains the public purpose": "README wyjaśnia publiczny cel",
+    "Root config files make project tooling discoverable": "Root config files pomagają odkryć tooling projektu",
+    "Docs and examples should stay close to the first contributor path": "Docs i przykłady powinny być blisko ścieżki pierwszego contributora",
+    "Do not commit production secrets or tokens.": "Nie commituj production secrets ani tokenów.",
+    "Keep env examples as placeholders only.": "Env examples trzymaj tylko jako placeholders.",
+    "Review dependency updates and public issue reports before release.": "Przed release sprawdź dependency updates i public issue reports.",
+    "Update the repository files that create this launch risk": "Zaktualizuj pliki repo, które tworzą to ryzyko publikacji",
+    "Document the expected local or production behavior": "Opisz oczekiwane zachowanie local lub production",
+    "Keep secrets and machine-specific files out of public source control": "Trzymaj secrets i pliki maszynowe poza public source control",
+    "The launch risk is no longer present in the public repository": "Ryzyko publikacji nie występuje już w publicznym repo",
+    "README, CI, or deployment docs explain how to verify the fix": "README, CI lub deployment docs wyjaśniają jak zweryfikować fix",
+    "A maintainer can confirm it from a clean checkout": "Maintainer może potwierdzić to z clean checkout",
+  },
+  hi: {
+    "Public launch shape is strong. The remaining work is mostly release polish, contributor handoff, and keeping setup steps copy ready.": "Public launch shape मजबूत है। बाकी काम ज्यादातर release polish, contributor handoff और setup steps को copy ready रखना है.",
+    "Purpose, install, and usage are easy to find.": "Purpose, install और usage आसानी से मिलते हैं.",
+    "Env expectations should stay explicit for examples and release docs.": "Env expectations examples और release docs में साफ रहने चाहिए.",
+    "Quality commands should stay visible in pull requests.": "Quality commands pull requests में visible रहने चाहिए.",
+    "Release notes and rollback steps are the remaining launch polish.": "Release notes और rollback steps बाकी launch polish हैं.",
+    "No obvious committed local secrets in the sample report.": "Sample report में obvious committed local secrets नहीं दिखे.",
+    "Keep the README quick start path under five minutes for a new contributor.": "New contributor के लिए README quick start path पांच मिनट के अंदर रखें.",
+    "Make required environment variables explicit in one env example section.": "Required environment variables को एक env example section में साफ लिखें.",
+    "Keep release and PR checklists visible so launch work is not trapped in maintainers' heads.": "Release और PR checklists visible रखें ताकि launch work सिर्फ maintainers के दिमाग में न रहे.",
+    "Add a recurring release review for docs, examples, and CI drift.": "Docs, examples और CI drift के लिए recurring release review जोड़ें.",
+    "Install dependencies": "Dependencies install करें",
+    "Run the development command from package scripts": "Package scripts से development command चलाएं",
+    "Run tests or type checks before a release": "Release से पहले tests या type checks चलाएं",
+    "Do not commit production secrets or tokens.": "Production secrets या tokens commit न करें.",
+    "Keep env examples as placeholders only.": "Env examples सिर्फ placeholders रखें.",
+    "Update the repository files that create this launch risk": "इस launch risk को बनाने वाली repository files update करें",
+    "Document the expected local or production behavior": "Expected local या production behavior document करें",
+    "Keep secrets and machine-specific files out of public source control": "Secrets और machine specific files को public source control से बाहर रखें",
+    "The launch risk is no longer present in the public repository": "Public repository में यह launch risk अब मौजूद नहीं है",
+    "README, CI, or deployment docs explain how to verify the fix": "README, CI या deployment docs बताते हैं कि fix verify कैसे करें",
+    "A maintainer can confirm it from a clean checkout": "Maintainer clean checkout से confirm कर सकता है",
+  },
+};
+
+function localizeAuditText(text: string, language: InterfaceLanguage) {
+  if (language === "en") return text;
+  const dictionary = auditTextTranslations[language] || {};
+  if (dictionary[text]) return dictionary[text];
+
+  let localized = text;
+  const replacements: Array<[RegExp, string]> = [];
+  if (language === "zh") {
+    replacements.push(
+      [/^Detected env template keys: /, "检测到环境变量模板 key："],
+      [/^Existing workflows found: /, "发现现有 workflow："],
+      [/^Deployment signal: /, "部署信号："],
+      [/^Risky public files detected: /, "检测到高风险公开文件："],
+      [/^Run clean verification: /, "运行干净验证："],
+      [/^Confirm deployment target settings for /, "确认部署目标设置："],
+    );
+  } else if (language === "vi") {
+    replacements.push(
+      [/^Detected env template keys: /, "Env template keys phát hiện: "],
+      [/^Existing workflows found: /, "Workflow hiện có: "],
+      [/^Deployment signal: /, "Tín hiệu deploy: "],
+      [/^Risky public files detected: /, "File công khai rủi ro: "],
+      [/^Run clean verification: /, "Chạy xác minh sạch: "],
+      [/^Confirm deployment target settings for /, "Xác nhận cấu hình deploy cho "],
+    );
+  } else if (language === "tr") {
+    replacements.push(
+      [/^Detected env template keys: /, "Algılanan env template keyleri: "],
+      [/^Existing workflows found: /, "Mevcut workflow bulundu: "],
+      [/^Deployment signal: /, "Deploy sinyali: "],
+      [/^Risky public files detected: /, "Riskli public dosyalar: "],
+      [/^Run clean verification: /, "Temiz doğrulama çalıştır: "],
+      [/^Confirm deployment target settings for /, "Deploy target ayarlarını doğrula: "],
+    );
+  } else if (language === "nl") {
+    replacements.push(
+      [/^Detected env template keys: /, "Gevonden env template keys: "],
+      [/^Existing workflows found: /, "Bestaande workflows gevonden: "],
+      [/^Deployment signal: /, "Deployment signaal: "],
+      [/^Risky public files detected: /, "Riskante publieke bestanden: "],
+      [/^Run clean verification: /, "Draai schone verificatie: "],
+      [/^Confirm deployment target settings for /, "Bevestig deployment target settings voor "],
+    );
+  } else if (language === "pl") {
+    replacements.push(
+      [/^Detected env template keys: /, "Wykryte env template keys: "],
+      [/^Existing workflows found: /, "Znalezione workflow: "],
+      [/^Deployment signal: /, "Sygnał deploy: "],
+      [/^Risky public files detected: /, "Ryzykowne publiczne pliki: "],
+      [/^Run clean verification: /, "Uruchom czystą weryfikację: "],
+      [/^Confirm deployment target settings for /, "Potwierdź ustawienia deploy dla "],
+    );
+  } else if (language === "hi") {
+    replacements.push(
+      [/^Detected env template keys: /, "Detected env template keys: "],
+      [/^Existing workflows found: /, "Existing workflows found: "],
+      [/^Deployment signal: /, "Deployment signal: "],
+      [/^Risky public files detected: /, "Risky public files detected: "],
+      [/^Run clean verification: /, "Clean verification चलाएं: "],
+      [/^Confirm deployment target settings for /, "Deployment target settings confirm करें: "],
+    );
+  }
+  for (const [pattern, replacement] of replacements) {
+    localized = localized.replace(pattern, replacement);
+  }
+  return localized;
+}
+
+function localizeList(items: string[], language: InterfaceLanguage) {
+  return items.map((item) => localizeAuditText(item, language));
+}
+
+function localizeScorecard(items: GitHubRepoAnalysis["scorecard"], language: InterfaceLanguage) {
+  const labelMap: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
+    zh: { Environment: "环境变量", Deploy: "部署", Security: "安全" },
+    ja: { Environment: "環境", Deploy: "デプロイ", Security: "セキュリティ" },
+    ar: { Environment: "البيئة", Deploy: "النشر", Security: "الأمان" },
+    de: { Environment: "Umgebung", Deploy: "Deployment", Security: "Sicherheit" },
+    vi: { Environment: "Môi trường", Deploy: "Deploy", Security: "Bảo mật" },
+    tr: { Environment: "Ortam", Deploy: "Deploy", Security: "Güvenlik" },
+    nl: { Environment: "Omgeving", Deploy: "Deployment", Security: "Security" },
+    pl: { Environment: "Środowisko", Deploy: "Deploy", Security: "Bezpieczeństwo" },
+    hi: { Environment: "Environment", Deploy: "Deploy", Security: "Security" },
+  };
+  const labels = labelMap[language] || {};
+  return items.map((item) => ({
+    ...item,
+    label: labels[item.label] || item.label,
+    note: localizeAuditText(item.note, language),
+  }));
+}
+
+function localizeFindings(items: GitHubRepoAnalysis["issueFindings"], language: InterfaceLanguage) {
+  return items.map((item) => ({
+    ...item,
+    title: localizeAuditText(item.title, language),
+    source: localizeAuditText(item.source, language),
+    evidence: localizeAuditText(item.evidence, language),
+  }));
+}
+
+function localizedPrDescription(analysis: GitHubRepoAnalysis, language: InterfaceLanguage) {
+  const r = getReportCopy(language);
+  const t = getAuditCopy(language);
+  const today = analysis.priorityFixes.today.length ? analysis.priorityFixes.today : [t.noSameDayBlocker];
+  const beforeLaunch = analysis.priorityFixes.beforeLaunch.length ? analysis.priorityFixes.beforeLaunch : [t.noPreLaunch];
+  const later = analysis.priorityFixes.later.length ? analysis.priorityFixes.later : [t.laterFallback];
+  return `## ${r.prTitle}
+
+${t.score}: ${analysis.launchScore.score}/100
+${t.risk}: ${riskLevelLabel(analysis.launchScore.riskLevel, language)}
+
+### ${r.today}
+${today.map((item) => `- [ ] ${localizeAuditText(item, language)}`).join("\n")}
+
+### ${r.beforePublicLaunch}
+${beforeLaunch.map((item) => `- [ ] ${localizeAuditText(item, language)}`).join("\n")}
+
+### ${r.laterPolish}
+${later.map((item) => `- [ ] ${localizeAuditText(item, language)}`).join("\n")}
+
+### ${r.cleanVerification}
+\`\`\`bash
+npm run lint
+npm run build
+\`\`\``;
+}
+
+function localizedCopyableIssues(analysis: GitHubRepoAnalysis, language: InterfaceLanguage) {
+  const r = getReportCopy(language);
+  if (!analysis.issueFindings.length) return [r.issueTemplateFallback];
+  return analysis.issueFindings.slice(0, 5).map((item, index) => {
+    const title = localizeAuditText(item.title, language);
+    const priority = item.severity === "P0" ? "P0 release blocker" : index < 2 ? "P1 launch readiness" : "P2 polish";
+    return `## ${title}
+
+${r.issuePriority}: ${priority}
+${r.issueLabelsText}: launch, docs, quality
+${r.source}: ${localizeAuditText(item.source, language)}
+${r.evidenceLabel}: ${localizeAuditText(item.evidence, language)}
+
+### ${r.whyMatters}
+${localizeAuditText(item.title, language)}
+
+### ${r.suggestedFix}
+- ${localizeAuditText("Update the repository files that create this launch risk", language)}
+- ${localizeAuditText("Document the expected local or production behavior", language)}
+- ${localizeAuditText("Keep secrets and machine-specific files out of public source control", language)}
+
+### ${r.doneWhen}
+- [ ] ${localizeAuditText("The launch risk is no longer present in the public repository", language)}
+- [ ] ${localizeAuditText("README, CI, or deployment docs explain how to verify the fix", language)}
+- [ ] ${localizeAuditText("A maintainer can confirm it from a clean checkout", language)}
+
+### ${r.verification}
+\`\`\`bash
+npm run lint
+npm run build
+\`\`\``;
+  });
+}
+
+function localizeAnalysisForDisplay(analysis: GitHubRepoAnalysis, language: InterfaceLanguage): GitHubRepoAnalysis {
+  if (language === "en") return analysis;
+  return {
+    ...analysis,
+    repository: {
+      ...analysis.repository,
+      description: localizeAuditText(analysis.repository.description, language),
+    },
+    launchScore: {
+      ...analysis.launchScore,
+      summary: localizeAuditText(analysis.launchScore.summary, language),
+    },
+    scorecard: localizeScorecard(analysis.scorecard, language),
+    mustFix: localizeList(analysis.mustFix, language),
+    issueFindings: localizeFindings(analysis.issueFindings, language),
+    priorityFixes: {
+      today: localizeList(analysis.priorityFixes.today, language),
+      beforeLaunch: localizeList(analysis.priorityFixes.beforeLaunch, language),
+      later: localizeList(analysis.priorityFixes.later, language),
+    },
+    prDescription: localizedPrDescription(analysis, language),
+    copyableIssues: localizedCopyableIssues(analysis, language),
+    overview: localizeList(analysis.overview, language),
+    howToRun: localizeList(analysis.howToRun, language),
+    techStack: localizeList(analysis.techStack, language),
+    fileStructure: localizeList(analysis.fileStructure, language),
+    securityNotes: localizeList(analysis.securityNotes, language),
+    readmeSuggestions: localizeList(analysis.readmeSuggestions, language),
+    githubActions: localizeList(analysis.githubActions, language),
+    envChecklist: localizeList(analysis.envChecklist, language),
+    issueLabelPlan: localizeList(analysis.issueLabelPlan, language),
+    deploymentChecklist: localizeList(analysis.deploymentChecklist, language),
+    prReviewChecklist: localizeList(analysis.prReviewChecklist, language),
+    releaseChecklist: localizeList(analysis.releaseChecklist, language),
+  };
 }
 
 type AuditCopy = {
@@ -1662,10 +2467,11 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
   const hasAutoRunRef = useRef(false);
 
   const output = useMemo(() => formatGitHubRepoOutput(analysis, error, language), [analysis, error, language]);
+  const displayAnalysis = useMemo(() => analysis ? localizeAnalysisForDisplay(analysis, language) : null, [analysis, language]);
   const displayedRunStatus = runStatus || t.ready;
-  const issueBundle = useMemo(() => analysis?.copyableIssues.join("\n\n---\n\n") || "", [analysis]);
-  const releaseBundle = useMemo(() => analysis ? numberedList(analysis.releaseChecklist) : "", [analysis]);
-  const prDescription = useMemo(() => analysis?.prDescription || "", [analysis]);
+  const issueBundle = useMemo(() => displayAnalysis?.copyableIssues.join("\n\n---\n\n") || "", [displayAnalysis]);
+  const releaseBundle = useMemo(() => displayAnalysis ? numberedList(displayAnalysis.releaseChecklist) : "", [displayAnalysis]);
+  const prDescription = useMemo(() => displayAnalysis?.prDescription || "", [displayAnalysis]);
   const qualityGates = useMemo(() => analysis ? qualityGateLabel(analysis, language) : [], [analysis, language]);
   const shareUrl = useMemo(() => {
     if (!analysis || typeof window === "undefined") return "";
@@ -1673,17 +2479,17 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
     return `${window.location.origin}/tools/github-repo-analyzer${window.location.search}#report=${hash}`;
   }, [analysis]);
   const blocks = useMemo<OutputBlock[]>(() => {
-    if (!analysis) return [];
+    if (!displayAnalysis) return [];
     return [
-      { badge: `${analysis.launchScore.score}`, title: `${riskLevelLabel(analysis.launchScore.riskLevel, language)} ${t.riskSuffix}`, content: analysis.launchScore.summary },
-      { badge: "01", title: t.mustFixFirst, content: numberedList(analysis.mustFix) },
-      { badge: "02", title: "GitHub Issues", content: analysis.copyableIssues.join("\n\n---\n\n") },
-      { badge: "03", title: t.copyPrDescription.replace(/^Copy\s+/i, "").replace(/^复制\s*/, ""), content: analysis.prDescription },
-      { badge: "04", title: t.copyReleaseChecklist.replace(/^Copy\s+/i, "").replace(/^复制\s*/, ""), content: numberedList(analysis.releaseChecklist) },
-      { badge: "05", title: t.conclusion, content: findingList(analysis.issueFindings) },
-      { badge: "06", title: "README", content: bulletList(analysis.readmeSuggestions) },
+      { badge: `${displayAnalysis.launchScore.score}`, title: `${riskLevelLabel(displayAnalysis.launchScore.riskLevel, language)} ${t.riskSuffix}`, content: displayAnalysis.launchScore.summary },
+      { badge: "01", title: t.mustFixFirst, content: numberedList(displayAnalysis.mustFix) },
+      { badge: "02", title: "GitHub Issues", content: displayAnalysis.copyableIssues.join("\n\n---\n\n") },
+      { badge: "03", title: t.copyPrDescription.replace(/^Copy\s+/i, "").replace(/^复制\s*/, ""), content: displayAnalysis.prDescription },
+      { badge: "04", title: t.copyReleaseChecklist.replace(/^Copy\s+/i, "").replace(/^复制\s*/, ""), content: numberedList(displayAnalysis.releaseChecklist) },
+      { badge: "05", title: t.conclusion, content: findingList(displayAnalysis.issueFindings, language) },
+      { badge: "06", title: "README", content: bulletList(displayAnalysis.readmeSuggestions) },
     ];
-  }, [analysis, language, t]);
+  }, [displayAnalysis, language, t]);
 
   useEffect(() => {
     const shared = decodeSharedAnalysis(window.location.hash);
@@ -1791,7 +2597,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
   return (
     <ToolLayout
       output={output}
-      outputTitle={analysis ? `${analysis.launchScore.score}/100 ${t.launchReadinessReport}` : t.launchReadinessReport}
+      outputTitle={displayAnalysis ? `${displayAnalysis.launchScore.score}/100 ${t.launchReadinessReport}` : t.launchReadinessReport}
       language={language}
       blocks={blocks}
       actions={
@@ -1838,20 +2644,20 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
     >
       <p className="eyebrow">{t.repoUrl}</p>
       <h2>{t.auditBlockers}</h2>
-      {analysis ? (
-        <section className={`repo-verdict repo-verdict-${riskTone(analysis.launchScore.riskLevel)}`}>
+      {displayAnalysis ? (
+        <section className={`repo-verdict repo-verdict-${riskTone(displayAnalysis.launchScore.riskLevel)}`}>
           <div>
             <p className="eyebrow">{t.verdict}</p>
-            <strong>{riskLevelLabel(analysis.launchScore.riskLevel, language)} {t.risk}</strong>
-            <span>{analysis.launchScore.summary}</span>
+            <strong>{riskLevelLabel(displayAnalysis.launchScore.riskLevel, language)} {t.risk}</strong>
+            <span>{displayAnalysis.launchScore.summary}</span>
           </div>
           <div className="repo-score">
-            <strong>{analysis.launchScore.score}</strong>
+            <strong>{displayAnalysis.launchScore.score}</strong>
             <span>/100</span>
           </div>
           <div className="repo-next-step">
             <p className="eyebrow">{t.nextFix}</p>
-            <span>{analysis.mustFix[0]}</span>
+            <span>{displayAnalysis.mustFix[0]}</span>
           </div>
         </section>
       ) : (
@@ -1863,22 +2669,22 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
           </div>
         </section>
       )}
-      {analysis && (
+      {displayAnalysis && (
         <section className="repo-audit-brief">
           <div>
             <p className="eyebrow">{t.engine}</p>
-            <strong>{auditModeLabel(analysis.auditEngine?.mode, language)}</strong>
+            <strong>{auditModeLabel(displayAnalysis.auditEngine?.mode, language)}</strong>
             <span>{t.aiDependencyNone}</span>
           </div>
           <div>
             <p className="eyebrow">{t.repository}</p>
-            <strong>{analysis.repository.fullName}</strong>
-            <span>{analysis.repository.language || t.unknown} · {analysis.repository.license || t.noLicense} · {repoAgeLabel(analysis.repository.pushedAt, language)}</span>
+            <strong>{displayAnalysis.repository.fullName}</strong>
+            <span>{displayAnalysis.repository.language || t.unknown} · {displayAnalysis.repository.license || t.noLicense} · {repoAgeLabel(displayAnalysis.repository.pushedAt, language)}</span>
           </div>
           <div>
             <p className="eyebrow">{t.impact}</p>
-            <strong>{impactLabel(analysis.launchScore.score, language)}</strong>
-            <span>{analysis.mustFix.length} {t.actionItems} · {analysis.copyableIssues.length} {t.issueDrafts}</span>
+            <strong>{impactLabel(displayAnalysis.launchScore.score, language)}</strong>
+            <span>{displayAnalysis.mustFix.length} {t.actionItems} · {displayAnalysis.copyableIssues.length} {t.issueDrafts}</span>
           </div>
           <div>
             <p className="eyebrow">{t.qualityGates}</p>
@@ -1887,7 +2693,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
           </div>
         </section>
       )}
-      {analysis && (
+      {displayAnalysis && (
         <section className="repo-command-board">
           <div className="repo-command-head">
             <div>
@@ -1895,18 +2701,18 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
               <h3>{t.turnIntoWork}</h3>
               <span>{actionStatus || t.copyIntoGithub}</span>
             </div>
-            <a href={analysis.repository.url} target="_blank" rel="noreferrer">{t.openRepo}</a>
+            <a href={displayAnalysis.repository.url} target="_blank" rel="noreferrer">{t.openRepo}</a>
           </div>
           <div className="repo-command-grid">
-            <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), t.mustFixCopied)}>
+            <button type="button" onClick={() => copyAuditText(numberedList(displayAnalysis.mustFix), t.mustFixCopied)}>
               <span>01</span>
               <strong>{t.copy} {t.mustFixFirst}</strong>
-              <em>{analysis.mustFix.length} {t.items}</em>
+              <em>{displayAnalysis.mustFix.length} {t.items}</em>
             </button>
             <button type="button" onClick={() => copyAuditText(issueBundle, t.issuesCopied)}>
               <span>02</span>
               <strong>{t.copyIssues}</strong>
-              <em>{analysis.copyableIssues.length} {t.drafts}</em>
+              <em>{displayAnalysis.copyableIssues.length} {t.drafts}</em>
             </button>
             <button type="button" onClick={() => copyAuditText(prDescription, t.prDescriptionCopied)}>
               <span>03</span>
@@ -1916,7 +2722,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
             <button type="button" onClick={() => copyAuditText(releaseBundle, t.releaseChecklistCopied)}>
               <span>04</span>
               <strong>{t.copyReleaseChecklist}</strong>
-              <em>{analysis.releaseChecklist.length} {t.steps}</em>
+              <em>{displayAnalysis.releaseChecklist.length} {t.steps}</em>
             </button>
           </div>
         </section>
@@ -1954,16 +2760,16 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
           <span className="text-sm font-semibold">{t.reads}</span>
           <span className="text-xs text-[color:var(--muted)]">{t.readsValue}</span>
         </div>
-        {analysis && (
+        {displayAnalysis && (
           <div className="dense-row">
             <span className="text-sm font-semibold">{t.score}</span>
-            <span className="text-xs text-[color:var(--muted)]">{analysis.launchScore.score}/100 {riskLevelLabel(analysis.launchScore.riskLevel, language)}</span>
+            <span className="text-xs text-[color:var(--muted)]">{displayAnalysis.launchScore.score}/100 {riskLevelLabel(displayAnalysis.launchScore.riskLevel, language)}</span>
           </div>
         )}
       </div>
-      {analysis && (
+      {displayAnalysis && (
         <section className="repo-scorecard-grid">
-          {analysis.scorecard.map((item) => (
+          {displayAnalysis.scorecard.map((item) => (
             <article key={item.label} className={`repo-scorecard-item repo-scorecard-${item.status}`}>
               <div>
                 <p className="eyebrow">{item.label}</p>
@@ -1975,12 +2781,12 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
           ))}
         </section>
       )}
-      {analysis && (
+      {displayAnalysis && (
         <section className="repo-priority-grid">
           <article className="repo-priority-card repo-priority-today">
             <p className="eyebrow">{t.fixToday}</p>
             <ol className="repo-check-list">
-              {(analysis.priorityFixes.today.length ? analysis.priorityFixes.today : [t.noSameDayBlocker]).map((item) => (
+              {(displayAnalysis.priorityFixes.today.length ? displayAnalysis.priorityFixes.today : [t.noSameDayBlocker]).map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ol>
@@ -1988,7 +2794,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
           <article className="repo-priority-card">
             <p className="eyebrow">{t.beforeLaunch}</p>
             <ol className="repo-check-list">
-              {(analysis.priorityFixes.beforeLaunch.length ? analysis.priorityFixes.beforeLaunch : [t.noPreLaunch]).map((item) => (
+              {(displayAnalysis.priorityFixes.beforeLaunch.length ? displayAnalysis.priorityFixes.beforeLaunch : [t.noPreLaunch]).map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ol>
@@ -1996,16 +2802,16 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
           <article className="repo-priority-card">
             <p className="eyebrow">{t.laterPolish}</p>
             <ol className="repo-check-list">
-              {(analysis.priorityFixes.later.length ? analysis.priorityFixes.later : [t.laterFallback]).map((item) => (
+              {(displayAnalysis.priorityFixes.later.length ? displayAnalysis.priorityFixes.later : [t.laterFallback]).map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ol>
           </article>
         </section>
       )}
-      {analysis && (
+      {displayAnalysis && (
         <section className="repo-evidence-grid">
-          {analysis.issueFindings.slice(0, 4).map((item) => (
+          {displayAnalysis.issueFindings.slice(0, 4).map((item) => (
             <article key={`${item.severity}-${item.title}`} className={`repo-evidence-card repo-evidence-${item.severity.toLowerCase()}`}>
               <div className="repo-evidence-head">
                 <span>{item.severity}</span>
@@ -2017,7 +2823,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
           ))}
         </section>
       )}
-      {analysis && (
+      {displayAnalysis && (
         <section className="repo-action-panel">
           <div>
             <p className="eyebrow">{t.shipNext}</p>
@@ -2025,7 +2831,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
             <p>{actionStatus || t.actionPanelBody}</p>
           </div>
           <div className="repo-action-list">
-            {analysis.mustFix.slice(0, 3).map((item, index) => (
+            {displayAnalysis.mustFix.slice(0, 3).map((item, index) => (
               <div key={item} className="dense-row">
                 <span className="text-sm font-semibold">{String(index + 1).padStart(2, "0")}</span>
                 <span className="truncate text-xs text-[color:var(--muted)]">{item}</span>
@@ -2034,16 +2840,16 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
           </div>
         </section>
       )}
-      {analysis && (
+      {displayAnalysis && (
         <section className="repo-report-board">
           <div className="repo-report-head">
             <div>
               <p className="eyebrow">{t.professionalReport}</p>
               <h3>{t.launchReadinessReport}</h3>
-              <span>{analysis.repository.fullName} · {riskLevelLabel(analysis.launchScore.riskLevel, language)} {t.risk} · {analysis.copyableIssues.length} {t.issueDrafts}</span>
+              <span>{displayAnalysis.repository.fullName} · {riskLevelLabel(displayAnalysis.launchScore.riskLevel, language)} {t.risk} · {displayAnalysis.copyableIssues.length} {t.issueDrafts}</span>
             </div>
             <div className="repo-report-score">
-              <strong>{analysis.launchScore.score}</strong>
+              <strong>{displayAnalysis.launchScore.score}</strong>
               <span>{t.launchScore}</span>
             </div>
           </div>
@@ -2052,12 +2858,12 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
             <div className="repo-report-section repo-report-section-primary">
               <div className="repo-report-section-head">
                 <p className="eyebrow">{t.mustFixFirst}</p>
-                <button type="button" onClick={() => copyAuditText(numberedList(analysis.mustFix), t.mustFixCopied)}>
+                <button type="button" onClick={() => copyAuditText(numberedList(displayAnalysis.mustFix), t.mustFixCopied)}>
                   {t.copy}
                 </button>
               </div>
               <ol className="repo-check-list">
-                {analysis.mustFix.map((item) => (
+                {displayAnalysis.mustFix.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ol>
@@ -2070,12 +2876,12 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
                   {t.copy}
                 </button>
               </div>
-              <pre className="repo-pr-description">{analysis.prDescription}</pre>
+              <pre className="repo-pr-description">{displayAnalysis.prDescription}</pre>
             </div>
           </div>
 
           <div className="repo-issue-grid">
-            {analysis.copyableIssues.slice(0, 3).map((issue, index) => (
+            {displayAnalysis.copyableIssues.slice(0, 3).map((issue, index) => (
               <article key={issue} className="repo-issue-card">
                 <div>
                   <p className="eyebrow">Issue {String(index + 1).padStart(2, "0")}</p>

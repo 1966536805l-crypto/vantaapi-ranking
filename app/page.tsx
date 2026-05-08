@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import RepoAuditForm from "@/components/home/RepoAuditForm";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import { isInterfaceLanguage, localizedHref, localizedLanguageAlternates, type InterfaceLanguage } from "@/lib/language";
@@ -10,10 +11,17 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function resolveHomeLanguage(rawLang?: string | string[], rawUi?: string | string[]): InterfaceLanguage {
+function resolveHomeLanguage(rawLang?: string | string[], rawUi?: string | string[], requestLanguage?: string | null): InterfaceLanguage {
   const lang = firstParam(rawLang);
   if (isInterfaceLanguage(lang)) return lang;
+  if (isInterfaceLanguage(requestLanguage)) return requestLanguage;
   return firstParam(rawUi) === "zh" ? "zh" : "en";
+}
+
+async function headerLanguage() {
+  const requestHeaders = await headers();
+  const language = requestHeaders.get("x-jinming-language");
+  return isInterfaceLanguage(language) ? language : null;
 }
 
 const homeCopy = {
@@ -530,7 +538,7 @@ npm run build`,
 
 export async function generateMetadata({ searchParams }: { searchParams: HomeSearchParams }): Promise<Metadata> {
   const params = await searchParams;
-  const language = resolveHomeLanguage(params?.lang, params?.ui);
+  const language = resolveHomeLanguage(params?.lang, params?.ui, await headerLanguage());
   const t = homeCopy[language];
   const title = `${t.eyebrow} | JinMing Lab`;
 
@@ -567,7 +575,7 @@ export async function generateMetadata({ searchParams }: { searchParams: HomeSea
 
 export default async function HomePage({ searchParams }: { searchParams: HomeSearchParams }) {
   const params = await searchParams;
-  const language = resolveHomeLanguage(params?.lang, params?.ui);
+  const language = resolveHomeLanguage(params?.lang, params?.ui, await headerLanguage());
   const isRtl = language === "ar";
   const t = homeCopy[language];
   const preview = homePreviewCopy[language];

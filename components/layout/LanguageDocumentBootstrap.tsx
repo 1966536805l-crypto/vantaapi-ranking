@@ -42,6 +42,11 @@ export default function LanguageDocumentBootstrap() {
   document.documentElement.lang = htmlLang[language] || "en-US";
   document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
   window.localStorage.setItem("vantaapi-language", language);
+  if (!query && language !== "en") {
+    url.searchParams.set("lang", language);
+    window.location.replace(url.pathname + url.search + url.hash);
+    return;
+  }
   if (supported.has(query)) {
     const maxAge = 60 * 60 * 24 * 365;
     for (const name of cookieNames) {
