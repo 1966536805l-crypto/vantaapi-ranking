@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { interfaceLanguages, isInterfaceLanguage, languageHtmlLang, type InterfaceLanguage } from "@/lib/language";
 
 const languageCookieNames = ["jinming_language", "vantaapi-language"];
@@ -66,7 +66,6 @@ export default function FlagLanguageToggle({
   initialLanguage?: InterfaceLanguage;
   onChange?: (language: InterfaceLanguage) => void;
 }) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const queryLanguage = searchParams.get("lang");
   const [preferredLanguage, setPreferredLanguage] = useState<InterfaceLanguage | null>(() => {
@@ -85,10 +84,9 @@ export default function FlagLanguageToggle({
     const urlLanguage = url.searchParams.get("lang");
     if (!urlLanguage && current !== "en") {
       url.searchParams.set("lang", current);
-      router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
-      window.setTimeout(() => router.refresh(), 0);
+      window.location.replace(url.toString());
     }
-  }, [current, onChange, router]);
+  }, [current, onChange]);
 
   function setLanguage(code: InterfaceLanguage) {
     writeLanguagePreference(code);
@@ -97,8 +95,7 @@ export default function FlagLanguageToggle({
     const url = new URL(window.location.href);
     if (code === "en") url.searchParams.delete("lang");
     else url.searchParams.set("lang", code);
-    router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
-    window.setTimeout(() => router.refresh(), 0);
+    window.location.assign(url.toString());
   }
 
   const activeLanguage = interfaceLanguages.find((language) => language.code === current) ?? interfaceLanguages[0];
