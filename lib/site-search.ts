@@ -53,8 +53,6 @@ const programmingAliases: Record<string, string[]> = {
   bash: ["bash", "shell", "终端", "命令行"],
 };
 
-const publicProgrammingSlugs = new Set(["python", "javascript", "typescript", "sql", "bash", "cpp"]);
-
 export const siteSearchItems: SiteSearchItem[] = [
   ...staticItems,
   ...toolDefinitions.map((tool) => ({
@@ -64,7 +62,7 @@ export const siteSearchItems: SiteSearchItem[] = [
     description: tool.description,
     tags: [tool.shortTitle, tool.promise, ...tool.useCases, tool.slug, ...(toolAliases[tool.slug] || [])],
   })),
-  ...programmingLanguages.filter((language) => publicProgrammingSlugs.has(language.slug)).map((language) => ({
+  ...programmingLanguages.map((language) => ({
     title: `${language.title} Learning Lab`,
     href: `/programming/${language.slug}`,
     category: "Coding Lab",

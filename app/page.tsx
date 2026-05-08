@@ -207,6 +207,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
   const params = await searchParams;
   const language = resolveHomeLanguage(params?.lang, params?.ui);
   const zh = language === "zh";
+  const isRtl = language === "ar";
   const t = homeCopy[language];
 
   const scorecards = [
@@ -220,7 +221,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
   const evidenceCards = t.evidence;
 
   return (
-    <main className="home-audit-page">
+    <main className="home-audit-page" dir={isRtl ? "rtl" : "ltr"}>
       <header className="home-audit-nav">
         <Link href={localizedHref("/", language)} className="home-audit-brand">
           <span>JM</span>
