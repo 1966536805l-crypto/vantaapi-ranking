@@ -284,10 +284,10 @@ const searchCopy: Partial<Record<InterfaceLanguage, SearchCopy>> & { en: SearchC
   },
   ar: {
     launchAudit: "تدقيق الإطلاق",
-    tools: "أدوات AI",
+    tools: "أدوات الذكاء الاصطناعي",
     coding: "البرمجة",
     eyebrow: "بحث أدوات المطور",
-    title: "ابحث في تدقيق الإطلاق وأدوات AI ومسارات البرمجة",
+    title: "ابحث في تدقيق الإطلاق وأدوات الذكاء الاصطناعي ومسارات البرمجة",
     body: "يركز البحث العام على تدقيق GitHub وPrompt وBug وAPI وأدوات المطور ومسارات البرمجة.",
     placeholder: "ابحث GitHub prompt bug api json python",
     search: "بحث",
@@ -305,7 +305,7 @@ const searchCopy: Partial<Record<InterfaceLanguage, SearchCopy>> & { en: SearchC
     noMatch: "لا توجد نتائج بعد",
     noMatchBody: "جرب كلمات أقصر مثل GitHub prompt bug api json python",
     open: "فتح",
-    categories: { Start: "البداية", "AI Tools": "أدوات AI", "Coding Lab": "مختبر البرمجة" },
+    categories: { Start: "البداية", "AI Tools": "أدوات الذكاء الاصطناعي", "Coding Lab": "مختبر البرمجة" },
   },
   hi: {
     launchAudit: "लॉन्च ऑडिट",
@@ -810,7 +810,7 @@ const searchResultDisplayCopy: Record<InterfaceLanguage, SearchResultDisplayCopy
       "bug-finder": "محدد الأخطاء",
       "api-request-generator": "منشئ طلبات API",
       "dev-utilities": "أدوات JSON و Regex والوقت",
-      "learning-roadmap": "خطة تعلم البرمجة AI",
+      "learning-roadmap": "خطة تعلم البرمجة بالذكاء الاصطناعي",
     },
     toolDescriptions: {
       "github-repo-analyzer": "يفحص المستودعات العامة قبل الإطلاق ويكشف العوائق",

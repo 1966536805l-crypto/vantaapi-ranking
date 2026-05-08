@@ -462,7 +462,7 @@ const workbenchCopy: Partial<Record<InterfaceLanguage, WorkbenchCopy>> & { en: W
   },
   ar: {
     navKicker: "مسار الإطلاق",
-    heroEyebrow: "أدوات AI للمطورين",
+    heroEyebrow: "أدوات الذكاء الاصطناعي للمطورين",
     proof: ["سريع", "قابل للنسخ", "لا يحتاج تسجيل دخول"],
     inputPattern: "طريقة الإدخال",
     localFirst: "محلي أولا",
@@ -833,11 +833,11 @@ const auditTranslations: Partial<Record<InterfaceLanguage, Partial<ToolDefinitio
     whatItDoes: ["يقرأ بيانات المستودع العامة وملفات الإعداد الجذرية", "يفحص بقواعد حتمية قبل أي صياغة", "يفصل عوائق الإطلاق عن التحسينات", "ينشئ مسودات GitHub Issues وقائمة إطلاق"],
     audience: ["مشرفو المشاريع المفتوحة", "مطورو المنتجات قبل الإطلاق", "مطورو يدخلون مستودعا غير مألوف"],
     outputExample: "درجة الإطلاق العوائق مسودات Issues README env CI نشر أمان وقائمة إطلاق",
-    limitations: ["يدعم المستودعات العامة فقط", "لا يشغل الكود ولا يحلل المصدر بعمق", "الفحص الأساسي لا يعتمد على AI قوي", "المستودعات الخاصة تحتاج صلاحيات وضوابط تدقيق"],
+    limitations: ["يدعم المستودعات العامة فقط", "لا يشغل الكود ولا يحلل المصدر بعمق", "الفحص الأساسي لا يعتمد على ذكاء اصطناعي قوي", "المستودعات الخاصة تحتاج صلاحيات وضوابط تدقيق"],
     faq: [
       { question: "هل يحتاج GitHub token", answer: "لا. النسخة الأولى تقرأ بيانات عامة وملفات عامة مختارة فقط." },
-      { question: "هل يعمل إذا كان AI ضعيفا", answer: "نعم. القلب هو فحص قواعد README و env و CI والنشر والأمان وقائمة الإطلاق." },
-      { question: "ما الفرق عن جعل AI يقرأ الكود", answer: "هذه الأداة تركز على أعمال الإطلاق المملة: README و env والملفات المؤقتة و CI والنشر والأمان وقائمة PR." },
+      { question: "هل يعمل إذا كان الذكاء الاصطناعي ضعيفا", answer: "نعم. القلب هو فحص قواعد README و env و CI والنشر والأمان وقائمة الإطلاق." },
+      { question: "ما الفرق عن جعل الذكاء الاصطناعي يقرأ الكود", answer: "هذه الأداة تركز على أعمال الإطلاق المملة: README و env والملفات المؤقتة و CI والنشر والأمان وقائمة PR." },
     ],
   },
   de: {
@@ -1131,12 +1131,12 @@ const toolShellTranslations: Partial<Record<InterfaceLanguage, Partial<Record<To
     "learning-roadmap": { title: "AI roadmap программирования", shortTitle: "План", description: "Выберите направление и получите практичный 30 дневный план", promise: "Ежедневные задачи недельные цели финальный проект", inputHint: "Выберите zero frontend Python automation или indie" },
   },
   ar: {
-    "prompt-optimizer": { title: "محسن Prompt بالذكاء الاصطناعي", shortTitle: "Prompt", description: "يحول الطلب الخام إلى Prompt منظم للكود أو البحث أو المنتج", promise: "دور سياق مهام صيغة إخراج قيود ومعايير قبول", inputHint: "مثال ابن صفحة رئيسية لموقع أدوات AI" },
+    "prompt-optimizer": { title: "محسن Prompt بالذكاء الاصطناعي", shortTitle: "Prompt", description: "يحول الطلب الخام إلى Prompt منظم للكود أو البحث أو المنتج", promise: "دور سياق مهام صيغة إخراج قيود ومعايير قبول", inputHint: "مثال ابن صفحة رئيسية لموقع أدوات ذكاء اصطناعي" },
     "code-explainer": { title: "شارح الكود", shortTitle: "كود", description: "الصق الكود لتحصل على الهدف والمتغيرات والمخاطر وملاحظات التعلم", promise: "قراءة ثابتة أسماء مهمة إشارات Bug ملاحظات تعلم", inputHint: "الصق JavaScript أو Python أو C++ أو SQL أو HTML" },
     "bug-finder": { title: "محدد الأخطاء", shortTitle: "Bug", description: "يحول الخطأ والمقطع الصغير إلى أسباب وخطوات واتجاه إصلاح", promise: "أسباب إعادة إنتاج قالب إصلاح وخطوات تحقق", inputHint: "الصق نص الخطأ الكامل وأصغر كود متعلق به" },
     "api-request-generator": { title: "منشئ طلبات API", shortTitle: "API", description: "ينشئ curl و fetch و axios و Python requests من endpoint و headers و body", promise: "طلب واحد بعدة صيغ قابلة للنسخ", inputHint: "أدخل URL و method و headers و JSON body" },
     "dev-utilities": { title: "أدوات JSON و Regex والوقت", shortTitle: "أدوات", description: "ينسق JSON ويختبر Regex ويحول الطوابع الزمنية في لوحة واحدة", promise: "تحقق محلي تحويل سريع ومخرجات نظيفة", inputHint: "الصق JSON أو Regex أو نصا أو timestamp" },
-    "learning-roadmap": { title: "خطة تعلم البرمجة AI", shortTitle: "خطة", description: "اختر اتجاها واحصل على خطة عملية لمدة 30 يوما", promise: "مهام يومية محطات أسبوعية ومشروع نهائي", inputHint: "اختر مبتدئ أو frontend أو Python أو automation أو indie" },
+    "learning-roadmap": { title: "خطة تعلم البرمجة بالذكاء الاصطناعي", shortTitle: "خطة", description: "اختر اتجاها واحصل على خطة عملية لمدة 30 يوما", promise: "مهام يومية محطات أسبوعية ومشروع نهائي", inputHint: "اختر مبتدئ أو frontend أو Python أو automation أو indie" },
   },
   hi: {
     "prompt-optimizer": { title: "AI Prompt Optimizer", shortTitle: "Prompt", description: "Rough request ko coding research ya product ke structured Prompt me badalta hai", promise: "Role context tasks output format constraints acceptance criteria", inputHint: "Example AI tool site ka homepage banana" },

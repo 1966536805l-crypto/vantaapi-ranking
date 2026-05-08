@@ -342,6 +342,22 @@ async function main() {
     ["AI Prompt Optimizer", "Turn a rough request into"],
     7,
   );
+  await checkPage(
+    "tools-ar",
+    "/tools?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["أدوات الذكاء الاصطناعي للمطورين", "هل يعمل إذا كان الذكاء الاصطناعي ضعيفا", "ما الفرق عن جعل الذكاء الاصطناعي يقرأ الكود"],
+    ["أدوات AI", "AI ضعيفا", "AI قوي", "خطة تعلم البرمجة AI"],
+    28,
+  );
+  await checkPage(
+    "search-ar",
+    "/search?lang=ar&q=github",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["أدوات الذكاء الاصطناعي", "خطة تعلم البرمجة بالذكاء الاصطناعي", "نتائج لـ"],
+    ["أدوات AI", "خطة تعلم البرمجة AI"],
+    29,
+  );
 
   await checkPage(
     "login-ar",

@@ -1113,7 +1113,7 @@ const auditCopy: Partial<Record<InterfaceLanguage, AuditCopy>> & { en: AuditCopy
     reportShapeTitle: "الدرجة العوائق Issues القائمة",
     reportShapeBody: "الصق مستودعا عاما وحوّل أعمال الإطلاق المملة إلى مهام.",
     engine: "المحرك",
-    aiDependencyNone: "لا اعتماد على AI · القواعد أولا",
+    aiDependencyNone: "لا اعتماد على الذكاء الاصطناعي · القواعد أولا",
     repository: "المستودع",
     unknown: "غير معروف",
     noLicense: "لا ترخيص",
