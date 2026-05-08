@@ -1,5 +1,5 @@
 import { ModuleHub } from "@/components/learning/ModuleHub";
-import { resolveLanguage, type PageSearchParams, type SiteLanguage } from "@/lib/language";
+import { bilingualLanguage, resolveInterfaceLanguage, type PageSearchParams, type SiteLanguage } from "@/lib/language";
 
 const modules: Record<SiteLanguage, Parameters<typeof ModuleHub>[0]["modules"]> = {
   en: [
@@ -35,16 +35,17 @@ const copy = {
 } as const;
 
 export default async function EnglishHome({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveLanguage(searchParams ? await searchParams : undefined);
-  const pageCopy = copy[language];
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const copyLanguage = bilingualLanguage(language);
+  const pageCopy = copy[copyLanguage];
 
   return (
     <ModuleHub
       eyebrow={pageCopy.eyebrow}
       title={pageCopy.title}
       description={pageCopy.description}
-      modules={modules[language]}
-      ctaHref={language === "zh" ? "/learn/english" : "/cpp"}
+      modules={modules[copyLanguage]}
+      ctaHref={copyLanguage === "zh" ? "/learn/english" : "/cpp"}
       ctaLabel={pageCopy.cta}
       language={language}
     />

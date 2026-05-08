@@ -4,7 +4,7 @@ import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import QuizBlock from "@/components/learning/QuizBlock";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
 import { buildOriginalQuestions, getOriginalQuestionPack, getQuestionPackTotal, originalQuestionPacks } from "@/lib/original-english-bank";
-import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/language";
+import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 
 const PAGE_SIZE = 20;
 
@@ -27,8 +27,9 @@ export default async function OriginalQuestionPackPage({
 }) {
   const { pack: slug } = await params;
   const query = searchParams ? await searchParams : undefined;
-  const language = resolveLanguage(query);
+  const language = resolveInterfaceLanguage(query);
   requireChineseForEnglishLearning(language);
+  const copyLanguage = bilingualLanguage(language);
   const pack = getOriginalQuestionPack(slug);
   if (!pack) notFound();
 
@@ -44,23 +45,23 @@ export default async function OriginalQuestionPackPage({
       <AppleStudyHeader language={language} />
       <section className="apple-shell py-7">
         <Link href={localizedHref("/english/question-bank", language)} className="link text-sm">
-          {language === "zh" ? "返回原创题库" : "Back to question bank"}
+          {copyLanguage === "zh" ? "返回原创题库" : "Back to question bank"}
         </Link>
         <div className="module-hero mt-3 px-5 py-6">
           <p className="eyebrow">{pack.level} · Page {page}/{maxPage}</p>
-          <h1 className="apple-display-title mt-3 max-w-4xl text-4xl">{language === "zh" ? pack.zhTitle : pack.title}</h1>
+          <h1 className="apple-display-title mt-3 max-w-4xl text-4xl">{copyLanguage === "zh" ? pack.zhTitle : pack.title}</h1>
           <p className="apple-display-subtitle mt-3 max-w-3xl text-sm text-[color:var(--muted)]">
-            {language === "zh" ? `${pack.descriptionZh} 当前每页 ${PAGE_SIZE} 题，支持即时判分。独立原创模拟，不收录官方试卷内容。` : `Page ${page} of original local practice with instant checking. Independent practice not sourced from official papers.`}
+            {copyLanguage === "zh" ? `${pack.descriptionZh} 当前每页 ${PAGE_SIZE} 题，支持即时判分。独立原创模拟，不收录官方试卷内容。` : `Page ${page} of original local practice with instant checking. Independent practice not sourced from official papers.`}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="dense-status">{language === "zh" ? "选择题" : "choice"}</span>
-            <span className="dense-status">{language === "zh" ? "填空题" : "fill blank"}</span>
-            <span className="dense-status">{language === "zh" ? "持续扩充" : "expanding"}</span>
+            <span className="dense-status">{copyLanguage === "zh" ? "选择题" : "choice"}</span>
+            <span className="dense-status">{copyLanguage === "zh" ? "填空题" : "fill blank"}</span>
+            <span className="dense-status">{copyLanguage === "zh" ? "持续扩充" : "expanding"}</span>
           </div>
         </div>
 
         <div className="mt-5">
-          <QuizBlock lessonId={`fallback-original-${pack.slug}`} questions={questions} language={language} strictChoiceTimer />
+          <QuizBlock lessonId={`fallback-original-${pack.slug}`} questions={questions} language={copyLanguage} strictChoiceTimer />
         </div>
 
         <div className="mt-5 flex flex-wrap justify-between gap-3">

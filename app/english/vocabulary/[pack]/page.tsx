@@ -14,7 +14,7 @@ import {
   getWordNote,
   vocabularyPackCopy,
 } from "@/lib/exam-i18n";
-import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/language";
+import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 
 export function generateStaticParams() {
   return examVocabularyPacks.map((pack) => ({ pack: pack.slug }));
@@ -28,9 +28,10 @@ export default async function VocabularyPackPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const { pack: slug } = await params;
-  const language = resolveLanguage(searchParams ? await searchParams : undefined);
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   requireChineseForEnglishLearning(language);
-  const copy = vocabularyPackCopy[language];
+  const copyLanguage = bilingualLanguage(language);
+  const copy = vocabularyPackCopy[copyLanguage];
   const pack = getVocabularyPack(slug);
   if (!pack) notFound();
 
@@ -42,18 +43,18 @@ export default async function VocabularyPackPage({
 
         <div className="module-hero learning-compact-hero mt-3 px-5 py-5">
           <p className="eyebrow">{pack.level}</p>
-          <h1 className="apple-display-title mt-3 max-w-4xl text-3xl sm:text-4xl">{getPackDisplayTitle(pack, language)}</h1>
+          <h1 className="apple-display-title mt-3 max-w-4xl text-3xl sm:text-4xl">{getPackDisplayTitle(pack, copyLanguage)}</h1>
           <p className="apple-display-subtitle mt-3 max-w-3xl text-sm text-[color:var(--muted)]">
             {copy.subtitle}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {getPackFocus(pack, language).map((item) => (
+            {getPackFocus(pack, copyLanguage).map((item) => (
               <span key={item} className="dense-status">{item}</span>
             ))}
           </div>
         </div>
 
-        <VocabularyTrainer packSlug={pack.slug} words={pack.priorityWords} language={language} />
+        <VocabularyTrainer packSlug={pack.slug} words={pack.priorityWords} language={copyLanguage} />
 
         <section className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="dense-panel p-4 sm:p-5">
@@ -62,7 +63,7 @@ export default async function VocabularyPackPage({
                 <p className="eyebrow">{copy.wordsEyebrow}</p>
                 <h2 className="mt-2 text-2xl font-semibold">{copy.wordsTitle}</h2>
               </div>
-              <span className="dense-status">{language === "zh" ? "持续扩充" : "expanding"}</span>
+              <span className="dense-status">{copyLanguage === "zh" ? "持续扩充" : "expanding"}</span>
             </div>
             <div className="mt-4 grid gap-2 md:grid-cols-2">
               {pack.priorityWords.map((item) => (
@@ -74,13 +75,13 @@ export default async function VocabularyPackPage({
                     <span className="dense-status">{item.collocation}</span>
                   </div>
                   <details className="word-reveal-details mt-3">
-                    <summary>{language === "zh" ? "查看释义音标例句" : "Show details"}</summary>
+                    <summary>{copyLanguage === "zh" ? "查看释义音标例句" : "Show details"}</summary>
                     <div className="mt-3 grid gap-2">
                       {item.phonetic ? <p className="text-xs text-[color:var(--muted)]">{item.phonetic}</p> : null}
-                      <p className="text-sm font-medium">{getWordMeaning(item, language)}</p>
+                      <p className="text-sm font-medium">{getWordMeaning(item, copyLanguage)}</p>
                       <p className="text-sm leading-6">{item.sentence}</p>
                       <p className="rounded-[8px] bg-black/5 px-3 py-2 text-xs leading-5 text-[color:var(--muted)]">
-                        {getWordNote(item, language)}
+                        {getWordNote(item, copyLanguage)}
                       </p>
                     </div>
                   </details>
@@ -95,17 +96,17 @@ export default async function VocabularyPackPage({
             <div className="mt-4 grid gap-2">
               {keySentenceFrames.map((frame) => (
                 <div key={frame.sentence} className="dense-card p-3 text-sm leading-6">
-                  <p className="font-medium">{getFrameLabel(frame, language)}</p>
+                  <p className="font-medium">{getFrameLabel(frame, copyLanguage)}</p>
                   <p className="mt-1">{frame.sentence}</p>
-                  <p className="mt-1 text-xs text-[color:var(--muted)]">{getFrameUsage(frame, language)}</p>
+                  <p className="mt-1 text-xs text-[color:var(--muted)]">{getFrameUsage(frame, copyLanguage)}</p>
                 </div>
               ))}
             </div>
 
             <div className="mt-5">
-              <p className="eyebrow">{language === "zh" ? "逻辑词" : "Logic Words"}</p>
+              <p className="eyebrow">{copyLanguage === "zh" ? "逻辑词" : "Logic Words"}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {getReadingLogicWords(language).map((word) => <span key={word} className="dense-status">{word}</span>)}
+                {getReadingLogicWords(copyLanguage).map((word) => <span key={word} className="dense-status">{word}</span>)}
               </div>
             </div>
           </aside>

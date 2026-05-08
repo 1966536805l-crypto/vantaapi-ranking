@@ -10,7 +10,7 @@ import {
   type CppQuestionTypeFilter,
 } from "@/lib/cpp-bank";
 import { cppQuestionBank, getCppCategory } from "@/lib/exam-content";
-import { localizedHref, resolveLanguage, type PageSearchParams, type SiteLanguage } from "@/lib/language";
+import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams, type SiteLanguage } from "@/lib/language";
 
 const baseQuestions = [
   {
@@ -156,7 +156,7 @@ function buildHref({
   page = 1,
   mode,
 }: {
-  language: SiteLanguage;
+  language: InterfaceLanguage;
   category?: string;
   type?: CppQuestionTypeFilter;
   q?: string;
@@ -173,7 +173,7 @@ function buildHref({
   return localizedHref(`/cpp/quiz/mega-1000${suffix ? `?${params.toString()}` : ""}`, language);
 }
 
-function RowPracticeLink({ copy, language, row }: { copy: typeof pageCopy.en | typeof pageCopy.zh; language: SiteLanguage; row: CppQuestionIndexRow }) {
+function RowPracticeLink({ copy, language, row }: { copy: typeof pageCopy.en | typeof pageCopy.zh; language: InterfaceLanguage; row: CppQuestionIndexRow }) {
   return (
     <Link
       href={buildHref({ language, category: row.categorySlug, type: row.type, mode: "practice" })}
@@ -193,8 +193,9 @@ export default async function Page({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const language = resolveLanguage(query);
-  const copy = pageCopy[language];
+  const language = resolveInterfaceLanguage(query);
+  const copyLanguage = bilingualLanguage(language);
+  const copy = pageCopy[copyLanguage];
   const page = Math.max(Number(firstParam(query.page) || 1) || 1, 1);
   const selectedCategory = firstParam(query.category);
   const selectedType = normalizedType(firstParam(query.type));
@@ -241,7 +242,7 @@ export default async function Page({
           <>
             <section className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
               <form action="/cpp/quiz/mega-1000" className="dense-panel p-4">
-                {language === "zh" && <input type="hidden" name="lang" value="zh" />}
+                {language !== "en" && <input type="hidden" name="lang" value={language} />}
                 {safeCategory && <input type="hidden" name="category" value={safeCategory} />}
                 {selectedType !== "ALL" && <input type="hidden" name="type" value={selectedType} />}
                 <p className="eyebrow">{copy.search}</p>
@@ -275,7 +276,7 @@ export default async function Page({
             <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="eyebrow">{copy.topicClassify}</p>
-                <h2 className="mt-2 text-xl font-semibold">{language === "zh" ? "先选模块 再看题目表" : "Choose a topic then inspect the table"}</h2>
+                <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? "先选模块 再看题目表" : "Choose a topic then inspect the table"}</h2>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link
@@ -292,7 +293,7 @@ export default async function Page({
                       href={buildHref({ language, category: safeCategory, type: item.slug, q: search })}
                       className={active ? "apple-button-primary px-4 py-2 text-sm" : "apple-button-secondary px-4 py-2 text-sm"}
                     >
-                      {typeLabel[language][item.slug]}
+                      {typeLabel[copyLanguage][item.slug]}
                     </Link>
                   );
                 })}
@@ -309,13 +310,13 @@ export default async function Page({
                     href={buildHref({ language, category: category.slug, type: selectedType, q: search })}
                     className={`apple-card p-4 ${active ? "ring-2 ring-[color:var(--accent)]" : "apple-card-hover"}`}
                   >
-                    <p className="eyebrow">{language === "zh" ? category.zh : category.title}</p>
-                    <h2 className="mt-2 text-xl font-semibold">{language === "zh" ? category.zh : category.title}</h2>
+                    <p className="eyebrow">{copyLanguage === "zh" ? category.zh : category.title}</p>
+                    <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? category.zh : category.title}</h2>
                     <p className="mt-2 text-sm text-[color:var(--muted)]">{category.focus.slice(0, 4).join(" / ")}</p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="dense-status">{typeLabel[language].MULTIPLE_CHOICE} {counts.MULTIPLE_CHOICE}</span>
-                      <span className="dense-status">{typeLabel[language].FILL_BLANK} {counts.FILL_BLANK}</span>
-                      <span className="dense-status">{typeLabel[language].CODE_READING} {counts.CODE_READING}</span>
+                      <span className="dense-status">{typeLabel[copyLanguage].MULTIPLE_CHOICE} {counts.MULTIPLE_CHOICE}</span>
+                      <span className="dense-status">{typeLabel[copyLanguage].FILL_BLANK} {counts.FILL_BLANK}</span>
+                      <span className="dense-status">{typeLabel[copyLanguage].CODE_READING} {counts.CODE_READING}</span>
                     </div>
                   </Link>
                 );
@@ -355,11 +356,11 @@ export default async function Page({
                     <tbody>
                       {table.rows.map((row) => (
                         <tr key={row.id} className="border-t border-slate-100 align-top">
-                          <td className="px-4 py-3 font-semibold">{language === "zh" ? row.categoryZh : row.categoryTitle}</td>
+                          <td className="px-4 py-3 font-semibold">{copyLanguage === "zh" ? row.categoryZh : row.categoryTitle}</td>
                           <td className="px-4 py-3">
-                            <span className="dense-status">{typeLabel[language][row.type]}</span>
+                            <span className="dense-status">{typeLabel[copyLanguage][row.type]}</span>
                           </td>
-                          <td className="px-4 py-3">{difficultyLabel[language][row.difficulty]}</td>
+                          <td className="px-4 py-3">{difficultyLabel[copyLanguage][row.difficulty]}</td>
                           <td className="px-4 py-3">
                             <p className="font-medium text-slate-900">{row.prompt}</p>
                             {row.codeSnippet && (
@@ -384,7 +385,7 @@ export default async function Page({
             {isMega && mega && (
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-black/5 bg-white/75 p-4 shadow-sm">
                 <div>
-                  <p className="eyebrow">{copy.activeBank} · {language === "zh" ? mega.category.zh : mega.category.title} · {typeLabel[language][mega.type]}</p>
+                  <p className="eyebrow">{copy.activeBank} · {copyLanguage === "zh" ? mega.category.zh : mega.category.title} · {typeLabel[copyLanguage][mega.type]}</p>
                   <p className="mt-1 text-lg font-semibold">
                     {copy.page} {mega.page} / {mega.totalPages} · {copy.current} {questions.length} {copy.drills}
                   </p>
@@ -397,7 +398,7 @@ export default async function Page({
             )}
 
             <div className="mt-6">
-              <QuizBlock lessonId={`fallback-cpp-quiz-${id}-${mega?.category.slug || "base"}-${mega?.type || "ALL"}-page-${mega?.page || 1}`} questions={questions} language={language} />
+              <QuizBlock lessonId={`fallback-cpp-quiz-${id}-${mega?.category.slug || "base"}-${mega?.type || "ALL"}-page-${mega?.page || 1}`} questions={questions} language={copyLanguage} />
             </div>
           </>
         )}

@@ -4,7 +4,7 @@ import QuizBlock from "@/components/learning/QuizBlock";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
 import { examVocabularyPacks } from "@/lib/exam-content";
 import { getWordMeaning } from "@/lib/exam-i18n";
-import { localizedHref, resolveLanguage, type PageSearchParams, type SiteLanguage } from "@/lib/language";
+import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type PageSearchParams, type SiteLanguage } from "@/lib/language";
 
 const quizCopy = {
   en: {
@@ -137,10 +137,11 @@ export default async function Page({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const { id } = await params;
-  const language = resolveLanguage(searchParams ? await searchParams : undefined);
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   requireChineseForEnglishLearning(language);
-  const questions = buildPackQuestions(id, language);
-  const copy = quizCopy[language];
+  const copyLanguage = bilingualLanguage(language);
+  const questions = buildPackQuestions(id, copyLanguage);
+  const copy = quizCopy[copyLanguage];
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -153,7 +154,7 @@ export default async function Page({
           <Link href={localizedHref("/learn/english", language)} className="apple-button-secondary mt-5 px-4 py-2 text-sm">{copy.cta}</Link>
         </div>
         <div className="mt-5">
-          <QuizBlock lessonId={`fallback-english-quiz-${id}`} questions={questions} language={language} strictChoiceTimer />
+          <QuizBlock lessonId={`fallback-english-quiz-${id}`} questions={questions} language={copyLanguage} strictChoiceTimer />
         </div>
       </section>
     </main>

@@ -10,12 +10,13 @@ import {
   getReadingLogicWords,
   vocabularyHubCopy,
 } from "@/lib/exam-i18n";
-import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/language";
+import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 
 export default async function VocabularyPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveLanguage(searchParams ? await searchParams : undefined);
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   requireChineseForEnglishLearning(language);
-  const copy = vocabularyHubCopy[language];
+  const copyLanguage = bilingualLanguage(language);
+  const copy = vocabularyHubCopy[copyLanguage];
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -33,18 +34,18 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
           <Link href={localizedHref("/english/typing", language)} className="dense-card p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="eyebrow">{language === "zh" ? "英文打字" : "English typing"}</p>
-                <h2 className="mt-2 text-xl font-semibold">{language === "zh" ? "听写打字系统" : "Typing System"}</h2>
+                <p className="eyebrow">{copyLanguage === "zh" ? "英文打字" : "English typing"}</p>
+                <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? "听写打字系统" : "Typing System"}</h2>
               </div>
               <span className="text-3xl font-semibold">⌨</span>
             </div>
             <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
-              {language === "zh"
+              {copyLanguage === "zh"
                 ? "听发音后输入英文 · 实时验证 · 拼对过关 · 本地进度"
                 : "Listen then type English · Real-time feedback · Spell to pass · Local progress"}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {(language === "zh" ? ["听音", "盲打", "错了重听", "本地进度"] : ["listen", "type", "retry", "local progress"]).map((item) => (
+              {(copyLanguage === "zh" ? ["听音", "盲打", "错了重听", "本地进度"] : ["listen", "type", "retry", "local progress"]).map((item) => (
                 <span key={item} className="dense-status">{item}</span>
               ))}
             </div>
@@ -52,18 +53,18 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
           <Link href={localizedHref("/english/vocabulary/custom", language)} className="dense-card p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="eyebrow">{language === "zh" ? "我的词书" : "My Wordbook"}</p>
-                <h2 className="mt-2 text-xl font-semibold">{language === "zh" ? "自定义词书" : "Custom Wordbook"}</h2>
+                <p className="eyebrow">{copyLanguage === "zh" ? "我的词书" : "My Wordbook"}</p>
+                <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? "自定义词书" : "Custom Wordbook"}</h2>
               </div>
               <span className="text-3xl font-semibold">+</span>
             </div>
             <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
-              {language === "zh"
+              {copyLanguage === "zh"
                 ? "自建词库 · 批量导入 · 本机保存 · 四选一训练 · 艾宾浩斯复习"
                 : "Custom wordbook · Bulk import · Local storage · Four-choice drill · Ebbinghaus review"}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {(language === "zh" ? ["自建词库", "批量导入", "本机保存", "直接训练"] : ["custom", "bulk import", "local", "train"]).map((item) => (
+              {(copyLanguage === "zh" ? ["自建词库", "批量导入", "本机保存", "直接训练"] : ["custom", "bulk import", "local", "train"]).map((item) => (
                 <span key={item} className="dense-status">{item}</span>
               ))}
             </div>
@@ -73,11 +74,11 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="eyebrow">{pack.level}</p>
-                  <h2 className="mt-2 text-xl font-semibold">{getPackShortTitle(pack, language)}</h2>
+                  <h2 className="mt-2 text-xl font-semibold">{getPackShortTitle(pack, copyLanguage)}</h2>
                 </div>
-                <span className="dense-status">{language === "zh" ? "持续扩充" : "expanding"}</span>
+                <span className="dense-status">{copyLanguage === "zh" ? "持续扩充" : "expanding"}</span>
               </div>
-              <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">{getPackFocus(pack, language).join("  ")}</p>
+              <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">{getPackFocus(pack, copyLanguage).join("  ")}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {pack.priorityWords.slice(0, 4).map((item) => (
                   <span key={item.word} className="dense-status">{item.word}</span>
@@ -99,9 +100,9 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
             <div className="mt-4 grid gap-2 md:grid-cols-2">
               {keySentenceFrames.map((frame) => (
                 <div key={frame.sentence} className="dense-card p-3 text-sm leading-6">
-                  <p className="font-medium">{getFrameLabel(frame, language)}</p>
+                  <p className="font-medium">{getFrameLabel(frame, copyLanguage)}</p>
                   <p className="mt-1">{frame.sentence}</p>
-                  <p className="mt-1 text-xs text-[color:var(--muted)]">{getFrameUsage(frame, language)}</p>
+                  <p className="mt-1 text-xs text-[color:var(--muted)]">{getFrameUsage(frame, copyLanguage)}</p>
                 </div>
               ))}
             </div>
@@ -111,7 +112,7 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
             <p className="eyebrow">{copy.logicEyebrow}</p>
             <h2 className="mt-2 text-2xl font-semibold">{copy.logicTitle}</h2>
             <div className="mt-4 flex flex-wrap gap-2">
-              {getReadingLogicWords(language).map((item) => (
+              {getReadingLogicWords(copyLanguage).map((item) => (
                 <span key={item} className="dense-status">{item}</span>
               ))}
             </div>

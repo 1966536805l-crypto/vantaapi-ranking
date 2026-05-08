@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import EnglishTypingTrainer, { type EnglishTypingItem } from "@/components/learning/EnglishTypingTrainer";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
 import { examVocabularyPacks } from "@/lib/exam-content";
-import { resolveLanguage, type PageSearchParams } from "@/lib/language";
+import { resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 
 export const metadata: Metadata = {
   title: "English Typing System - JinMing Lab",
@@ -49,7 +49,7 @@ export default async function EnglishTypingPage({
 }: {
   searchParams?: Promise<PageSearchParams>;
 }) {
-  const language = resolveLanguage(searchParams ? await searchParams : undefined);
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   requireChineseForEnglishLearning(language);
   const items = buildTypingItems();
 

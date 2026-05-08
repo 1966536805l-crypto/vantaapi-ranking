@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { localizedHref, type SiteLanguage } from "@/lib/language";
+import { localizedHref, type InterfaceLanguage, type SiteLanguage } from "@/lib/language";
 
-export function requireChineseForEnglishLearning(language: SiteLanguage) {
-  if (language === "en") {
-    redirect(localizedHref("/cpp", "en"));
+export function requireChineseForEnglishLearning(language: InterfaceLanguage | SiteLanguage) {
+  if (language !== "zh") {
+    redirect(localizedHref("/programming", language));
   }
 }
