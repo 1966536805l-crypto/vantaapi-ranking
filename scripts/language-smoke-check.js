@@ -220,6 +220,14 @@ async function main() {
     4,
   );
   await checkPage(
+    "programming-rust-ar",
+    "/programming/rust?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["ما هي Rust", "نقطة الدخول", "الربط والقيم", "نتائج الأخطاء", "fn main هي نقطة بدء برنامج Rust", "main هي نقطة الدخول", "println! ماكرو للطباعة"],
+    ["Entry", "Bindings", "fn main starts a Rust binary", "main is the entry point", "Use braces for blocks"],
+    20,
+  );
+  await checkPage(
     "programming-hub-ar",
     "/programming?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",

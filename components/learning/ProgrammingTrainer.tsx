@@ -2494,6 +2494,10 @@ const conceptI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> = 
     "naming a value": "تسمية قيمة",
     "reusable function": "دالة قابلة لإعادة الاستخدام",
     "basic collection": "مجموعة أساسية",
+    "main function": "الدالة الرئيسية",
+    "println macro": "ماكرو println",
+    "mutable binding": "ربط قابل للتغيير",
+    "match result": "مطابقة Result",
   },
 };
 
@@ -3936,6 +3940,10 @@ const optionI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
     "Use the language's standard print statement to inspect a value": "استخدم أمر الطباعة القياسي في اللغة لفحص القيمة",
     "Store a value in a readable name before passing it around": "احفظ القيمة باسم واضح قبل تمريرها",
     "A function should take input and return or produce a focused result": "الدالة تستقبل مدخلات وترجع أو تنتج نتيجة واضحة",
+    "fn main starts a Rust binary": "fn main هي نقطة بدء برنامج Rust",
+    "println! prints formatted output": "println! تطبع ناتجا منسقا",
+    "mut allows a binding to change": "mut تسمح بتغيير الربط",
+    "match handles each possible enum case": "match تعالج كل حالة ممكنة من enum",
   },
 };
 
@@ -4234,6 +4242,9 @@ const tutorialI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> =
     "Values and variables": "القيم والمتغيرات",
     "Functions": "الدوال",
     "Async APIs": "واجهات غير متزامنة",
+    "Entry": "نقطة الدخول",
+    "Bindings": "الربط والقيم",
+    "Result": "نتائج الأخطاء",
     "Program output": "ناتج البرنامج",
     "Values and names": "القيم والأسماء",
     "Functions and collections": "الدوال والمجموعات",
@@ -4255,6 +4266,15 @@ const tutorialI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> =
     "Keep functions small": "اجعل الدوال صغيرة",
     "Return useful values": "ارجع قيما مفيدة",
     "Use the common collection before reaching for frameworks": "استخدم المجموعة الشائعة قبل اللجوء إلى الأطر",
+    "main is the entry point": "main هي نقطة الدخول",
+    "println! is a macro": "println! ماكرو للطباعة",
+    "Use braces for blocks": "استخدم الأقواس لتحديد الكتل",
+    "Bindings are immutable by default": "الربط ثابت افتراضيا",
+    "Use mut only when needed": "استخدم mut عند الحاجة فقط",
+    "Borrow instead of cloning blindly": "استعر القيمة بدل نسخها بلا سبب",
+    "Use Result for recoverable errors": "استخدم Result للأخطاء القابلة للمعالجة",
+    "Handle Err": "عالج حالة Err",
+    "Use question mark in functions returning Result": "استخدم ? داخل الدوال التي ترجع Result",
   },
 };
 
@@ -4478,6 +4498,9 @@ const tutorialFocusI18n: Partial<Record<InterfaceLanguage, Record<string, string
     "const let string number boolean object array": "القيم والمتغيرات والنصوص والأرقام والقوائم والكائنات",
     "input output return reusable actions": "مدخلات مخرجات return وأفعال قابلة لإعادة الاستخدام",
     "fetch promise await error handling": "fetch و Promise و await ومعالجة الأخطاء",
+    "fn main println macro": "fn main و println! وماكرو الطباعة",
+    "let mut ownership borrowing": "let و mut والملكية والاستعارة",
+    "match Ok Err question mark": "match و Ok و Err وعلامة السؤال",
   },
   hi: {
     "const let string number boolean object array": "मान variable string number boolean object array",
