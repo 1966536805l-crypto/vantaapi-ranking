@@ -420,6 +420,22 @@ async function main() {
     40,
   );
   await checkPage(
+    "cpp-basics-ja",
+    "/cpp/basics?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["構文と型", "中心範囲", "問題形式", "/cpp/quiz/basics?lang=ja"],
+    ["Syntax And Types", "Core scope", "Question types", "/cpp/quiz/basics\""],
+    41,
+  );
+  await checkPage(
+    "cpp-stl-ar",
+    "/cpp/stl?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["حاويات STL", "الحاويات", "التدريب", "/cpp/quiz/stl?lang=ar"],
+    ["STL Containers", "Containers", "Practice", "/cpp/quiz/stl\""],
+    42,
+  );
+  await checkPage(
     "learn-english-ja",
     "/learn/english?lang=ja",
     "ja-JP,ja;q=0.9,en;q=0.2",
