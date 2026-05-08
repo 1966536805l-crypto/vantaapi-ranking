@@ -424,6 +424,22 @@ async function main() {
     45,
   );
   await checkPage(
+    "world-languages-hub-es",
+    "/languages?lang=es",
+    "es-ES,es;q=0.9,en;q=0.2",
+    ["Idiomas del mundo desde cero", "Empieza cualquier idioma desde cero", "Buscar idioma", "/languages/japanese?lang=es"],
+    ["Start any world language from zero", "World Language Map", "世界语言从 0 开始"],
+    62,
+  );
+  await checkPage(
+    "world-languages-hub-de",
+    "/languages?lang=de",
+    "de-DE,de;q=0.9,en;q=0.2",
+    ["Weltsprachen von null", "Jede Sprache von null starten", "Sprache suchen", "/languages/japanese?lang=de"],
+    ["Start any world language from zero", "World Language Map", "世界语言从 0 开始"],
+    63,
+  );
+  await checkPage(
     "world-language-detail-ar",
     "/languages/english?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",

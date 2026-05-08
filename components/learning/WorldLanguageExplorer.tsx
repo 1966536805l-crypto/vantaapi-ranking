@@ -13,14 +13,7 @@ type WorldLanguageExplorerProps = {
 
 const prioritySlugs = ["english", "japanese", "korean", "spanish", "french", "arabic", "chinese", "german"];
 
-type ExplorerLanguage = "en" | "zh" | "ja" | "ar";
-
-function explorerLanguage(language: InterfaceLanguage): ExplorerLanguage {
-  if (language === "zh" || language === "ja" || language === "ar") return language;
-  return "en";
-}
-
-const explorerCopy: Record<ExplorerLanguage, {
+type ExplorerCopy = {
   eyebrow: string;
   title: string;
   countSuffix: string;
@@ -33,7 +26,9 @@ const explorerCopy: Record<ExplorerLanguage, {
   all: string;
   priority: string;
   empty: string;
-}> = {
+};
+
+const baseExplorerCopy: Record<"en" | "zh" | "ja" | "ar", ExplorerCopy> = {
   en: {
     eyebrow: "All languages",
     title: "World Language Map",
@@ -92,8 +87,26 @@ const explorerCopy: Record<ExplorerLanguage, {
   },
 };
 
+const explorerCopy: Record<InterfaceLanguage, ExplorerCopy> = {
+  ...baseExplorerCopy,
+  ko: { eyebrow: "모든 언어", title: "세계 언어 지도", countSuffix: "언어", searchLabel: "언어 검색", placeholder: "English Japanese Arabic Hangul Latin 입력", familyLabel: "어족", allFamilies: "모든 어족", scriptLabel: "문자", allScripts: "모든 문자 체계", all: "전체", priority: "여기서 시작", empty: "일치하는 언어가 없습니다. 다른 키워드를 시도하세요." },
+  es: { eyebrow: "Todos los idiomas", title: "Mapa de idiomas del mundo", countSuffix: "idiomas", searchLabel: "Buscar idioma", placeholder: "Escribe English Japanese Arabic Hangul Latin", familyLabel: "Por familia", allFamilies: "Todas las familias", scriptLabel: "Por escritura", allScripts: "Todos los sistemas", all: "Todo", priority: "Empieza aqui", empty: "No hay idioma coincidente. Prueba otra palabra." },
+  fr: { eyebrow: "Toutes les langues", title: "Carte des langues du monde", countSuffix: "langues", searchLabel: "Chercher une langue", placeholder: "Tape English Japanese Arabic Hangul Latin", familyLabel: "Par famille", allFamilies: "Toutes les familles", scriptLabel: "Par ecriture", allScripts: "Tous les systemes", all: "Tout", priority: "Commence ici", empty: "Aucune langue trouvee. Essaie un autre mot." },
+  de: { eyebrow: "Alle Sprachen", title: "Weltsprachen Karte", countSuffix: "Sprachen", searchLabel: "Sprache suchen", placeholder: "English Japanese Arabic Hangul Latin eingeben", familyLabel: "Nach Familie", allFamilies: "Alle Familien", scriptLabel: "Nach Schrift", allScripts: "Alle Schriftsysteme", all: "Alle", priority: "Hier starten", empty: "Keine passende Sprache. Versuche ein anderes Wort." },
+  pt: { eyebrow: "Todos os idiomas", title: "Mapa de idiomas do mundo", countSuffix: "idiomas", searchLabel: "Buscar idioma", placeholder: "Digite English Japanese Arabic Hangul Latin", familyLabel: "Por familia", allFamilies: "Todas as familias", scriptLabel: "Por escrita", allScripts: "Todos os sistemas", all: "Tudo", priority: "Comece aqui", empty: "Nenhum idioma encontrado. Tente outra palavra." },
+  ru: { eyebrow: "Все языки", title: "Карта языков мира", countSuffix: "языков", searchLabel: "Искать язык", placeholder: "Введите English Japanese Arabic Hangul Latin", familyLabel: "По семье", allFamilies: "Все семьи", scriptLabel: "По письменности", allScripts: "Все системы письма", all: "Все", priority: "Начни здесь", empty: "Подходящий язык не найден. Попробуй другое слово." },
+  hi: { eyebrow: "सभी भाषाएं", title: "विश्व भाषा मानचित्र", countSuffix: "भाषाएं", searchLabel: "भाषा खोजें", placeholder: "English Japanese Arabic Hangul Latin लिखें", familyLabel: "परिवार से", allFamilies: "सभी परिवार", scriptLabel: "लिपि से", allScripts: "सभी लिपियां", all: "सभी", priority: "यहां शुरू करें", empty: "मिलती भाषा नहीं मिली. दूसरा शब्द आजमाएं." },
+  id: { eyebrow: "Semua bahasa", title: "Peta bahasa dunia", countSuffix: "bahasa", searchLabel: "Cari bahasa", placeholder: "Ketik English Japanese Arabic Hangul Latin", familyLabel: "Menurut keluarga", allFamilies: "Semua keluarga", scriptLabel: "Menurut aksara", allScripts: "Semua sistem tulis", all: "Semua", priority: "Mulai di sini", empty: "Tidak ada bahasa cocok. Coba kata lain." },
+  vi: { eyebrow: "Tat ca ngon ngu", title: "Ban do ngon ngu the gioi", countSuffix: "ngon ngu", searchLabel: "Tim ngon ngu", placeholder: "Nhap English Japanese Arabic Hangul Latin", familyLabel: "Theo he", allFamilies: "Tat ca he", scriptLabel: "Theo chu viet", allScripts: "Tat ca chu viet", all: "Tat ca", priority: "Bat dau o day", empty: "Chua co ngon ngu phu hop. Thu tu khoa khac." },
+  th: { eyebrow: "ทุกภาษา", title: "แผนที่ภาษาทั่วโลก", countSuffix: "ภาษา", searchLabel: "ค้นหาภาษา", placeholder: "พิมพ์ English Japanese Arabic Hangul Latin", familyLabel: "ตามตระกูล", allFamilies: "ทุกตระกูล", scriptLabel: "ตามระบบเขียน", allScripts: "ทุกระบบเขียน", all: "ทั้งหมด", priority: "เริ่มที่นี่", empty: "ไม่พบภาษาที่ตรง ลองคำอื่น" },
+  tr: { eyebrow: "Tum diller", title: "Dunya dil haritasi", countSuffix: "dil", searchLabel: "Dil ara", placeholder: "English Japanese Arabic Hangul Latin yaz", familyLabel: "Aileye gore", allFamilies: "Tum aileler", scriptLabel: "Yaziya gore", allScripts: "Tum yazi sistemleri", all: "Tum", priority: "Buradan basla", empty: "Eslesen dil yok. Baska kelime dene." },
+  it: { eyebrow: "Tutte le lingue", title: "Mappa lingue del mondo", countSuffix: "lingue", searchLabel: "Cerca lingua", placeholder: "Scrivi English Japanese Arabic Hangul Latin", familyLabel: "Per famiglia", allFamilies: "Tutte le famiglie", scriptLabel: "Per scrittura", allScripts: "Tutti i sistemi", all: "Tutto", priority: "Inizia qui", empty: "Nessuna lingua trovata. Prova un altra parola." },
+  nl: { eyebrow: "Alle talen", title: "Wereldtaalkaart", countSuffix: "talen", searchLabel: "Taal zoeken", placeholder: "Typ English Japanese Arabic Hangul Latin", familyLabel: "Op familie", allFamilies: "Alle families", scriptLabel: "Op schrift", allScripts: "Alle schrijfsystemen", all: "Alles", priority: "Start hier", empty: "Geen passende taal. Probeer een ander woord." },
+  pl: { eyebrow: "Wszystkie jezyki", title: "Mapa jezykow swiata", countSuffix: "jezykow", searchLabel: "Szukaj jezyka", placeholder: "Wpisz English Japanese Arabic Hangul Latin", familyLabel: "Wedlug rodziny", allFamilies: "Wszystkie rodziny", scriptLabel: "Wedlug pisma", allScripts: "Wszystkie systemy", all: "Wszystko", priority: "Zacznij tutaj", empty: "Brak pasujacego jezyka. Sprobuj innego slowa." },
+};
+
 export function WorldLanguageExplorer({ languages, families, language = "en" }: WorldLanguageExplorerProps) {
-  const t = explorerCopy[explorerLanguage(language)];
+  const t = explorerCopy[language];
   const [query, setQuery] = useState("");
   const [family, setFamily] = useState("all");
   const [script, setScript] = useState("all");
