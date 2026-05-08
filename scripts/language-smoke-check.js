@@ -390,6 +390,14 @@ async function main() {
     ["أدوات AI", "AI ضعيفا", "AI قوي", "خطة تعلم البرمجة AI"],
     28,
   );
+  await checkVisibleText(
+    "tools-ar-visible-copy",
+    "/tools?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["أدوات الذكاء الاصطناعي للمطورين", "هل يعمل إذا كان الذكاء الاصطناعي ضعيفا", "ما الفرق عن جعل الذكاء الاصطناعي يقرأ الكود"],
+    ["أدوات AI", "AI ضعيفا", "AI قوي", "خطة تعلم البرمجة AI"],
+    31,
+  );
   await checkPage(
     "search-ar",
     "/search?lang=ar&q=github",
@@ -397,6 +405,14 @@ async function main() {
     ["أدوات الذكاء الاصطناعي", "خطة تعلم البرمجة بالذكاء الاصطناعي", "نتائج لـ"],
     ["أدوات AI", "خطة تعلم البرمجة AI"],
     29,
+  );
+  await checkVisibleText(
+    "search-ar-visible-copy",
+    "/search?lang=ar&q=github",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["أدوات الذكاء الاصطناعي", "خطة تعلم البرمجة بالذكاء الاصطناعي", "نتائج لـ"],
+    ["أدوات AI", "خطة تعلم البرمجة AI"],
+    32,
   );
 
   await checkPage(
