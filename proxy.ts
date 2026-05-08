@@ -20,6 +20,7 @@ const expensiveApiRules = [
   { prefix: "/api/quiz/submit", normal: 80, elevated: 40, emergency: 20, windowMs: 60_000 },
   { prefix: "/api/cpp/run", normal: 30, elevated: 16, emergency: 8, windowMs: 60_000 },
   { prefix: "/api/questions", normal: 90, elevated: 45, emergency: 20, windowMs: 60_000 },
+  { prefix: "/api/tools/github-repo-analyzer", normal: 20, elevated: 10, emergency: 4, windowMs: 60_000 },
 ];
 
 const jsonWriteApiPrefixes = [
@@ -33,6 +34,7 @@ const jsonWriteApiPrefixes = [
   "/api/quiz/submit",
   "/api/report",
   "/api/reports",
+  "/api/tools/github-repo-analyzer",
   "/api/wrong",
 ];
 
@@ -61,6 +63,7 @@ const apiMethodRules = [
   { prefix: "/api/rankings/like", methods: ["POST"] },
   { prefix: "/api/report", methods: ["POST"] },
   { prefix: "/api/stats", methods: ["GET", "HEAD"] },
+  { prefix: "/api/tools/github-repo-analyzer", methods: ["POST"] },
 ];
 
 function getClientIp(request: NextRequest) {

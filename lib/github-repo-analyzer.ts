@@ -117,10 +117,12 @@ const RULE_VERSION = "rules-first-2026-05";
 const RULE_CHECKS = [
   "README quick start",
   "environment template",
+  "package manager lockfile",
   "CI workflow",
   "build and quality scripts",
-  "deployment notes",
+  "deployment config and notes",
   "security and risky files",
+  "security policy and dependency signals",
   "license signal",
   "release checklist",
 ];
@@ -129,24 +131,57 @@ const analysisCache = new Map<string, CachedAnalysis>();
 const candidateFiles = [
   "README.md",
   "README",
+  "README.rst",
+  "README.txt",
+  "LICENSE",
+  "LICENSE.md",
+  "SECURITY.md",
+  "CONTRIBUTING.md",
+  "CHANGELOG.md",
   "package.json",
   "pnpm-lock.yaml",
   "yarn.lock",
   "package-lock.json",
   "bun.lockb",
+  "bun.lock",
+  ".nvmrc",
+  ".node-version",
+  "turbo.json",
   "tsconfig.json",
   "next.config.ts",
   "next.config.js",
+  "next.config.mjs",
   "vite.config.ts",
   "vite.config.js",
+  "eslint.config.js",
+  "eslint.config.mjs",
+  ".eslintrc.json",
+  "jest.config.js",
+  "jest.config.ts",
+  "vitest.config.ts",
+  "playwright.config.ts",
   "Dockerfile",
   "docker-compose.yml",
+  "docker-compose.yaml",
+  "vercel.json",
+  "netlify.toml",
+  "render.yaml",
+  "fly.toml",
+  "railway.json",
+  "wrangler.toml",
   ".env.example",
+  ".env.sample",
+  ".env.template",
   "prisma/schema.prisma",
   "pyproject.toml",
   "requirements.txt",
   "go.mod",
+  "go.sum",
   "Cargo.toml",
+  "Cargo.lock",
+  ".github/dependabot.yml",
+  ".github/dependabot.yaml",
+  ".github/CODEOWNERS",
   ".github/workflows",
 ];
 
@@ -327,9 +362,40 @@ function detectPackageManager(files: Map<string, string | null>, packageJson: Re
   if (packageJson?.packageManager?.startsWith("bun")) return "bun";
   if (files.has("pnpm-lock.yaml")) return "pnpm";
   if (files.has("yarn.lock")) return "yarn";
-  if (files.has("bun.lockb")) return "bun";
+  if (files.has("bun.lockb") || files.has("bun.lock")) return "bun";
   if (files.has("package-lock.json")) return "npm-ci";
   return "npm";
+}
+
+function hasAnyFile(files: Map<string, string | null>, paths: string[]) {
+  return paths.some((path) => files.has(path));
+}
+
+function hasLockfile(files: Map<string, string | null>) {
+  return hasAnyFile(files, ["pnpm-lock.yaml", "yarn.lock", "package-lock.json", "bun.lockb", "bun.lock", "go.sum", "Cargo.lock"]);
+}
+
+function envExamplePath(files: Map<string, string | null>) {
+  return [".env.example", ".env.sample", ".env.template"].find((path) => files.has(path));
+}
+
+function deploymentTargets(files: Map<string, string | null>, readme: string | null) {
+  const text = readme?.toLowerCase() ?? "";
+  const targets: string[] = [];
+  if (files.has("vercel.json") || /vercel/.test(text)) targets.push("Vercel");
+  if (files.has("netlify.toml") || /netlify/.test(text)) targets.push("Netlify");
+  if (files.has("render.yaml") || /render\.com|render deploy/.test(text)) targets.push("Render");
+  if (files.has("fly.toml") || /fly\.io/.test(text)) targets.push("Fly.io");
+  if (files.has("railway.json") || /railway/.test(text)) targets.push("Railway");
+  if (files.has("wrangler.toml") || /cloudflare|workers/.test(text)) targets.push("Cloudflare");
+  if (files.has("Dockerfile") || files.has("docker-compose.yml") || files.has("docker-compose.yaml") || /docker/.test(text)) targets.push("Docker");
+  if (/deploy|production|rollback/.test(text)) targets.push("README deploy notes");
+  return Array.from(new Set(targets));
+}
+
+function qualityScriptCount(packageJson: ReturnType<typeof parsePackageJson>) {
+  const scripts = packageJson?.scripts ?? {};
+  return ["lint", "test", "typecheck", "check", "build", "format"].filter((script) => Boolean(scripts[script])).length;
 }
 
 function dependencyNames(packageJson: ReturnType<typeof parsePackageJson>) {
@@ -351,7 +417,10 @@ function detectStack(files: Map<string, string | null>, packageJson: ReturnType<
   if (deps.has("vite")) stack.add("Vite");
   if (deps.has("tailwindcss")) stack.add("Tailwind CSS");
   if (deps.has("@prisma/client") || files.has("prisma/schema.prisma")) stack.add("Prisma");
-  if (files.has("Dockerfile") || files.has("docker-compose.yml")) stack.add("Docker");
+  if (files.has("Dockerfile") || files.has("docker-compose.yml") || files.has("docker-compose.yaml")) stack.add("Docker");
+  if (files.has("vercel.json")) stack.add("Vercel");
+  if (files.has("netlify.toml")) stack.add("Netlify");
+  if (files.has("wrangler.toml")) stack.add("Cloudflare Workers");
   if (files.has("pyproject.toml") || files.has("requirements.txt")) stack.add("Python");
   if (files.has("go.mod")) stack.add("Go");
   if (files.has("Cargo.toml")) stack.add("Rust");
@@ -369,7 +438,7 @@ function runCommands(packageManager: string, packageJson: ReturnType<typeof pars
     return `npm run ${script}`;
   };
   const commands = [install];
-  for (const script of ["dev", "start", "build", "test", "lint"]) {
+  for (const script of ["dev", "start", "build", "test", "lint", "typecheck", "check"]) {
     if (scripts[script]) commands.push(run(script));
   }
   if (commands.length === 1) commands.push("No common scripts found. Inspect package.json scripts before running.");
@@ -389,9 +458,11 @@ function readmeQuality(readme: string | null, files: Map<string, string | null>)
   const text = readme?.toLowerCase() ?? "";
   if (!readme) notes.push("Add a README with project purpose setup commands environment variables and screenshots.");
   if (readme && !/install|setup|getting started|quick start/.test(text)) notes.push("Add a clear setup section with install and run commands.");
-  if (readme && !/env|environment|\.env/.test(text) && files.has(".env.example")) notes.push("Mention required environment variables and link to .env.example.");
+  if (readme && !/env|environment|\.env/.test(text) && envExamplePath(files)) notes.push("Mention required environment variables and link to the env template.");
   if (readme && !/deploy|vercel|docker|production/.test(text)) notes.push("Add deployment notes for the target platform.");
   if (readme && !/test|lint|quality/.test(text)) notes.push("Add quality commands such as test lint typecheck or build.");
+  if (readme && !/screenshot|demo|preview|example/.test(text)) notes.push("Add a short demo screenshot or example output so visitors understand the product quickly.");
+  if (readme && !files.has("CONTRIBUTING.md") && !/contribut/.test(text)) notes.push("Add contribution guidance or a short maintainer handoff section.");
   if (notes.length === 0) notes.push("README covers the core setup signals. Keep it current with scripts and env changes.");
   return notes;
 }
@@ -400,10 +471,12 @@ function securityNotes(meta: GitHubRepoMeta, files: Map<string, string | null>, 
   const notes: string[] = [];
   const scripts = packageJson?.scripts ?? {};
   if (meta.archived) notes.push("Repository is archived. Treat dependencies and setup guidance as potentially stale.");
-  if (!files.has(".env.example")) notes.push("No .env.example found. Add a sanitized env template before onboarding contributors.");
+  if (!envExamplePath(files)) notes.push("No env template found. Add a sanitized env template before onboarding contributors.");
   if (!scripts.test && !scripts.lint) notes.push("No test or lint script detected. Add at least one automated quality gate.");
   if (workflows.length === 0) notes.push("No GitHub Actions workflow detected. Add CI for install build lint and tests.");
   if (!meta.license) notes.push("No license detected. Clarify usage rights before reuse.");
+  if (!files.has("SECURITY.md")) notes.push("No SECURITY.md detected. Add a short vulnerability reporting path before public launch.");
+  if (!hasAnyFile(files, [".github/dependabot.yml", ".github/dependabot.yaml"])) notes.push("No Dependabot config detected. Consider dependency update automation for public repos.");
   if (files.has("Dockerfile")) notes.push("Dockerfile exists. Review base image pinning non root user and copied secrets.");
   if (files.has("package.json")) notes.push("Run dependency audit before release and pin production critical packages.");
   return notes.slice(0, 8);
@@ -420,19 +493,28 @@ function githubActionsSuggestions(packageJson: ReturnType<typeof parsePackageJso
 }
 
 function environmentChecklist(files: Map<string, string | null>) {
-  const envExample = files.get(".env.example");
+  const envPath = envExamplePath(files);
+  const envExample = envPath ? files.get(envPath) : null;
   if (!envExample) {
     return [
-      "Add .env.example before accepting outside contributors.",
+      "Add .env.example or .env.sample before accepting outside contributors.",
       "List required keys optional keys and production-only keys separately.",
       "Keep real secrets only in the hosting provider or local untracked files.",
     ];
   }
 
   const keys = Array.from(envExample.matchAll(/^([A-Z0-9_]+)=/gm)).map((match) => match[1]);
+  const suspiciousValues = envExample
+    .split(/\r?\n/)
+    .filter((line) => /^[A-Z0-9_]+=.+/.test(line))
+    .filter((line) => {
+      const value = line.split("=").slice(1).join("=").trim().replace(/^["']|["']$/g, "");
+      return value.length > 12 && !/^(changeme|change-me|example|placeholder|your_|<|xxx|todo|null|false|true|0)$/i.test(value);
+    })
+    .slice(0, 5);
   if (keys.length === 0) {
     return [
-      ".env.example exists but no uppercase KEY= entries were detected.",
+      `${envPath} exists but no uppercase KEY= entries were detected.`,
       "Rewrite it as copyable placeholders without real values.",
     ];
   }
@@ -440,7 +522,9 @@ function environmentChecklist(files: Map<string, string | null>) {
   return [
     `Detected env template keys: ${keys.slice(0, 12).join(", ")}${keys.length > 12 ? "..." : ""}`,
     "Mark which keys are required for local dev, preview, and production.",
-    "Confirm no template value is a real token password or private URL.",
+    suspiciousValues.length
+      ? `Review suspicious non-placeholder env values: ${suspiciousValues.map((line) => line.split("=")[0]).join(", ")}`
+      : "Template values look placeholder-like from the sampled lines.",
   ];
 }
 
@@ -455,12 +539,14 @@ function scorecardItem(label: string, score: number, note: string) {
 
 function launchScorecard({
   files,
+  meta,
   packageJson,
   workflows,
   readme,
   riskyFiles,
 }: {
   files: Map<string, string | null>;
+  meta: GitHubRepoMeta;
   packageJson: ReturnType<typeof parsePackageJson>;
   workflows: string[];
   readme: string | null;
@@ -468,24 +554,28 @@ function launchScorecard({
 }) {
   const scripts = packageJson?.scripts ?? {};
   const readmeText = readme?.toLowerCase() ?? "";
+  const targets = deploymentTargets(files, readme);
   const readmeSignals = [
     Boolean(readme),
     /install|setup|getting started|quick start/.test(readmeText),
     /deploy|vercel|docker|production/.test(readmeText),
     /test|lint|quality|build/.test(readmeText),
   ].filter(Boolean).length;
-  const envSignals = [files.has(".env.example"), Boolean(files.get(".env.example")?.match(/^([A-Z0-9_]+)=/gm))].filter(Boolean).length;
-  const ciSignals = [workflows.length > 0, Boolean(scripts.lint), Boolean(scripts.test), Boolean(scripts.build)].filter(Boolean).length;
+  const envPath = envExamplePath(files);
+  const envSignals = [Boolean(envPath), Boolean(envPath && files.get(envPath)?.match(/^([A-Z0-9_]+)=/gm))].filter(Boolean).length;
+  const ciSignals = [workflows.length > 0, qualityScriptCount(packageJson) >= 2, Boolean(scripts.build), hasLockfile(files)].filter(Boolean).length;
   const deploySignals = [
     Boolean(scripts.build),
     Boolean(scripts.start || scripts.dev),
-    files.has("Dockerfile") || files.has("docker-compose.yml") || /deploy|vercel|docker|production/.test(readmeText),
+    targets.length > 0,
   ].filter(Boolean).length;
   const securitySignals = [
     riskyFiles.length === 0,
-    files.has(".env.example"),
+    Boolean(envPath),
     workflows.length > 0,
     Boolean(scripts.lint || scripts.test),
+    Boolean(meta.license),
+    files.has("SECURITY.md") || hasAnyFile(files, [".github/dependabot.yml", ".github/dependabot.yaml"]),
   ].filter(Boolean).length;
 
   return [
@@ -497,21 +587,21 @@ function launchScorecard({
     scorecardItem(
       "Environment",
       Math.round((envSignals / 2) * 100),
-      files.has(".env.example") ? "Env template exists. Required and production-only keys still need review." : "Add a sanitized .env.example."
+      envPath ? `${envPath} exists. Required and production-only keys still need review.` : "Add a sanitized .env.example."
     ),
     scorecardItem(
       "CI",
       Math.round((ciSignals / 4) * 100),
-      workflows.length ? "Workflow signal found. Confirm build lint and tests run on PRs." : "No GitHub Actions workflow found."
+      workflows.length ? "Workflow signal found. Confirm build lint tests and lockfile install run on PRs." : "No GitHub Actions workflow found."
     ),
     scorecardItem(
       "Deploy",
       Math.round((deploySignals / 3) * 100),
-      "Checks build/start commands and deployment notes."
+      targets.length ? `Deployment signal: ${targets.slice(0, 3).join(", ")}.` : "Checks build/start commands and deployment notes."
     ),
     scorecardItem(
       "Security",
-      Math.round((securitySignals / 4) * 100),
+      Math.round((securitySignals / 6) * 100),
       riskyFiles.length ? `Risky public files detected: ${riskyFiles.join(", ")}.` : "No obvious secret or local database files detected in public tree."
     ),
   ];
@@ -525,6 +615,7 @@ function issueLabelPlan(stack: string[], workflows: string[]) {
     "security",
     "release-blocker",
     "needs reproduction",
+    "launch-readiness",
   ];
   if (stack.some((item) => /next|react|vue|vite|frontend/i.test(item))) labels.push("frontend");
   if (stack.some((item) => /node|go|rust|python|backend|prisma/i.test(item))) labels.push("backend");
@@ -546,11 +637,17 @@ function findingEvidence(item: string, files: Map<string, string | null>, workfl
   if (/archived/i.test(item)) return { source: "GitHub repository metadata", evidence: "Repository archived flag is enabled." };
   if (/sensitive|temporary files/i.test(item)) return { source: "GitHub repository tree", evidence: riskyFiles.join(", ") };
   if (/README/i.test(item)) return { source: files.has("README.md") || files.has("README") ? "README" : "Repository root", evidence: files.has("README.md") || files.has("README") ? "README exists but lacks this launch signal." : "No README file was read from the root." };
-  if (/\.env|environment|env/i.test(item)) return { source: ".env.example", evidence: files.has(".env.example") ? ".env.example exists and needs clearer production/local key guidance." : "No .env.example file was read from the root." };
+  if (/\.env|environment|env/i.test(item)) {
+    const path = envExamplePath(files);
+    return { source: path || ".env.example", evidence: path ? `${path} exists and needs clearer production/local key guidance.` : "No env template file was read from the root." };
+  }
+  if (/lockfile|repeatable/i.test(item)) return { source: "package manager lockfile", evidence: hasLockfile(files) ? "A lockfile was detected." : "No npm pnpm yarn bun go or cargo lockfile was read." };
   if (/build script/i.test(item)) return { source: "package.json", evidence: "package.json scripts.build was not detected." };
-  if (/test|lint/i.test(item)) return { source: "package.json", evidence: "package.json scripts.test and scripts.lint were not detected." };
+  if (/test|lint|quality|typecheck|format/i.test(item)) return { source: "package.json", evidence: "package.json quality scripts are incomplete." };
   if (/GitHub Actions|workflow|CI/i.test(item)) return { source: ".github/workflows", evidence: workflows.length ? `Detected workflows: ${workflows.join(", ")}` : "No workflow files were detected." };
   if (/license/i.test(item)) return { source: "GitHub repository metadata", evidence: "GitHub API did not return a license signal." };
+  if (/SECURITY|vulnerability/i.test(item)) return { source: "SECURITY.md", evidence: files.has("SECURITY.md") ? "SECURITY.md exists." : "SECURITY.md was not read from the root." };
+  if (/changelog|release notes/i.test(item)) return { source: "CHANGELOG.md or README", evidence: files.has("CHANGELOG.md") ? "CHANGELOG.md exists." : "No changelog or release notes signal was read." };
   if (/deploy|rollback|production/i.test(item)) return { source: "README and deployment files", evidence: "Deployment or rollback wording was not detected in the files read." };
   return { source: "Repository files read", evidence: "Derived from public repository metadata and root configuration files." };
 }
@@ -573,18 +670,23 @@ function launchAuditSummary({
   const scripts = packageJson?.scripts ?? {};
   const blockers: string[] = [];
   const warnings: string[] = [];
+  const envPath = envExamplePath(files);
+  const targets = deploymentTargets(files, readme);
 
   if (meta.archived) blockers.push("Repository is archived. Do not launch from it without a maintenance decision.");
   if (riskyFiles.length) blockers.push(`Remove public sensitive or temporary files: ${riskyFiles.join(", ")}.`);
   if (!readme) blockers.push("Add a README before launch so visitors understand purpose setup and status.");
-  if (!files.has(".env.example")) blockers.push("Add a sanitized .env.example with required production and local variables.");
+  if (!envPath) blockers.push("Add a sanitized .env.example with required production and local variables.");
 
   if (readme && !/install|setup|getting started|quick start/i.test(readme)) warnings.push("README needs a clear setup or quick start section.");
-  if (readme && !/deploy|vercel|docker|production/i.test(readme)) warnings.push("README needs deployment and rollback notes.");
+  if (readme && targets.length === 0) warnings.push("README needs deployment target and rollback notes.");
+  if (packageJson && !hasLockfile(files)) warnings.push("No package lockfile detected. Commit a lockfile so clean installs are repeatable.");
   if (!scripts.build) warnings.push("No build script detected. Add or document the production build command.");
-  if (!scripts.test && !scripts.lint) warnings.push("No test or lint script detected. Add at least one quality gate.");
+  if (qualityScriptCount(packageJson) < 2) warnings.push("Quality gates are thin. Add at least two of lint test typecheck build or format.");
   if (workflows.length === 0) warnings.push("No GitHub Actions workflow detected. Add CI for install build lint and tests.");
   if (!meta.license) warnings.push("No license detected. Clarify usage rights before public release.");
+  if (!files.has("SECURITY.md")) warnings.push("No SECURITY.md detected. Add a short vulnerability reporting path.");
+  if (!files.has("CHANGELOG.md") && readme && !/changelog|release note/i.test(readme)) warnings.push("No changelog or release notes signal detected.");
 
   const score = Math.max(0, Math.min(100, 100 - blockers.length * 18 - warnings.length * 7));
   const riskLevel: GitHubRepoAnalysis["launchScore"]["riskLevel"] =
@@ -714,11 +816,13 @@ function buildAnalysis({
   const stack = detectStack(files, packageJson, meta.language);
   const commands = runCommands(packageManager, packageJson);
   const audit = launchAuditSummary({ meta, files, packageJson, workflows, readme, riskyFiles });
-  const scorecard = launchScorecard({ files, packageJson, workflows, readme, riskyFiles });
+  const scorecard = launchScorecard({ files, meta, packageJson, workflows, readme, riskyFiles });
+  const targets = deploymentTargets(files, readme);
   const releaseChecklist = [
     "Fix every item in Must fix before public launch.",
-    "Run install build lint and tests in a clean clone.",
+    `Run clean verification: ${commands.slice(0, 5).join(" && ")}.`,
     "Confirm production env variables are set in the hosting platform and absent from Git.",
+    targets.length ? `Confirm deployment target settings for ${targets.slice(0, 4).join(", ")}.` : "Document the deployment target and start command before public launch.",
     "Check robots sitemap metadata privacy terms and status pages.",
     "Deploy to staging and click the main user paths on desktop and mobile.",
     "Prepare rollback steps owner contact and health check URL.",
@@ -772,9 +876,9 @@ function buildAnalysis({
     issueLabelPlan: issueLabelPlan(stack, workflows),
     deploymentChecklist: [
       "Confirm required environment variables are documented and set in the deployment platform.",
-      "Run install build lint and tests in a clean environment.",
+      `Run clean verification: ${commands.slice(0, 5).join(" && ")}.`,
       "Check production secrets are not committed and have least privilege.",
-      "Confirm framework output and start command match the hosting platform.",
+      targets.length ? `Confirm ${targets.slice(0, 4).join(", ")} settings match the repository scripts.` : "Document the hosting target, framework output, and start command.",
       "Add rollback notes and health check URLs before public launch.",
     ],
     prReviewChecklist: [
