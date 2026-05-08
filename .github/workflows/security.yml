@@ -16,7 +16,7 @@ jobs:
     env:
       NODE_ENV: test
       NEXT_TELEMETRY_DISABLED: "1"
-      DATABASE_URL: "mysql://ci_user:ci_password@127.0.0.1:3306/vantaapi_ci"
+      DATABASE_URL: "postgresql://ci_user:ci_password@127.0.0.1:5432/vantaapi_ci"
       JWT_SECRET: "ci-only-jwt-secret-at-least-32-characters"
       CSRF_SECRET: "ci-only-csrf-secret-at-least-32-characters"
       ENCRYPTION_KEY: "ci-only-encryption-key-at-least-32-chars"
@@ -68,3 +68,34 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+      - name: Multilingual route smoke checks
+        run: |
+          npm run start -- --port 3003 > /tmp/jinming-lab-next.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          node - <<'NODE'
+          const deadline = Date.now() + 30000;
+          async function waitForServer() {
+            while (Date.now() < deadline) {
+              try {
+                const response = await fetch("http://127.0.0.1:3003/?lang=ja", {
+                  headers: { "User-Agent": "GitHub Actions language smoke" },
+                });
+                if (response.ok) return;
+              } catch {
+                // Server is still starting.
+              }
+              await new Promise((resolve) => setTimeout(resolve, 500));
+            }
+            throw new Error("Next server did not become ready in time");
+          }
+          waitForServer().catch((error) => {
+            console.error(error.message);
+            process.exit(1);
+          });
+          NODE
+          npm run language:smoke -- --base=http://127.0.0.1:3003 || {
+            cat /tmp/jinming-lab-next.log
+            exit 1
+          }
