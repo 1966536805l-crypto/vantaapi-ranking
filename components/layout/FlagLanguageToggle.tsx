@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { interfaceLanguages, isInterfaceLanguage, languageHtmlLang, type InterfaceLanguage } from "@/lib/language";
 
@@ -30,20 +30,28 @@ const toggleCopy: Record<InterfaceLanguage, { region: string; choose: string }> 
 function writeLanguageCookie(language: InterfaceLanguage) {
   const maxAge = 60 * 60 * 24 * 365;
   for (const name of languageCookieNames) {
-    document.cookie = `${name}=${language}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+    document.cookie = `${name}=${encodeURIComponent(language)}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
   }
 }
 
 function writeLanguagePreference(language: InterfaceLanguage) {
-  window.localStorage.setItem("vantaapi-language", language);
-  writeLanguageCookie(language);
+  try {
+    window.localStorage.setItem("vantaapi-language", language);
+  } catch {
+    // Cookies still keep the preference when localStorage is blocked.
+  }
   document.documentElement.lang = languageHtmlLang(language);
   document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  writeLanguageCookie(language);
 }
 
 function readStoredLanguage(): InterfaceLanguage | null {
-  const local = window.localStorage.getItem("vantaapi-language");
-  if (isInterfaceLanguage(local)) return local;
+  try {
+    const local = window.localStorage.getItem("vantaapi-language");
+    if (isInterfaceLanguage(local)) return local;
+  } catch {
+    // Ignore locked-down storage and fall back to cookies.
+  }
 
   const cookie = document.cookie
     .split(";")
@@ -64,7 +72,6 @@ export default function FlagLanguageToggle({
   const searchParams = useSearchParams();
   const queryLanguage = searchParams.get("lang");
   const current = isInterfaceLanguage(queryLanguage) ? queryLanguage : initialLanguage;
-  const [pendingLanguage, setPendingLanguage] = useState<InterfaceLanguage | null>(null);
 
   useEffect(() => {
     writeLanguagePreference(current);
@@ -72,24 +79,22 @@ export default function FlagLanguageToggle({
   }, [current, onChange]);
 
   useEffect(() => {
-    if (queryLanguage || current !== "en" || typeof window === "undefined") return;
+    if (queryLanguage || typeof window === "undefined") return;
 
     const storedLanguage = readStoredLanguage();
-    if (!storedLanguage || storedLanguage === "en") return;
+    const preferredLanguage = storedLanguage ?? current;
+    if (preferredLanguage === "en") return;
 
     const url = new URL(window.location.href);
-    url.searchParams.set("lang", storedLanguage);
-    window.location.replace(url.toString());
+    url.searchParams.set("lang", preferredLanguage);
+    window.location.replace(`${url.pathname}${url.search}${url.hash}`);
   }, [current, queryLanguage]);
 
   function setLanguage(code: InterfaceLanguage) {
+    const target = languageHref(code);
     writeLanguagePreference(code);
-    setPendingLanguage(code);
     onChange?.(code);
-    const url = new URL(window.location.href);
-    if (code === "en") url.searchParams.delete("lang");
-    else url.searchParams.set("lang", code);
-    window.location.assign(url.toString());
+    window.location.assign(target);
   }
 
   function languageHref(code: InterfaceLanguage) {
@@ -101,9 +106,8 @@ export default function FlagLanguageToggle({
     return `${pathname}${query ? `?${query}` : ""}`;
   }
 
-  const displayLanguage = pendingLanguage ?? current;
-  const activeLanguage = interfaceLanguages.find((language) => language.code === displayLanguage) ?? interfaceLanguages[0];
-  const copy = toggleCopy[displayLanguage];
+  const activeLanguage = interfaceLanguages.find((language) => language.code === current) ?? interfaceLanguages[0];
+  const copy = toggleCopy[current];
 
   return (
     <div className="flag-toggle" aria-label={copy.region}>
@@ -119,7 +123,7 @@ export default function FlagLanguageToggle({
               className="flag-toggle-option"
               href={languageHref(language.code)}
               role="menuitemradio"
-              aria-checked={language.code === displayLanguage}
+              aria-checked={language.code === current}
               onClick={(event) => {
                 event.preventDefault();
                 setLanguage(language.code);
@@ -127,7 +131,7 @@ export default function FlagLanguageToggle({
             >
               <span aria-hidden="true">{language.flag}</span>
               <span>{language.nativeName}</span>
-              {language.code === displayLanguage ? <span className="flag-toggle-check" aria-hidden="true">✓</span> : null}
+              {language.code === current ? <span className="flag-toggle-check" aria-hidden="true">✓</span> : null}
             </a>
           ))}
         </div>

@@ -32,6 +32,7 @@ const edgeSecurity = read("docs/EDGE_SECURITY.md");
 const githubSecurityWorkflow = read(".github/workflows/security.yml");
 const networkHardening = read("docs/NETWORK_HARDENING.md");
 const nginxSecurity = read("deploy/nginx/vantaapi-security.conf");
+const languageBootstrap = read("components/layout/LanguageDocumentBootstrap.tsx");
 
 const seed = read("prisma/seed.cjs");
 const aiCoach = read("app/api/ai/coach/route.ts");
@@ -114,6 +115,12 @@ if (!has(nextConfig, /\?\s*`script-src 'self' 'unsafe-inline'/) && has(nextConfi
   add("pass", "headers:csp-inline", "production CSP removes unsafe-inline for scripts and styles");
 } else {
   add("warn", "headers:csp-inline", "production CSP may still allow unsafe-inline");
+}
+
+if (has(languageBootstrap, '"use client"') && !has(languageBootstrap, "dangerouslySetInnerHTML") && !has(languageBootstrap, "<script")) {
+  add("pass", "language:bootstrap-csp", "language preference bootstrap runs as a client component without inline script");
+} else {
+  add("fail", "language:bootstrap-csp", "language preference bootstrap must not depend on inline script under production CSP");
 }
 
 if (has(vercelIgnore, ".env") && has(vercelIgnore, "*.db") && has(vercelIgnore, "node_modules")) add("pass", "deploy:ignore", "sensitive/local files are ignored for Vercel");
