@@ -863,7 +863,7 @@ const programmingCopy: Record<InterfaceLanguage, ProgrammingCopyType> = {
     brand: "تدريب البرمجة",
     languages: "اللغات",
     queue: "قائمة التدريب",
-    expanding: "يتوسع",
+    expanding: "قيد التوسيع",
     zeroBase: "من الصفر",
     session: "الجلسة",
     correct: "صحيح",
@@ -1430,16 +1430,16 @@ const languageRoleKo: Partial<Record<ProgrammingLanguageSlug, string>> = {
 };
 
 const languageRoleAr: Partial<Record<ProgrammingLanguageSlug, string>> = {
-  javascript: "لغة لتطبيقات الويب والأتمتة وربط الواجهات",
-  typescript: "JavaScript مع أنواع لبناء منتجات أكبر",
-  python: "للأتمتة والبيانات وواجهات backend",
-  cpp: "للأداء والأنظمة والذاكرة والخوارزميات",
-  java: "للخوادم و Android والتطبيقات المؤسسية",
-  go: "لخدمات السحابة وأدوات CLI والتزامن",
+  javascript: "تطبيقات الويب والأتمتة وربط الواجهات",
+  typescript: "منتجات JavaScript أكبر مع عقود أنواع واضحة",
+  python: "الأتمتة والبيانات وواجهات backend",
+  cpp: "الأداء والأنظمة والذاكرة والخوارزميات",
+  java: "الخوادم و Android والتطبيقات المؤسسية",
+  go: "خدمات السحابة وأدوات CLI والتزامن",
   rust: "لغة أنظمة آمنة وعالية الأداء",
-  sql: "للبحث في البيانات وتجميعها وتحديثها",
-  "html-css": "لبناء هيكل الصفحة وشكلها",
-  bash: "لأتمتة الطرفية والملفات والنشر",
+  sql: "البحث في البيانات وتجميعها وتحديثها",
+  "html-css": "بناء هيكل الصفحة وشكلها",
+  bash: "أتمتة الطرفية والملفات والنشر",
 };
 
 const languageHabitZh: Partial<Record<ProgrammingLanguageSlug, string>> = {
@@ -2215,6 +2215,7 @@ function localizedLineageFamily(family: string, language: InterfaceLanguage) {
 
 function localizedLineageUseCase(useCase: string, activeRole: string, language: InterfaceLanguage) {
   if (language === "en") return useCase;
+  if (language === "ar") return `يستخدم في ${activeRole}`;
   return `${lineageUseCasePrefix[language]} ${activeRole}`;
 }
 
