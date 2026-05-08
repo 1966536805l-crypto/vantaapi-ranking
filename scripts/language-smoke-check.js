@@ -457,6 +457,22 @@ async function main() {
     ["/english/typing?lang=zh", "/english/vocabulary?lang=zh", "/wrong?lang=zh", "/programming?lang=zh"],
     34,
   );
+  await checkVisibleText(
+    "today-ja-visible-copy",
+    "/today?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["今日の学習", "今日の進捗", "英語ディクテーション入力", "明日の予告"],
+    ["今日学习", "先复习", "Today Plan", "Today Progress"],
+    50,
+  );
+  await checkVisibleText(
+    "today-ar-visible-copy",
+    "/today?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["خطة اليوم", "تقدم اليوم", "إملاء إنجليزي بالكتابة", "معاينة الغد"],
+    ["今日学习", "先复习", "Today Plan", "Today Progress"],
+    51,
+  );
   await checkPage(
     "english-hub-ja",
     "/english?lang=ja",

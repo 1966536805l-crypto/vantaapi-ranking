@@ -157,6 +157,7 @@ export default async function TodayPage({
         readingPacks={originalReadingPacks}
         questionPacks={originalQuestionPacks.map((pack) => ({
           slug: pack.slug,
+          title: pack.title,
           zhTitle: pack.zhTitle,
           level: pack.level,
         }))}
