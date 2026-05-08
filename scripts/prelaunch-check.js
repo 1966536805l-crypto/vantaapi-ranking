@@ -429,7 +429,12 @@ function checkRetiredPageRedirects() {
 
   for (const [file, allowedTargets] of Object.entries(retiredPages)) {
     const body = read(file);
-    const redirectsToAllowedTarget = allowedTargets.some((target) => body.includes(`redirect("${target}")`) || body.includes(`redirect('${target}')`));
+    const redirectsToAllowedTarget = allowedTargets.some((target) =>
+      body.includes(`redirect("${target}")`) ||
+      body.includes(`redirect('${target}')`) ||
+      body.includes(`redirect(localizedHref("${target}", language))`) ||
+      body.includes(`redirect(localizedHref('${target}', language))`),
+    );
     if (!redirectsToAllowedTarget) weak.push(file);
   }
 
