@@ -69,6 +69,91 @@ type GitHubRepoAnalyzerResponse = {
 };
 
 const sampleRepoUrl = "https://github.com/vercel/swr";
+const OWNER_REPO_RE = /^[A-Za-z0-9_.-]+$/;
+const SENSITIVE_REPO_INPUT_RE =
+  /(?:-----BEGIN [A-Z ]*PRIVATE KEY-----|DATABASE_URL\s*=|(?:api[_-]?key|secret|token|password|passwd|pwd)\s*[:=]|(?:ghp|gho|ghu|ghs|ghr|github_pat)_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,})/i;
+
+type RepoUrlValidation = { ok: true; value: string } | { ok: false; message: string };
+
+const repoUrlValidationCopy: Partial<Record<InterfaceLanguage, { sensitive: string; invalid: string; root: string }>> & {
+  en: { sensitive: string; invalid: string; root: string };
+  zh: { sensitive: string; invalid: string; root: string };
+} = {
+  en: {
+    sensitive: "Do not submit API keys passwords private source or internal links. Use only the public repository root URL.",
+    invalid: "Use a public https://github.com/owner/repo URL.",
+    root: "Use the repository root URL without query strings files branches or fragments.",
+  },
+  zh: {
+    sensitive: "不要提交 API Key 密码 私有源码或公司内部链接。这里只能使用公开仓库根地址。",
+    invalid: "请使用公开的 https://github.com/owner/repo 地址。",
+    root: "请使用仓库根地址，不要带 query 文件路径 分支路径或 fragment。",
+  },
+  ja: {
+    sensitive: "API key パスワード 非公開コード 社内リンクは送信しないでください。公開リポジトリのルート URL のみ使えます。",
+    invalid: "公開 https://github.com/owner/repo URL を使ってください。",
+    root: "query ファイルパス ブランチ fragment なしのリポジトリ root URL を使ってください。",
+  },
+  ko: {
+    sensitive: "API 키 비밀번호 비공개 소스 내부 링크를 제출하지 마세요. 공개 저장소 루트 URL만 사용할 수 있습니다.",
+    invalid: "공개 https://github.com/owner/repo URL을 사용하세요.",
+    root: "query 파일 경로 브랜치 fragment 없이 저장소 루트 URL을 사용하세요.",
+  },
+  es: {
+    sensitive: "No envies API keys contrasenas codigo privado ni enlaces internos. Usa solo la URL raiz de un repo publico.",
+    invalid: "Usa una URL publica https://github.com/owner/repo.",
+    root: "Usa la URL raiz del repositorio sin query archivos ramas ni fragmentos.",
+  },
+  fr: {
+    sensitive: "N envoyez pas de cles API mots de passe code prive ou liens internes. Utilisez seulement l URL racine d un repo public.",
+    invalid: "Utilisez une URL publique https://github.com/owner/repo.",
+    root: "Utilisez l URL racine du repo sans query fichiers branches ni fragments.",
+  },
+  de: {
+    sensitive: "Keine API Keys Passwoerter privaten Quellen oder internen Links senden. Nur die oeffentliche Repo Root URL verwenden.",
+    invalid: "Nutze eine oeffentliche https://github.com/owner/repo URL.",
+    root: "Nutze die Repo Root URL ohne Query Dateipfad Branch oder Fragment.",
+  },
+  ar: {
+    sensitive: "لا ترسل مفاتيح API أو كلمات مرور أو كودا خاصا أو روابط داخلية. استخدم رابط جذر مستودع عام فقط.",
+    invalid: "استخدم رابطا عاما بالشكل https://github.com/owner/repo.",
+    root: "استخدم رابط جذر المستودع بدون query أو مسارات ملفات أو فروع أو fragment.",
+  },
+};
+
+function repoValidationText(language: InterfaceLanguage) {
+  return repoUrlValidationCopy[language] || repoUrlValidationCopy.en;
+}
+
+function validatePublicGitHubRepoUrl(rawUrl: string, language: InterfaceLanguage, emptyMessage = "Repository URL is required"): RepoUrlValidation {
+  const copy = repoValidationText(language);
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return { ok: false, message: emptyMessage };
+  if (trimmed.length > 300 || SENSITIVE_REPO_INPUT_RE.test(trimmed)) {
+    return { ok: false, message: copy.sensitive };
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return { ok: false, message: copy.invalid };
+  }
+
+  if (parsed.protocol !== "https:" || parsed.hostname.toLowerCase() !== "github.com" || parsed.username || parsed.password) {
+    return { ok: false, message: copy.invalid };
+  }
+  if (parsed.search || parsed.hash) return { ok: false, message: copy.root };
+
+  const parts = parsed.pathname.split("/").filter(Boolean);
+  const [owner, rawRepo] = parts;
+  const repo = rawRepo?.replace(/\.git$/i, "");
+  if (parts.length !== 2 || !owner || !repo || !OWNER_REPO_RE.test(owner) || !OWNER_REPO_RE.test(repo)) {
+    return { ok: false, message: copy.root };
+  }
+
+  return { ok: true, value: `https://github.com/${owner}/${repo}` };
+}
 
 const sampleGitHubAnalysis: GitHubRepoAnalysis = {
   repository: {
@@ -2470,6 +2555,7 @@ export {
   sampleGitHubAnalysis,
   sampleRepoUrl,
   scorecardStatusLabel,
+  validatePublicGitHubRepoUrl,
 };
 
 export type { GitHubRepoAnalysis, GitHubRepoAnalyzerResponse };

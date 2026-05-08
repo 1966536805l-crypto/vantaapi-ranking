@@ -270,7 +270,11 @@ function RepoInputPanel({
             if (event.key === "Enter") onAnalyze();
           }}
           className="tool-input"
+          inputMode="url"
+          maxLength={300}
           placeholder={sampleRepoUrl}
+          spellCheck={false}
+          type="text"
         />
       </label>
       <p className="tool-trust-note">{trustNote}</p>

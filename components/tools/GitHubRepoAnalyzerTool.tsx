@@ -19,6 +19,7 @@ import {
   riskLevelLabel,
   sampleGitHubAnalysis,
   sampleRepoUrl,
+  validatePublicGitHubRepoUrl,
   type GitHubRepoAnalysis,
   type GitHubRepoAnalyzerResponse,
 } from "@/lib/github-repo-analyzer-client";
@@ -105,13 +106,14 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
   }, [t.localSampleLoaded]);
 
   const analyzeRepo = useCallback(async (targetUrl = url) => {
-    const trimmed = targetUrl.trim();
-    if (!trimmed) {
-      setError(t.urlRequired);
+    const validation = validatePublicGitHubRepoUrl(targetUrl, language, t.urlRequired);
+    if (!validation.ok) {
+      setError(validation.message);
       setAnalysis(null);
-      setRunStatus(t.urlRequired);
+      setRunStatus(validation.message);
       return;
     }
+    const trimmed = validation.value;
 
     setUrl(trimmed);
     setLoading(true);

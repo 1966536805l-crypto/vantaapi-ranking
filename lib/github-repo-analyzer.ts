@@ -113,6 +113,8 @@ const ANALYSIS_CACHE_TTL_MS = 10 * 60_000;
 const ANALYSIS_CACHE_MAX = 40;
 const MAX_FILE_BYTES = 180_000;
 const OWNER_REPO_RE = /^[A-Za-z0-9_.-]+$/;
+const SENSITIVE_REPO_INPUT_RE =
+  /(?:-----BEGIN [A-Z ]*PRIVATE KEY-----|DATABASE_URL\s*=|(?:api[_-]?key|secret|token|password|passwd|pwd)\s*[:=]|(?:ghp|gho|ghu|ghs|ghr|github_pat)_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,})/i;
 const RULE_VERSION = "rules-first-2026-05";
 const RULE_CHECKS = [
   "README quick start",
@@ -199,9 +201,14 @@ export function parseGitHubRepoUrl(rawUrl: string) {
     throw new GitHubRepoAnalyzerError("Repository URL is required", 400);
   }
 
+  const trimmed = rawUrl.trim();
+  if (SENSITIVE_REPO_INPUT_RE.test(trimmed)) {
+    throw new GitHubRepoAnalyzerError("Do not submit API keys passwords private source or internal links. Use only the public repository root URL.", 400);
+  }
+
   let parsed: URL;
   try {
-    parsed = new URL(rawUrl.trim());
+    parsed = new URL(trimmed);
   } catch {
     throw new GitHubRepoAnalyzerError("Enter a valid GitHub repository URL", 400);
   }

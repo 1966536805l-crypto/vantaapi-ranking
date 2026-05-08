@@ -34,6 +34,7 @@ expect("admin backend requires 2FA by default", includes("lib/auth.ts", "allowUn
 expect("2FA setup routes explicitly allow unverified admin", includes("app/api/auth/2fa/setup/route.ts", "allowUnverified2FA: true") && includes("app/api/auth/2fa/verify/route.ts", "allowUnverified2FA: true"), "setup must not deadlock admins before first 2FA enrollment");
 expect("Redis rate limits fail closed", includes("lib/redis.ts", "REDIS_RATE_LIMIT_FAIL_CLOSED") && includes(".env.example", "REDIS_RATE_LIMIT_FAIL_CLOSED=\"true\""), "production Redis outage should not silently disable limits");
 expect("C++ runner default remains off", includes(".env.example", "ENABLE_CPP_RUNNER") ? !includes(".env.example", "ENABLE_CPP_RUNNER=\"true\"") : includes("DEPLOYMENT.md", "ENABLE_CPP_RUNNER=\"false\""), "runner must stay opt-in and documented off");
+expect("repo audit rejects pasted secrets", includes("lib/github-repo-analyzer.ts", "SENSITIVE_REPO_INPUT_RE") && includes("lib/github-repo-analyzer-client.ts", "validatePublicGitHubRepoUrl") && includes("scripts/production-smoke-check.js", "checkAuditRejectsSensitiveInput"), "repo audit must reject tokens/password-like input before analysis");
 
 const failed = checks.filter((check) => !check.ok);
 for (const check of checks) {

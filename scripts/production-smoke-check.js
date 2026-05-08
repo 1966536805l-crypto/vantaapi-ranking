@@ -219,6 +219,24 @@ async function checkAuditApi() {
   }
 }
 
+async function checkAuditRejectsSensitiveInput() {
+  try {
+    const fakeToken = `ghp_${"1".repeat(36)}`;
+    const response = await fetchWithTimeout("/api/tools/github-repo-analyzer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: `https://github.com/vercel/swr?token=${fakeToken}` }),
+    });
+    const body = await response.text();
+    if (response.status === 429) return logWarn("audit-sensitive-input", "rate limited; endpoint is protected");
+    if (response.status !== 400) return logFail("audit-sensitive-input", `expected 400 for sensitive input, got HTTP ${response.status}`);
+    if (body.includes(fakeToken)) return logFail("audit-sensitive-input", "error response echoed the submitted token");
+    logPass("audit-sensitive-input", "rejects sensitive pasted repository input without echoing it");
+  } catch (error) {
+    logFail("audit-sensitive-input", error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function main() {
   console.log(`JinMing Lab production smoke check: ${baseUrl}\n`);
   await checkPage("/", "JinMing Lab");
@@ -237,6 +255,7 @@ async function main() {
   await checkQuestionsApiScope();
   await checkAiCoachRequiresLogin();
   await checkAuditApi();
+  await checkAuditRejectsSensitiveInput();
   console.log(`\nSummary: pass=${pass} warn=${warn} fail=${fail}`);
   if (fail > 0) process.exit(1);
 }

@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
 import type { InterfaceLanguage } from "@/lib/language";
+import { validatePublicGitHubRepoUrl } from "@/lib/github-repo-analyzer-client";
 
 const sampleRepo = "https://github.com/vercel/swr";
 
@@ -40,20 +41,28 @@ const trustNotice: Partial<Record<InterfaceLanguage, string>> = {
 
 export default function RepoAuditForm({ language }: { language: InterfaceLanguage }) {
   const [repoUrl, setRepoUrl] = useState(sampleRepo);
+  const [error, setError] = useState("");
   const t = formCopy[language];
   const notice = trustNotice[language] || trustNotice.en;
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const trimmed = repoUrl.trim() || sampleRepo;
+    const target = repoUrl.trim() || sampleRepo;
+    const validation = validatePublicGitHubRepoUrl(target, language);
+    if (!validation.ok) {
+      setError(validation.message);
+      return;
+    }
+    setError("");
     const params = new URLSearchParams();
-    params.set("repo", trimmed);
+    params.set("repo", validation.value);
     if (language !== "en") params.set("lang", language);
     window.location.href = `/tools/github-repo-analyzer?${params.toString()}`;
   }
 
   function useSample() {
     setRepoUrl(sampleRepo);
+    setError("");
   }
 
   return (
@@ -63,12 +72,18 @@ export default function RepoAuditForm({ language }: { language: InterfaceLanguag
         <div>
           <input
             value={repoUrl}
-            onChange={(event) => setRepoUrl(event.target.value)}
+            onChange={(event) => {
+              setRepoUrl(event.target.value);
+              if (error) setError("");
+            }}
             placeholder={sampleRepo}
             autoCapitalize="none"
             autoComplete="off"
             autoCorrect="off"
+            inputMode="url"
+            maxLength={300}
             spellCheck={false}
+            type="text"
           />
           <button type="submit">{t.action}</button>
         </div>
@@ -76,6 +91,7 @@ export default function RepoAuditForm({ language }: { language: InterfaceLanguag
       <button type="button" className="home-audit-sample" onClick={useSample}>
         {t.sample}
       </button>
+      {error && <p className="home-audit-error-note" role="alert">{error}</p>}
       <p className="home-audit-trust-note">{notice}</p>
     </form>
   );

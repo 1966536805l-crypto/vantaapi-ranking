@@ -177,6 +177,15 @@ body:has(.home-audit-page) .global-search-trigger {
   line-height: 1.6;
 }
 
+.home-audit-error-note {
+  max-width: 660px;
+  margin-top: 10px;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 820;
+  line-height: 1.6;
+}
+
 .home-audit-outcomes {
   display: flex;
   flex-wrap: wrap;
