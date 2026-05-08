@@ -31,7 +31,7 @@ function has(file, pattern) {
 console.log("🔐 repository security check\n");
 
 const requiredWorkflows = [
-  [".github/workflows/security.yml", ["npm run security:check", "npm run security:supply-chain", "npm run security:secrets", "npm run build"]],
+  [".github/workflows/security.yml", ["npm run security:check", "npm run security:supply-chain", "npm run security:secrets", "npm run build", "npm run language:smoke"]],
   [".github/workflows/codeql.yml", ["github/codeql-action/init", "security-extended"]],
   [".github/workflows/secret-scan.yml", ["gitleaks/gitleaks-action"]],
   [".github/workflows/npm-audit.yml", ["npm audit --audit-level=high", "npm ci --ignore-scripts"]],
