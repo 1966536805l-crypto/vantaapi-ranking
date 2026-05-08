@@ -1029,6 +1029,181 @@ const auditTranslations: Partial<Record<InterfaceLanguage, Partial<ToolDefinitio
   },
 };
 
+const toolShellTranslations: Partial<Record<InterfaceLanguage, Partial<Record<ToolSlug, Partial<ToolDefinition>>>>> = {
+  zh: {
+    "prompt-optimizer": {
+      title: "AI 提示词优化器",
+      shortTitle: "提示词",
+      description: "把粗糙需求整理成适合写代码 查资料 做产品的结构化 Prompt",
+      promise: "角色 背景 任务 输出格式 约束 验收标准 一次整理好",
+      inputHint: "输入一个模糊需求 例如 帮我做一个 AI 工具站首页",
+    },
+    "code-explainer": {
+      title: "代码解释器",
+      shortTitle: "代码",
+      description: "粘贴代码后快速看到作用 变量 风险和学习笔记",
+      promise: "静态阅读 关键变量 潜在 bug 学习要点",
+      inputHint: "粘贴 JavaScript Python C++ SQL 或 HTML 片段",
+    },
+    "bug-finder": {
+      title: "Bug 定位助手",
+      shortTitle: "Bug",
+      description: "把报错和最小代码片段整理成原因 排查步骤和修复方向",
+      promise: "原因清单 复现路径 修复模板 验证步骤",
+      inputHint: "粘贴完整报错和最相关的一小段代码",
+    },
+    "api-request-generator": {
+      title: "API 请求生成器",
+      shortTitle: "API",
+      description: "用接口地址 Header Body 生成 curl fetch axios 和 Python requests 示例",
+      promise: "同一请求形态 多语言示例 可复制 可检查",
+      inputHint: "输入接口地址 请求方法 Header 和 JSON Body",
+    },
+    "dev-utilities": {
+      title: "JSON 正则 时间戳工具",
+      shortTitle: "工具",
+      description: "把常用 JSON 格式化 正则测试 时间戳转换放到一个开发工具面板",
+      promise: "本地验证 快速转换 干净输出",
+      inputHint: "粘贴 JSON 正则文本或时间戳",
+    },
+    "learning-roadmap": {
+      title: "AI 编程学习路线",
+      shortTitle: "路线",
+      description: "选择方向后生成 30 天可执行的编程学习计划",
+      promise: "每日任务 每周里程碑 最终项目 练习节奏",
+      inputHint: "选择零基础 前端 Python 自动化或独立开发方向",
+    },
+  },
+  ja: {
+    "prompt-optimizer": { title: "AI プロンプト最適化", shortTitle: "Prompt", description: "曖昧な依頼をコード 調査 プロダクト作業向けの構造化 Prompt に整えます", promise: "役割 背景 タスク 出力形式 制約 完了条件", inputHint: "例 AI ツールサイトのトップページを作りたい" },
+    "code-explainer": { title: "コード解説", shortTitle: "解説", description: "コードの目的 重要な名前 リスク 学習メモを素早く読みます", promise: "静的読解 重要変数 バグの兆候 学習メモ", inputHint: "JavaScript Python C++ SQL HTML のコードを貼り付けます" },
+    "bug-finder": { title: "Bug 調査", shortTitle: "Bug", description: "エラーと小さなコード片から原因 手順 修正方向を作ります", promise: "原因候補 再現手順 修正テンプレート 検証", inputHint: "正確なエラーと関連コードだけを貼り付けます" },
+    "api-request-generator": { title: "API リクエスト生成", shortTitle: "API", description: "endpoint header body から curl fetch axios Python requests を生成します", promise: "同じリクエスト形状を複数形式でコピー可能", inputHint: "URL method headers JSON body を入力します" },
+    "dev-utilities": { title: "JSON Regex 時刻ツール", shortTitle: "ツール", description: "JSON 整形 正規表現テスト タイムスタンプ変換を一つにまとめます", promise: "ローカル検証 変換 コピー可能な出力", inputHint: "JSON 正規表現 テキスト タイムスタンプを貼り付けます" },
+    "learning-roadmap": { title: "AI コーディングロードマップ", shortTitle: "計画", description: "方向を選び 30 日の実行しやすい学習計画を作ります", promise: "毎日の作業 週ごとの目標 最終プロジェクト", inputHint: "初心者 フロントエンド Python 自動化 個人開発を選びます" },
+  },
+  ko: {
+    "prompt-optimizer": { title: "AI 프롬프트 최적화", shortTitle: "Prompt", description: "거친 요청을 코딩 조사 제품 작업용 구조화 Prompt 로 정리합니다", promise: "역할 배경 작업 출력 형식 제약 완료 기준", inputHint: "예 AI 도구 사이트 첫 화면 만들기" },
+    "code-explainer": { title: "코드 설명", shortTitle: "설명", description: "코드 목적 주요 이름 위험 학습 메모를 빠르게 읽습니다", promise: "정적 읽기 주요 변수 버그 신호 학습 메모", inputHint: "JavaScript Python C++ SQL HTML 코드를 붙여 넣으세요" },
+    "bug-finder": { title: "Bug 찾기", shortTitle: "Bug", description: "오류와 작은 코드 조각을 원인 단계 수정 방향으로 정리합니다", promise: "원인 목록 재현 경로 수정 템플릿 검증", inputHint: "정확한 오류와 관련 코드만 붙여 넣으세요" },
+    "api-request-generator": { title: "API 요청 생성기", shortTitle: "API", description: "endpoint header body 로 curl fetch axios Python requests 를 생성합니다", promise: "같은 요청을 여러 형식으로 복사 가능", inputHint: "URL method headers JSON body 를 입력하세요" },
+    "dev-utilities": { title: "JSON Regex 시간 도구", shortTitle: "도구", description: "JSON 포맷 Regex 테스트 타임스탬프 변환을 한곳에 모읍니다", promise: "로컬 검증 빠른 변환 복사 가능한 출력", inputHint: "JSON Regex 텍스트 또는 타임스탬프를 붙여 넣으세요" },
+    "learning-roadmap": { title: "AI 코딩 로드맵", shortTitle: "로드맵", description: "방향을 선택해 30일 실행 가능한 코딩 계획을 만듭니다", promise: "일일 과제 주간 목표 최종 프로젝트", inputHint: "초보 프론트엔드 Python 자동화 개인 개발 중 선택하세요" },
+  },
+  es: {
+    "prompt-optimizer": { title: "Optimizador de Prompt AI", shortTitle: "Prompt", description: "Convierte una idea vaga en un Prompt estructurado para codigo investigacion o producto", promise: "Rol contexto tareas formato restricciones criterios de aceptacion", inputHint: "Ejemplo crear la home de un sitio de herramientas AI" },
+    "code-explainer": { title: "Explicador de codigo", shortTitle: "Codigo", description: "Pega codigo y recibe proposito variables riesgos y notas de aprendizaje", promise: "Lectura estatica variables clave posibles bugs notas", inputHint: "Pega JavaScript Python C++ SQL o HTML" },
+    "bug-finder": { title: "Detector de Bug", shortTitle: "Bug", description: "Convierte errores y snippets en causas pasos y direccion de arreglo", promise: "Causas reproduccion plantilla de arreglo verificacion", inputHint: "Pega el error exacto y el codigo minimo relacionado" },
+    "api-request-generator": { title: "Generador de requests API", shortTitle: "API", description: "Genera curl fetch axios y Python requests desde endpoint headers y body", promise: "Misma request en varios formatos lista para copiar", inputHint: "Introduce URL metodo headers y JSON body" },
+    "dev-utilities": { title: "Utilidades JSON Regex Tiempo", shortTitle: "Utils", description: "Formatea JSON prueba regex convierte timestamps y copia salidas limpias", promise: "Validacion local conversion rapida salidas copiables", inputHint: "Pega JSON regex texto o timestamp" },
+    "learning-roadmap": { title: "Ruta AI de programacion", shortTitle: "Ruta", description: "Elige una direccion y crea un plan practico de 30 dias", promise: "Tareas diarias hitos semanales proyecto final", inputHint: "Elige cero frontend Python automatizacion o indie" },
+  },
+  fr: {
+    "prompt-optimizer": { title: "Optimiseur de Prompt AI", shortTitle: "Prompt", description: "Transforme une demande vague en Prompt structure pour code recherche ou produit", promise: "Role contexte taches format contraintes criteres", inputHint: "Exemple creer la page d accueil d un outil AI" },
+    "code-explainer": { title: "Explication de code", shortTitle: "Code", description: "Collez du code et obtenez but variables risques et notes", promise: "Lecture statique variables bugs possibles notes", inputHint: "Collez JavaScript Python C++ SQL ou HTML" },
+    "bug-finder": { title: "Detecteur de Bug", shortTitle: "Bug", description: "Transforme erreurs et snippets en causes et etapes de correction", promise: "Causes reproduction modele de correction verification", inputHint: "Collez l erreur exacte et le code minimal lie" },
+    "api-request-generator": { title: "Generateur API", shortTitle: "API", description: "Genere curl fetch axios et Python requests depuis endpoint headers body", promise: "Meme requete en plusieurs formats copiables", inputHint: "Entrez URL methode headers et JSON body" },
+    "dev-utilities": { title: "Outils JSON Regex Temps", shortTitle: "Outils", description: "Formate JSON teste regex convertit timestamps et copie les resultats", promise: "Validation locale conversion rapide sorties propres", inputHint: "Collez JSON regex texte ou timestamp" },
+    "learning-roadmap": { title: "Roadmap AI de code", shortTitle: "Route", description: "Choisissez une direction et creez un plan pratique de 30 jours", promise: "Taches quotidiennes jalons projet final", inputHint: "Choisissez debutant frontend Python automatisation ou indie" },
+  },
+  de: {
+    "prompt-optimizer": { title: "AI Prompt Optimierer", shortTitle: "Prompt", description: "Macht aus einer groben Idee einen strukturierten Prompt fuer Code Research oder Produktarbeit", promise: "Rolle Kontext Aufgaben Ausgabeformat Grenzen Akzeptanzkriterien", inputHint: "Beispiel Startseite fuer eine AI Tool Site bauen" },
+    "code-explainer": { title: "Code Erklaerer", shortTitle: "Code", description: "Fuegt Code ein und zeigt Zweck Variablen Risiken und Lernnotizen", promise: "Statische Analyse Schluesselnamen Bug Signale Lernnotizen", inputHint: "JavaScript Python C++ SQL oder HTML einfuegen" },
+    "bug-finder": { title: "Bug Finder", shortTitle: "Bug", description: "Macht aus Fehlern und Snippets Ursachen Schritte und Fix Richtung", promise: "Ursachen Reproduktion Fix Vorlage Verifikation", inputHint: "Exakte Fehlermeldung und kleinsten passenden Code einfuegen" },
+    "api-request-generator": { title: "API Request Generator", shortTitle: "API", description: "Erzeugt curl fetch axios und Python requests aus Endpoint Headers und Body", promise: "Eine Request Form in mehreren kopierbaren Varianten", inputHint: "URL Methode Headers und JSON Body eingeben" },
+    "dev-utilities": { title: "JSON Regex Zeit Werkzeuge", shortTitle: "Tools", description: "Formatiert JSON testet Regex wandelt Zeitstempel und kopiert saubere Ergebnisse", promise: "Lokale Validierung schnelle Umwandlung kopierbare Ausgabe", inputHint: "JSON Regex Text oder Zeitstempel einfuegen" },
+    "learning-roadmap": { title: "AI Coding Roadmap", shortTitle: "Route", description: "Waehlt eine Richtung und erstellt einen praktischen 30 Tage Plan", promise: "Taegliche Aufgaben Wochenziele Abschlussprojekt", inputHint: "Zero Base Frontend Python Automation oder Indie waehlen" },
+  },
+  pt: {
+    "prompt-optimizer": { title: "Otimizador de Prompt AI", shortTitle: "Prompt", description: "Transforma pedido bruto em Prompt estruturado para codigo pesquisa ou produto", promise: "Papel contexto tarefas formato restricoes criterios", inputHint: "Exemplo criar home de um site de ferramentas AI" },
+    "code-explainer": { title: "Explicador de codigo", shortTitle: "Codigo", description: "Cole codigo e receba objetivo variaveis riscos e notas", promise: "Leitura estatica variaveis bugs possiveis notas", inputHint: "Cole JavaScript Python C++ SQL ou HTML" },
+    "bug-finder": { title: "Detector de Bug", shortTitle: "Bug", description: "Transforma erro e snippet em causas passos e correcao", promise: "Causas reproducao modelo de correcao verificacao", inputHint: "Cole o erro exato e o menor codigo relacionado" },
+    "api-request-generator": { title: "Gerador de request API", shortTitle: "API", description: "Gera curl fetch axios e Python requests de endpoint headers e body", promise: "Uma request em varios formatos copiaveis", inputHint: "Informe URL metodo headers e JSON body" },
+    "dev-utilities": { title: "Utilitarios JSON Regex Tempo", shortTitle: "Utils", description: "Formata JSON testa regex converte timestamps e copia saidas limpas", promise: "Validacao local conversao rapida saidas copiaveis", inputHint: "Cole JSON regex texto ou timestamp" },
+    "learning-roadmap": { title: "Roteiro AI de codigo", shortTitle: "Roteiro", description: "Escolha uma direcao e gere um plano pratico de 30 dias", promise: "Tarefas diarias marcos semanais projeto final", inputHint: "Escolha zero frontend Python automacao ou indie" },
+  },
+  ru: {
+    "prompt-optimizer": { title: "AI оптимизатор Prompt", shortTitle: "Prompt", description: "Делает из сырой идеи структурированный Prompt для кода исследования или продукта", promise: "Роль контекст задачи формат ограничения критерии", inputHint: "Например создать главную страницу AI tool сайта" },
+    "code-explainer": { title: "Объяснение кода", shortTitle: "Код", description: "Вставьте код и получите цель переменные риски и заметки", promise: "Статическое чтение ключевые имена bug сигналы заметки", inputHint: "Вставьте JavaScript Python C++ SQL или HTML" },
+    "bug-finder": { title: "Поиск Bug", shortTitle: "Bug", description: "Превращает ошибку и snippet в причины шаги и fix direction", promise: "Причины воспроизведение шаблон fix проверка", inputHint: "Вставьте точную ошибку и минимальный связанный код" },
+    "api-request-generator": { title: "Генератор API requests", shortTitle: "API", description: "Создает curl fetch axios и Python requests из endpoint headers body", promise: "Один request в нескольких копируемых форматах", inputHint: "Введите URL method headers и JSON body" },
+    "dev-utilities": { title: "JSON Regex Время", shortTitle: "Tools", description: "Форматирует JSON тестирует Regex переводит timestamps", promise: "Локальная проверка быстрая конвертация чистый вывод", inputHint: "Вставьте JSON regex текст или timestamp" },
+    "learning-roadmap": { title: "AI roadmap программирования", shortTitle: "План", description: "Выберите направление и получите практичный 30 дневный план", promise: "Ежедневные задачи недельные цели финальный проект", inputHint: "Выберите zero frontend Python automation или indie" },
+  },
+  ar: {
+    "prompt-optimizer": { title: "محسن Prompt بالذكاء الاصطناعي", shortTitle: "Prompt", description: "يحول الطلب الخام إلى Prompt منظم للكود أو البحث أو المنتج", promise: "دور سياق مهام صيغة إخراج قيود ومعايير قبول", inputHint: "مثال ابن صفحة رئيسية لموقع أدوات AI" },
+    "code-explainer": { title: "شارح الكود", shortTitle: "كود", description: "الصق الكود لتحصل على الهدف والمتغيرات والمخاطر وملاحظات التعلم", promise: "قراءة ثابتة أسماء مهمة إشارات Bug ملاحظات تعلم", inputHint: "الصق JavaScript أو Python أو C++ أو SQL أو HTML" },
+    "bug-finder": { title: "محدد الأخطاء", shortTitle: "Bug", description: "يحول الخطأ والمقطع الصغير إلى أسباب وخطوات واتجاه إصلاح", promise: "أسباب إعادة إنتاج قالب إصلاح وخطوات تحقق", inputHint: "الصق نص الخطأ الكامل وأصغر كود متعلق به" },
+    "api-request-generator": { title: "منشئ طلبات API", shortTitle: "API", description: "ينشئ curl و fetch و axios و Python requests من endpoint و headers و body", promise: "طلب واحد بعدة صيغ قابلة للنسخ", inputHint: "أدخل URL و method و headers و JSON body" },
+    "dev-utilities": { title: "أدوات JSON و Regex والوقت", shortTitle: "أدوات", description: "ينسق JSON ويختبر Regex ويحول الطوابع الزمنية في لوحة واحدة", promise: "تحقق محلي تحويل سريع ومخرجات نظيفة", inputHint: "الصق JSON أو Regex أو نصا أو timestamp" },
+    "learning-roadmap": { title: "خطة تعلم البرمجة AI", shortTitle: "خطة", description: "اختر اتجاها واحصل على خطة عملية لمدة 30 يوما", promise: "مهام يومية محطات أسبوعية ومشروع نهائي", inputHint: "اختر مبتدئ أو frontend أو Python أو automation أو indie" },
+  },
+  hi: {
+    "prompt-optimizer": { title: "AI Prompt Optimizer", shortTitle: "Prompt", description: "Rough request ko coding research ya product ke structured Prompt me badalta hai", promise: "Role context tasks output format constraints acceptance criteria", inputHint: "Example AI tool site ka homepage banana" },
+    "code-explainer": { title: "Code Explainer", shortTitle: "Code", description: "Code paste karke purpose variables risks aur notes paayein", promise: "Static reading key names bug signals learning notes", inputHint: "JavaScript Python C++ SQL ya HTML paste karein" },
+    "bug-finder": { title: "Bug Finder", shortTitle: "Bug", description: "Error aur snippet ko causes steps aur fix direction me badalta hai", promise: "Causes reproduction fix template verification", inputHint: "Exact error aur smallest related code paste karein" },
+    "api-request-generator": { title: "API Request Generator", shortTitle: "API", description: "Endpoint headers body se curl fetch axios Python requests banata hai", promise: "Ek request shape kayi copy ready formats me", inputHint: "URL method headers aur JSON body input karein" },
+    "dev-utilities": { title: "JSON Regex Time Tools", shortTitle: "Tools", description: "JSON format regex test timestamp convert ek panel me", promise: "Local validation fast conversion clean output", inputHint: "JSON regex text ya timestamp paste karein" },
+    "learning-roadmap": { title: "AI Coding Roadmap", shortTitle: "Roadmap", description: "Direction choose karke 30 day practical coding plan banayein", promise: "Daily tasks weekly milestones final project", inputHint: "Zero base frontend Python automation ya indie choose karein" },
+  },
+  id: {
+    "prompt-optimizer": { title: "Optimasi Prompt AI", shortTitle: "Prompt", description: "Ubah permintaan kasar menjadi Prompt terstruktur untuk kode riset atau produk", promise: "Peran konteks tugas format batasan kriteria selesai", inputHint: "Contoh buat homepage situs alat AI" },
+    "code-explainer": { title: "Penjelas kode", shortTitle: "Kode", description: "Tempel kode untuk melihat tujuan variabel risiko dan catatan belajar", promise: "Baca statis nama penting sinyal bug catatan belajar", inputHint: "Tempel JavaScript Python C++ SQL atau HTML" },
+    "bug-finder": { title: "Pencari Bug", shortTitle: "Bug", description: "Ubah error dan snippet menjadi sebab langkah dan arah perbaikan", promise: "Daftar sebab reproduksi template fix verifikasi", inputHint: "Tempel error tepat dan kode kecil terkait" },
+    "api-request-generator": { title: "Generator request API", shortTitle: "API", description: "Buat curl fetch axios dan Python requests dari endpoint headers body", promise: "Satu bentuk request dalam format siap salin", inputHint: "Masukkan URL method headers dan JSON body" },
+    "dev-utilities": { title: "Alat JSON Regex Waktu", shortTitle: "Alat", description: "Format JSON uji Regex ubah timestamp dalam satu panel", promise: "Validasi lokal konversi cepat output bersih", inputHint: "Tempel JSON regex teks atau timestamp" },
+    "learning-roadmap": { title: "Roadmap coding AI", shortTitle: "Roadmap", description: "Pilih arah dan buat rencana coding praktis 30 hari", promise: "Tugas harian milestone mingguan proyek akhir", inputHint: "Pilih nol dasar frontend Python automation atau indie" },
+  },
+  vi: {
+    "prompt-optimizer": { title: "Toi uu Prompt AI", shortTitle: "Prompt", description: "Bien yeu cau tho thanh Prompt co cau truc cho code research hoac product", promise: "Vai tro ngu canh nhiem vu format gioi han tieu chi", inputHint: "Vi du tao homepage cho site cong cu AI" },
+    "code-explainer": { title: "Giai thich code", shortTitle: "Code", description: "Dan code de xem muc dich bien chinh rui ro va ghi chu hoc", promise: "Doc tinh ten chinh dau hieu bug ghi chu hoc", inputHint: "Dan JavaScript Python C++ SQL hoac HTML" },
+    "bug-finder": { title: "Tim Bug", shortTitle: "Bug", description: "Bien loi va snippet thanh nguyen nhan buoc va huong sua", promise: "Nguyen nhan tai hien template fix xac minh", inputHint: "Dan loi chinh xac va doan code nho lien quan" },
+    "api-request-generator": { title: "Tao request API", shortTitle: "API", description: "Tao curl fetch axios va Python requests tu endpoint headers body", promise: "Mot request thanh nhieu format de copy", inputHint: "Nhap URL method headers va JSON body" },
+    "dev-utilities": { title: "Cong cu JSON Regex Thoi gian", shortTitle: "Cong cu", description: "Format JSON test Regex doi timestamp trong mot panel", promise: "Kiem tra local doi nhanh output sach", inputHint: "Dan JSON regex text hoac timestamp" },
+    "learning-roadmap": { title: "Lo trinh code AI", shortTitle: "Lo trinh", description: "Chon huong va tao ke hoach code 30 ngay", promise: "Nhiem vu hang ngay moc hang tuan project cuoi", inputHint: "Chon zero base frontend Python automation hoac indie" },
+  },
+  th: {
+    "prompt-optimizer": { title: "ปรับ Prompt AI", shortTitle: "Prompt", description: "เปลี่ยนคำขอคร่าวๆ เป็น Prompt มีโครงสำหรับ code research หรือ product", promise: "บทบาท context งาน format ข้อจำกัด เกณฑ์ผ่าน", inputHint: "เช่น สร้างหน้าแรกของเว็บเครื่องมือ AI" },
+    "code-explainer": { title: "อธิบายโค้ด", shortTitle: "โค้ด", description: "วางโค้ดเพื่อดูเป้าหมาย ตัวแปร ความเสี่ยง และโน้ตเรียน", promise: "อ่านแบบ static ชื่อสำคัญ สัญญาณ bug โน้ตเรียน", inputHint: "วาง JavaScript Python C++ SQL หรือ HTML" },
+    "bug-finder": { title: "ค้นหา Bug", shortTitle: "Bug", description: "เปลี่ยน error และ snippet เป็นสาเหตุ ขั้นตอน และแนวทางแก้", promise: "สาเหตุ reproduce template fix ตรวจสอบ", inputHint: "วาง error จริงและโค้ดส่วนเล็กที่เกี่ยวข้อง" },
+    "api-request-generator": { title: "สร้าง request API", shortTitle: "API", description: "สร้าง curl fetch axios และ Python requests จาก endpoint headers body", promise: "request เดียวเป็นหลายรูปแบบพร้อมคัดลอก", inputHint: "ใส่ URL method headers และ JSON body" },
+    "dev-utilities": { title: "เครื่องมือ JSON Regex เวลา", shortTitle: "เครื่องมือ", description: "จัด JSON ทดสอบ Regex แปลง timestamp ใน panel เดียว", promise: "ตรวจ local แปลงเร็ว output สะอาด", inputHint: "วาง JSON regex text หรือ timestamp" },
+    "learning-roadmap": { title: "Roadmap coding AI", shortTitle: "Roadmap", description: "เลือกทางแล้วสร้างแผนเขียนโค้ด 30 วัน", promise: "งานรายวัน milestone รายสัปดาห์ project สุดท้าย", inputHint: "เลือก zero base frontend Python automation หรือ indie" },
+  },
+  tr: {
+    "prompt-optimizer": { title: "AI Prompt iyilestirici", shortTitle: "Prompt", description: "Kaba istegi kod research veya urun isi icin yapili Prompt a cevirir", promise: "Rol baglam gorevler format sinirlar kabul kriterleri", inputHint: "Ornek AI arac sitesi ana sayfasi yap" },
+    "code-explainer": { title: "Kod aciklayici", shortTitle: "Kod", description: "Kod yapistir amac degisken risk ve ogrenme notlari al", promise: "Statik okuma ana isimler bug sinyalleri notlar", inputHint: "JavaScript Python C++ SQL veya HTML yapistir" },
+    "bug-finder": { title: "Bug bulucu", shortTitle: "Bug", description: "Hata ve snippet i neden adim ve fix yonune cevirir", promise: "Nedenler tekrar uretme fix sablonu dogrulama", inputHint: "Tam hata ve ilgili en kucuk kodu yapistir" },
+    "api-request-generator": { title: "API request olusturucu", shortTitle: "API", description: "Endpoint headers body den curl fetch axios Python requests uretir", promise: "Tek request sekli coklu kopyalanabilir format", inputHint: "URL method headers ve JSON body gir" },
+    "dev-utilities": { title: "JSON Regex Zaman araclari", shortTitle: "Arac", description: "JSON formatlar Regex test eder timestamp cevirir", promise: "Yerel dogrulama hizli donusum temiz cikti", inputHint: "JSON regex text veya timestamp yapistir" },
+    "learning-roadmap": { title: "AI kod roadmap", shortTitle: "Roadmap", description: "Yon sec ve 30 gunluk pratik kod plani olustur", promise: "Gunluk gorevler haftalik hedefler final proje", inputHint: "Zero base frontend Python automation veya indie sec" },
+  },
+  it: {
+    "prompt-optimizer": { title: "Ottimizzatore Prompt AI", shortTitle: "Prompt", description: "Trasforma una richiesta grezza in Prompt strutturato per codice ricerca o prodotto", promise: "Ruolo contesto task formato limiti criteri", inputHint: "Esempio crea homepage per un sito di strumenti AI" },
+    "code-explainer": { title: "Spiegatore codice", shortTitle: "Codice", description: "Incolla codice e ottieni scopo variabili rischi e note", promise: "Lettura statica nomi chiave segnali bug note", inputHint: "Incolla JavaScript Python C++ SQL o HTML" },
+    "bug-finder": { title: "Trova Bug", shortTitle: "Bug", description: "Trasforma errore e snippet in cause passi e direzione fix", promise: "Cause riproduzione template fix verifica", inputHint: "Incolla errore esatto e codice minimo collegato" },
+    "api-request-generator": { title: "Generatore request API", shortTitle: "API", description: "Genera curl fetch axios e Python requests da endpoint headers body", promise: "Una request in piu formati copiabili", inputHint: "Inserisci URL method headers e JSON body" },
+    "dev-utilities": { title: "Strumenti JSON Regex Tempo", shortTitle: "Tools", description: "Formatta JSON testa Regex converte timestamp in un panel", promise: "Validazione locale conversione rapida output pulito", inputHint: "Incolla JSON regex testo o timestamp" },
+    "learning-roadmap": { title: "Roadmap codice AI", shortTitle: "Roadmap", description: "Scegli una direzione e crea un piano pratico di 30 giorni", promise: "Task giornalieri milestone settimanali progetto finale", inputHint: "Scegli zero frontend Python automation o indie" },
+  },
+  nl: {
+    "prompt-optimizer": { title: "AI prompt optimizer", shortTitle: "Prompt", description: "Zet een ruwe vraag om in een gestructureerde prompt voor code research of productwerk", promise: "Rol context taken output format grenzen acceptatiecriteria", inputHint: "Voorbeeld bouw de homepage van een AI tools site" },
+    "code-explainer": { title: "Code uitlegger", shortTitle: "Code", description: "Plak code en krijg doel variabelen risico en leernotities", promise: "Statisch lezen kernnamen bug signalen notities", inputHint: "Plak JavaScript Python C++ SQL of HTML" },
+    "bug-finder": { title: "Bug finder", shortTitle: "Bug", description: "Maakt van error en snippet oorzaken stappen en fix richting", promise: "Oorzaken reproductie fix template verificatie", inputHint: "Plak exacte error en kleinste gerelateerde code" },
+    "api-request-generator": { title: "API request generator", shortTitle: "API", description: "Genereert curl fetch axios en Python requests uit endpoint headers body", promise: "Een request vorm in meerdere kopieerbare formats", inputHint: "Voer URL method headers en JSON body in" },
+    "dev-utilities": { title: "JSON Regex Tijd tools", shortTitle: "Tools", description: "Format JSON test Regex converteer timestamps in een paneel", promise: "Lokale validatie snelle conversie schone output", inputHint: "Plak JSON regex tekst of timestamp" },
+    "learning-roadmap": { title: "AI coding roadmap", shortTitle: "Roadmap", description: "Kies richting en maak een praktisch 30 dagen codeplan", promise: "Dagelijkse taken wekelijkse mijlpalen eindproject", inputHint: "Kies zero base frontend Python automation of indie" },
+  },
+  pl: {
+    "prompt-optimizer": { title: "Optymalizator Prompt AI", shortTitle: "Prompt", description: "Zmienia surowa prosbe w strukturalny Prompt do kodu researchu lub produktu", promise: "Rola kontekst zadania format ograniczenia kryteria", inputHint: "Przyklad zbuduj homepage strony narzedzi AI" },
+    "code-explainer": { title: "Wyjasniacz kodu", shortTitle: "Kod", description: "Wklej kod i zobacz cel zmienne ryzyka oraz notatki", promise: "Statyczne czytanie nazwy sygnaly bug notatki", inputHint: "Wklej JavaScript Python C++ SQL lub HTML" },
+    "bug-finder": { title: "Wyszukiwacz Bugow", shortTitle: "Bug", description: "Zmienia error i snippet w przyczyny kroki i kierunek fix", promise: "Przyczyny reprodukcja szablon fix weryfikacja", inputHint: "Wklej dokladny blad i najmniejszy powiazany kod" },
+    "api-request-generator": { title: "Generator requestow API", shortTitle: "API", description: "Generuje curl fetch axios i Python requests z endpoint headers body", promise: "Jeden request w kilku formatach do kopiowania", inputHint: "Podaj URL method headers i JSON body" },
+    "dev-utilities": { title: "Narzędzia JSON Regex Czas", shortTitle: "Tools", description: "Formatuje JSON testuje Regex konwertuje timestamps w jednym panelu", promise: "Lokalna walidacja szybka konwersja czysty output", inputHint: "Wklej JSON regex text albo timestamp" },
+    "learning-roadmap": { title: "AI roadmap kodowania", shortTitle: "Roadmap", description: "Wybierz kierunek i utworz praktyczny plan 30 dni", promise: "Codzienne zadania tygodniowe cele finalny projekt", inputHint: "Wybierz zero frontend Python automation albo indie" },
+  },
+};
+
 function detectLanguage(code: string) {
   const source = code.trim();
   if (!source) return "Unknown";
@@ -1109,24 +1284,235 @@ function toolHref(slug: ToolSlug, language: InterfaceLanguage) {
 }
 
 function toolDisplay(tool: ToolDefinition, language: InterfaceLanguage) {
+  const translatedShell = toolShellTranslations[language]?.[tool.slug] || {};
   if (tool.slug === "github-repo-analyzer") {
     return { ...tool, ...auditTranslations[language], inputExample: tool.inputExample };
   }
 
-  if (language !== "zh") return tool;
-  const shortTitles: Partial<Record<ToolSlug, string>> = {
-    "prompt-optimizer": "提示词",
-    "code-explainer": "代码笔记",
-    "bug-finder": "Bug",
-    "api-request-generator": "API",
-    "dev-utilities": "工具",
-    "learning-roadmap": "路线",
-  };
+  return { ...tool, ...translatedShell };
+}
 
-  return {
-    ...tool,
-    shortTitle: shortTitles[tool.slug] || tool.shortTitle,
-  };
+type ToolFormCopy = {
+  loadSample: string;
+  clear: string;
+  input: string;
+  roughRequest: string;
+  promptPlaceholder: string;
+  useCase: string;
+  coding: string;
+  research: string;
+  product: string;
+  template: string;
+  context: string;
+  optimizedPrompt: string;
+  pasteCode: string;
+  codeExplanation: string;
+  jsSample: string;
+  pythonSample: string;
+  bugDiagnosis: string;
+  typeErrorSample: string;
+  apiSample: string;
+  errorAndCode: string;
+  errorMessage: string;
+  codeSnippet: string;
+  requestSnippets: string;
+  getPreset: string;
+  postPreset: string;
+  clearBody: string;
+  apiDetails: string;
+  method: string;
+  endpoint: string;
+  headersOnePerLine: string;
+  jsonBody: string;
+  utilityResult: string;
+  jsonRegexTimestamp: string;
+  json: string;
+  regex: string;
+  flags: string;
+  timestampOrDate: string;
+  jsonSample: string;
+  currentTime: string;
+  plan30: string;
+  chooseDirection: string;
+};
+
+const toolFormCopy = {
+  en: {
+    loadSample: "Load sample",
+    clear: "Clear",
+    input: "Input",
+    roughRequest: "Rough request",
+    promptPlaceholder: "Describe what you want AI to do",
+    useCase: "Use case",
+    coding: "Coding",
+    research: "Research",
+    product: "Product",
+    template: "Template",
+    context: "Context",
+    optimizedPrompt: "Optimized prompt",
+    pasteCode: "Paste code",
+    codeExplanation: "Code explanation",
+    jsSample: "JS sample",
+    pythonSample: "Python sample",
+    bugDiagnosis: "Bug diagnosis",
+    typeErrorSample: "TypeError sample",
+    apiSample: "API sample",
+    errorAndCode: "Error and code",
+    errorMessage: "Error message",
+    codeSnippet: "Code snippet",
+    requestSnippets: "Request snippets",
+    getPreset: "GET preset",
+    postPreset: "POST preset",
+    clearBody: "Clear body",
+    apiDetails: "API details",
+    method: "Method",
+    endpoint: "Endpoint",
+    headersOnePerLine: "Headers one per line",
+    jsonBody: "JSON body",
+    utilityResult: "Utility result",
+    jsonRegexTimestamp: "JSON Regex Timestamp",
+    json: "JSON",
+    regex: "Regex",
+    flags: "Flags",
+    timestampOrDate: "Timestamp or date",
+    jsonSample: "JSON sample",
+    currentTime: "Current time",
+    plan30: "30 day plan",
+    chooseDirection: "Choose direction",
+  },
+  zh: {
+    loadSample: "载入示例",
+    clear: "清空",
+    input: "输入",
+    roughRequest: "原始需求",
+    promptPlaceholder: "描述你希望 AI 完成什么",
+    useCase: "使用场景",
+    coding: "写代码",
+    research: "查资料",
+    product: "做产品",
+    template: "模板",
+    context: "背景",
+    optimizedPrompt: "优化后的提示词",
+    pasteCode: "粘贴代码",
+    codeExplanation: "代码解释",
+    jsSample: "JS 示例",
+    pythonSample: "Python 示例",
+    bugDiagnosis: "Bug 诊断",
+    typeErrorSample: "TypeError 示例",
+    apiSample: "API 示例",
+    errorAndCode: "报错和代码",
+    errorMessage: "错误信息",
+    codeSnippet: "代码片段",
+    requestSnippets: "请求示例",
+    getPreset: "GET 预设",
+    postPreset: "POST 预设",
+    clearBody: "清空 Body",
+    apiDetails: "API 详情",
+    method: "方法",
+    endpoint: "接口地址",
+    headersOnePerLine: "Header 每行一个",
+    jsonBody: "JSON Body",
+    utilityResult: "工具结果",
+    jsonRegexTimestamp: "JSON 正则 时间戳",
+    json: "JSON",
+    regex: "正则",
+    flags: "标记",
+    timestampOrDate: "时间戳或日期",
+    jsonSample: "JSON 示例",
+    currentTime: "当前时间",
+    plan30: "30 天计划",
+    chooseDirection: "选择方向",
+  },
+  ja: {
+    loadSample: "例を読み込む",
+    clear: "クリア",
+    input: "入力",
+    roughRequest: "元の依頼",
+    promptPlaceholder: "AI にしてほしいことを書いてください",
+    useCase: "用途",
+    coding: "コード",
+    research: "調査",
+    product: "プロダクト",
+    template: "テンプレート",
+    context: "文脈",
+    optimizedPrompt: "最適化したプロンプト",
+    pasteCode: "コードを貼る",
+    codeExplanation: "コード解説",
+    jsSample: "JS 例",
+    pythonSample: "Python 例",
+    bugDiagnosis: "バグ診断",
+    typeErrorSample: "TypeError 例",
+    apiSample: "API 例",
+    errorAndCode: "エラーとコード",
+    errorMessage: "エラーメッセージ",
+    codeSnippet: "コード片",
+    requestSnippets: "リクエスト例",
+    getPreset: "GET プリセット",
+    postPreset: "POST プリセット",
+    clearBody: "Body クリア",
+    apiDetails: "API 詳細",
+    method: "メソッド",
+    endpoint: "エンドポイント",
+    headersOnePerLine: "Header を一行ずつ",
+    jsonBody: "JSON Body",
+    utilityResult: "ツール結果",
+    jsonRegexTimestamp: "JSON Regex Timestamp",
+    json: "JSON",
+    regex: "Regex",
+    flags: "Flags",
+    timestampOrDate: "timestamp または日付",
+    jsonSample: "JSON 例",
+    currentTime: "現在時刻",
+    plan30: "30 日計画",
+    chooseDirection: "方向を選ぶ",
+  },
+  ar: {
+    loadSample: "تحميل مثال",
+    clear: "مسح",
+    input: "الإدخال",
+    roughRequest: "الطلب الخام",
+    promptPlaceholder: "اكتب ما تريد من الذكاء الاصطناعي أن يفعله",
+    useCase: "الاستخدام",
+    coding: "برمجة",
+    research: "بحث",
+    product: "منتج",
+    template: "القالب",
+    context: "السياق",
+    optimizedPrompt: "Prompt محسّن",
+    pasteCode: "الصق الكود",
+    codeExplanation: "شرح الكود",
+    jsSample: "مثال JS",
+    pythonSample: "مثال Python",
+    bugDiagnosis: "تشخيص الخطأ",
+    typeErrorSample: "مثال TypeError",
+    apiSample: "مثال API",
+    errorAndCode: "الخطأ والكود",
+    errorMessage: "رسالة الخطأ",
+    codeSnippet: "مقتطف الكود",
+    requestSnippets: "أمثلة الطلب",
+    getPreset: "إعداد GET",
+    postPreset: "إعداد POST",
+    clearBody: "مسح Body",
+    apiDetails: "تفاصيل API",
+    method: "الطريقة",
+    endpoint: "Endpoint",
+    headersOnePerLine: "Headers سطر لكل واحد",
+    jsonBody: "JSON Body",
+    utilityResult: "نتيجة الأداة",
+    jsonRegexTimestamp: "JSON و Regex و Timestamp",
+    json: "JSON",
+    regex: "Regex",
+    flags: "Flags",
+    timestampOrDate: "Timestamp أو تاريخ",
+    jsonSample: "مثال JSON",
+    currentTime: "الوقت الحالي",
+    plan30: "خطة 30 يوما",
+    chooseDirection: "اختر الاتجاه",
+  },
+} satisfies Partial<Record<InterfaceLanguage, ToolFormCopy>>;
+
+function getToolFormCopy(language: InterfaceLanguage) {
+  return toolFormCopy[language as keyof typeof toolFormCopy] || toolFormCopy.en;
 }
 
 export default function ToolWorkbench({
@@ -1239,12 +1625,12 @@ export default function ToolWorkbench({
 
           <div className="mt-3">
             {active === "github-repo-analyzer" && <GitHubRepoAnalyzer language={language} initialRepoUrl={initialRepoUrl} />}
-            {active === "prompt-optimizer" && <PromptOptimizer />}
-            {active === "code-explainer" && <CodeExplainer />}
-            {active === "bug-finder" && <BugFinder />}
-            {active === "api-request-generator" && <ApiRequestGenerator />}
-            {active === "dev-utilities" && <DevUtilities />}
-            {active === "learning-roadmap" && <LearningRoadmap />}
+            {active === "prompt-optimizer" && <PromptOptimizer language={language} />}
+            {active === "code-explainer" && <CodeExplainer language={language} />}
+            {active === "bug-finder" && <BugFinder language={language} />}
+            {active === "api-request-generator" && <ApiRequestGenerator language={language} />}
+            {active === "dev-utilities" && <DevUtilities language={language} />}
+            {active === "learning-roadmap" && <LearningRoadmap language={language} />}
           </div>
 
           <ToolSeoPanel tool={activeToolDisplay} language={language} />
@@ -1374,7 +1760,8 @@ function ToolSeoPanel({ tool, language = "en" }: { tool: ToolDefinition; languag
   );
 }
 
-function PromptOptimizer() {
+function PromptOptimizer({ language }: { language: InterfaceLanguage }) {
+  const f = getToolFormCopy(language);
   const sampleGoal = "Build an AI tool website with six practical developer tools";
   const sampleContext = "Target users are beginners and indie developers. The page should be dense, useful and production ready.";
   const [goal, setGoal] = useState(sampleGoal);
@@ -1442,33 +1829,34 @@ function PromptOptimizer() {
   return (
     <ToolLayout
       output={output}
-      outputTitle="Optimized prompt"
+      outputTitle={f.optimizedPrompt}
+      language={language}
       blocks={promptBlocks}
       actions={
         <>
           <button type="button" className="dense-action" onClick={() => { setGoal(sampleGoal); setContext(sampleContext); setMode("coding"); }}>
-            Load sample
+            {f.loadSample}
           </button>
           <button type="button" className="dense-action" onClick={() => { setGoal(""); setContext(""); }}>
-            Clear
+            {f.clear}
           </button>
         </>
       }
     >
-      <p className="eyebrow">Input</p>
-      <h2>Rough request</h2>
-      <textarea value={goal} onChange={(event) => setGoal(event.target.value)} className="tool-textarea" placeholder="Describe what you want AI to do" />
+      <p className="eyebrow">{f.input}</p>
+      <h2>{f.roughRequest}</h2>
+      <textarea value={goal} onChange={(event) => setGoal(event.target.value)} className="tool-textarea" placeholder={f.promptPlaceholder} />
       <div className="tool-field-grid">
         <label>
-          <span>Use case</span>
+          <span>{f.useCase}</span>
           <select value={mode} onChange={(event) => setMode(event.target.value)} className="tool-input">
-            <option value="coding">Coding</option>
-            <option value="research">Research</option>
-            <option value="product">Product</option>
+            <option value="coding">{f.coding}</option>
+            <option value="research">{f.research}</option>
+            <option value="product">{f.product}</option>
           </select>
         </label>
         <label>
-          <span>Template</span>
+          <span>{f.template}</span>
           <select value={templateKey} onChange={(event) => setTemplateKey(event.target.value as PromptTemplateKey)} className="tool-input">
             {Object.entries(promptTemplates).map(([key, template]) => (
               <option key={key} value={key}>{template.label}</option>
@@ -1477,14 +1865,15 @@ function PromptOptimizer() {
         </label>
       </div>
       <label className="block">
-        <span className="tool-label">Context</span>
+        <span className="tool-label">{f.context}</span>
         <textarea value={context} onChange={(event) => setContext(event.target.value)} className="tool-textarea tool-textarea-small" />
       </label>
     </ToolLayout>
   );
 }
 
-function CodeExplainer() {
+function CodeExplainer({ language }: { language: InterfaceLanguage }) {
+  const f = getToolFormCopy(language);
   const [code, setCode] = useState(sampleCode);
   const explainBlocks = useMemo<OutputBlock[]>(() => {
     const language = detectLanguage(code);
@@ -1538,30 +1927,32 @@ function CodeExplainer() {
   return (
     <ToolLayout
       output={output}
-      outputTitle="Code explanation"
+      outputTitle={f.codeExplanation}
+      language={language}
       blocks={explainBlocks}
       actions={
         <>
           <button type="button" className="dense-action" onClick={() => setCode(sampleCode)}>
-            JS sample
+            {f.jsSample}
           </button>
           <button type="button" className="dense-action" onClick={() => setCode(samplePython)}>
-            Python sample
+            {f.pythonSample}
           </button>
           <button type="button" className="dense-action" onClick={() => setCode("")}>
-            Clear
+            {f.clear}
           </button>
         </>
       }
     >
-      <p className="eyebrow">Input</p>
-      <h2>Paste code</h2>
+      <p className="eyebrow">{f.input}</p>
+      <h2>{f.pasteCode}</h2>
       <textarea value={code} onChange={(event) => setCode(event.target.value)} className="tool-textarea tool-code-input" spellCheck={false} />
     </ToolLayout>
   );
 }
 
-function BugFinder() {
+function BugFinder({ language }: { language: InterfaceLanguage }) {
+  const f = getToolFormCopy(language);
   const [error, setError] = useState(sampleBug);
   const [code, setCode] = useState(sampleCode);
   const bugBlocks = useMemo<OutputBlock[]>(() => {
@@ -1633,37 +2024,39 @@ if (!response.ok) {
   return (
     <ToolLayout
       output={output}
-      outputTitle="Bug diagnosis"
+      outputTitle={f.bugDiagnosis}
+      language={language}
       blocks={bugBlocks}
       actions={
         <>
           <button type="button" className="dense-action" onClick={() => { setError(sampleBug); setCode(sampleCode); }}>
-            TypeError sample
+            {f.typeErrorSample}
           </button>
           <button type="button" className="dense-action" onClick={() => { setError(sampleApiBug); setCode(sampleApiBug); }}>
-            API sample
+            {f.apiSample}
           </button>
           <button type="button" className="dense-action" onClick={() => { setError(""); setCode(""); }}>
-            Clear
+            {f.clear}
           </button>
         </>
       }
     >
-      <p className="eyebrow">Input</p>
-      <h2>Error and code</h2>
+      <p className="eyebrow">{f.input}</p>
+      <h2>{f.errorAndCode}</h2>
       <label className="block">
-        <span className="tool-label">Error message</span>
+        <span className="tool-label">{f.errorMessage}</span>
         <textarea value={error} onChange={(event) => setError(event.target.value)} className="tool-textarea tool-textarea-small" />
       </label>
       <label className="block">
-        <span className="tool-label">Code snippet</span>
+        <span className="tool-label">{f.codeSnippet}</span>
         <textarea value={code} onChange={(event) => setCode(event.target.value)} className="tool-textarea tool-code-input" spellCheck={false} />
       </label>
     </ToolLayout>
   );
 }
 
-function ApiRequestGenerator() {
+function ApiRequestGenerator({ language }: { language: InterfaceLanguage }) {
+  const f = getToolFormCopy(language);
   const [url, setUrl] = useState("https://api.example.com/v1/users");
   const [method, setMethod] = useState<ApiMethod>("POST");
   const [headers, setHeaders] = useState("Authorization: Bearer YOUR_TOKEN\nContent-Type: application/json");
@@ -1723,49 +2116,51 @@ print(response.json())`,
   return (
     <ToolLayout
       output={output}
-      outputTitle="Request snippets"
+      outputTitle={f.requestSnippets}
+      language={language}
       blocks={requestBlocks}
       actions={
         <>
           <button type="button" className="dense-action" onClick={() => { setMethod("GET"); setUrl("https://api.example.com/v1/projects"); setHeaders("Authorization: Bearer YOUR_TOKEN"); setBody(""); }}>
-            GET preset
+            {f.getPreset}
           </button>
           <button type="button" className="dense-action" onClick={() => { setMethod("POST"); setUrl("https://api.example.com/v1/users"); setHeaders("Authorization: Bearer YOUR_TOKEN\nContent-Type: application/json"); setBody('{"name":"JinMing Lab","role":"developer"}'); }}>
-            POST preset
+            {f.postPreset}
           </button>
           <button type="button" className="dense-action" onClick={() => { setHeaders(""); setBody(""); }}>
-            Clear body
+            {f.clearBody}
           </button>
         </>
       }
     >
-      <p className="eyebrow">Input</p>
-      <h2>API details</h2>
+      <p className="eyebrow">{f.input}</p>
+      <h2>{f.apiDetails}</h2>
       <div className="tool-field-grid">
         <label>
-          <span>Method</span>
+          <span>{f.method}</span>
           <select value={method} onChange={(event) => setMethod(event.target.value as ApiMethod)} className="tool-input">
             {["GET", "POST", "PUT", "PATCH", "DELETE"].map((item) => <option key={item}>{item}</option>)}
           </select>
         </label>
         <label>
-          <span>Endpoint</span>
+          <span>{f.endpoint}</span>
           <input value={url} onChange={(event) => setUrl(event.target.value)} className="tool-input" />
         </label>
       </div>
       <label className="block">
-        <span className="tool-label">Headers one per line</span>
+        <span className="tool-label">{f.headersOnePerLine}</span>
         <textarea value={headers} onChange={(event) => setHeaders(event.target.value)} className="tool-textarea tool-textarea-small" />
       </label>
       <label className="block">
-        <span className="tool-label">JSON body</span>
+        <span className="tool-label">{f.jsonBody}</span>
         <textarea value={body} onChange={(event) => setBody(event.target.value)} className="tool-textarea tool-textarea-small" spellCheck={false} />
       </label>
     </ToolLayout>
   );
 }
 
-function DevUtilities() {
+function DevUtilities({ language }: { language: InterfaceLanguage }) {
+  const f = getToolFormCopy(language);
   const [json, setJson] = useState('{"name":"JinMing Lab","tools":["json","regex","timestamp"],"ok":true}');
   const [pattern, setPattern] = useState("\\b[A-Z][A-Za-z]+\\b");
   const [flags, setFlags] = useState("g");
@@ -1813,48 +2208,50 @@ Milliseconds ${Number.isNaN(date.getTime()) ? "Invalid date" : date.getTime()}`,
   return (
     <ToolLayout
       output={output}
-      outputTitle="Utility result"
+      outputTitle={f.utilityResult}
+      language={language}
       blocks={utilityBlocks}
       actions={
         <>
           <button type="button" className="dense-action" onClick={() => setJson('{"name":"JinMing Lab","tools":["json","regex","timestamp"],"ok":true}')}>
-            JSON sample
+            {f.jsonSample}
           </button>
           <button type="button" className="dense-action" onClick={() => setTimestamp(String(Date.now()))}>
-            Current time
+            {f.currentTime}
           </button>
           <button type="button" className="dense-action" onClick={() => { setJson(""); setRegexText(""); setTimestamp(""); }}>
-            Clear
+            {f.clear}
           </button>
         </>
       }
     >
-      <p className="eyebrow">Input</p>
-      <h2>JSON Regex Timestamp</h2>
+      <p className="eyebrow">{f.input}</p>
+      <h2>{f.jsonRegexTimestamp}</h2>
       <label className="block">
-        <span className="tool-label">JSON</span>
+        <span className="tool-label">{f.json}</span>
         <textarea value={json} onChange={(event) => setJson(event.target.value)} className="tool-textarea tool-textarea-small" spellCheck={false} />
       </label>
       <div className="tool-field-grid">
         <label>
-          <span>Regex</span>
+          <span>{f.regex}</span>
           <input value={pattern} onChange={(event) => setPattern(event.target.value)} className="tool-input" />
         </label>
         <label>
-          <span>Flags</span>
+          <span>{f.flags}</span>
           <input value={flags} onChange={(event) => setFlags(event.target.value)} className="tool-input" />
         </label>
       </div>
       <textarea value={regexText} onChange={(event) => setRegexText(event.target.value)} className="tool-textarea tool-textarea-small" />
       <label className="block">
-        <span className="tool-label">Timestamp or date</span>
+        <span className="tool-label">{f.timestampOrDate}</span>
         <input value={timestamp} onChange={(event) => setTimestamp(event.target.value)} className="tool-input" />
       </label>
     </ToolLayout>
   );
 }
 
-function LearningRoadmap() {
+function LearningRoadmap({ language }: { language: InterfaceLanguage }) {
+  const f = getToolFormCopy(language);
   const [track, setTrack] = useState<RoadmapTrack>("frontend");
   const data = roadmapTracks[track];
   const roadmapBlocks = useMemo<OutputBlock[]>(() => {
@@ -1901,9 +2298,9 @@ function LearningRoadmap() {
   );
 
   return (
-    <ToolLayout output={output} outputTitle="30 day plan" blocks={roadmapBlocks}>
-      <p className="eyebrow">Input</p>
-      <h2>Choose direction</h2>
+    <ToolLayout output={output} outputTitle={f.plan30} blocks={roadmapBlocks} language={language}>
+      <p className="eyebrow">{f.input}</p>
+      <h2>{f.chooseDirection}</h2>
       <div className="tool-choice-grid">
         {Object.entries(roadmapTracks).map(([key, item]) => (
           <button

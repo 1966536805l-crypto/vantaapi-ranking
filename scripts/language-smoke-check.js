@@ -123,6 +123,15 @@ async function main() {
     6,
   );
 
+  await checkPage(
+    "prompt-ar",
+    "/tools/prompt-optimizer?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["محسن Prompt بالذكاء الاصطناعي", "يحول الطلب الخام", "مثال ابن صفحة"],
+    ["AI Prompt Optimizer", "Turn a rough request into"],
+    7,
+  );
+
   console.log(`\nSummary: pass=${pass} fail=${fail}`);
   if (fail > 0) process.exit(1);
 }
