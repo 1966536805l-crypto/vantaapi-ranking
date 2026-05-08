@@ -10,6 +10,7 @@ const args = process.argv.slice(2);
 const baseArg = args.find((arg) => arg.startsWith("--base="));
 const baseUrl = (baseArg ? baseArg.slice("--base=".length) : process.env.SMOKE_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
 const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 10_000);
+const requestDelayMs = Number(process.env.SMOKE_REQUEST_DELAY_MS || (baseUrl.includes("vantaapi.com") ? 250 : 0));
 let requestIndex = 0;
 
 let pass = 0;
@@ -31,11 +32,16 @@ function logFail(name, message) {
   console.log(`FAIL ${name}: ${message}`);
 }
 
+function sleep(ms) {
+  return ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve();
+}
+
 async function fetchWithTimeout(path, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   const isApiRequest = path.startsWith("/api/") || !["GET", "HEAD", undefined].includes(options.method);
   requestIndex += 1;
+  if (requestIndex > 1) await sleep(requestDelayMs);
   try {
     return await fetch(`${baseUrl}${path}`, {
       ...options,
@@ -44,7 +50,6 @@ async function fetchWithTimeout(path, options = {}) {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120 Safari/537.36",
         Accept: isApiRequest ? "application/json,*/*;q=0.8" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9",
-        "X-Forwarded-For": `127.0.3.${requestIndex}`,
         ...(isApiRequest
           ? {
               Origin: baseUrl,
@@ -53,8 +58,11 @@ async function fetchWithTimeout(path, options = {}) {
               "Sec-Fetch-Site": "same-origin",
             }
           : {
+              "Upgrade-Insecure-Requests": "1",
               "Sec-Fetch-Mode": "navigate",
               "Sec-Fetch-Dest": "document",
+              "Sec-Fetch-Site": "none",
+              "Sec-Fetch-User": "?1",
             }),
         ...(options.headers || {}),
       },
