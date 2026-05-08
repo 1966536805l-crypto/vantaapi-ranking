@@ -4,30 +4,6 @@ import RepoAuditForm from "@/components/home/RepoAuditForm";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import { isInterfaceLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
 
-export const metadata: Metadata = {
-  title: "GitHub Launch Audit - Repo Readiness Checker | JinMing Lab",
-  description:
-    "Paste a public GitHub repository and get a rules-first launch-readiness audit with scorecard, blockers, evidence, GitHub issue drafts, PR description, and release checklist.",
-  keywords: ["GitHub launch audit", "repo readiness checker", "deterministic checks", "release checklist", "GitHub issue template", "PR description generator", "GitHub 项目体检"],
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: "GitHub Launch Audit - JinMing Lab",
-    description:
-      "Rules-first launch checks for README, env, CI, deploy, security, issue drafts, PR description, and release checklist.",
-    url: "https://vantaapi.com",
-    siteName: "JinMing Lab",
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-    title: "GitHub Launch Audit - JinMing Lab",
-    description:
-      "Paste a GitHub repo and get rules-first launch checks with evidence, blockers, and PR-ready output.",
-  },
-};
-
 type HomeSearchParams = Promise<{ ui?: string | string[]; lang?: string | string[] }>;
 
 function firstParam(value: string | string[] | undefined) {
@@ -125,9 +101,9 @@ const homeCopy = {
     audit: "लॉन्च ऑडिट", tools: "टूल्स", programming: "प्रोग्रामिंग", eyebrow: "GitHub लॉन्च ऑडिट",
     title: "Repo पेस्ट करें और लॉन्च blockers देखें।",
     subtitle: "README, env, CI, deploy और security को नियमों से जांचें, फिर issue drafts, PR copy और release checklist बनाएं।",
-    outcomes: ["स्कोर", "Blockers", "Issue drafts", "PR description"],
-    pass: "पास", review: "जांचें", sample: "Sample report", evidence: [["P1", ".env.example", "Env keys को local preview production में अलग करें"], ["P1", "README.md", "Quick start पांच मिनट से कम रखें"], ["P2", "release docs", "Release checklist दिखनी चाहिए"]],
-    pr: "Copy-ready PR description", workflow: "Audit को developer workflow में लाएं", developerTools: "Developer tools देखें", programmingLab: "Programming खोलें",
+    outcomes: ["स्कोर", "अवरोध", "Issue मसौदे", "PR विवरण"],
+    pass: "पास", review: "जांचें", sample: "नमूना रिपोर्ट", evidence: [["P1", ".env.example", "Env keys को local preview production में अलग करें"], ["P1", "README.md", "Quick start पांच मिनट से कम रखें"], ["P2", "release docs", "Release checklist दिखनी चाहिए"]],
+    pr: "कॉपी योग्य PR विवरण", workflow: "Audit को developer workflow में लाएं", developerTools: "डेवलपर टूल्स देखें", programmingLab: "प्रोग्रामिंग खोलें",
   },
   id: {
     audit: "Audit", tools: "Alat", programming: "Pemrograman", eyebrow: "Audit rilis GitHub",
@@ -149,9 +125,9 @@ const homeCopy = {
     audit: "ตรวจปล่อยงาน", tools: "เครื่องมือ", programming: "เขียนโปรแกรม", eyebrow: "GitHub Launch Audit",
     title: "วาง repo แล้วดู blocker ก่อนปล่อยจริง",
     subtitle: "ตรวจ README, env, CI, deploy และ security ด้วยกฎ แล้วสรุปเป็น issue draft, PR copy และ release checklist",
-    outcomes: ["คะแนน", "Blockers", "Issue drafts", "PR description"],
+    outcomes: ["คะแนน", "จุดติดขัด", "ร่าง issue", "คำอธิบาย PR"],
     pass: "ผ่าน", review: "ตรวจเพิ่ม", sample: "รายงานตัวอย่าง", evidence: [["P1", ".env.example", "Env ต้องแยก local preview production"], ["P1", "README.md", "Quick start ควรต่ำกว่า 5 นาที"], ["P2", "release docs", "ต้องเห็น release checklist"]],
-    pr: "PR description พร้อมคัดลอก", workflow: "นำ audit เข้าสู่ dev workflow", developerTools: "ดูเครื่องมือ", programmingLab: "เปิดบทเรียนโปรแกรม",
+    pr: "คำอธิบาย PR พร้อมคัดลอก", workflow: "นำ audit เข้าสู่ dev workflow", developerTools: "ดูเครื่องมือ", programmingLab: "เปิดบทเรียนโปรแกรม",
   },
   tr: {
     audit: "Denetim", tools: "Araçlar", programming: "Programlama", eyebrow: "GitHub yayın denetimi",
@@ -170,7 +146,7 @@ const homeCopy = {
     pr: "Descrizione PR pronta", workflow: "Porta audit nel flusso dev", developerTools: "Vedi strumenti", programmingLab: "Apri programmazione",
   },
   nl: {
-    audit: "Audit", tools: "Tools", programming: "Programmeren", eyebrow: "GitHub launch audit",
+    audit: "Audit", tools: "Hulpmiddelen", programming: "Programmeren", eyebrow: "GitHub launch audit",
     title: "Plak een repo en vind launch blockers.",
     subtitle: "Regelchecks voor README, env, CI, deploy en security, daarna issue drafts, PR tekst en release checklist.",
     outcomes: ["Score", "Blockers", "Issue drafts", "PR beschrijving"],
@@ -203,12 +179,397 @@ const homeCopy = {
   programmingLab: string;
 }>;
 
+const homePreviewCopy: Record<InterfaceLanguage, {
+  outcomesAria: string;
+  reportAria: string;
+  prText: string;
+}> = {
+  en: {
+    outcomesAria: "Core outcomes",
+    reportAria: "Report preview",
+    prText: `## Launch readiness audit
+
+Score: 86/100
+Risk: Low
+
+### Today
+- [ ] Document env keys by environment
+
+### Before public launch
+- [ ] Keep quick start under five minutes
+- [ ] Keep release checklist visible
+
+### Verification
+npm run lint
+npm run build`,
+  },
+  zh: {
+    outcomesAria: "核心结果",
+    reportAria: "报告预览",
+    prText: `## 上线前体检
+
+评分: 86/100
+风险: 低
+
+### 今天
+- [ ] 按环境补全变量说明
+
+### 公开发布前
+- [ ] 快速开始控制在五分钟内
+- [ ] 发布清单放在可见位置
+
+### 验证
+npm run lint
+npm run build`,
+  },
+  ja: {
+    outcomesAria: "主な結果",
+    reportAria: "レポートプレビュー",
+    prText: `## 公開前診断
+
+スコア: 86/100
+リスク: 低
+
+### 今日
+- [ ] 環境ごとの変数を文書化
+
+### 公開前
+- [ ] クイックスタートを五分以内にする
+- [ ] リリースチェックリストを見える場所に置く
+
+### 検証
+npm run lint
+npm run build`,
+  },
+  ko: {
+    outcomesAria: "핵심 결과",
+    reportAria: "보고서 미리보기",
+    prText: `## 출시 전 점검
+
+점수: 86/100
+위험: 낮음
+
+### 오늘
+- [ ] 환경별 변수 문서화
+
+### 공개 출시 전
+- [ ] 빠른 시작을 5분 안으로 유지
+- [ ] 릴리스 체크리스트를 보이게 유지
+
+### 검증
+npm run lint
+npm run build`,
+  },
+  es: {
+    outcomesAria: "Resultados clave",
+    reportAria: "Vista previa del informe",
+    prText: `## Auditoria antes del lanzamiento
+
+Puntuacion: 86/100
+Riesgo: bajo
+
+### Hoy
+- [ ] Documentar variables por entorno
+
+### Antes de publicar
+- [ ] Mantener el inicio rapido bajo cinco minutos
+- [ ] Mantener visible la checklist de release
+
+### Verificacion
+npm run lint
+npm run build`,
+  },
+  fr: {
+    outcomesAria: "Resultats principaux",
+    reportAria: "Apercu du rapport",
+    prText: `## Audit avant lancement
+
+Score: 86/100
+Risque: faible
+
+### Aujourd hui
+- [ ] Documenter les variables par environnement
+
+### Avant publication
+- [ ] Garder le demarrage rapide sous cinq minutes
+- [ ] Rendre la checklist de release visible
+
+### Verification
+npm run lint
+npm run build`,
+  },
+  de: {
+    outcomesAria: "Kernergebnisse",
+    reportAria: "Berichtsvorschau",
+    prText: `## Launch Audit
+
+Score: 86/100
+Risiko: niedrig
+
+### Heute
+- [ ] Env Variablen pro Umgebung dokumentieren
+
+### Vor dem oeffentlichen Launch
+- [ ] Quick Start unter fuenf Minuten halten
+- [ ] Release Checkliste sichtbar halten
+
+### Verifizierung
+npm run lint
+npm run build`,
+  },
+  pt: {
+    outcomesAria: "Resultados principais",
+    reportAria: "Previa do relatorio",
+    prText: `## Auditoria antes do lancamento
+
+Pontuacao: 86/100
+Risco: baixo
+
+### Hoje
+- [ ] Documentar env por ambiente
+
+### Antes do lancamento publico
+- [ ] Manter inicio rapido abaixo de cinco minutos
+- [ ] Manter checklist de release visivel
+
+### Verificacao
+npm run lint
+npm run build`,
+  },
+  ru: {
+    outcomesAria: "Ключевые результаты",
+    reportAria: "Предпросмотр отчета",
+    prText: `## Аудит перед запуском
+
+Оценка: 86/100
+Риск: низкий
+
+### Сегодня
+- [ ] Описать env ключи по окружениям
+
+### Перед публичным запуском
+- [ ] Удержать quick start до пяти минут
+- [ ] Оставить release checklist видимым
+
+### Проверка
+npm run lint
+npm run build`,
+  },
+  ar: {
+    outcomesAria: "النتائج الأساسية",
+    reportAria: "معاينة التقرير",
+    prText: `## تدقيق الجاهزية للإطلاق
+
+النتيجة: 86/100
+المخاطر: منخفضة
+
+### اليوم
+- [ ] وثق مفاتيح البيئة حسب كل بيئة
+
+### قبل الإطلاق العام
+- [ ] اجعل البداية السريعة أقل من خمس دقائق
+- [ ] اجعل قائمة الإطلاق ظاهرة للفريق
+
+### التحقق
+npm run lint
+npm run build`,
+  },
+  hi: {
+    outcomesAria: "मुख्य परिणाम",
+    reportAria: "रिपोर्ट पूर्वावलोकन",
+    prText: `## लॉन्च तैयारी ऑडिट
+
+स्कोर: 86/100
+जोखिम: कम
+
+### आज
+- [ ] हर environment के env keys लिखें
+
+### सार्वजनिक लॉन्च से पहले
+- [ ] Quick start पांच मिनट से कम रखें
+- [ ] Release checklist साफ दिखाएं
+
+### जांच
+npm run lint
+npm run build`,
+  },
+  id: {
+    outcomesAria: "Hasil utama",
+    reportAria: "Pratinjau laporan",
+    prText: `## Audit kesiapan rilis
+
+Skor: 86/100
+Risiko: rendah
+
+### Hari ini
+- [ ] Dokumentasikan env key per lingkungan
+
+### Sebelum rilis publik
+- [ ] Jaga quick start di bawah lima menit
+- [ ] Buat checklist rilis mudah terlihat
+
+### Verifikasi
+npm run lint
+npm run build`,
+  },
+  vi: {
+    outcomesAria: "Ket qua chinh",
+    reportAria: "Xem truoc bao cao",
+    prText: `## Kiem tra san sang ra mat
+
+Diem: 86/100
+Rui ro: thap
+
+### Hom nay
+- [ ] Ghi ro env key theo tung moi truong
+
+### Truoc khi ra mat cong khai
+- [ ] Giu quick start duoi nam phut
+- [ ] De checklist release o noi de thay
+
+### Kiem tra
+npm run lint
+npm run build`,
+  },
+  th: {
+    outcomesAria: "ผลลัพธ์หลัก",
+    reportAria: "ตัวอย่างรายงาน",
+    prText: `## ตรวจความพร้อมก่อนปล่อย
+
+คะแนน: 86/100
+ความเสี่ยง: ต่ำ
+
+### วันนี้
+- [ ] เขียน env key แยกตาม environment
+
+### ก่อนเปิดสาธารณะ
+- [ ] ทำ quick start ให้น้อยกว่า 5 นาที
+- [ ] วาง release checklist ให้ทีมเห็น
+
+### ตรวจสอบ
+npm run lint
+npm run build`,
+  },
+  tr: {
+    outcomesAria: "Ana sonuclar",
+    reportAria: "Rapor onizleme",
+    prText: `## Yayin hazirlik denetimi
+
+Skor: 86/100
+Risk: dusuk
+
+### Bugun
+- [ ] Env anahtarlarini ortama gore belgeleyin
+
+### Halka acik yayindan once
+- [ ] Quick start bes dakikanin altinda kalsin
+- [ ] Release checklist gorunur olsun
+
+### Dogrulama
+npm run lint
+npm run build`,
+  },
+  it: {
+    outcomesAria: "Risultati chiave",
+    reportAria: "Anteprima report",
+    prText: `## Audit prontezza lancio
+
+Punteggio: 86/100
+Rischio: basso
+
+### Oggi
+- [ ] Documentare le env key per ambiente
+
+### Prima del lancio pubblico
+- [ ] Tenere il quick start sotto cinque minuti
+- [ ] Tenere visibile la checklist release
+
+### Verifica
+npm run lint
+npm run build`,
+  },
+  nl: {
+    outcomesAria: "Kernresultaten",
+    reportAria: "Rapportvoorbeeld",
+    prText: `## Launch gereedheidsaudit
+
+Score: 86/100
+Risico: laag
+
+### Vandaag
+- [ ] Documenteer env keys per omgeving
+
+### Voor publieke launch
+- [ ] Houd quick start onder vijf minuten
+- [ ] Houd release checklist zichtbaar
+
+### Controle
+npm run lint
+npm run build`,
+  },
+  pl: {
+    outcomesAria: "Glowne wyniki",
+    reportAria: "Podglad raportu",
+    prText: `## Audyt gotowosci publikacji
+
+Wynik: 86/100
+Ryzyko: niskie
+
+### Dzisiaj
+- [ ] Opisz env key dla kazdego srodowiska
+
+### Przed publiczna publikacja
+- [ ] Utrzymaj quick start ponizej pieciu minut
+- [ ] Utrzymaj release checklist w widocznym miejscu
+
+### Weryfikacja
+npm run lint
+npm run build`,
+  },
+};
+
+export async function generateMetadata({ searchParams }: { searchParams: HomeSearchParams }): Promise<Metadata> {
+  const params = await searchParams;
+  const language = resolveHomeLanguage(params?.lang, params?.ui);
+  const t = homeCopy[language];
+  const title = `${t.eyebrow} | JinMing Lab`;
+
+  return {
+    title,
+    description: t.subtitle,
+    keywords: [
+      "GitHub launch audit",
+      "repo readiness checker",
+      "deterministic checks",
+      "release checklist",
+      "GitHub issue template",
+      "PR description generator",
+      "GitHub 项目体检",
+    ],
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: {
+      title,
+      description: t.subtitle,
+      url: "https://vantaapi.com",
+      siteName: "JinMing Lab",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description: t.subtitle,
+    },
+  };
+}
+
 export default async function HomePage({ searchParams }: { searchParams: HomeSearchParams }) {
   const params = await searchParams;
   const language = resolveHomeLanguage(params?.lang, params?.ui);
-  const zh = language === "zh";
   const isRtl = language === "ar";
   const t = homeCopy[language];
+  const preview = homePreviewCopy[language];
 
   const scorecards = [
     ["README", "90", t.pass],
@@ -241,14 +602,14 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
           <h1>{t.title}</h1>
           <p>{t.subtitle}</p>
           <RepoAuditForm language={language} />
-          <div className="home-audit-outcomes" aria-label={zh ? "核心结果" : "Core outcomes"}>
+          <div className="home-audit-outcomes" aria-label={preview.outcomesAria}>
             {t.outcomes.map((item) => (
               <span key={item}>{item}</span>
             ))}
           </div>
         </div>
 
-        <div className="home-audit-preview" aria-label={zh ? "报告预览" : "Report preview"}>
+        <div className="home-audit-preview" aria-label={preview.reportAria}>
           <div className="home-audit-report">
             <div className="home-audit-report-head">
               <div>
@@ -282,21 +643,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
                 <p className="eyebrow">{t.pr}</p>
                 <h3>{t.workflow}</h3>
               </div>
-              <pre>{`## Launch readiness audit
-
-Score: 86/100
-Risk: Low
-
-### Today
-- [ ] Document env keys by environment
-
-### Before public launch
-- [ ] Keep quick start under five minutes
-- [ ] Keep release checklist visible
-
-### Verification
-npm run lint
-npm run build`}</pre>
+              <pre>{preview.prText}</pre>
             </div>
           </div>
         </div>
