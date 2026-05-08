@@ -1,0 +1,112 @@
+/* Small reusable utilities */
+
+/* Hairline rule */
+.rule {
+  border: 0;
+  border-top: 1px solid var(--hair);
+  height: 0;
+}
+.rule-strong {
+  border: 0;
+  border-top: 1px solid var(--hair-strong);
+  height: 0;
+}
+
+/* Small caps eyebrow, USACO-style */
+.eyebrow {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* A subtle underline that looks like an academic section heading */
+.section-rule {
+  position: relative;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hair);
+}
+.section-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 56px;
+  height: 2px;
+  background: var(--accent);
+}
+
+/* Links */
+a.link {
+  color: var(--accent-link);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(29, 78, 216, 0.25);
+  transition: border-color 120ms ease, color 120ms ease;
+}
+a.link:hover {
+  color: var(--accent-strong);
+  border-bottom-color: var(--accent-link);
+}
+
+/* Data tables: USACO-style */
+table.academic {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+table.academic th,
+table.academic td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hair);
+  text-align: left;
+}
+table.academic thead th {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--hair-strong);
+  background: var(--surface-alt);
+}
+table.academic tbody tr:hover {
+  background: var(--surface-alt);
+}
+
+/* Division pill (Bronze/Silver/Gold/Platinum) */
+.division {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--hair-strong);
+  border-radius: 2px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  background: var(--surface);
+}
+.division .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+}
+.division-bronze  { color: var(--bronze); }
+.division-bronze  .dot { background: var(--bronze); }
+.division-silver  { color: var(--silver); }
+.division-silver  .dot { background: var(--silver); }
+.division-gold    { color: var(--gold); }
+.division-gold    .dot { background: var(--gold); }
+.division-platinum{ color: var(--platinum); }
+.division-platinum .dot { background: var(--platinum); }
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--accent-link);
+  outline-offset: 3px;
+}
