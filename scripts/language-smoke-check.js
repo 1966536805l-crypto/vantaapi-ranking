@@ -220,6 +220,22 @@ async function main() {
     4,
   );
   await checkPage(
+    "programming-javascript-zh",
+    "/programming/javascript?lang=zh",
+    "zh-CN,zh;q=0.9,en;q=0.2",
+    ["JavaScript 是什么", "先定义", "开发者工具", "编程陪练"],
+    ["What is JavaScript", "Definition first", "DevTools", "Code AI"],
+    26,
+  );
+  await checkPage(
+    "programming-javascript-ja",
+    "/programming/javascript?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["JavaScript とは何か", "まず定義", "開発者ツール", "プログラミング コンパニオン"],
+    ["What is JavaScript", "Definition first", "DevTools", "Code AI"],
+    27,
+  );
+  await checkPage(
     "programming-rust-ar",
     "/programming/rust?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
