@@ -462,7 +462,7 @@ async function main() {
     "/today?lang=ja",
     "ja-JP,ja;q=0.9,en;q=0.2",
     ["今日の学習", "今日の進捗", "英語ディクテーション入力", "明日の予告"],
-    ["今日学习", "先复习", "Today Plan", "Today Progress"],
+    ["今日学习", "先复习", "连贯的", "基础设施", "Today Plan", "Today Progress"],
     50,
   );
   await checkVisibleText(
@@ -470,8 +470,16 @@ async function main() {
     "/today?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
     ["خطة اليوم", "تقدم اليوم", "إملاء إنجليزي بالكتابة", "معاينة الغد"],
-    ["今日学习", "先复习", "Today Plan", "Today Progress"],
+    ["今日学习", "先复习", "连贯的", "基础设施", "Today Plan", "Today Progress"],
     51,
+  );
+  await checkPage(
+    "today-ja-clean-payload",
+    "/today?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["今日の学習", "cohesive essay/community"],
+    ["meaningZh\":\"连贯的", "初一原创英语文章", "雅思原创题库", "考研英语"],
+    52,
   );
   await checkPage(
     "english-hub-ja",

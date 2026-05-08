@@ -138,12 +138,12 @@ export default async function TodayPage({
   const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   const packs = examVocabularyPacks.map((pack) => ({
     slug: pack.slug,
-    shortTitle: pack.shortTitle,
+    shortTitle: language === "zh" || pack.shortTitle !== "考研英语" ? pack.shortTitle : "Postgraduate English",
     level: pack.level,
     route: pack.route,
     words: pack.priorityWords.map((word) => ({
       word: word.word,
-      meaningZh: word.meaningZh,
+      meaningZh: language === "zh" ? word.meaningZh : "",
       collocation: word.collocation,
     })),
   }));
@@ -154,11 +154,14 @@ export default async function TodayPage({
       <TodayStudyPlan
         initialLanguage={language}
         packs={packs}
-        readingPacks={originalReadingPacks}
+        readingPacks={originalReadingPacks.map((pack) => ({
+          ...pack,
+          zhTitle: language === "zh" ? pack.zhTitle : "",
+        }))}
         questionPacks={originalQuestionPacks.map((pack) => ({
           slug: pack.slug,
           title: pack.title,
-          zhTitle: pack.zhTitle,
+          zhTitle: language === "zh" ? pack.zhTitle : "",
           level: pack.level,
         }))}
       />

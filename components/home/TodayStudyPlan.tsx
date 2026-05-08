@@ -1626,7 +1626,7 @@ export default function TodayStudyPlan({ initialLanguage, packs, readingPacks, q
                     <span className="font-semibold">{word.word}</span>
                     <span className="text-xs text-slate-300">{copy.stage} {word.stage}</span>
                   </div>
-                  <p className="mt-1 text-xs leading-5 text-slate-300">{word.meaningZh} · {word.dueText}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-300">{displayWordDetail(word, language, word.dueText)}</p>
                 </Link>
               ))
             ) : (
@@ -1636,7 +1636,7 @@ export default function TodayStudyPlan({ initialLanguage, packs, readingPacks, q
                     <span className="font-semibold">{word.word}</span>
                     <span className="text-xs text-slate-300">{copy.newLabel}</span>
                   </div>
-                  <p className="mt-1 text-xs leading-5 text-slate-300">{word.meaningZh} · {word.collocation}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-300">{displayWordDetail(word, language)}</p>
                 </Link>
               ))
             )}
@@ -1696,6 +1696,12 @@ export default function TodayStudyPlan({ initialLanguage, packs, readingPacks, q
 function displayPackTitle(pack: { title?: string; zhTitle?: string } | undefined, language: InterfaceLanguage, fallback: string) {
   if (!pack) return fallback;
   return language === "zh" ? pack.zhTitle || pack.title || fallback : pack.title || pack.zhTitle || fallback;
+}
+
+function displayWordDetail(word: TodayWord, language: InterfaceLanguage, suffix?: string) {
+  const primary = language === "zh" && word.meaningZh ? word.meaningZh : word.collocation;
+  const pieces = [primary, suffix].filter(Boolean);
+  return pieces.join(" · ");
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
