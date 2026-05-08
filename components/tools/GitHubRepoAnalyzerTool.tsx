@@ -1,28 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import GitHubRepoAnalyzerActions from "@/components/tools/github-repo-analyzer/GitHubRepoAnalyzerActions";
+import GitHubRepoAuditView from "@/components/tools/github-repo-analyzer/GitHubRepoAuditView";
 import ToolLayout, { type OutputBlock } from "@/components/tools/ToolLayout";
 import type { InterfaceLanguage } from "@/lib/language";
 
 import {
-  auditModeLabel,
   bulletList,
   decodeSharedAnalysis,
   encodeSharedAnalysis,
   findingList,
   formatGitHubRepoOutput,
   getAuditCopy,
-  impactLabel,
-  issueTitle,
   localizeAnalysisForDisplay,
   numberedList,
   qualityGateLabel,
-  repoAgeLabel,
   riskLevelLabel,
-  riskTone,
   sampleGitHubAnalysis,
   sampleRepoUrl,
-  scorecardStatusLabel,
   type GitHubRepoAnalysis,
   type GitHubRepoAnalyzerResponse,
 } from "@/lib/github-repo-analyzer-client";
@@ -173,300 +169,41 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
       language={language}
       blocks={blocks}
       actions={
-        <>
-          <button type="button" className="dense-action-primary" onClick={() => void analyzeRepo()} disabled={loading}>
-            {loading ? t.auditingRepo : t.auditRepo}
-          </button>
-          <button type="button" className="dense-action" onClick={runSampleAudit} disabled={loading}>
-            {t.previewReport}
-          </button>
-          <button type="button" className="dense-action" onClick={() => void analyzeRepo(sampleRepoUrl)} disabled={loading}>
-            {t.liveSample}
-          </button>
-          {analysis && (
-            <>
-              <button type="button" className="dense-action" onClick={copyShareLink}>
-                {shareStatus || t.copyShareLink}
-              </button>
-              <a className="dense-action" href={shareUrl} target="_blank" rel="noreferrer">
-                {t.openShare}
-              </a>
-              <button type="button" className="dense-action" onClick={() => copyAuditText(issueBundle, t.issuesCopied)}>
-                {t.copyIssues}
-              </button>
-              <button type="button" className="dense-action" onClick={() => copyAuditText(releaseBundle, t.releaseChecklistCopied)}>
-                {t.copyReleaseChecklist}
-              </button>
-              <button type="button" className="dense-action" onClick={() => copyAuditText(prDescription, t.prDescriptionCopied)}>
-                {t.copyPrDescription}
-              </button>
-              <a className="dense-action" href={analysis.repository.url} target="_blank" rel="noreferrer">
-                {t.openRepo}
-              </a>
-            </>
-          )}
-          <button type="button" className="dense-action" onClick={() => { setUrl(sampleRepoUrl); setError(""); setRunStatus(""); }}>
-            {t.resetSample}
-          </button>
-          <button type="button" className="dense-action" onClick={() => { setUrl(""); setAnalysis(null); setError(""); setRunStatus(""); }}>
-            {t.clear}
-          </button>
-        </>
+        <GitHubRepoAnalyzerActions
+          analysis={analysis}
+          issueBundle={issueBundle}
+          loading={loading}
+          prDescription={prDescription}
+          releaseBundle={releaseBundle}
+          shareStatus={shareStatus}
+          shareUrl={shareUrl}
+          t={t}
+          onAnalyze={(targetUrl) => void analyzeRepo(targetUrl)}
+          onClear={() => { setUrl(""); setAnalysis(null); setError(""); setRunStatus(""); }}
+          onCopyAuditText={(text, successMessage) => void copyAuditText(text, successMessage)}
+          onCopyShareLink={() => void copyShareLink()}
+          onResetSample={() => { setUrl(sampleRepoUrl); setError(""); setRunStatus(""); }}
+          onRunSampleAudit={runSampleAudit}
+          onRunSampleLive={() => void analyzeRepo(sampleRepoUrl)}
+        />
       }
     >
-      <p className="eyebrow">{t.repoUrl}</p>
-      <h2>{t.auditBlockers}</h2>
-      {displayAnalysis ? (
-        <section className={`repo-verdict repo-verdict-${riskTone(displayAnalysis.launchScore.riskLevel)}`}>
-          <div>
-            <p className="eyebrow">{t.verdict}</p>
-            <strong>{riskLevelLabel(displayAnalysis.launchScore.riskLevel, language)} {t.risk}</strong>
-            <span>{displayAnalysis.launchScore.summary}</span>
-          </div>
-          <div className="repo-score">
-            <strong>{displayAnalysis.launchScore.score}</strong>
-            <span>/100</span>
-          </div>
-          <div className="repo-next-step">
-            <p className="eyebrow">{t.nextFix}</p>
-            <span>{displayAnalysis.mustFix[0]}</span>
-          </div>
-        </section>
-      ) : (
-        <section className="repo-verdict repo-verdict-empty">
-          <div>
-            <p className="eyebrow">{t.reportShape}</p>
-            <strong>{t.reportShapeTitle}</strong>
-            <span>{t.reportShapeBody}</span>
-          </div>
-        </section>
-      )}
-      {displayAnalysis && (
-        <section className="repo-audit-brief">
-          <div>
-            <p className="eyebrow">{t.engine}</p>
-            <strong>{auditModeLabel(displayAnalysis.auditEngine?.mode, language)}</strong>
-            <span>{t.aiDependencyNone}</span>
-          </div>
-          <div>
-            <p className="eyebrow">{t.repository}</p>
-            <strong>{displayAnalysis.repository.fullName}</strong>
-            <span>{displayAnalysis.repository.language || t.unknown} · {displayAnalysis.repository.license || t.noLicense} · {repoAgeLabel(displayAnalysis.repository.pushedAt, language)}</span>
-          </div>
-          <div>
-            <p className="eyebrow">{t.impact}</p>
-            <strong>{impactLabel(displayAnalysis.launchScore.score, language)}</strong>
-            <span>{displayAnalysis.mustFix.length} {t.actionItems} · {displayAnalysis.copyableIssues.length} {t.issueDrafts}</span>
-          </div>
-          <div>
-            <p className="eyebrow">{t.qualityGates}</p>
-            <strong>{qualityGates[0]}</strong>
-            <span>{qualityGates.slice(1).join(" · ")}</span>
-          </div>
-        </section>
-      )}
-      {displayAnalysis && (
-        <section className="repo-command-board">
-          <div className="repo-command-head">
-            <div>
-              <p className="eyebrow">{t.doThisFirst}</p>
-              <h3>{t.turnIntoWork}</h3>
-              <span>{actionStatus || t.copyIntoGithub}</span>
-            </div>
-            <a href={displayAnalysis.repository.url} target="_blank" rel="noreferrer">{t.openRepo}</a>
-          </div>
-          <div className="repo-command-grid">
-            <button type="button" onClick={() => copyAuditText(numberedList(displayAnalysis.mustFix), t.mustFixCopied)}>
-              <span>01</span>
-              <strong>{t.copy} {t.mustFixFirst}</strong>
-              <em>{displayAnalysis.mustFix.length} {t.items}</em>
-            </button>
-            <button type="button" onClick={() => copyAuditText(issueBundle, t.issuesCopied)}>
-              <span>02</span>
-              <strong>{t.copyIssues}</strong>
-              <em>{displayAnalysis.copyableIssues.length} {t.drafts}</em>
-            </button>
-            <button type="button" onClick={() => copyAuditText(prDescription, t.prDescriptionCopied)}>
-              <span>03</span>
-              <strong>{t.copyPrDescription}</strong>
-              <em>{t.pasteReady}</em>
-            </button>
-            <button type="button" onClick={() => copyAuditText(releaseBundle, t.releaseChecklistCopied)}>
-              <span>04</span>
-              <strong>{t.copyReleaseChecklist}</strong>
-              <em>{displayAnalysis.releaseChecklist.length} {t.steps}</em>
-            </button>
-          </div>
-        </section>
-      )}
-      <section className="repo-flow-strip">
-        {t.repoFlow.map((item, index) => (
-          <span key={item} className={loading && index > 0 ? "repo-flow-pending" : ""}>
-            {item}
-          </span>
-        ))}
-        <strong>{displayedRunStatus}</strong>
-      </section>
-      <label className="block">
-        <span className="tool-label">{t.repoUrl}</span>
-        <input
-          value={url}
-          onChange={(event) => setUrl(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") void analyzeRepo();
-          }}
-          className="tool-input"
-          placeholder={sampleRepoUrl}
-        />
-      </label>
-      <div className="tool-field-grid">
-        <div className="dense-row">
-          <span className="text-sm font-semibold">{t.auditMethod}</span>
-          <span className="text-xs text-[color:var(--muted)]">{t.deterministicRules}</span>
-        </div>
-        <div className="dense-row">
-          <span className="text-sm font-semibold">{t.scope}</span>
-          <span className="text-xs text-[color:var(--muted)]">{t.publicRepoOnly}</span>
-        </div>
-        <div className="dense-row">
-          <span className="text-sm font-semibold">{t.reads}</span>
-          <span className="text-xs text-[color:var(--muted)]">{t.readsValue}</span>
-        </div>
-        {displayAnalysis && (
-          <div className="dense-row">
-            <span className="text-sm font-semibold">{t.score}</span>
-            <span className="text-xs text-[color:var(--muted)]">{displayAnalysis.launchScore.score}/100 {riskLevelLabel(displayAnalysis.launchScore.riskLevel, language)}</span>
-          </div>
-        )}
-      </div>
-      {displayAnalysis && (
-        <section className="repo-scorecard-grid">
-          {displayAnalysis.scorecard.map((item) => (
-            <article key={item.label} className={`repo-scorecard-item repo-scorecard-${item.status}`}>
-              <div>
-                <p className="eyebrow">{item.label}</p>
-                <strong>{item.score}</strong>
-              </div>
-              <span>{scorecardStatusLabel(item.status, language)}</span>
-              <p>{item.note}</p>
-            </article>
-          ))}
-        </section>
-      )}
-      {displayAnalysis && (
-        <section className="repo-priority-grid">
-          <article className="repo-priority-card repo-priority-today">
-            <p className="eyebrow">{t.fixToday}</p>
-            <ol className="repo-check-list">
-              {(displayAnalysis.priorityFixes.today.length ? displayAnalysis.priorityFixes.today : [t.noSameDayBlocker]).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ol>
-          </article>
-          <article className="repo-priority-card">
-            <p className="eyebrow">{t.beforeLaunch}</p>
-            <ol className="repo-check-list">
-              {(displayAnalysis.priorityFixes.beforeLaunch.length ? displayAnalysis.priorityFixes.beforeLaunch : [t.noPreLaunch]).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ol>
-          </article>
-          <article className="repo-priority-card">
-            <p className="eyebrow">{t.laterPolish}</p>
-            <ol className="repo-check-list">
-              {(displayAnalysis.priorityFixes.later.length ? displayAnalysis.priorityFixes.later : [t.laterFallback]).map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ol>
-          </article>
-        </section>
-      )}
-      {displayAnalysis && (
-        <section className="repo-evidence-grid">
-          {displayAnalysis.issueFindings.slice(0, 4).map((item) => (
-            <article key={`${item.severity}-${item.title}`} className={`repo-evidence-card repo-evidence-${item.severity.toLowerCase()}`}>
-              <div className="repo-evidence-head">
-                <span>{item.severity}</span>
-                <strong>{item.source}</strong>
-              </div>
-              <h3>{item.title}</h3>
-              <p>{item.evidence}</p>
-            </article>
-          ))}
-        </section>
-      )}
-      {displayAnalysis && (
-        <section className="repo-action-panel">
-          <div>
-            <p className="eyebrow">{t.shipNext}</p>
-            <h3>{t.turnReportIntoTasks}</h3>
-            <p>{actionStatus || t.actionPanelBody}</p>
-          </div>
-          <div className="repo-action-list">
-            {displayAnalysis.mustFix.slice(0, 3).map((item, index) => (
-              <div key={item} className="dense-row">
-                <span className="text-sm font-semibold">{String(index + 1).padStart(2, "0")}</span>
-                <span className="truncate text-xs text-[color:var(--muted)]">{item}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-      {displayAnalysis && (
-        <section className="repo-report-board">
-          <div className="repo-report-head">
-            <div>
-              <p className="eyebrow">{t.professionalReport}</p>
-              <h3>{t.launchReadinessReport}</h3>
-              <span>{displayAnalysis.repository.fullName} · {riskLevelLabel(displayAnalysis.launchScore.riskLevel, language)} {t.risk} · {displayAnalysis.copyableIssues.length} {t.issueDrafts}</span>
-            </div>
-            <div className="repo-report-score">
-              <strong>{displayAnalysis.launchScore.score}</strong>
-              <span>{t.launchScore}</span>
-            </div>
-          </div>
-
-          <div className="repo-report-grid">
-            <div className="repo-report-section repo-report-section-primary">
-              <div className="repo-report-section-head">
-                <p className="eyebrow">{t.mustFixFirst}</p>
-                <button type="button" onClick={() => copyAuditText(numberedList(displayAnalysis.mustFix), t.mustFixCopied)}>
-                  {t.copy}
-                </button>
-              </div>
-              <ol className="repo-check-list">
-                {displayAnalysis.mustFix.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ol>
-            </div>
-
-            <div className="repo-report-section">
-              <div className="repo-report-section-head">
-                <p className="eyebrow">{t.copyPrDescription.replace(/^Copy\s+/i, "").replace(/^复制\s*/, "")}</p>
-                <button type="button" onClick={() => copyAuditText(prDescription, t.prDescriptionCopied)}>
-                  {t.copy}
-                </button>
-              </div>
-              <pre className="repo-pr-description">{displayAnalysis.prDescription}</pre>
-            </div>
-          </div>
-
-          <div className="repo-issue-grid">
-            {displayAnalysis.copyableIssues.slice(0, 3).map((issue, index) => (
-              <article key={issue} className="repo-issue-card">
-                <div>
-                  <p className="eyebrow">Issue {String(index + 1).padStart(2, "0")}</p>
-                  <h4>{issueTitle(issue, index)}</h4>
-                </div>
-                <button type="button" onClick={() => copyAuditText(issue, t.issueCopied(index + 1))}>
-                  {t.copyIssue}
-                </button>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+      <GitHubRepoAuditView
+        actionStatus={actionStatus}
+        displayAnalysis={displayAnalysis}
+        displayedRunStatus={displayedRunStatus}
+        issueBundle={issueBundle}
+        language={language}
+        loading={loading}
+        prDescription={prDescription}
+        qualityGates={qualityGates}
+        releaseBundle={releaseBundle}
+        t={t}
+        url={url}
+        onAnalyze={(targetUrl) => void analyzeRepo(targetUrl)}
+        onCopyAuditText={(text, successMessage) => void copyAuditText(text, successMessage)}
+        onUrlChange={setUrl}
+      />
     </ToolLayout>
   );
 }
