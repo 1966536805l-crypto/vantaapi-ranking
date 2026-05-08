@@ -59,6 +59,7 @@ function loadEnvFile(file) {
 const explicitEnvFile = process.env.PRELAUNCH_ENV_FILE;
 const ignoreProcessEnv =
   Boolean(explicitEnvFile) && process.env.PRELAUNCH_IGNORE_PROCESS_ENV !== "false";
+const processEnvPriority = process.env.PRELAUNCH_PROCESS_ENV_PRIORITY === "true";
 function mergeNonEmpty(target, source) {
   for (const [key, value] of Object.entries(source)) {
     if (String(value || "").trim() || !(key in target)) target[key] = value;
@@ -67,6 +68,7 @@ function mergeNonEmpty(target, source) {
 }
 
 const env = {};
+if (processEnvPriority && !ignoreProcessEnv) mergeNonEmpty(env, process.env);
 if (explicitEnvFile) {
   mergeNonEmpty(env, loadEnvFile(explicitEnvFile));
 } else {
@@ -74,7 +76,7 @@ if (explicitEnvFile) {
   mergeNonEmpty(env, loadEnvFile(".env.production"));
   mergeNonEmpty(env, loadEnvFile(".env.vercel.production.local"));
 }
-if (!ignoreProcessEnv) mergeNonEmpty(env, process.env);
+if (!ignoreProcessEnv && !processEnvPriority) mergeNonEmpty(env, process.env);
 
 function envValue(name) {
   return String(env[name] || "").trim();
