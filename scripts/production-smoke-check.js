@@ -267,10 +267,19 @@ async function checkHealthApi() {
     const body = await response.text();
     if (response.status === 429) return logWarn("health-api", "rate limited; endpoint is protected");
     if (!response.ok) return logFail("health-api", `HTTP ${response.status}: ${body.slice(0, 120)}`);
-    if (!body.includes("\"product\":\"JinMing Lab\"") || !body.includes("\"checks\"")) {
+    let snapshot;
+    try {
+      snapshot = JSON.parse(body);
+    } catch {
+      return logFail("health-api", "response is not valid JSON");
+    }
+    if (snapshot?.product !== "JinMing Lab" || !Array.isArray(snapshot?.checks)) {
       return logFail("health-api", "response missing public health snapshot");
     }
-    logPass("health-api", "public health snapshot returned without secrets");
+    if (snapshot?.build?.languageBootstrap !== "client-component" || !snapshot?.build?.commit) {
+      return logFail("health-api", "response missing safe build identity");
+    }
+    logPass("health-api", "public health snapshot and safe build identity returned without secrets");
   } catch (error) {
     logFail("health-api", error instanceof Error ? error.message : "request failed");
   }

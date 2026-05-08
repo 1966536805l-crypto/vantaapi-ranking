@@ -4,15 +4,42 @@ export type PublicHealthCheck = {
   detail: string;
 };
 
+export type PublicBuildInfo = {
+  commit: string;
+  branch: string;
+  environment: string;
+  deployment: string;
+  languageBootstrap: "client-component";
+};
+
 export type PublicHealthSnapshot = {
   product: "JinMing Lab";
   status: "operational" | "limited";
   generatedAt: string;
+  build: PublicBuildInfo;
   checks: PublicHealthCheck[];
 };
 
 function enabled(value: string | undefined) {
   return value === "true";
+}
+
+function publicValue(value: string | undefined, fallback: string) {
+  const clean = value?.trim();
+  return clean || fallback;
+}
+
+function buildInfo(): PublicBuildInfo {
+  const commit = publicValue(process.env.VERCEL_GIT_COMMIT_SHA, process.env.NEXT_PUBLIC_COMMIT_SHA || "local");
+  const deploymentUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "local";
+
+  return {
+    commit: commit === "local" ? commit : commit.slice(0, 12),
+    branch: publicValue(process.env.VERCEL_GIT_COMMIT_REF, "local"),
+    environment: publicValue(process.env.VERCEL_ENV || process.env.NODE_ENV, "local"),
+    deployment: deploymentUrl,
+    languageBootstrap: "client-component",
+  };
 }
 
 export function getPublicHealthSnapshot(): PublicHealthSnapshot {
@@ -73,6 +100,7 @@ export function getPublicHealthSnapshot(): PublicHealthSnapshot {
     product: "JinMing Lab",
     status: limited ? "limited" : "operational",
     generatedAt: new Date().toISOString(),
+    build: buildInfo(),
     checks,
   };
 }

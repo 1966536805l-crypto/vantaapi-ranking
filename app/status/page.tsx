@@ -13,6 +13,12 @@ type StatusCopy = {
   intro: string;
   snapshot: string;
   updated: string;
+  build: string;
+  commit: string;
+  branch: string;
+  environment: string;
+  deployment: string;
+  languageBootstrap: string;
   statusLabels: Record<PublicHealthCheck["status"], string>;
   links: { home: string; security: string; audit: string };
 };
@@ -25,6 +31,12 @@ const copy: Record<"en" | "zh", StatusCopy> = {
     intro: "A public, secret-free view of what is currently enabled for launch testing. It does not expose keys, database values, user data, or private system logs.",
     snapshot: "Current snapshot",
     updated: "Generated",
+    build: "Build identity",
+    commit: "Commit",
+    branch: "Branch",
+    environment: "Environment",
+    deployment: "Deployment",
+    languageBootstrap: "Language bootstrap",
     statusLabels: {
       operational: "Operational",
       protected: "Protected",
@@ -44,6 +56,12 @@ const copy: Record<"en" | "zh", StatusCopy> = {
     intro: "这是一个公开、无密钥的上线测试状态页。它不会展示密钥、数据库值、用户数据或私有系统日志。",
     snapshot: "当前快照",
     updated: "生成时间",
+    build: "构建版本",
+    commit: "提交",
+    branch: "分支",
+    environment: "环境",
+    deployment: "部署",
+    languageBootstrap: "语言启动",
     statusLabels: {
       operational: "正常",
       protected: "受保护",
@@ -120,6 +138,32 @@ export default async function StatusPage({ searchParams }: { searchParams?: Prom
             </span>
           </div>
           <p className="mt-3 text-sm font-semibold text-slate-600">{t.updated}: {date} UTC</p>
+        </section>
+
+        <section className="mt-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-600">{t.build}</p>
+          <div className="mt-4 grid gap-3 text-sm font-semibold text-slate-600 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <span className="block text-xs font-black uppercase text-slate-400">{t.commit}</span>
+              <code className="mt-1 block break-all rounded-md bg-slate-100 px-2 py-1 text-slate-800">{health.build.commit}</code>
+            </div>
+            <div>
+              <span className="block text-xs font-black uppercase text-slate-400">{t.branch}</span>
+              <code className="mt-1 block break-all rounded-md bg-slate-100 px-2 py-1 text-slate-800">{health.build.branch}</code>
+            </div>
+            <div>
+              <span className="block text-xs font-black uppercase text-slate-400">{t.environment}</span>
+              <code className="mt-1 block break-all rounded-md bg-slate-100 px-2 py-1 text-slate-800">{health.build.environment}</code>
+            </div>
+            <div className="sm:col-span-2">
+              <span className="block text-xs font-black uppercase text-slate-400">{t.deployment}</span>
+              <code className="mt-1 block break-all rounded-md bg-slate-100 px-2 py-1 text-slate-800">{health.build.deployment}</code>
+            </div>
+            <div>
+              <span className="block text-xs font-black uppercase text-slate-400">{t.languageBootstrap}</span>
+              <code className="mt-1 block break-all rounded-md bg-slate-100 px-2 py-1 text-slate-800">{health.build.languageBootstrap}</code>
+            </div>
+          </div>
         </section>
 
         <section className="mt-4 grid gap-3 sm:grid-cols-2">
