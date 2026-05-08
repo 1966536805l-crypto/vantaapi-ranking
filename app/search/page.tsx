@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { localizedHref, resolveLanguage, type PageSearchParams } from "@/lib/language";
+import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
+import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { searchSite, siteSearchItems } from "@/lib/site-search";
 
 type SearchPageProps = {
@@ -47,7 +48,8 @@ const priorityHrefs = [
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = searchParams ? await searchParams : undefined;
-  const language = resolveLanguage(params);
+  const language = resolveInterfaceLanguage(params);
+  const copyLanguage = bilingualLanguage(language);
   const rawQuery = Array.isArray(params?.q) ? params?.q[0] : params?.q;
   const query = (rawQuery || "").trim().slice(0, 80);
   const results = searchSite(query);
@@ -84,19 +86,20 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <header className="dense-panel flex flex-wrap items-center justify-between gap-3 p-4">
           <Link href={localizedHref("/", language)} className="dense-action">JinMing Lab</Link>
           <div className="flex flex-wrap gap-2">
-            <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action-primary">{language === "zh" ? "上线体检" : "Launch Audit"}</Link>
-            <Link href={localizedHref("/tools", language)} className="dense-action">{language === "zh" ? "AI 工具" : "AI Tools"}</Link>
-            <Link href={localizedHref("/programming", language)} className="dense-action">{language === "zh" ? "编程路线" : "Coding"}</Link>
+            <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action-primary">{copyLanguage === "zh" ? "上线体检" : "Launch Audit"}</Link>
+            <Link href={localizedHref("/tools", language)} className="dense-action">{copyLanguage === "zh" ? "AI 工具" : "AI Tools"}</Link>
+            <Link href={localizedHref("/programming", language)} className="dense-action">{copyLanguage === "zh" ? "编程路线" : "Coding"}</Link>
+            <FlagLanguageToggle initialLanguage={language} />
           </div>
         </header>
 
         <section className="mt-3 dense-panel overflow-hidden p-5 sm:p-6">
-          <p className="eyebrow">{language === "zh" ? "开发者工具搜索" : "Developer Tool Search"}</p>
+          <p className="eyebrow">{copyLanguage === "zh" ? "开发者工具搜索" : "Developer Tool Search"}</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-[1.04] sm:text-4xl">
-            {language === "zh" ? "搜索上线体检 AI 工具和编程路线" : "Search launch audits AI tools and coding routes"}
+            {copyLanguage === "zh" ? "搜索上线体检 AI 工具和编程路线" : "Search launch audits AI tools and coding routes"}
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--muted)]">
-            {language === "zh"
+            {copyLanguage === "zh"
               ? "公开入口先聚焦 GitHub 上线体检 Prompt 优化 Bug 定位 API 请求生成 JSON 正则时间戳和编程路线"
               : "Public search is focused on GitHub launch audits prompt tools bug fixing API generation dev utilities and coding routes"}
           </p>
@@ -107,11 +110,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               name="q"
               defaultValue={query}
               className="min-h-11 min-w-0 flex-1 rounded-[8px] border border-slate-200 bg-white px-4 text-sm font-semibold outline-none transition focus:border-slate-500"
-              placeholder={language === "zh" ? "搜索 GitHub prompt bug api json python" : "Search GitHub prompt bug api json python"}
+              placeholder={copyLanguage === "zh" ? "搜索 GitHub prompt bug api json python" : "Search GitHub prompt bug api json python"}
               autoFocus
             />
             <button className="dense-action-primary px-5 py-2.5" type="submit">
-              {language === "zh" ? "搜索" : "Search"}
+              {copyLanguage === "zh" ? "搜索" : "Search"}
             </button>
           </form>
 
@@ -126,8 +129,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
         <section className="mt-3 grid gap-3 lg:grid-cols-[300px_minmax(0,1fr)]">
           <aside className="dense-panel h-fit p-5">
-            <p className="eyebrow">{language === "zh" ? "索引" : "Index"}</p>
-            <h2 className="mt-2 text-2xl font-semibold">{siteSearchItems.length} {language === "zh" ? "个公开入口" : "public entries"}</h2>
+            <p className="eyebrow">{copyLanguage === "zh" ? "索引" : "Index"}</p>
+            <h2 className="mt-2 text-2xl font-semibold">{siteSearchItems.length} {copyLanguage === "zh" ? "个公开入口" : "public entries"}</h2>
             <div className="mt-4 grid gap-2">
               {Array.from(groupedCount.entries()).map(([category, count]) => (
                 <Link key={category} href={localizedHref(`/search?q=${encodeURIComponent(category)}`, language)} className="dense-row">
@@ -137,11 +140,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               ))}
             </div>
             <div className="mt-5 border-t border-slate-200 pt-4">
-              <p className="eyebrow">{language === "zh" ? "快速开始" : "Fast Start"}</p>
+              <p className="eyebrow">{copyLanguage === "zh" ? "快速开始" : "Fast Start"}</p>
               <div className="mt-3 grid gap-2">
-                <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action-primary justify-center">{language === "zh" ? "运行 GitHub 上线体检" : "Run GitHub Launch Audit"}</Link>
-                <Link href={localizedHref("/tools/prompt-optimizer", language)} className="dense-action justify-center">{language === "zh" ? "优化 Prompt" : "Optimize Prompt"}</Link>
-                <Link href={localizedHref("/tools/bug-finder", language)} className="dense-action justify-center">{language === "zh" ? "定位 Bug" : "Find Bug"}</Link>
+                <Link href={localizedHref("/tools/github-repo-analyzer", language)} className="dense-action-primary justify-center">{copyLanguage === "zh" ? "运行 GitHub 上线体检" : "Run GitHub Launch Audit"}</Link>
+                <Link href={localizedHref("/tools/prompt-optimizer", language)} className="dense-action justify-center">{copyLanguage === "zh" ? "优化 Prompt" : "Optimize Prompt"}</Link>
+                <Link href={localizedHref("/tools/bug-finder", language)} className="dense-action justify-center">{copyLanguage === "zh" ? "定位 Bug" : "Find Bug"}</Link>
               </div>
             </div>
           </aside>
@@ -149,9 +152,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <section className="dense-panel p-5">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="eyebrow">{query ? (language === "zh" ? "结果" : "Results") : (language === "zh" ? "从这里开始" : "Start Here")}</p>
+                <p className="eyebrow">{query ? (copyLanguage === "zh" ? "结果" : "Results") : (copyLanguage === "zh" ? "从这里开始" : "Start Here")}</p>
                 <h2 className="mt-2 text-2xl font-semibold">
-                  {query ? `${results.length} ${language === "zh" ? "个匹配" : "matches for"} ${query}` : (language === "zh" ? "最有用的入口" : "Most useful entries")}
+                  {query ? `${results.length} ${copyLanguage === "zh" ? "个匹配" : "matches for"} ${query}` : (copyLanguage === "zh" ? "最有用的入口" : "Most useful entries")}
                 </h2>
               </div>
               <span className="dense-status">local index</span>
@@ -161,7 +164,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <div className="dense-card p-5">
                 <h3 className="text-xl font-semibold">No match yet</h3>
                 <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
-                {language === "zh" ? "试试更短的词 比如 GitHub prompt bug api json python" : "Try shorter words like GitHub prompt bug api json python"}
+                {copyLanguage === "zh" ? "试试更短的词 比如 GitHub prompt bug api json python" : "Try shorter words like GitHub prompt bug api json python"}
                 </p>
               </div>
             ) : (

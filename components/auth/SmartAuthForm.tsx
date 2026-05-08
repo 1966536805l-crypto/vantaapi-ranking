@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import TurnstileWidget from "@/components/security/TurnstileWidget";
-import { localizedHref, type SiteLanguage } from "@/lib/language";
+import { bilingualLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
 
 type AuthMode = "login" | "register";
 
@@ -16,7 +16,7 @@ type AuthUser = {
 };
 
 type SmartAuthFormProps = {
-  language?: SiteLanguage;
+  language?: InterfaceLanguage;
   nextHref?: string;
   allowRegister?: boolean;
   initialMode?: AuthMode;
@@ -97,7 +97,7 @@ export default function SmartAuthForm({
   allowRegister = false,
   initialMode = "login",
 }: SmartAuthFormProps) {
-  const t = copy[language];
+  const t = copy[bilingualLanguage(language)];
   const [mode, setMode] = useState<AuthMode>(allowRegister ? initialMode : "login");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");

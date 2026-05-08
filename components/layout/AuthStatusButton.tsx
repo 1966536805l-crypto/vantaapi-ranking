@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { localizedHref, type SiteLanguage } from "@/lib/language";
+import { bilingualLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
 
 type HeaderUser = {
   id: string;
@@ -24,8 +24,8 @@ const copy = {
   },
 } as const;
 
-export default function AuthStatusButton({ language = "en" }: { language?: SiteLanguage }) {
-  const t = copy[language];
+export default function AuthStatusButton({ language = "en" }: { language?: InterfaceLanguage }) {
+  const t = copy[bilingualLanguage(language)];
   const [user, setUser] = useState<HeaderUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
