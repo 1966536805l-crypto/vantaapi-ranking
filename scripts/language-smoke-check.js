@@ -215,8 +215,8 @@ async function main() {
     "programming-ar",
     "/programming/javascript?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
-    ["ما هي JavaScript", "التعريف أولا", "تطبيقات الويب والأتمتة وربط الواجهات", "قيد التوسيع", "مدخلات مخرجات return", "ابحث عن لغة", "53 من 53", "Enter يفتح أول نتيجة", "hrefLang=\"ar\"", "https://vantaapi.com/programming/javascript?lang=ar", "/programming/python?lang=ar"],
-    ["What is JavaScript", "Full screen", "input output return reusable actions", "لغة لتطبيقات الويب", "مناسب لـ لغة"],
+    ["ما هي JavaScript", "التعريف أولا", "تطبيقات الويب والأتمتة وربط الواجهات", "قيد التوسيع", "مدخلات مخرجات return", "أدوات المطور", "ابحث عن لغة", "53 من 53", "Enter يفتح أول نتيجة", "hrefLang=\"ar\"", "https://vantaapi.com/programming/javascript?lang=ar", "/programming/python?lang=ar"],
+    ["What is JavaScript", "Full screen", "input output return reusable actions", "DevTools", "لغة لتطبيقات الويب", "مناسب لـ لغة"],
     4,
   );
   await checkPage(
