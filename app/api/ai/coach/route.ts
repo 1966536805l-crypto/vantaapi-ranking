@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { guardedJson, readJsonBody, requireSameOrigin, sanitizeText } from "@/lib/api-guard";
 import { askCoach, streamCoach, type CoachMode } from "@/lib/ai-coaches";
 import { requireUser } from "@/lib/auth";
+import { isInterfaceLanguage } from "@/lib/language";
 import { checkRateLimit, checkRateLimitAsync, getRateLimitKey } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +62,8 @@ export async function POST(request: NextRequest) {
 
   const mode = parsedBody.body.mode === "english" ? "english" : "programming";
   const prompt = sanitizeText(String(parsedBody.body.prompt || ""), 900);
-  const language = parsedBody.body.language === "zh" ? "zh" : "en";
+  const rawLanguage = typeof parsedBody.body.language === "string" ? parsedBody.body.language : undefined;
+  const language = isInterfaceLanguage(rawLanguage) ? rawLanguage : "en";
   const wantsStream = parsedBody.body.stream === true;
 
   if (!prompt && !parsedBody.body.context) {
