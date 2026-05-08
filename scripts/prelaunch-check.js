@@ -520,6 +520,35 @@ function checkFocusedRobots() {
   ok("seo:robots-focus", "robots disallows off-focus surfaces and points to sitemap");
 }
 
+function checkProgrammingSurface() {
+  const sitemap = read("app/sitemap.ts");
+  const robots = read("app/robots.ts");
+  const search = read("lib/site-search.ts");
+  const home = read("app/page.tsx");
+  const issues = [];
+
+  if (!sitemap.includes('"/programming"') && !sitemap.includes("'/programming'")) {
+    issues.push("missing /programming from sitemap");
+  }
+  if (robots.includes('"/programming"') || robots.includes("'/programming'")) {
+    issues.push("robots disallows /programming");
+  }
+  if (!search.includes('href: "/programming"') && !search.includes("href: '/programming'")) {
+    issues.push("missing /programming from site search");
+  }
+  if (!home.includes('localizedHref("/programming"') && !home.includes("localizedHref('/programming'")) {
+    issues.push("missing /programming from homepage navigation");
+  }
+
+  if (issues.length) {
+    action("Keep programming lane visible", "Programming remains a core secondary product lane. Keep /programming in sitemap, search, and homepage navigation while world-language learning can stay hidden.");
+    bad("surface:programming-lane", issues.join("; "));
+    return;
+  }
+
+  ok("surface:programming-lane", "programming stays visible while off-focus language learning remains hidden");
+}
+
 function checkLaunchDocs() {
   const body = read("README.md");
   const requiredCommands = [
@@ -596,6 +625,7 @@ async function main() {
   checkRetiredPageRedirects();
   checkFocusedSitemap();
   checkFocusedRobots();
+  checkProgrammingSurface();
   checkLaunchDocs();
   checkIgnoredLocalLaunchDrafts();
 

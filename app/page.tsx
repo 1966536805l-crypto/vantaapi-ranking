@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import RepoAuditForm from "@/components/home/RepoAuditForm";
+import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import { localizedHref, type SiteLanguage } from "@/lib/language";
 
 export const metadata: Metadata = {
@@ -74,7 +75,8 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
         <nav>
           <Link href={localizedHref("/tools/github-repo-analyzer", language)}>{zh ? "上线体检" : "Audit"}</Link>
           <Link href={localizedHref("/tools", language)}>{zh ? "工具" : "Tools"}</Link>
-          <Link href={zh ? "/?ui=english&lang=en" : "/?lang=zh"}>{zh ? "English" : "中文"}</Link>
+          <Link href={localizedHref("/programming", language)}>{zh ? "编程" : "Programming"}</Link>
+          <FlagLanguageToggle initialLanguage={language} />
         </nav>
       </header>
 
@@ -153,8 +155,8 @@ npm run build`}</pre>
       </section>
 
       <footer className="home-audit-footer">
-        <Link href={localizedHref("/tools", language)}>{zh ? "查看其他 AI 工具" : "View other AI tools"}</Link>
-        <Link href={localizedHref("/tools/learning-roadmap", language)}>{zh ? "学习路线放在二级入口" : "Learning roadmap stays secondary"}</Link>
+        <Link href={localizedHref("/tools", language)}>{zh ? "查看开发者工具" : "View developer tools"}</Link>
+        <Link href={localizedHref("/programming", language)}>{zh ? "进入编程训练" : "Open programming lab"}</Link>
       </footer>
     </main>
   );
