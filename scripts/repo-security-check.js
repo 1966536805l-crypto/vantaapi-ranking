@@ -110,8 +110,8 @@ const localDatabaseFiles = ["dev.db", "prisma/dev.db", "dev.sqlite", "prisma/dev
 if (localDatabaseFiles.length) fail("local-dev-db-present", `remove local DB files before release packaging: ${localDatabaseFiles.join(", ")}`);
 else pass("local-dev-db-present", "no legacy local dev database file is present");
 
-if (has("package.json", "security:full") && has("package.json", "security:repo") && has("package.json", "security:supply-chain") && has("package.json", "security:secrets")) {
-  pass("package-scripts", "full, repo, supply-chain, and secret security scripts are available");
+if (has("package.json", "security:full") && has("package.json", "security:repo") && has("package.json", "security:supply-chain") && has("package.json", "security:secrets") && has("package.json", "content:check") && has("package.json", "npm run content:check")) {
+  pass("package-scripts", "full, repo, content, supply-chain, and secret security scripts are available");
 } else {
   warn("package-scripts", "security script wiring should be reviewed");
 }

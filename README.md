@@ -98,6 +98,7 @@ Demo student users are also opt-in. Set `SEED_DEMO_USERS=true` and `SEED_STUDENT
 ## Verification
 
 ```bash
+npm run content:check
 npm run typecheck
 npm run lint
 npm run build
@@ -135,6 +136,7 @@ Use this short launch path:
 npm run launch:providers
 npm run launch:secrets
 npm run launch:production
+npm run content:check
 npm run build
 ```
 
@@ -161,6 +163,7 @@ What the commands do:
 - `launch:providers` tells you where to copy provider-owned values from: database, AI provider, GitHub, Turnstile, Redis.
 - `launch:secrets` prints fresh app-owned secrets for `JWT_SECRET`, `CSRF_SECRET`, and `ENCRYPTION_KEY`.
 - `launch:production` checks Vercel Production variables, pulls them into an ignored local env file, and validates them without printing secrets.
+- `content:check` blocks old brand residue, half-focused public positioning, and exaggerated exact content claims.
 - `language:smoke` checks multilingual routing, RTL document direction, localized surfaces, and explicit URL language precedence over old cookies.
 - `launch:smoke` checks the deployed site, robots, sitemap, retired API responses, and the GitHub Audit endpoint.
 

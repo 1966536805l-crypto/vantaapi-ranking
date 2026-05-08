@@ -571,6 +571,7 @@ function checkLaunchDocs() {
     "npm run launch:providers",
     "npm run launch:secrets",
     "npm run launch:production",
+    "npm run content:check",
     "npm run build",
     "npm run language:smoke",
     "npm run launch:smoke",
