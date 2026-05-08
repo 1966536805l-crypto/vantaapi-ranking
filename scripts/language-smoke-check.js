@@ -447,6 +447,22 @@ async function main() {
     ["返回语言列表", "第一课训练器", "打出这句"],
     46,
   );
+  await checkPage(
+    "world-language-detail-es",
+    "/languages/japanese?lang=es",
+    "es-ES,es;q=0.9,en;q=0.2",
+    ["Volver a idiomas", "desde cero", "Primeras tres frases", "Entrenador de primera leccion", "Escribe esta frase", "Orden desde cero"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    64,
+  );
+  await checkPage(
+    "world-language-detail-de",
+    "/languages/spanish?lang=de",
+    "de-DE,de;q=0.9,en;q=0.2",
+    ["Zurueck zu Sprachen", "von null", "Erste drei Saetze", "Trainer erste Lektion", "Diesen Satz tippen", "Null Basis Reihenfolge"],
+    ["Back to languages", "First three phrases", "First lesson trainer", "Type this phrase"],
+    65,
+  );
 
   await checkPage(
     "github-audit-de",

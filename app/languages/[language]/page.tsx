@@ -16,13 +16,6 @@ type WorldLanguagePageProps = {
   searchParams?: Promise<PageSearchParams>;
 };
 
-type DetailLanguage = "en" | "zh" | "ja" | "ar";
-
-function detailLanguage(language: InterfaceLanguage): DetailLanguage {
-  if (language === "zh" || language === "ja" || language === "ar") return language;
-  return "en";
-}
-
 const survivalSlots = [
   { key: "greeting", zh: "问候", fallback: "先学当地问候句" },
   { key: "thanks", zh: "感谢", fallback: "先学感谢句" },
@@ -44,7 +37,7 @@ const weekPlan = [
   { day: "第 7 天", zh: "复盘", body: "只留下十句真正能说出口的句子 进入下一周" },
 ];
 
-const detailCopy: Record<DetailLanguage, {
+type DetailCopy = {
   back: string;
   tools: string;
   programming: string;
@@ -62,7 +55,11 @@ const detailCopy: Record<DetailLanguage, {
   zeroStatus: string;
   sameFamilyEyebrow: string;
   sameFamilyTitle: string;
-}> = {
+};
+
+type BaseDetailLanguage = "en" | "zh" | "ja" | "ar";
+
+const baseDetailCopy: Record<BaseDetailLanguage, DetailCopy> = {
   en: {
     back: "Back to languages",
     tools: "AI Tools",
@@ -161,7 +158,167 @@ const detailCopy: Record<DetailLanguage, {
   },
 };
 
-const survivalSlotCopy: Record<DetailLanguage, Record<SurvivalPhraseKey, { label: string; fallback: string }>> = {
+const extendedDetailCopy: Partial<Record<InterfaceLanguage, DetailCopy>> = {
+  ko: {
+    back: "언어 목록으로 돌아가기",
+    tools: "AI 도구",
+    programming: "코딩 랩",
+    zero: "제로 베이스",
+    fromFirst: "첫 문장부터",
+    heroBody: (script) => `제로 베이스 첫 수업입니다. 소리를 듣고 ${script}을 보고 세 문장으로 자신감을 만듭니다.`,
+    firstThree: "첫 세 문장",
+    cards: (nativeName, script) => [
+      { eyebrow: "문자", title: script, body: "복잡한 규칙보다 쓰기 읽기 입력 방법을 먼저 익힙니다." },
+      { eyebrow: "목표", title: "먼저 말하기", body: `${nativeName}의 소리 문자 일상 문장부터 시작합니다.` },
+      { eyebrow: "방법", title: "듣기 보기 말하기 입력", body: "각 문장은 듣고 보고 따라 말하고 입력하는 루프로 갑니다." },
+      { eyebrow: "복습", title: "매일 10분", body: "어제의 세 문장을 살린 뒤 오늘 내용을 더합니다." },
+    ],
+    orderEyebrow: "제로 베이스 순서",
+    orderTitle: "모든 언어는 이 순서로 시작",
+    survivalEyebrow: "생존 문장",
+    survivalTitle: "첫 문장 슬롯",
+    weekEyebrow: "7일 시작",
+    weekTitle: "첫 주는 양보다 안정성",
+    zeroStatus: "제로 베이스",
+    sameFamilyEyebrow: "같은 어족",
+    sameFamilyTitle: "가까운 언어 비교",
+  },
+  es: {
+    back: "Volver a idiomas",
+    tools: "Herramientas AI",
+    programming: "Laboratorio de codigo",
+    zero: "desde cero",
+    fromFirst: "desde la primera frase",
+    heroBody: (script) => `Primera leccion desde cero. Escucha el sonido, conoce ${script} y gana confianza con tres frases.`,
+    firstThree: "Primeras tres frases",
+    cards: (nativeName, script) => [
+      { eyebrow: "Escritura", title: script, body: "Aprende como se escribe, lee y teclea antes de reglas complejas." },
+      { eyebrow: "Meta", title: "Hablar primero", body: `Empieza con sonido, escritura y frases diarias de ${nativeName}.` },
+      { eyebrow: "Metodo", title: "Escucha Mira Di Teclea", body: "Cada frase sigue un ciclo: escuchar, mirar, repetir y teclear." },
+      { eyebrow: "Repaso", title: "Diez minutos diarios", body: "Recupera las tres frases de ayer antes de agregar las de hoy." },
+    ],
+    orderEyebrow: "Orden desde cero",
+    orderTitle: "Cada idioma empieza con este orden",
+    survivalEyebrow: "Frases de supervivencia",
+    survivalTitle: "Primeros huecos de frase",
+    weekEyebrow: "Inicio de 7 dias",
+    weekTitle: "La primera semana busca estabilidad, no volumen",
+    zeroStatus: "desde cero",
+    sameFamilyEyebrow: "Misma familia",
+    sameFamilyTitle: "Compara idiomas cercanos",
+  },
+  fr: {
+    back: "Retour aux langues",
+    tools: "Outils IA",
+    programming: "Lab de code",
+    zero: "depuis zero",
+    fromFirst: "des la premiere phrase",
+    heroBody: (script) => `Premiere lecon depuis zero. Ecoute le son, observe ${script}, puis gagne confiance avec trois phrases.`,
+    firstThree: "Trois premieres phrases",
+    cards: (nativeName, script) => [
+      { eyebrow: "Ecriture", title: script, body: "Apprends comment ecrire, lire et saisir avant les regles complexes." },
+      { eyebrow: "But", title: "Parler d abord", body: `Commence ${nativeName} par le son, l ecriture et les phrases quotidiennes.` },
+      { eyebrow: "Methode", title: "Ecouter Voir Dire Taper", body: "Chaque phrase suit une boucle: ecouter, regarder, repeter, taper." },
+      { eyebrow: "Revision", title: "Dix minutes par jour", body: "Reveille les trois phrases d hier avant d ajouter celles d aujourd hui." },
+    ],
+    orderEyebrow: "Ordre debutant",
+    orderTitle: "Chaque langue commence par cet ordre",
+    survivalEyebrow: "Phrases utiles",
+    survivalTitle: "Premiers emplacements de phrases",
+    weekEyebrow: "Debut en 7 jours",
+    weekTitle: "La premiere semaine vise la stabilite, pas le volume",
+    zeroStatus: "depuis zero",
+    sameFamilyEyebrow: "Meme famille",
+    sameFamilyTitle: "Comparer les langues proches",
+  },
+  de: {
+    back: "Zurueck zu Sprachen",
+    tools: "KI Werkzeuge",
+    programming: "Programmierlabor",
+    zero: "von null",
+    fromFirst: "ab dem ersten Satz",
+    heroBody: (script) => `Erste Lektion von null. Hoere den Klang, lerne ${script} kennen und baue mit drei Saetzen Sicherheit auf.`,
+    firstThree: "Erste drei Saetze",
+    cards: (nativeName, script) => [
+      { eyebrow: "Schrift", title: script, body: "Lerne Schreiben, Lesen und Tippen vor komplexen Regeln." },
+      { eyebrow: "Ziel", title: "Erst sprechen", body: `Starte ${nativeName} mit Klang, Schrift und Alltagssaetzen.` },
+      { eyebrow: "Methode", title: "Hoeren Sehen Sagen Tippen", body: "Jeder Satz folgt einer Runde: hoeren, ansehen, nachsprechen, tippen." },
+      { eyebrow: "Wiederholung", title: "Zehn Minuten taeglich", body: "Hole die drei Saetze von gestern zurueck, bevor du neue hinzufuegst." },
+    ],
+    orderEyebrow: "Null Basis Reihenfolge",
+    orderTitle: "Jede Sprache beginnt mit dieser Reihenfolge",
+    survivalEyebrow: "Ueberlebenssaetze",
+    survivalTitle: "Erste Satzfelder",
+    weekEyebrow: "7 Tage Start",
+    weekTitle: "Die erste Woche zielt auf Stabilitaet, nicht Menge",
+    zeroStatus: "von null",
+    sameFamilyEyebrow: "Gleiche Familie",
+    sameFamilyTitle: "Nahe Sprachen vergleichen",
+  },
+  pt: {
+    back: "Voltar aos idiomas",
+    tools: "Ferramentas AI",
+    programming: "Lab de codigo",
+    zero: "do zero",
+    fromFirst: "desde a primeira frase",
+    heroBody: (script) => `Primeira aula do zero. Ouça o som, conheça ${script} e ganhe confiança com tres frases.`,
+    firstThree: "Primeiras tres frases",
+    cards: (nativeName, script) => [
+      { eyebrow: "Escrita", title: script, body: "Aprenda como escreve, le e digita antes de regras complexas." },
+      { eyebrow: "Meta", title: "Falar primeiro", body: `Comece ${nativeName} pelo som, escrita e frases diarias.` },
+      { eyebrow: "Metodo", title: "Ouvir Ver Falar Digitar", body: "Cada frase segue: ouvir, ver, repetir e digitar." },
+      { eyebrow: "Revisao", title: "Dez minutos por dia", body: "Recupere as frases de ontem antes de adicionar as de hoje." },
+    ],
+    orderEyebrow: "Ordem do zero",
+    orderTitle: "Todo idioma comeca nesta ordem",
+    survivalEyebrow: "Frases de sobrevivencia",
+    survivalTitle: "Primeiros espacos de frase",
+    weekEyebrow: "Inicio em 7 dias",
+    weekTitle: "A primeira semana busca estabilidade, nao volume",
+    zeroStatus: "do zero",
+    sameFamilyEyebrow: "Mesma familia",
+    sameFamilyTitle: "Compare idiomas proximos",
+  },
+  ru: {
+    back: "Назад к языкам",
+    tools: "AI инструменты",
+    programming: "Кодинг",
+    zero: "с нуля",
+    fromFirst: "с первой фразы",
+    heroBody: (script) => `Первый урок с нуля. Слушай звук, познакомься с ${script} и закрепи три фразы.`,
+    firstThree: "Первые три фразы",
+    cards: (nativeName, script) => [
+      { eyebrow: "Письмо", title: script, body: "Сначала узнай как писать, читать и вводить, потом сложные правила." },
+      { eyebrow: "Цель", title: "Сначала говорить", body: `Начни ${nativeName} со звука, письма и ежедневных фраз.` },
+      { eyebrow: "Метод", title: "Слушай Смотри Говори Печатай", body: "Каждая фраза проходит цикл: слушать, видеть, повторять, вводить." },
+      { eyebrow: "Повтор", title: "Десять минут в день", body: "Верни три вчерашние фразы перед новыми." },
+    ],
+    orderEyebrow: "Порядок с нуля",
+    orderTitle: "Каждый язык начинается с этого порядка",
+    survivalEyebrow: "Фразы выживания",
+    survivalTitle: "Первые слоты фраз",
+    weekEyebrow: "Старт за 7 дней",
+    weekTitle: "Первая неделя за стабильность, не за объем",
+    zeroStatus: "с нуля",
+    sameFamilyEyebrow: "Та же семья",
+    sameFamilyTitle: "Сравнить близкие языки",
+  },
+};
+
+const detailCopy: Record<InterfaceLanguage, DetailCopy> = {
+  ...baseDetailCopy,
+  ...extendedDetailCopy,
+  hi: baseDetailCopy.en,
+  id: baseDetailCopy.en,
+  vi: baseDetailCopy.en,
+  th: baseDetailCopy.en,
+  tr: baseDetailCopy.en,
+  it: baseDetailCopy.en,
+  nl: baseDetailCopy.en,
+  pl: baseDetailCopy.en,
+} as Record<InterfaceLanguage, DetailCopy>;
+
+const survivalSlotCopy: Partial<Record<InterfaceLanguage, Record<SurvivalPhraseKey, { label: string; fallback: string }>>> = {
   en: {
     greeting: { label: "Greeting", fallback: "Learn a local greeting first" },
     thanks: { label: "Thanks", fallback: "Learn a thank you phrase first" },
@@ -193,9 +350,69 @@ const survivalSlotCopy: Record<DetailLanguage, Record<SurvivalPhraseKey, { label
     direction: { label: "اتجاه", fallback: "تعلم أين هذا المكان" },
     price: { label: "السعر", fallback: "تعلم كم السعر" },
   },
+  ko: {
+    greeting: { label: "인사", fallback: "현지 인사부터 배우기" },
+    thanks: { label: "감사", fallback: "감사 표현부터 배우기" },
+    selfIntro: { label: "자기소개", fallback: "이 언어를 배우고 있어요 배우기" },
+    need: { label: "필요", fallback: "물이나 도움이 필요해요 배우기" },
+    confusion: { label: "이해 안 됨", fallback: "이해하지 못했어요 배우기" },
+    repeat: { label: "반복", fallback: "다시 말해 주세요 배우기" },
+    direction: { label: "방향", fallback: "여기가 어디인가요 배우기" },
+    price: { label: "가격", fallback: "얼마인가요 배우기" },
+  },
+  es: {
+    greeting: { label: "Saludo", fallback: "Aprende primero un saludo local" },
+    thanks: { label: "Gracias", fallback: "Aprende primero una frase de gracias" },
+    selfIntro: { label: "Presentacion", fallback: "Aprende estoy aprendiendo este idioma" },
+    need: { label: "Necesidad", fallback: "Aprende necesito agua o ayuda" },
+    confusion: { label: "No entiendo", fallback: "Aprende no entiendo" },
+    repeat: { label: "Repetir", fallback: "Aprende por favor repite" },
+    direction: { label: "Direccion", fallback: "Aprende donde esta este lugar" },
+    price: { label: "Precio", fallback: "Aprende cuanto cuesta" },
+  },
+  fr: {
+    greeting: { label: "Saluer", fallback: "Apprends une salutation locale" },
+    thanks: { label: "Remercier", fallback: "Apprends une phrase de remerciement" },
+    selfIntro: { label: "Presentation", fallback: "Apprends je suis en train d apprendre cette langue" },
+    need: { label: "Besoin", fallback: "Apprends j ai besoin d eau ou d aide" },
+    confusion: { label: "Je ne comprends pas", fallback: "Apprends je ne comprends pas" },
+    repeat: { label: "Repeter", fallback: "Apprends repetez s il vous plait" },
+    direction: { label: "Direction", fallback: "Apprends ou est cet endroit" },
+    price: { label: "Prix", fallback: "Apprends combien ca coute" },
+  },
+  de: {
+    greeting: { label: "Begruessung", fallback: "Lerne zuerst eine lokale Begruessung" },
+    thanks: { label: "Danke", fallback: "Lerne zuerst einen Dankessatz" },
+    selfIntro: { label: "Vorstellung", fallback: "Lerne ich lerne diese Sprache" },
+    need: { label: "Bedarf", fallback: "Lerne ich brauche Wasser oder Hilfe" },
+    confusion: { label: "Nicht verstanden", fallback: "Lerne ich verstehe nicht" },
+    repeat: { label: "Wiederholen", fallback: "Lerne bitte sagen Sie das noch einmal" },
+    direction: { label: "Richtung", fallback: "Lerne wo ist dieser Ort" },
+    price: { label: "Preis", fallback: "Lerne wie viel kostet es" },
+  },
+  pt: {
+    greeting: { label: "Saudacao", fallback: "Aprenda uma saudacao local primeiro" },
+    thanks: { label: "Obrigado", fallback: "Aprenda uma frase de agradecimento" },
+    selfIntro: { label: "Apresentacao", fallback: "Aprenda estou aprendendo esta lingua" },
+    need: { label: "Necessidade", fallback: "Aprenda preciso de agua ou ajuda" },
+    confusion: { label: "Nao entendi", fallback: "Aprenda nao entendi" },
+    repeat: { label: "Repetir", fallback: "Aprenda por favor repita" },
+    direction: { label: "Direcao", fallback: "Aprenda onde fica este lugar" },
+    price: { label: "Preco", fallback: "Aprenda quanto custa" },
+  },
+  ru: {
+    greeting: { label: "Приветствие", fallback: "Сначала выучи местное приветствие" },
+    thanks: { label: "Спасибо", fallback: "Сначала выучи фразу благодарности" },
+    selfIntro: { label: "О себе", fallback: "Выучи я учу этот язык" },
+    need: { label: "Нужно", fallback: "Выучи мне нужна вода или помощь" },
+    confusion: { label: "Не понимаю", fallback: "Выучи я не понимаю" },
+    repeat: { label: "Повторить", fallback: "Выучи пожалуйста повторите" },
+    direction: { label: "Направление", fallback: "Выучи где это место" },
+    price: { label: "Цена", fallback: "Выучи сколько это стоит" },
+  },
 };
 
-const weekPlanCopy: Record<DetailLanguage, { day: string; title: string; body: string }[]> = {
+const weekPlanCopy: Partial<Record<InterfaceLanguage, { day: string; title: string; body: string }[]>> = {
   en: [
     { day: "Day 1", title: "Only hear three phrases", body: "Listen ten times and imitate the sound before grammar." },
     { day: "Day 2", title: "Meet the script", body: "Check direction, shapes, and type the three phrases once." },
@@ -226,7 +443,7 @@ const weekPlanCopy: Record<DetailLanguage, { day: string; title: string; body: s
   ],
 };
 
-const starterStepDetailCopy: Record<DetailLanguage, Record<string, { title: string; body: string }>> = {
+const starterStepDetailCopy: Partial<Record<InterfaceLanguage, Record<string, { title: string; body: string }>>> = {
   en: {
     sound: { title: "Hear the sound", body: "Start with greeting thanks and self introduction before grammar." },
     script: { title: "Meet the script", body: "For non Latin scripts learn the writing system early." },
@@ -248,8 +465,9 @@ const starterStepDetailCopy: Record<DetailLanguage, Record<string, { title: stri
   },
 };
 
-function starterStepLabel(step: (typeof worldLanguageStarterPlan)[number], language: DetailLanguage) {
-  return starterStepDetailCopy[language][step.id] ?? {
+function starterStepLabel(step: (typeof worldLanguageStarterPlan)[number], language: InterfaceLanguage) {
+  const copy = starterStepDetailCopy[language] || starterStepDetailCopy.en;
+  return copy?.[step.id] ?? {
     title: language === "zh" ? step.zh : step.en,
     body: language === "zh" ? step.bodyZh : step.bodyEn,
   };
@@ -266,8 +484,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params, searchParams }: WorldLanguagePageProps): Promise<Metadata> {
   const { language } = await params;
   const interfaceLanguage = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
-  const copyLanguage = detailLanguage(interfaceLanguage);
-  const copy = detailCopy[copyLanguage];
+  const copy = detailCopy[interfaceLanguage];
   const current = getLanguage(language);
   if (!current) {
     return {
@@ -300,10 +517,11 @@ export async function generateMetadata({ params, searchParams }: WorldLanguagePa
 export default async function WorldLanguageDetailPage({ params, searchParams }: WorldLanguagePageProps) {
   const { language } = await params;
   const interfaceLanguage = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
-  const copyLanguage = detailLanguage(interfaceLanguage);
-  const copy = detailCopy[copyLanguage];
+  const copy = detailCopy[interfaceLanguage];
   const current = getLanguage(language);
   if (!current) notFound();
+  const survivalCopy = survivalSlotCopy[interfaceLanguage] || survivalSlotCopy.en!;
+  const weekCopy = weekPlanCopy[interfaceLanguage] || weekPlanCopy.en!;
 
   const sameFamily = worldLanguages
     .filter((item) => item.family === current.family && item.slug !== current.slug)
@@ -311,8 +529,8 @@ export default async function WorldLanguageDetailPage({ params, searchParams }: 
   const survivalPhrases = worldLanguageSurvivalPhrases[current.slug];
   const trainerPhrases = survivalSlots.map((slot, index) => ({
     key: slot.key,
-    label: survivalSlotCopy[copyLanguage][slot.key].label,
-    text: survivalPhrases?.[slot.key] ?? current.firstLesson[index] ?? survivalSlotCopy[copyLanguage][slot.key].fallback,
+    label: survivalCopy[slot.key].label,
+    text: survivalPhrases?.[slot.key] ?? current.firstLesson[index] ?? survivalCopy[slot.key].fallback,
   }));
 
   const jsonLd = {
@@ -403,8 +621,8 @@ export default async function WorldLanguageDetailPage({ params, searchParams }: 
                       {index + 1}
                     </span>
                     <div>
-                      <h3 className="font-semibold text-white">{starterStepLabel(step, copyLanguage).title}</h3>
-                      <p className="mt-1 text-sm leading-6 text-slate-300">{starterStepLabel(step, copyLanguage).body}</p>
+                      <h3 className="font-semibold text-white">{starterStepLabel(step, interfaceLanguage).title}</h3>
+                      <p className="mt-1 text-sm leading-6 text-slate-300">{starterStepLabel(step, interfaceLanguage).body}</p>
                     </div>
                   </div>
                 </div>
@@ -419,11 +637,11 @@ export default async function WorldLanguageDetailPage({ params, searchParams }: 
               {survivalSlots.map((slot, index) => (
                 <article key={slot.key} className="dense-card p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold">{survivalSlotCopy[copyLanguage][slot.key].label}</p>
+                    <p className="text-sm font-semibold">{survivalCopy[slot.key].label}</p>
                     <span className="dense-status">{String(index + 1).padStart(2, "0")}</span>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold">
-                    {survivalPhrases?.[slot.key] ?? current.firstLesson[index] ?? survivalSlotCopy[copyLanguage][slot.key].fallback}
+                    {survivalPhrases?.[slot.key] ?? current.firstLesson[index] ?? survivalCopy[slot.key].fallback}
                   </h3>
                 </article>
               ))}
@@ -440,7 +658,7 @@ export default async function WorldLanguageDetailPage({ params, searchParams }: 
             <span className="dense-status">{copy.zeroStatus}</span>
           </div>
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-            {weekPlanCopy[copyLanguage].map((item) => (
+            {weekCopy.map((item) => (
               <article key={item.day} className="dense-card p-4">
                 <p className="eyebrow">{item.day}</p>
                 <h3 className="mt-3 text-xl font-semibold">{item.title}</h3>

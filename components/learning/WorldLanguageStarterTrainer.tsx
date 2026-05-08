@@ -18,14 +18,7 @@ type WorldLanguageStarterTrainerProps = {
   interfaceLanguage?: InterfaceLanguage;
 };
 
-type TrainerLanguage = "en" | "zh" | "ja" | "ar";
-
-function trainerLanguage(language: InterfaceLanguage): TrainerLanguage {
-  if (language === "zh" || language === "ja" || language === "ar") return language;
-  return "en";
-}
-
-const trainerCopy: Record<TrainerLanguage, {
+type TrainerCopy = {
   initialMessage: string;
   unsupported: string;
   noVoice: string;
@@ -50,7 +43,9 @@ const trainerCopy: Record<TrainerLanguage, {
   shortcuts: string;
   shadow: string;
   shadowBody: string;
-}> = {
+};
+
+const baseTrainerCopy: Record<"en" | "zh" | "ja" | "ar", TrainerCopy> = {
   en: {
     initialMessage: "Listen first then use the shadow and type the full phrase",
     unsupported: "This browser does not support speech. Keep practicing with spelling.",
@@ -157,6 +152,174 @@ const trainerCopy: Record<TrainerLanguage, {
   },
 };
 
+const trainerCopy: Record<InterfaceLanguage, TrainerCopy> = {
+  ...baseTrainerCopy,
+  ko: {
+    initialMessage: "먼저 듣고 그림자 문장을 본 뒤 전체 문장을 입력하세요",
+    unsupported: "이 브라우저는 음성을 지원하지 않습니다. 철자 연습을 계속하세요.",
+    noVoice: "이 언어의 시스템 음성이 없습니다. 먼저 철자 연습을 하세요.",
+    nextMessage: "다음 문장입니다. 먼저 한 번 들으세요.",
+    passMessage: "통과했습니다. 다음 문장으로 이동합니다.",
+    retryMessage: "거의 맞았습니다. 천천히 다시 들어보세요.",
+    switchedMessage: "문장을 바꿨습니다.",
+    eyebrow: "첫 수업 트레이너",
+    title: (nativeName) => `${nativeName} 듣기와 철자`,
+    stats: (correct, wrong) => `정답 ${correct} 오답 ${wrong}`,
+    hidden: "먼저 듣기. 아직 답은 보지 않습니다.",
+    pronounce: "발음",
+    typeLabel: "이 문장 입력",
+    placeholder: "듣고 전체 문장을 입력",
+    check: "확인",
+    slow: "느리게",
+    hideShadow: "그림자 숨기기",
+    showShadow: "그림자 보기",
+    hideAnswer: "답 숨기기",
+    showAnswer: "답 보기",
+    next: "다음 문장",
+    shortcuts: "단축키",
+    shadow: "그림자",
+    shadowBody: "윤곽을 먼저 보고 전체 문장을 입력하세요.",
+  },
+  es: {
+    initialMessage: "Escucha primero usa la sombra y escribe la frase completa",
+    unsupported: "Este navegador no soporta voz. Sigue practicando ortografia.",
+    noVoice: "No hay voz del sistema para este idioma. Practica escritura primero.",
+    nextMessage: "Siguiente frase. Escucha una vez primero.",
+    passMessage: "Aprobado. Pasando a la siguiente frase.",
+    retryMessage: "Casi. Escucha otra vez lentamente.",
+    switchedMessage: "Frase cambiada.",
+    eyebrow: "Entrenador de primera leccion",
+    title: (nativeName) => `${nativeName} escucha y escritura`,
+    stats: (correct, wrong) => `Correctas ${correct} Errores ${wrong}`,
+    hidden: "Escucha primero. Sin respuesta todavia.",
+    pronounce: "Pronunciar",
+    typeLabel: "Escribe esta frase",
+    placeholder: "Escucha y escribe la frase completa",
+    check: "Revisar",
+    slow: "Lento",
+    hideShadow: "Ocultar sombra",
+    showShadow: "Mostrar sombra",
+    hideAnswer: "Ocultar respuesta",
+    showAnswer: "Ver respuesta",
+    next: "Siguiente frase",
+    shortcuts: "Atajos",
+    shadow: "Sombra",
+    shadowBody: "Lee el contorno primero y luego escribe la frase completa.",
+  },
+  fr: {
+    initialMessage: "Ecoute d abord puis utilise l ombre et tape la phrase complete",
+    unsupported: "Ce navigateur ne supporte pas la voix. Continue avec l orthographe.",
+    noVoice: "Aucune voix systeme pour cette langue. Pratique d abord la saisie.",
+    nextMessage: "Phrase suivante. Ecoute une fois d abord.",
+    passMessage: "Reussi. Passage a la phrase suivante.",
+    retryMessage: "Presque. Reecoute lentement.",
+    switchedMessage: "Phrase changee.",
+    eyebrow: "Entraineur premiere lecon",
+    title: (nativeName) => `${nativeName} ecoute et orthographe`,
+    stats: (correct, wrong) => `Correct ${correct} Erreurs ${wrong}`,
+    hidden: "Ecoute d abord. Pas encore de reponse.",
+    pronounce: "Prononcer",
+    typeLabel: "Tape cette phrase",
+    placeholder: "Ecoute puis tape la phrase complete",
+    check: "Verifier",
+    slow: "Lent",
+    hideShadow: "Cacher l ombre",
+    showShadow: "Montrer l ombre",
+    hideAnswer: "Cacher reponse",
+    showAnswer: "Voir reponse",
+    next: "Phrase suivante",
+    shortcuts: "Raccourcis",
+    shadow: "Ombre",
+    shadowBody: "Lis le contour puis tape la phrase complete.",
+  },
+  de: {
+    initialMessage: "Erst hoeren dann Schatten nutzen und den ganzen Satz tippen",
+    unsupported: "Dieser Browser unterstuetzt keine Sprache. Uebe weiter mit Rechtschreibung.",
+    noVoice: "Keine Systemstimme fuer diese Sprache. Uebe zuerst das Tippen.",
+    nextMessage: "Naechster Satz. Erst einmal hoeren.",
+    passMessage: "Bestanden. Weiter zum naechsten Satz.",
+    retryMessage: "Fast. Hoere noch einmal langsam.",
+    switchedMessage: "Satz gewechselt.",
+    eyebrow: "Trainer erste Lektion",
+    title: (nativeName) => `${nativeName} Hoeren und Schreiben`,
+    stats: (correct, wrong) => `Richtig ${correct} Fehler ${wrong}`,
+    hidden: "Erst hoeren. Noch keine Antwort.",
+    pronounce: "Aussprechen",
+    typeLabel: "Diesen Satz tippen",
+    placeholder: "Hoeren und den ganzen Satz tippen",
+    check: "Pruefen",
+    slow: "Langsam",
+    hideShadow: "Schatten ausblenden",
+    showShadow: "Schatten zeigen",
+    hideAnswer: "Antwort ausblenden",
+    showAnswer: "Antwort zeigen",
+    next: "Naechster Satz",
+    shortcuts: "Tastenkürzel",
+    shadow: "Schatten",
+    shadowBody: "Lies zuerst die Umrisse und tippe dann den ganzen Satz.",
+  },
+  pt: {
+    initialMessage: "Ouça primeiro use a sombra e digite a frase completa",
+    unsupported: "Este navegador nao suporta voz. Continue praticando escrita.",
+    noVoice: "Nao ha voz do sistema para este idioma. Pratique digitacao primeiro.",
+    nextMessage: "Proxima frase. Ouça uma vez primeiro.",
+    passMessage: "Passou. Indo para a proxima frase.",
+    retryMessage: "Quase. Ouça devagar novamente.",
+    switchedMessage: "Frase trocada.",
+    eyebrow: "Treinador da primeira aula",
+    title: (nativeName) => `${nativeName} escuta e escrita`,
+    stats: (correct, wrong) => `Certas ${correct} Erros ${wrong}`,
+    hidden: "Ouça primeiro. Sem resposta ainda.",
+    pronounce: "Pronunciar",
+    typeLabel: "Digite esta frase",
+    placeholder: "Ouça e digite a frase completa",
+    check: "Verificar",
+    slow: "Devagar",
+    hideShadow: "Ocultar sombra",
+    showShadow: "Mostrar sombra",
+    hideAnswer: "Ocultar resposta",
+    showAnswer: "Ver resposta",
+    next: "Proxima frase",
+    shortcuts: "Atalhos",
+    shadow: "Sombra",
+    shadowBody: "Leia o contorno primeiro e depois digite a frase completa.",
+  },
+  ru: {
+    initialMessage: "Сначала слушай затем используй тень и напечатай всю фразу",
+    unsupported: "Браузер не поддерживает речь. Продолжай тренировать написание.",
+    noVoice: "Нет системного голоса для этого языка. Сначала тренируй ввод.",
+    nextMessage: "Следующая фраза. Сначала послушай один раз.",
+    passMessage: "Пройдено. Переход к следующей фразе.",
+    retryMessage: "Почти. Послушай медленно еще раз.",
+    switchedMessage: "Фраза переключена.",
+    eyebrow: "Тренер первого урока",
+    title: (nativeName) => `${nativeName} слушание и письмо`,
+    stats: (correct, wrong) => `Верно ${correct} Ошибки ${wrong}`,
+    hidden: "Сначала слушай. Ответ пока скрыт.",
+    pronounce: "Произнести",
+    typeLabel: "Напечатай эту фразу",
+    placeholder: "Послушай и напечатай всю фразу",
+    check: "Проверить",
+    slow: "Медленно",
+    hideShadow: "Скрыть тень",
+    showShadow: "Показать тень",
+    hideAnswer: "Скрыть ответ",
+    showAnswer: "Показать ответ",
+    next: "Следующая фраза",
+    shortcuts: "Горячие клавиши",
+    shadow: "Тень",
+    shadowBody: "Сначала прочитай контур, потом напечатай всю фразу.",
+  },
+  hi: baseTrainerCopy.en,
+  id: baseTrainerCopy.en,
+  vi: baseTrainerCopy.en,
+  th: baseTrainerCopy.en,
+  tr: baseTrainerCopy.en,
+  it: baseTrainerCopy.en,
+  nl: baseTrainerCopy.en,
+  pl: baseTrainerCopy.en,
+};
+
 const speechLangBySlug: Record<string, string> = {
   amharic: "am-ET",
   arabic: "ar-SA",
@@ -232,7 +395,7 @@ export function WorldLanguageStarterTrainer({
   phrases,
   interfaceLanguage = "en",
 }: WorldLanguageStarterTrainerProps) {
-  const copy = trainerCopy[trainerLanguage(interfaceLanguage)];
+  const copy = trainerCopy[interfaceLanguage];
   const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState("");
   const [showHint, setShowHint] = useState(true);
