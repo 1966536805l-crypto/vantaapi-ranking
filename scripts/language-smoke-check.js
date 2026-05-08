@@ -206,6 +206,27 @@ async function checkVisibleText(name, path, acceptLanguage, requiredSnippets, fo
   }
 }
 
+async function checkExplicitLanguageWins(name, path, cookieLanguage, acceptLanguage, requiredSnippets, forbiddenSnippets, index) {
+  try {
+    const response = await fetchWithTimeout(path, {
+      ...browserHeaders(acceptLanguage, index),
+      Cookie: `jinming_language=${cookieLanguage}; vantaapi-language=${cookieLanguage}`,
+    }, { redirect: "follow" });
+    const text = visibleText(await response.text());
+    if (!response.ok) return bad(name, `HTTP ${response.status}`);
+
+    const missing = requiredSnippets.filter((snippet) => !text.includes(snippet));
+    if (missing.length) return bad(name, `explicit lang lost to cookie; missing ${missing.join(" | ")}`);
+
+    const exposed = forbiddenSnippets.filter((snippet) => text.includes(snippet));
+    if (exposed.length) return bad(name, `cookie language leaked into visible copy: ${exposed.join(" | ")}`);
+
+    return ok(name, `${path} keeps explicit URL language over ${cookieLanguage} cookie`);
+  } catch (error) {
+    bad(name, error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function checkDocumentLanguage(name, path, acceptLanguage, expectedHtmlAttrs, index) {
   try {
     const response = await fetchWithTimeout(path, browserHeaders(acceptLanguage, index), { redirect: "follow" });
@@ -301,6 +322,24 @@ async function main() {
     ["تدقيق GitHub قبل الإطلاق", "ألصق المستودع واعرف عوائق الإطلاق", "تشغيل التدقيق", "عرض أدوات المطور", "فتح البرمجة"],
     ["Paste a GitHub repo", "Run Audit", "Developer tools", "Open coding"],
     33,
+  );
+  await checkExplicitLanguageWins(
+    "explicit-lang-ja-over-zh-cookie-home",
+    "/?lang=ja",
+    "zh",
+    "zh-CN,zh;q=0.9,en;q=0.2",
+    ["GitHub 公開前診断", "リポジトリを貼るだけで", "開発者ツールを見る"],
+    ["GitHub 上线体检", "粘贴仓库", "查看开发者工具"],
+    50,
+  );
+  await checkExplicitLanguageWins(
+    "explicit-lang-ar-over-ja-cookie-programming",
+    "/programming/javascript?lang=ar",
+    "ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["ما هي JavaScript", "أدوات المطور", "بنك الأسئلة"],
+    ["JavaScript とは何か", "開発者ツール", "問題バンク"],
+    51,
   );
 
   await checkPage(
