@@ -379,6 +379,23 @@ async function main() {
   );
 
   await checkPage(
+    "world-languages-hub-ja",
+    "/languages?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["世界の言語 ゼロ基礎", "どの言語もゼロから始める", "言語を検索", "/languages/japanese?lang=ja"],
+    ["世界语言从 0 开始", "搜索语言"],
+    45,
+  );
+  await checkPage(
+    "world-language-detail-ar",
+    "/languages/english?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["من الصفر", "أول ثلاث عبارات", "مدرب الدرس الأول", "اكتب هذه العبارة", "/languages?lang=ar"],
+    ["返回语言列表", "第一课训练器", "打出这句"],
+    46,
+  );
+
+  await checkPage(
     "github-audit-de",
     "/tools/github-repo-analyzer?lang=de",
     "de-DE,de;q=0.9,en;q=0.2",
