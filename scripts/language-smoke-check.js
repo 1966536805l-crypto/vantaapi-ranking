@@ -362,7 +362,7 @@ async function main() {
     "programming-hub-ar",
     "/programming?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
-    ["ابحث عن لغة", "53 من 53", 'placeholder="Python JavaScript Rust SQL Bash"', "/programming/javascript?lang=ar"],
+    ["ابحث عن لغة", "53 من 53", 'placeholder="Python أتمتة SQL بيانات Rust أمان"', "/programming/javascript?lang=ar"],
     ["مناسب لـ لغة", "لغة لتطبيقات"],
     18,
   );
