@@ -138,6 +138,12 @@ npm run launch:production
 npm run build
 ```
 
+Before deploying, keep the local app running and verify language routing:
+
+```bash
+npm run language:smoke -- --base=http://127.0.0.1:3003
+```
+
 Deploy after those pass. Then verify the live URL:
 
 ```bash
@@ -155,6 +161,7 @@ What the commands do:
 - `launch:providers` tells you where to copy provider-owned values from: database, AI provider, GitHub, Turnstile, Redis.
 - `launch:secrets` prints fresh app-owned secrets for `JWT_SECRET`, `CSRF_SECRET`, and `ENCRYPTION_KEY`.
 - `launch:production` checks Vercel Production variables, pulls them into an ignored local env file, and validates them without printing secrets.
+- `language:smoke` checks multilingual routing, RTL document direction, localized surfaces, and explicit URL language precedence over old cookies.
 - `launch:smoke` checks the deployed site, robots, sitemap, retired API responses, and the GitHub Audit endpoint.
 
 Generate the app-owned secrets locally:

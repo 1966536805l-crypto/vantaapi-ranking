@@ -572,6 +572,7 @@ function checkLaunchDocs() {
     "npm run launch:secrets",
     "npm run launch:production",
     "npm run build",
+    "npm run language:smoke",
     "npm run launch:smoke",
   ];
   const missing = requiredCommands.filter((command) => !body.includes(command));
