@@ -242,6 +242,14 @@ async function main() {
     "/login?next=%2Fdashboard%3Flang%3Dar&lang=ar",
     14,
   );
+  await checkVisibleText(
+    "home-ar-visible-copy",
+    "/?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["تدقيق GitHub قبل الإطلاق", "ألصق المستودع واعرف عوائق الإطلاق", "تشغيل التدقيق", "عرض أدوات المطور", "فتح البرمجة"],
+    ["Paste a GitHub repo", "Run Audit", "Developer tools", "Open coding"],
+    33,
+  );
 
   await checkPage(
     "programming-ar",
