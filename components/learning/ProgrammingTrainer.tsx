@@ -282,6 +282,7 @@ type ProgrammingCopyType = {
   statusDraft: string;
   statusNew: string;
   question: string;
+  questionShort: string;
   questionPalette: string;
   prev: string;
   next: string;
@@ -498,6 +499,7 @@ const baseProgrammingCopy: Record<"en" | "zh", ProgrammingCopyType> = {
     statusDraft: "draft",
     statusNew: "new",
     question: "Question",
+    questionShort: "Q",
     questionPalette: "Question palette",
     prev: "Prev",
     next: "Next",
@@ -556,6 +558,7 @@ const baseProgrammingCopy: Record<"en" | "zh", ProgrammingCopyType> = {
     statusDraft: "已作答",
     statusNew: "新题",
     question: "题号",
+    questionShort: "题",
     questionPalette: "题号面板",
     prev: "上一题",
     next: "下一题",
@@ -631,6 +634,7 @@ const programmingCopy: Record<InterfaceLanguage, ProgrammingCopyType> = {
     statusDraft: "下書き",
     statusNew: "新規",
     question: "問題",
+    questionShort: "問",
     questionPalette: "問題パレット",
     prev: "前へ",
     next: "次へ",
@@ -689,6 +693,7 @@ const programmingCopy: Record<InterfaceLanguage, ProgrammingCopyType> = {
     statusDraft: "초안",
     statusNew: "새로운",
     question: "문제",
+    questionShort: "문항",
     questionPalette: "문제 팔레트",
     prev: "이전",
     next: "다음",
@@ -747,6 +752,7 @@ const programmingCopy: Record<InterfaceLanguage, ProgrammingCopyType> = {
     statusDraft: "borrador",
     statusNew: "nuevo",
     question: "pregunta",
+    questionShort: "P",
     questionPalette: "paleta de preguntas",
     prev: "anterior",
     next: "siguiente",
@@ -1033,6 +1039,7 @@ const programmingCopy: Record<InterfaceLanguage, ProgrammingCopyType> = {
     statusDraft: "مسودة",
     statusNew: "جديد",
     question: "السؤال",
+    questionShort: "س",
     questionPalette: "لوحة الأسئلة",
     prev: "السابق",
     next: "التالي",
@@ -5482,7 +5489,7 @@ export default function ProgrammingTrainer({
                   <p className="eyebrow">{copy.tracks[activeTrack.id].label}</p>
                   <h2>{questionTitle(question, language, activeLanguage.title)}</h2>
                   <div className="programming-meta-line">
-                    <span>Q {questionIndex}</span>
+                    <span>{copy.questionShort} {questionIndex}</span>
                     <span>{typeLabel[language][question.type]}</span>
                     <span>{result ? (result.correct ? copy.statusSolved : copy.statusReview) : answer ? copy.statusDraft : copy.statusNew}</span>
                   </div>

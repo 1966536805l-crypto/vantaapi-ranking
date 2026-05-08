@@ -263,8 +263,8 @@ async function main() {
     "programming-ar-visible-copy",
     "/programming/javascript?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
-    ["ما هي JavaScript", "أدوات المطور", "الذكاء الاصطناعي للكود", "ذكاء اصطناعي سريع"],
-    ["What is JavaScript", "Definition first", "Full screen", "DevTools", "AI للكود", "AI سريع"],
+    ["ما هي JavaScript", "س 1", "أدوات المطور", "الذكاء الاصطناعي للكود", "ذكاء اصطناعي سريع"],
+    ["What is JavaScript", "Definition first", "Full screen", "Q 1", "DevTools", "AI للكود", "AI سريع"],
     30,
   );
   await checkPage(
