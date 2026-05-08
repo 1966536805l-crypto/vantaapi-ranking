@@ -211,10 +211,10 @@ export function evaluateBotRequest(request: NextRequest, pathname: string): BotV
   return { action: "allow", reason: reasons.join(","), score: rollingScore, trustedCrawler };
 }
 
-export function botBlockedResponse(verdict: BotVerdict) {
+export function botBlockedResponse(verdict: BotVerdict, message?: string) {
   const status = verdict.action === "trap" ? 404 : verdict.action === "throttle" ? 429 : 403;
   const response = NextResponse.json(
-    { message: status === 429 ? "Too many requests" : "Request blocked" },
+    { message: message || (status === 429 ? "Too many requests" : "Request blocked") },
     { status },
   );
   response.headers.set("Cache-Control", "no-store");
