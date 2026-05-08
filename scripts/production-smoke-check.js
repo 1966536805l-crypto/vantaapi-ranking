@@ -101,6 +101,22 @@ async function checkPage(path, mustContain) {
   }
 }
 
+async function checkLocalizedPage(path, mustContain) {
+  try {
+    const response = await fetchWithTimeout(path, {
+      headers: {
+        Cookie: "jinming_language=zh; vantaapi-language=zh",
+      },
+    });
+    const body = await response.text();
+    if (!response.ok) return logFail(`${path}:i18n`, `HTTP ${response.status}`);
+    if (!body.includes(mustContain)) return logFail(`${path}:i18n`, `missing localized text: ${mustContain}`);
+    logPass(`${path}:i18n`, "explicit lang renders localized copy");
+  } catch (error) {
+    logFail(`${path}:i18n`, error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function checkRedirect(path, expectedPathname) {
   try {
     const response = await fetchWithTimeout(path, { redirect: "manual" });
@@ -264,6 +280,9 @@ async function main() {
   console.log(`JinMing Lab production smoke check: ${baseUrl}\n`);
   await checkPage("/", "JinMing Lab");
   await checkSecurityHeaders("/");
+  await checkLocalizedPage("/?lang=ja", "リポジトリを貼るだけで");
+  await checkLocalizedPage("/?lang=fr", "Collez un repo");
+  await checkLocalizedPage("/?lang=ar", "ألصق المستودع");
   await checkPage("/tools/github-repo-analyzer", "GitHub Launch Audit");
   await checkPage("/security", "How JinMing Lab handles your data");
   await checkPage("/status", "JinMing Lab service status");

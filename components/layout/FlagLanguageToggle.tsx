@@ -53,12 +53,6 @@ function readStoredLanguage(): InterfaceLanguage | null {
   return isInterfaceLanguage(value) ? value : null;
 }
 
-function currentUrlLanguage() {
-  if (typeof window === "undefined") return null;
-  const language = new URL(window.location.href).searchParams.get("lang");
-  return isInterfaceLanguage(language) ? language : null;
-}
-
 export default function FlagLanguageToggle({
   initialLanguage = "en",
   onChange,
@@ -69,29 +63,28 @@ export default function FlagLanguageToggle({
   const pathname = usePathname() || "/";
   const searchParams = useSearchParams();
   const queryLanguage = searchParams.get("lang");
-  const [preferredLanguage, setPreferredLanguage] = useState<InterfaceLanguage | null>(() => {
-    if (typeof window === "undefined") return null;
-    return currentUrlLanguage() ?? readStoredLanguage();
-  });
-  const current = isInterfaceLanguage(queryLanguage)
-    ? queryLanguage
-    : preferredLanguage ?? initialLanguage;
+  const current = isInterfaceLanguage(queryLanguage) ? queryLanguage : initialLanguage;
+  const [pendingLanguage, setPendingLanguage] = useState<InterfaceLanguage | null>(null);
 
   useEffect(() => {
     writeLanguagePreference(current);
     onChange?.(current);
+  }, [current, onChange]);
+
+  useEffect(() => {
+    if (queryLanguage || current !== "en" || typeof window === "undefined") return;
+
+    const storedLanguage = readStoredLanguage();
+    if (!storedLanguage || storedLanguage === "en") return;
 
     const url = new URL(window.location.href);
-    const urlLanguage = url.searchParams.get("lang");
-    if (!urlLanguage && current !== "en") {
-      url.searchParams.set("lang", current);
-      window.location.replace(url.toString());
-    }
-  }, [current, onChange]);
+    url.searchParams.set("lang", storedLanguage);
+    window.location.replace(url.toString());
+  }, [current, queryLanguage]);
 
   function setLanguage(code: InterfaceLanguage) {
     writeLanguagePreference(code);
-    setPreferredLanguage(code);
+    setPendingLanguage(code);
     onChange?.(code);
     const url = new URL(window.location.href);
     if (code === "en") url.searchParams.delete("lang");
@@ -108,8 +101,9 @@ export default function FlagLanguageToggle({
     return `${pathname}${query ? `?${query}` : ""}`;
   }
 
-  const activeLanguage = interfaceLanguages.find((language) => language.code === current) ?? interfaceLanguages[0];
-  const copy = toggleCopy[current];
+  const displayLanguage = pendingLanguage ?? current;
+  const activeLanguage = interfaceLanguages.find((language) => language.code === displayLanguage) ?? interfaceLanguages[0];
+  const copy = toggleCopy[displayLanguage];
 
   return (
     <div className="flag-toggle" aria-label={copy.region}>
@@ -125,7 +119,7 @@ export default function FlagLanguageToggle({
               className="flag-toggle-option"
               href={languageHref(language.code)}
               role="menuitemradio"
-              aria-checked={language.code === current}
+              aria-checked={language.code === displayLanguage}
               onClick={(event) => {
                 event.preventDefault();
                 setLanguage(language.code);
@@ -133,7 +127,7 @@ export default function FlagLanguageToggle({
             >
               <span aria-hidden="true">{language.flag}</span>
               <span>{language.nativeName}</span>
-              {language.code === current ? <span className="flag-toggle-check" aria-hidden="true">✓</span> : null}
+              {language.code === displayLanguage ? <span className="flag-toggle-check" aria-hidden="true">✓</span> : null}
             </a>
           ))}
         </div>
