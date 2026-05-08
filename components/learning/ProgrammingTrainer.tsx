@@ -344,7 +344,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   zh: {
     label: "搜索语言",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python 自动化 SQL 数据 Rust 安全",
     clear: "清空",
     noMatch: "暂时没有匹配的语言",
     shortcut: "Enter 打开第一个结果，Esc 清空搜索",
@@ -352,7 +352,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   ja: {
     label: "言語を探す",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python 自動化 SQL データ Rust 安全",
     clear: "クリア",
     noMatch: "一致する言語はまだありません。",
     shortcut: "Enter で最初の結果を開き、Esc でクリアします。",
@@ -360,7 +360,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   ko: {
     label: "언어 찾기",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python 자동화 SQL 데이터 Rust 안전",
     clear: "지우기",
     noMatch: "일치하는 언어가 아직 없습니다.",
     shortcut: "Enter 는 첫 결과를 열고 Esc 는 검색을 지웁니다.",
@@ -368,7 +368,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   es: {
     label: "Buscar lenguaje",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automatizacion SQL datos Rust seguridad",
     clear: "Limpiar",
     noMatch: "No hay lenguajes coincidentes.",
     shortcut: "Enter abre el primer resultado. Escape limpia la busqueda.",
@@ -376,7 +376,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   fr: {
     label: "Trouver un langage",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automatisation SQL donnees Rust securite",
     clear: "Effacer",
     noMatch: "Aucun langage correspondant.",
     shortcut: "Enter ouvre le premier resultat. Escape efface la recherche.",
@@ -384,7 +384,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   de: {
     label: "Sprache suchen",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automation SQL daten Rust sicherheit",
     clear: "Zuruecksetzen",
     noMatch: "Noch keine passende Sprache.",
     shortcut: "Enter oeffnet den ersten Treffer. Escape leert die Suche.",
@@ -392,7 +392,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   pt: {
     label: "Encontrar linguagem",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automacao SQL dados Rust seguranca",
     clear: "Limpar",
     noMatch: "Nenhuma linguagem encontrada.",
     shortcut: "Enter abre o primeiro resultado. Escape limpa a busca.",
@@ -400,7 +400,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   ru: {
     label: "Найти язык",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python автоматизация SQL данные Rust безопасность",
     clear: "Сбросить",
     noMatch: "Подходящий язык пока не найден.",
     shortcut: "Enter открывает первый результат. Escape очищает поиск.",
@@ -408,7 +408,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   ar: {
     label: "ابحث عن لغة",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python أتمتة SQL بيانات Rust أمان",
     clear: "مسح",
     noMatch: "لا توجد لغة مطابقة بعد.",
     shortcut: "Enter يفتح أول نتيجة. Escape يمسح البحث.",
@@ -416,7 +416,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   hi: {
     label: "भाषा खोजें",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automation SQL data Rust security",
     clear: "साफ करें",
     noMatch: "अभी कोई मेल खाती भाषा नहीं है।",
     shortcut: "Enter पहला परिणाम खोलता है. Escape search साफ करता है.",
@@ -424,7 +424,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   id: {
     label: "Cari bahasa",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python otomatisasi SQL data Rust aman",
     clear: "Bersihkan",
     noMatch: "Belum ada bahasa yang cocok.",
     shortcut: "Enter membuka hasil pertama. Escape membersihkan pencarian.",
@@ -432,7 +432,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   vi: {
     label: "Tim ngon ngu",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python tu dong SQL du lieu Rust an toan",
     clear: "Xoa",
     noMatch: "Chua co ngon ngu phu hop.",
     shortcut: "Enter mo ket qua dau tien. Escape xoa tim kiem.",
@@ -440,7 +440,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   th: {
     label: "ค้นหาภาษา",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automation SQL data Rust security",
     clear: "ล้าง",
     noMatch: "ยังไม่มีภาษาที่ตรงกัน",
     shortcut: "Enter เปิดผลลัพธ์แรก Escape ล้างการค้นหา",
@@ -448,7 +448,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   tr: {
     label: "Dil bul",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python otomasyon SQL veri Rust guvenlik",
     clear: "Temizle",
     noMatch: "Henuz eslesen dil yok.",
     shortcut: "Enter ilk sonucu acar. Escape aramayi temizler.",
@@ -456,7 +456,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   it: {
     label: "Trova linguaggio",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automazione SQL dati Rust sicurezza",
     clear: "Pulisci",
     noMatch: "Nessun linguaggio corrispondente.",
     shortcut: "Enter apre il primo risultato. Escape pulisce la ricerca.",
@@ -464,7 +464,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   nl: {
     label: "Taal zoeken",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automatisering SQL data Rust veiligheid",
     clear: "Wissen",
     noMatch: "Nog geen passende taal.",
     shortcut: "Enter opent het eerste resultaat. Escape wist de zoekopdracht.",
@@ -472,7 +472,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
   },
   pl: {
     label: "Znajdz jezyk",
-    placeholder: "Python JavaScript Rust SQL Bash",
+    placeholder: "Python automatyzacja SQL dane Rust bezpieczenstwo",
     clear: "Wyczysc",
     noMatch: "Brak pasujacego jezyka.",
     shortcut: "Enter otwiera pierwszy wynik. Escape czysci wyszukiwanie.",
