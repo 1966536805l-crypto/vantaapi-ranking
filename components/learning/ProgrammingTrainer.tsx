@@ -1913,6 +1913,10 @@ function programmingLanguageTitle(slug: ProgrammingLanguageSlug) {
   return getProgrammingLanguage(slug).title;
 }
 
+function uniqueLanguageSlugs(slugs: ProgrammingLanguageSlug[], activeSlug: ProgrammingLanguageSlug, limit: number) {
+  return Array.from(new Set(slugs.filter((slug) => slug !== activeSlug))).slice(0, limit);
+}
+
 function storageKey(languageSlug: ProgrammingLanguageSlug) {
   return `vantaapi-programming-workbench-${languageSlug}`;
 }
@@ -4172,7 +4176,7 @@ export default function ProgrammingTrainer({
               <article>
                 <span>{lineageUi.relatives}</span>
                 <div>
-                  {lineage.relatives.filter((slug) => slug !== activeLanguage.slug).slice(0, 5).map((slug) => (
+                  {uniqueLanguageSlugs(lineage.relatives, activeLanguage.slug, 5).map((slug) => (
                     <Link key={slug} href={localizedHref(`/programming/${slug}`, language)}>
                       {programmingLanguageTitle(slug)}
                     </Link>
@@ -4193,7 +4197,7 @@ export default function ProgrammingTrainer({
               <article>
                 <span>{lineageUi.next}</span>
                 <div>
-                  {lineage.next.filter((slug) => slug !== activeLanguage.slug).slice(0, 4).map((slug) => (
+                  {uniqueLanguageSlugs(lineage.next, activeLanguage.slug, 4).map((slug) => (
                     <Link key={slug} href={localizedHref(`/programming/${slug}`, language)}>
                       {programmingLanguageTitle(slug)}
                     </Link>
