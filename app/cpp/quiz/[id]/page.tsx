@@ -9,6 +9,15 @@ import {
   type CppQuestionIndexRow,
   type CppQuestionTypeFilter,
 } from "@/lib/cpp-bank";
+import {
+  cleanCppQuestionText,
+  cppQuizDifficultyLabel,
+  cppQuizPageCopy,
+  cppQuizTypeLabel,
+  getCppCategoryFocus,
+  getCppCategoryTitle,
+  type CppQuizPageCopy,
+} from "@/lib/cpp-quiz-i18n";
 import { cppQuestionBank, getCppCategory } from "@/lib/exam-content";
 import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 
@@ -49,220 +58,6 @@ const baseQuestions = [
   },
 ];
 
-type CppQuizLanguage = "en" | "zh" | "ja" | "ar";
-
-function cppQuizLanguage(language: InterfaceLanguage): CppQuizLanguage {
-  if (language === "zh" || language === "ja" || language === "ar") return language;
-  return "en";
-}
-
-const typeLabel: Record<CppQuizLanguage, Record<CppQuestionTypeFilter, string>> = {
-  en: {
-    ALL: "All",
-    MULTIPLE_CHOICE: "Choice",
-    FILL_BLANK: "Fill",
-    CODE_READING: "Code reading",
-  },
-  zh: {
-    ALL: "全部",
-    MULTIPLE_CHOICE: "选择题",
-    FILL_BLANK: "填空题",
-    CODE_READING: "代码阅读",
-  },
-  ja: {
-    ALL: "すべて",
-    MULTIPLE_CHOICE: "選択",
-    FILL_BLANK: "穴埋め",
-    CODE_READING: "コード読解",
-  },
-  ar: {
-    ALL: "الكل",
-    MULTIPLE_CHOICE: "اختيار",
-    FILL_BLANK: "فراغ",
-    CODE_READING: "قراءة كود",
-  },
-};
-
-const difficultyLabel: Record<CppQuizLanguage, Record<string, string>> = {
-  en: {
-    EASY: "Easy",
-    MEDIUM: "Medium",
-    HARD: "Hard",
-  },
-  zh: {
-    EASY: "基础",
-    MEDIUM: "进阶",
-    HARD: "挑战",
-  },
-  ja: {
-    EASY: "基礎",
-    MEDIUM: "発展",
-    HARD: "挑戦",
-  },
-  ar: {
-    EASY: "سهل",
-    MEDIUM: "متوسط",
-    HARD: "صعب",
-  },
-};
-
-const pageCopy: Record<CppQuizLanguage, {
-  eyebrow: string;
-  title: string;
-  description: string;
-  course: string;
-  back: string;
-  search: string;
-  searchPlaceholder: string;
-  allTopics: string;
-  topicClassify: string;
-  topicHeading: string;
-  typeClassify: string;
-  tableTitle: string;
-  tableMeta: string;
-  startSelected: string;
-  practiceThis: string;
-  preview: string;
-  category: string;
-  type: string;
-  difficulty: string;
-  question: string;
-  empty: string;
-  previous: string;
-  next: string;
-  practiceTitle: string;
-  exitPractice: string;
-  activeBank: string;
-  page: string;
-  current: string;
-  drills: string;
-}> = {
-  en: {
-    eyebrow: "C++ Questions",
-    title: "C++ Question Search",
-    description: "Search first choose a topic and question type then start practice. The bank is classified and keeps expanding. No online compiler is enabled here.",
-    course: "Open course path",
-    back: "Back to C++ hub",
-    search: "Search",
-    searchPlaceholder: "Search loop vector pointer class output",
-    allTopics: "All topics",
-    topicClassify: "Topic categories",
-    topicHeading: "Choose a topic then inspect the table",
-    typeClassify: "Question types",
-    tableTitle: "Question table",
-    tableMeta: "Matching questions",
-    startSelected: "Practice selected set",
-    practiceThis: "Practice this type",
-    preview: "Preview",
-    category: "Category",
-    type: "Type",
-    difficulty: "Difficulty",
-    question: "Question",
-    empty: "No question matched yet. Try a shorter keyword or reset the filters.",
-    previous: "Previous",
-    next: "Next",
-    practiceTitle: "Practice mode",
-    exitPractice: "Back to question table",
-    activeBank: "Current set",
-    page: "Page",
-    current: "Current",
-    drills: "drills",
-  },
-  zh: {
-    eyebrow: "C++ 题目",
-    title: "C++ 题目搜索",
-    description: "先搜索 再选知识模块和题型 最后进入练习。题库已经分类并持续扩充，这里不打开在线编译运行。",
-    course: "打开课程路径",
-    back: "返回 C++ 首页",
-    search: "搜索",
-    searchPlaceholder: "搜索 循环 vector 指针 class 输出",
-    allTopics: "全部模块",
-    topicClassify: "知识模块",
-    topicHeading: "先选模块 再看题目表",
-    typeClassify: "题型分类",
-    tableTitle: "题目表",
-    tableMeta: "匹配题目",
-    startSelected: "练习当前筛选",
-    practiceThis: "练这一类",
-    preview: "预览",
-    category: "模块",
-    type: "题型",
-    difficulty: "难度",
-    question: "题目",
-    empty: "还没有匹配题目。换一个更短的关键词，或者重置分类。",
-    previous: "上一页",
-    next: "下一页",
-    practiceTitle: "练习模式",
-    exitPractice: "回到题目表",
-    activeBank: "当前题组",
-    page: "第",
-    current: "当前",
-    drills: "题",
-  },
-  ja: {
-    eyebrow: "C++ 問題",
-    title: "C++ 問題検索",
-    description: "検索してからトピックと問題形式を選び 練習を開始します 分類済み問題庫で オンライン実行は使いません",
-    course: "コースパスを開く",
-    back: "C++ ハブへ戻る",
-    search: "検索",
-    searchPlaceholder: "loop vector pointer class output を検索",
-    allTopics: "すべてのトピック",
-    topicClassify: "トピック分類",
-    topicHeading: "トピックを選び 問題表を確認",
-    typeClassify: "問題形式",
-    tableTitle: "問題表",
-    tableMeta: "一致した問題",
-    startSelected: "現在の条件で練習",
-    practiceThis: "この形式を練習",
-    preview: "プレビュー",
-    category: "カテゴリ",
-    type: "形式",
-    difficulty: "難度",
-    question: "問題",
-    empty: "一致する問題がありません 短いキーワードにするかフィルターをリセットしてください",
-    previous: "前へ",
-    next: "次へ",
-    practiceTitle: "練習モード",
-    exitPractice: "問題表へ戻る",
-    activeBank: "現在のセット",
-    page: "ページ",
-    current: "現在",
-    drills: "問",
-  },
-  ar: {
-    eyebrow: "أسئلة C++",
-    title: "بحث أسئلة C++",
-    description: "ابحث أولا ثم اختر الموضوع ونوع السؤال وابدأ التدريب البنك مصنف ويتوسع ولا يوجد تشغيل كود هنا",
-    course: "افتح مسار الدورة",
-    back: "العودة إلى مركز C++",
-    search: "بحث",
-    searchPlaceholder: "ابحث loop vector pointer class output",
-    allTopics: "كل المواضيع",
-    topicClassify: "تصنيف المواضيع",
-    topicHeading: "اختر موضوعا ثم افحص جدول الأسئلة",
-    typeClassify: "أنواع الأسئلة",
-    tableTitle: "جدول الأسئلة",
-    tableMeta: "أسئلة مطابقة",
-    startSelected: "تدرب على المجموعة المحددة",
-    practiceThis: "تدرب على هذا النوع",
-    preview: "معاينة",
-    category: "الفئة",
-    type: "النوع",
-    difficulty: "الصعوبة",
-    question: "السؤال",
-    empty: "لا توجد أسئلة مطابقة جرب كلمة أقصر أو أعد ضبط الفلاتر",
-    previous: "السابق",
-    next: "التالي",
-    practiceTitle: "وضع التدريب",
-    exitPractice: "العودة إلى جدول الأسئلة",
-    activeBank: "المجموعة الحالية",
-    page: "صفحة",
-    current: "الحالي",
-    drills: "تدريبات",
-  },
-};
-
 function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -296,7 +91,7 @@ function buildHref({
   return localizedHref(`/cpp/quiz/mega-1000${suffix ? `?${params.toString()}` : ""}`, language);
 }
 
-function RowPracticeLink({ copy, language, row }: { copy: (typeof pageCopy)[CppQuizLanguage]; language: InterfaceLanguage; row: CppQuestionIndexRow }) {
+function RowPracticeLink({ copy, language, row }: { copy: CppQuizPageCopy; language: InterfaceLanguage; row: CppQuestionIndexRow }) {
   return (
     <Link
       href={buildHref({ language, category: row.categorySlug, type: row.type, mode: "practice" })}
@@ -317,8 +112,7 @@ export default async function Page({
   const { id } = await params;
   const query = await searchParams;
   const language = resolveInterfaceLanguage(query);
-  const copyLanguage = cppQuizLanguage(language);
-  const copy = pageCopy[copyLanguage];
+  const copy = cppQuizPageCopy[language];
   const page = Math.max(Number(firstParam(query.page) || 1) || 1, 1);
   const selectedCategory = firstParam(query.category);
   const selectedType = normalizedType(firstParam(query.type));
@@ -338,6 +132,11 @@ export default async function Page({
     ? buildCppFilteredMegaQuestions({ categorySlug: practiceCategory, type: practiceType, page: practicePage, pageSize: 20 })
     : null;
   const questions = mega?.questions || baseQuestions;
+  const localizedQuestions = questions.map((question) => ({
+    ...question,
+    prompt: cleanCppQuestionText(question.prompt, language),
+    explanation: question.explanation ? cleanCppQuestionText(question.explanation, language) : question.explanation,
+  }));
   const showPractice = mode === "practice";
 
   return (
@@ -416,7 +215,7 @@ export default async function Page({
                       href={buildHref({ language, category: safeCategory, type: item.slug, q: search })}
                       className={active ? "apple-button-primary px-4 py-2 text-sm" : "apple-button-secondary px-4 py-2 text-sm"}
                     >
-                      {typeLabel[copyLanguage][item.slug]}
+                      {cppQuizTypeLabel[language][item.slug]}
                     </Link>
                   );
                 })}
@@ -433,13 +232,13 @@ export default async function Page({
                     href={buildHref({ language, category: category.slug, type: selectedType, q: search })}
                     className={`apple-card p-4 ${active ? "ring-2 ring-[color:var(--accent)]" : "apple-card-hover"}`}
                   >
-                    <p className="eyebrow">{copyLanguage === "zh" ? category.zh : category.title}</p>
-                    <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? category.zh : category.title}</h2>
-                    <p className="mt-2 text-sm text-[color:var(--muted)]">{category.focus.slice(0, 4).join(" / ")}</p>
+                    <p className="eyebrow">{getCppCategoryTitle(language, category.slug, category.title)}</p>
+                    <h2 className="mt-2 text-xl font-semibold">{getCppCategoryTitle(language, category.slug, category.title)}</h2>
+                    <p className="mt-2 text-sm text-[color:var(--muted)]">{getCppCategoryFocus(language, category.slug, category.focus).slice(0, 4).join(" / ")}</p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="dense-status">{typeLabel[copyLanguage].MULTIPLE_CHOICE} {counts.MULTIPLE_CHOICE}</span>
-                      <span className="dense-status">{typeLabel[copyLanguage].FILL_BLANK} {counts.FILL_BLANK}</span>
-                      <span className="dense-status">{typeLabel[copyLanguage].CODE_READING} {counts.CODE_READING}</span>
+                      <span className="dense-status">{cppQuizTypeLabel[language].MULTIPLE_CHOICE} {counts.MULTIPLE_CHOICE}</span>
+                      <span className="dense-status">{cppQuizTypeLabel[language].FILL_BLANK} {counts.FILL_BLANK}</span>
+                      <span className="dense-status">{cppQuizTypeLabel[language].CODE_READING} {counts.CODE_READING}</span>
                     </div>
                   </Link>
                 );
@@ -479,13 +278,13 @@ export default async function Page({
                     <tbody>
                       {table.rows.map((row) => (
                         <tr key={row.id} className="border-t border-slate-100 align-top">
-                          <td className="px-4 py-3 font-semibold">{copyLanguage === "zh" ? row.categoryZh : row.categoryTitle}</td>
+                          <td className="px-4 py-3 font-semibold">{getCppCategoryTitle(language, row.categorySlug, row.categoryTitle)}</td>
                           <td className="px-4 py-3">
-                            <span className="dense-status">{typeLabel[copyLanguage][row.type]}</span>
+                            <span className="dense-status">{cppQuizTypeLabel[language][row.type]}</span>
                           </td>
-                          <td className="px-4 py-3">{difficultyLabel[copyLanguage][row.difficulty]}</td>
+                          <td className="px-4 py-3">{cppQuizDifficultyLabel[language][row.difficulty]}</td>
                           <td className="px-4 py-3">
-                            <p className="font-medium text-slate-900">{row.prompt}</p>
+                            <p className="font-medium text-slate-900">{cleanCppQuestionText(row.prompt, language)}</p>
                             {row.codeSnippet && (
                               <pre className="mt-2 max-w-xl overflow-x-auto rounded-[8px] bg-slate-950 p-3 text-xs leading-5 text-slate-100">{row.codeSnippet}</pre>
                             )}
@@ -508,9 +307,9 @@ export default async function Page({
             {isMega && mega && (
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-black/5 bg-white/75 p-4 shadow-sm">
                 <div>
-                  <p className="eyebrow">{copy.activeBank} · {copyLanguage === "zh" ? mega.category.zh : mega.category.title} · {typeLabel[copyLanguage][mega.type]}</p>
+                  <p className="eyebrow">{copy.activeBank} · {getCppCategoryTitle(language, mega.category.slug, mega.category.title)} · {cppQuizTypeLabel[language][mega.type]}</p>
                   <p className="mt-1 text-lg font-semibold">
-                    {copy.page} {mega.page} / {mega.totalPages} · {copy.current} {questions.length} {copy.drills}
+                    {copy.page} {mega.page} / {mega.totalPages} · {copy.current} {localizedQuestions.length} {copy.drills}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -521,7 +320,7 @@ export default async function Page({
             )}
 
             <div className="mt-6">
-              <QuizBlock lessonId={`fallback-cpp-quiz-${id}-${mega?.category.slug || "base"}-${mega?.type || "ALL"}-page-${mega?.page || 1}`} questions={questions} language={language} />
+              <QuizBlock lessonId={`fallback-cpp-quiz-${id}-${mega?.category.slug || "base"}-${mega?.type || "ALL"}-page-${mega?.page || 1}`} questions={localizedQuestions} language={language} />
             </div>
           </>
         )}

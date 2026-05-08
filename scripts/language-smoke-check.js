@@ -578,12 +578,28 @@ async function main() {
     43,
   );
   await checkPage(
+    "cpp-quiz-es",
+    "/cpp/quiz/mega-1000?lang=es&category=syntax-types",
+    "es-ES,es;q=0.9,en;q=0.2",
+    ["Buscador de preguntas C++", "Sintaxis y tipos", "Tabla de preguntas", "Preguntas encontradas"],
+    ["C++ Question Search", "Topic categories", "变量", "注意整数除法"],
+    60,
+  );
+  await checkPage(
     "cpp-quiz-practice-ja",
     "/cpp/quiz/mega-1000?lang=ja&mode=practice&type=MULTIPLE_CHOICE",
     "ja-JP,ja;q=0.9,en;q=0.2",
     ["練習モード", "現在のセット", "選択問題"],
     ["Practice mode", "Current set", "Exercise 1", "Multiple choice"],
     44,
+  );
+  await checkPage(
+    "cpp-quiz-practice-de",
+    "/cpp/quiz/mega-1000?lang=de&mode=practice&category=syntax-types&type=CODE_READING",
+    "de-DE,de;q=0.9,en;q=0.2",
+    ["Uebungsmodus", "Aktuelles Set", "Aufgabe", "Code lesen", "Integer division"],
+    ["Practice mode", "Current set", "Score", "注意整数除法"],
+    61,
   );
   await checkPage(
     "learn-english-ja",
