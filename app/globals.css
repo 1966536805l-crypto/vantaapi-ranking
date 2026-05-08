@@ -1331,6 +1331,7 @@ body:has(.home-audit-page) .global-search-trigger {
 .auth-nav-logout {
   background: #111827;
   color: white;
+  white-space: nowrap;
 }
 
 .auth-nav-logout:disabled {

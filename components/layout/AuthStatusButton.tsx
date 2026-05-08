@@ -12,24 +12,24 @@ type HeaderUser = {
 };
 
 const copy: Record<InterfaceLanguage, { login: string; logout: string; account: string }> = {
-  en: { login: "Sign in", logout: "Out", account: "Account" },
-  zh: { login: "登录", logout: "退", account: "账号" },
-  ja: { login: "ログイン", logout: "退出", account: "アカウント" },
-  ko: { login: "로그인", logout: "나가기", account: "계정" },
+  en: { login: "Sign in", logout: "Sign out", account: "Account" },
+  zh: { login: "登录", logout: "退出", account: "账号" },
+  ja: { login: "ログイン", logout: "ログアウト", account: "アカウント" },
+  ko: { login: "로그인", logout: "로그아웃", account: "계정" },
   es: { login: "Entrar", logout: "Salir", account: "Cuenta" },
-  fr: { login: "Connexion", logout: "Sortir", account: "Compte" },
-  de: { login: "Anmelden", logout: "Raus", account: "Konto" },
+  fr: { login: "Connexion", logout: "Déconnexion", account: "Compte" },
+  de: { login: "Anmelden", logout: "Abmelden", account: "Konto" },
   pt: { login: "Entrar", logout: "Sair", account: "Conta" },
   ru: { login: "Войти", logout: "Выйти", account: "Аккаунт" },
-  ar: { login: "تسجيل الدخول", logout: "خروج", account: "الحساب" },
-  hi: { login: "लॉग इन", logout: "बाहर", account: "खाता" },
+  ar: { login: "تسجيل الدخول", logout: "تسجيل الخروج", account: "الحساب" },
+  hi: { login: "लॉग इन", logout: "लॉग आउट", account: "खाता" },
   id: { login: "Masuk", logout: "Keluar", account: "Akun" },
-  vi: { login: "Dang nhap", logout: "Thoat", account: "Tai khoan" },
-  th: { login: "เข้าสู่ระบบ", logout: "ออก", account: "บัญชี" },
-  tr: { login: "Giris", logout: "Cik", account: "Hesap" },
+  vi: { login: "Đăng nhập", logout: "Đăng xuất", account: "Tài khoản" },
+  th: { login: "เข้าสู่ระบบ", logout: "ออกจากระบบ", account: "บัญชี" },
+  tr: { login: "Giriş", logout: "Çıkış", account: "Hesap" },
   it: { login: "Accedi", logout: "Esci", account: "Account" },
   nl: { login: "Inloggen", logout: "Uit", account: "Account" },
-  pl: { login: "Zaloguj", logout: "Wyjdz", account: "Konto" },
+  pl: { login: "Zaloguj", logout: "Wyloguj", account: "Konto" },
 };
 
 export default function AuthStatusButton({ language = "en" }: { language?: InterfaceLanguage }) {
