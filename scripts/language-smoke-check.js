@@ -240,6 +240,24 @@ async function main() {
     7,
   );
 
+  await checkPage(
+    "login-ar",
+    "/login?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["تسجيل الدخول", "البريد الإلكتروني", "كلمة المرور", "العودة للرئيسية"],
+    ["Sign in", "Welcome back", "Password"],
+    15,
+  );
+
+  await checkPage(
+    "login-ja",
+    "/login?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["ログイン", "メール", "パスワード", "ホームへ戻る"],
+    ["Sign in", "Welcome back", "Password"],
+    16,
+  );
+
   await checkApiJson(
     "api-github-ja",
     "/api/tools/github-repo-analyzer?lang=ja",
