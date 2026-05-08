@@ -5039,20 +5039,27 @@ export default function ProgrammingTrainer({
     if (!cleanLanguageFilter) return programmingLanguages;
 
     return programmingLanguages.filter((item) => {
+      const localizedRole = roleForInterface(item, language);
+      const localizedHabit = habitForInterface(item, language);
+      const localizedRuntime = runtimeLabel(item.runtime, language);
       const searchable = normalize([
         item.slug,
         item.title,
         item.shortTitle,
         item.role,
+        localizedRole,
         item.runtime,
+        localizedRuntime,
         item.fileName,
         item.runCommand,
+        item.dailyHabit,
+        localizedHabit,
         ...item.strengths,
       ].join(" "));
 
       return searchable.includes(cleanLanguageFilter);
     });
-  }, [cleanLanguageFilter]);
+  }, [cleanLanguageFilter, language]);
   const openFirstRailMatch = useCallback(() => {
     if (!cleanLanguageFilter) return;
     const [firstMatch] = railLanguages;
