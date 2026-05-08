@@ -242,6 +242,20 @@ async function main() {
     "/login?next=%2Fdashboard%3Flang%3Dar&lang=ar",
     14,
   );
+  await checkProtectedLanguageRedirect(
+    "protected-language:wrong-ja",
+    "/wrong?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    "/login?next=%2Fwrong%3Flang%3Dja&lang=ja",
+    35,
+  );
+  await checkProtectedLanguageRedirect(
+    "protected-language:progress-ar",
+    "/progress?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    "/login?next=%2Fprogress%3Flang%3Dar&lang=ar",
+    36,
+  );
   await checkVisibleText(
     "home-ar-visible-copy",
     "/?lang=ar",
