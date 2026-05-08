@@ -323,6 +323,143 @@ type ProgrammingCopyType = {
   roleFallback: (role: string) => string;
 };
 
+type ProgrammingRailSearchCopy = {
+  label: string;
+  placeholder: string;
+  clear: string;
+  noMatch: string;
+  count: (visible: number, total: number) => string;
+};
+
+const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearchCopy> = {
+  en: {
+    label: "Find a language",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Clear",
+    noMatch: "No matching language yet.",
+    count: (visible, total) => `${visible} of ${total}`,
+  },
+  zh: {
+    label: "搜索语言",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "清空",
+    noMatch: "暂时没有匹配的语言",
+    count: (visible, total) => `${visible} / ${total}`,
+  },
+  ja: {
+    label: "言語を探す",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "クリア",
+    noMatch: "一致する言語はまだありません。",
+    count: (visible, total) => `${visible} / ${total}`,
+  },
+  ko: {
+    label: "언어 찾기",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "지우기",
+    noMatch: "일치하는 언어가 아직 없습니다.",
+    count: (visible, total) => `${visible} / ${total}`,
+  },
+  es: {
+    label: "Buscar lenguaje",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Limpiar",
+    noMatch: "No hay lenguajes coincidentes.",
+    count: (visible, total) => `${visible} de ${total}`,
+  },
+  fr: {
+    label: "Trouver un langage",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Effacer",
+    noMatch: "Aucun langage correspondant.",
+    count: (visible, total) => `${visible} sur ${total}`,
+  },
+  de: {
+    label: "Sprache suchen",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Zuruecksetzen",
+    noMatch: "Noch keine passende Sprache.",
+    count: (visible, total) => `${visible} von ${total}`,
+  },
+  pt: {
+    label: "Encontrar linguagem",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Limpar",
+    noMatch: "Nenhuma linguagem encontrada.",
+    count: (visible, total) => `${visible} de ${total}`,
+  },
+  ru: {
+    label: "Найти язык",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Сбросить",
+    noMatch: "Подходящий язык пока не найден.",
+    count: (visible, total) => `${visible} из ${total}`,
+  },
+  ar: {
+    label: "ابحث عن لغة",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "مسح",
+    noMatch: "لا توجد لغة مطابقة بعد.",
+    count: (visible, total) => `${visible} من ${total}`,
+  },
+  hi: {
+    label: "भाषा खोजें",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "साफ करें",
+    noMatch: "अभी कोई मेल खाती भाषा नहीं है।",
+    count: (visible, total) => `${visible} / ${total}`,
+  },
+  id: {
+    label: "Cari bahasa",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Bersihkan",
+    noMatch: "Belum ada bahasa yang cocok.",
+    count: (visible, total) => `${visible} dari ${total}`,
+  },
+  vi: {
+    label: "Tim ngon ngu",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Xoa",
+    noMatch: "Chua co ngon ngu phu hop.",
+    count: (visible, total) => `${visible} / ${total}`,
+  },
+  th: {
+    label: "ค้นหาภาษา",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "ล้าง",
+    noMatch: "ยังไม่มีภาษาที่ตรงกัน",
+    count: (visible, total) => `${visible} / ${total}`,
+  },
+  tr: {
+    label: "Dil bul",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Temizle",
+    noMatch: "Henuz eslesen dil yok.",
+    count: (visible, total) => `${visible} / ${total}`,
+  },
+  it: {
+    label: "Trova linguaggio",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Pulisci",
+    noMatch: "Nessun linguaggio corrispondente.",
+    count: (visible, total) => `${visible} di ${total}`,
+  },
+  nl: {
+    label: "Taal zoeken",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Wissen",
+    noMatch: "Nog geen passende taal.",
+    count: (visible, total) => `${visible} van ${total}`,
+  },
+  pl: {
+    label: "Znajdz jezyk",
+    placeholder: "Python JavaScript Rust SQL Bash",
+    clear: "Wyczysc",
+    noMatch: "Brak pasujacego jezyka.",
+    count: (visible, total) => `${visible} z ${total}`,
+  },
+};
+
 const baseProgrammingCopy: Record<"en" | "zh", ProgrammingCopyType> = {
   en: {
     brand: "Code Practice",
@@ -4394,6 +4531,7 @@ export default function ProgrammingTrainer({
   const [sampleRuns, setSampleRuns] = useState<Record<string, boolean>>({});
   const [keyPreset, setKeyPreset] = useState<KeyPreset>("typing");
   const [hydratedLanguage, setHydratedLanguage] = useState<ProgrammingLanguageSlug | null>(null);
+  const [languageFilter, setLanguageFilter] = useState("");
 
   const question = useMemo(
     () => buildProgrammingQuestion(activeLanguage.slug, questionIndex),
@@ -4425,6 +4563,26 @@ export default function ProgrammingTrainer({
   const lineageUi = lineageCopy[language];
   const zeroSteps = zeroBaseSteps[language] || zeroBaseSteps.en;
   const isRtl = language === "ar";
+  const railSearch = programmingRailSearchCopy[language];
+  const cleanLanguageFilter = normalize(languageFilter);
+  const railLanguages = useMemo(() => {
+    if (!cleanLanguageFilter) return programmingLanguages;
+
+    return programmingLanguages.filter((item) => {
+      const searchable = normalize([
+        item.slug,
+        item.title,
+        item.shortTitle,
+        item.role,
+        item.runtime,
+        item.fileName,
+        item.runCommand,
+        ...item.strengths,
+      ].join(" "));
+
+      return searchable.includes(cleanLanguageFilter);
+    });
+  }, [cleanLanguageFilter]);
   const coachContext = useMemo(() => ({
     language: activeLanguage.title,
     languageRole: activeRole,
@@ -4647,8 +4805,25 @@ export default function ProgrammingTrainer({
 
           <div className="programming-rail-section">
             <p className="eyebrow">{copy.languages}</p>
-            <nav className="programming-language-list">
-              {programmingLanguages.map((item) => (
+            <input
+              className="tool-input mt-2"
+              type="search"
+              value={languageFilter}
+              onChange={(event) => setLanguageFilter(event.target.value)}
+              placeholder={railSearch.placeholder}
+              aria-label={railSearch.label}
+              dir="ltr"
+            />
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <span className="dense-status">{railSearch.count(railLanguages.length, programmingLanguages.length)}</span>
+              {languageFilter ? (
+                <button type="button" className="dense-action" onClick={() => setLanguageFilter("")}>
+                  {railSearch.clear}
+                </button>
+              ) : null}
+            </div>
+            <nav className="programming-language-list" aria-label={railSearch.label}>
+              {railLanguages.map((item) => (
                 <Link
                   key={item.slug}
                   href={localizedHref(`/programming/${item.slug}`, language)}
@@ -4659,6 +4834,9 @@ export default function ProgrammingTrainer({
                 </Link>
               ))}
             </nav>
+            {railLanguages.length === 0 ? (
+              <p className="programming-muted mt-2">{railSearch.noMatch}</p>
+            ) : null}
           </div>
 
           <div className="programming-rail-section">
