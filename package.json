@@ -17,6 +17,7 @@
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "db:seed": "node prisma/seed.cjs",
+    "content:check": "node scripts/content-strategy-check.js",
     "security:check": "node scripts/security-check.js",
     "security:regression": "node scripts/security-regression.js",
     "security:repo": "node scripts/repo-security-check.js",

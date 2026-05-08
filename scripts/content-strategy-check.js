@@ -56,6 +56,42 @@ for (const phrase of forbiddenPublicBrandExamples) {
   else fail(`guide does not document deprecated brand: ${phrase}`);
 }
 
+const publicBrandFiles = [
+  "README.md",
+  "SECURITY.md",
+  "DEPLOYMENT.md",
+  "app/page.tsx",
+  "app/layout.tsx",
+  "app/robots.ts",
+  "app/sitemap.ts",
+  "app/search/page.tsx",
+  "components/layout/GlobalSearchLauncher.tsx",
+  "lib/site-search.ts",
+  "lib/tool-definitions.ts",
+];
+const deprecatedBrandPattern = /\bVantaAPI\b|Immortal|vantaapi-ranking/;
+const deprecatedBrandFiles = publicBrandFiles.filter((file) => deprecatedBrandPattern.test(read(file)));
+if (deprecatedBrandFiles.length) {
+  fail(`public brand residue: ${deprecatedBrandFiles.join(", ")}`);
+} else {
+  ok("public brand surfaces use JinMing Lab wording");
+}
+
+const publicPromiseFiles = [
+  "app/page.tsx",
+  "app/search/page.tsx",
+  "components/layout/GlobalSearchLauncher.tsx",
+  "lib/site-search.ts",
+  "lib/tool-definitions.ts",
+];
+const exaggeratedClaimPattern = /IELTS 5000|TOEFL 5000|26000|60000|every language has 5000|5000 questions|每门语言\s*5000|5000\s*题/i;
+const exaggeratedClaimFiles = publicPromiseFiles.filter((file) => exaggeratedClaimPattern.test(read(file)));
+if (exaggeratedClaimFiles.length) {
+  fail(`public exaggerated exact claims: ${exaggeratedClaimFiles.join(", ")}`);
+} else {
+  ok("public positioning avoids large exact content claims");
+}
+
 if (failures > 0) {
   console.error(`\nSummary: fail=${failures}`);
   process.exit(1);
