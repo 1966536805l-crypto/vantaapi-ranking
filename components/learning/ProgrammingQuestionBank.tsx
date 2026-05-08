@@ -8,6 +8,7 @@ import {
   type ProgrammingLanguageSlug,
   type ProgrammingQuestion,
 } from "@/lib/programming-content";
+import styles from "./ProgrammingQuestionBank.module.css";
 
 type QuestionBankPhaseId =
   | "all"
@@ -571,8 +572,8 @@ export default function ProgrammingQuestionBank({
   ]);
 
   return (
-    <section className="dense-panel programming-bank" aria-label={bankCopy.title}>
-      <div className="programming-bank-head">
+    <section className={`dense-panel ${styles.root}`} aria-label={bankCopy.title}>
+      <div className={styles.head}>
         <div>
           <p className="eyebrow">{bankCopy.eyebrow}</p>
           <h2>{bankCopy.title}</h2>
@@ -581,7 +582,7 @@ export default function ProgrammingQuestionBank({
         <strong>{bankCopy.results(questionBankMatches.length)}</strong>
       </div>
 
-      <label className="programming-bank-search">
+      <label className={styles.search}>
         <span>{bankCopy.searchLabel}</span>
         <input
           type="search"
@@ -603,10 +604,10 @@ export default function ProgrammingQuestionBank({
         />
       </label>
 
-      <div className="programming-bank-phases" aria-label={bankCopy.phase}>
+      <div className={styles.phases} aria-label={bankCopy.phase}>
         <button
           type="button"
-          className={activePhaseId === "all" ? "programming-bank-phase active" : "programming-bank-phase"}
+          className={activePhaseId === "all" ? `${styles.phase} ${styles.active}` : styles.phase}
           onClick={() => setActivePhaseId("all")}
         >
           <span>{questionBankPhaseLabel("all", language)}</span>
@@ -616,7 +617,7 @@ export default function ProgrammingQuestionBank({
           <button
             key={phase.id}
             type="button"
-            className={activePhaseId === phase.id ? "programming-bank-phase active" : "programming-bank-phase"}
+            className={activePhaseId === phase.id ? `${styles.phase} ${styles.active}` : styles.phase}
             onClick={() => setActivePhaseId(phase.id)}
           >
             <span>{questionBankPhaseLabel(phase.id, language)}</span>
@@ -625,10 +626,10 @@ export default function ProgrammingQuestionBank({
         ))}
       </div>
 
-      <div className="programming-bank-results">
+      <div className={styles.results}>
         {questionBankMatches.length > 0 ? questionBankMatches.map(({ item, phase }) => (
-          <article key={item.id} className={item.index === questionIndex ? "programming-bank-result current" : "programming-bank-result"}>
-            <div className="programming-bank-result-head">
+          <article key={item.id} className={item.index === questionIndex ? `${styles.result} ${styles.current}` : styles.result}>
+            <div className={styles.resultHead}>
               <span>{questionShort} {item.index}</span>
               <span>{typeLabels[item.type]}</span>
               <span>{questionBankPhaseLabel(phase.id, language)}</span>
@@ -640,7 +641,7 @@ export default function ProgrammingQuestionBank({
             </button>
           </article>
         )) : (
-          <div className="programming-bank-empty">
+          <div className={styles.empty}>
             <strong>{bankCopy.noResults}</strong>
             <span>{bankCopy.phaseHint}</span>
           </div>
