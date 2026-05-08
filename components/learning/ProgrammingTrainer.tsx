@@ -2722,8 +2722,80 @@ const genericDefinitionI18n: Partial<Record<InterfaceLanguage, {
   },
 };
 
+const runtimeLabelCopy: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
+  zh: {
+    "Browser console or Node.js": "浏览器控制台或 Node.js",
+    Browser: "浏览器",
+    "POSIX shell compatible terminal": "兼容 POSIX 的终端",
+    "PostgreSQL compatible SQL": "兼容 PostgreSQL 的 SQL 环境",
+    "PHP CLI or web server": "PHP 命令行或 Web 服务器",
+    "Swift toolchain": "Swift 工具链",
+    "Kotlin compiler": "Kotlin 编译器",
+    "C compiler": "C 编译器",
+    "Solidity compiler": "Solidity 编译器",
+    "Zig toolchain": "Zig 工具链",
+    "Nim compiler": "Nim 编译器",
+    "Crystal compiler": "Crystal 编译器",
+    "V compiler": "V 编译器",
+    "D compiler": "D 编译器",
+  },
+  ja: {
+    "Browser console or Node.js": "ブラウザーコンソールまたは Node.js",
+    Browser: "ブラウザー",
+    "POSIX shell compatible terminal": "POSIX 互換ターミナル",
+    "PostgreSQL compatible SQL": "PostgreSQL 互換 SQL 環境",
+  },
+  ko: {
+    "Browser console or Node.js": "브라우저 콘솔 또는 Node.js",
+    Browser: "브라우저",
+    "POSIX shell compatible terminal": "POSIX 호환 터미널",
+    "PostgreSQL compatible SQL": "PostgreSQL 호환 SQL 환경",
+  },
+  es: {
+    "Browser console or Node.js": "consola del navegador o Node.js",
+    Browser: "navegador",
+    "POSIX shell compatible terminal": "terminal compatible con POSIX",
+    "PostgreSQL compatible SQL": "entorno SQL compatible con PostgreSQL",
+  },
+  ar: {
+    "Browser console or Node.js": "وحدة تحكم المتصفح أو Node.js",
+    Browser: "المتصفح",
+    "POSIX shell compatible terminal": "طرفية متوافقة مع POSIX",
+    "PostgreSQL compatible SQL": "بيئة SQL متوافقة مع PostgreSQL",
+    "PHP CLI or web server": "سطر أوامر PHP أو خادم ويب",
+    "Swift toolchain": "أدوات Swift",
+    "Kotlin compiler": "مترجم Kotlin",
+    "Scala CLI or sbt": "Scala CLI أو sbt",
+    "MATLAB or Octave": "MATLAB أو Octave",
+    "Erlang shell or escript": "صدفة Erlang أو escript",
+    "Clojure CLI": "سطر أوامر Clojure",
+    "C compiler": "مترجم C",
+    "Assembler and linker": "المجمع والرابط",
+    "Solidity compiler": "مترجم Solidity",
+    "Clang Objective C": "Clang للغة Objective C",
+    "Zig toolchain": "أدوات Zig",
+    "Nim compiler": "مترجم Nim",
+    "Crystal compiler": "مترجم Crystal",
+    "PowerShell 7": "PowerShell 7",
+    "Free Pascal": "Free Pascal",
+    "SWI-Prolog": "SWI-Prolog",
+    "Elm compiler": "مترجم Elm",
+    "V compiler": "مترجم V",
+    "D compiler": "مترجم D",
+    "Pharo or GNU Smalltalk": "Pharo أو GNU Smalltalk",
+    "SAP ABAP": "بيئة SAP ABAP",
+    "Delphi or Free Pascal": "Delphi أو Free Pascal",
+    "Tcl shell": "صدفة Tcl",
+  },
+};
+
+function runtimeLabel(runtime: string, language: InterfaceLanguage) {
+  return runtimeLabelCopy[language]?.[runtime] || runtime;
+}
+
 function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage>, activeRole: string, language: InterfaceLanguage) {
   const starter = activeLanguage.tutorialSections[0];
+  const runtime = runtimeLabel(activeLanguage.runtime, language);
   if (language === "zh") {
     return {
       aria: `${activeLanguage.title} 定义`,
@@ -2741,7 +2813,7 @@ function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage
         ["程序", "一组按顺序执行的指令。先读输入，再计算，最后得到输出。"],
         ["值和变量", "值是数据，变量是给数据取的名字。先看名字，再看它保存了什么。"],
         ["函数", "把一件小事封装起来，给输入，拿输出，之后可以反复用。"],
-        ["运行环境", `${activeLanguage.runtime} 负责真正执行 ${activeLanguage.fileName} 里的代码。`],
+        ["运行环境", `${runtime} 负责真正执行 ${activeLanguage.fileName} 里的代码。`],
       ],
       starter,
     };
@@ -2764,7 +2836,7 @@ function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage
         ["プログラム", "順番に実行される命令の集まりです。入力を読み、処理し、出力します。"],
         ["値と変数", "値はデータです。変数はそのデータにつける名前です。"],
         ["関数", "小さな仕事をまとめたものです。入力を受け取り、結果を返します。"],
-        ["実行環境", `${activeLanguage.runtime} が ${activeLanguage.fileName} のコードを実行します。`],
+        ["実行環境", `${runtime} が ${activeLanguage.fileName} のコードを実行します。`],
       ],
       starter,
     };
@@ -2787,7 +2859,7 @@ function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage
         ["프로그램", "순서대로 실행되는 명령의 집합입니다. 입력을 읽고 처리하여 출력합니다."],
         ["값과 변수", "값은 데이터입니다. 변수는 그 데이터에 붙이는 이름입니다."],
         ["함수", "작은 작업을 묶은 것입니다. 입력을 받아 결과를 반환합니다."],
-        ["실행 환경", `${activeLanguage.runtime} 가 ${activeLanguage.fileName} 의 코드를 실행합니다.`],
+        ["실행 환경", `${runtime} 가 ${activeLanguage.fileName} 의 코드를 실행합니다.`],
       ],
       starter,
     };
@@ -2810,7 +2882,7 @@ function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage
         ["programa", "un conjunto ordenado de instrucciones. Lee entrada, sigue reglas y produce salida."],
         ["valor y variable", "un valor es dato. Una variable es el nombre que usas para guardar y reutilizar ese dato."],
         ["función", "una pieza de trabajo con nombre. Recibe entrada, hace una tarea y puede devolver un resultado."],
-        ["entorno", `${activeLanguage.runtime} ejecuta el código de ${activeLanguage.fileName}.`],
+        ["entorno", `${runtime} ejecuta el código de ${activeLanguage.fileName}.`],
       ],
       starter,
     };
@@ -2833,7 +2905,7 @@ function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage
         ["البرنامج", "مجموعة مرتبة من التعليمات. يقرأ المدخلات ويتبع القواعد وينتج المخرجات."],
         ["القيمة والمتغير", "القيمة هي البيانات. المتغير هو اسم تستخدمه لحفظ البيانات وإعادة استخدامها."],
         ["الدالة", "عمل صغير له اسم. يأخذ مدخلات وينفذ مهمة ويمكن أن يرجع نتيجة."],
-        ["بيئة التشغيل", `${activeLanguage.runtime} هي البيئة التي تشغل كود ${activeLanguage.fileName}.`],
+        ["بيئة التشغيل", `${runtime} هي البيئة التي تشغل كود ${activeLanguage.fileName}.`],
       ],
       starter,
     };
@@ -2853,7 +2925,7 @@ function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage
       habit: habitForInterface(activeLanguage, language),
       starterTitle: genericDefinition.starterTitle,
       outputLabel: genericDefinition.outputLabel,
-      cards: genericDefinition.cards(activeLanguage.runtime, activeLanguage.fileName),
+      cards: genericDefinition.cards(runtime, activeLanguage.fileName),
       starter,
     };
   }
@@ -2874,7 +2946,7 @@ function definitionCopy(activeLanguage: ReturnType<typeof getProgrammingLanguage
       ["Program", "An ordered set of instructions. It reads input, follows rules, and produces output."],
       ["Value and variable", "A value is data. A variable is the name you use to hold and reuse that data."],
       ["Function", "A named piece of work. It takes input, does one job, and can return a result."],
-      ["Runtime", `${activeLanguage.runtime} is the place that actually runs code from ${activeLanguage.fileName}.`],
+      ["Runtime", `${runtime} is the place that actually runs code from ${activeLanguage.fileName}.`],
     ],
     starter,
   };
@@ -4671,7 +4743,7 @@ export default function ProgrammingTrainer({
                 <h2>{copy.patternsFor(activeLanguage.fileName)}</h2>
               </div>
               <div className="programming-runtime-inline">
-                <span>{activeLanguage.runtime}</span>
+                <span>{runtimeLabel(activeLanguage.runtime, language)}</span>
                 <code>{activeLanguage.runCommand}</code>
               </div>
             </div>

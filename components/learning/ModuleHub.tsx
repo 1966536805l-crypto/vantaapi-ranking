@@ -1,6 +1,6 @@
 import Link from "next/link";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
-import { bilingualLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
+import { localizedHref, type InterfaceLanguage } from "@/lib/language";
 
 export type ModuleItem = {
   href: string;
@@ -11,7 +11,14 @@ export type ModuleItem = {
   accent?: string;
 };
 
-const navCopy = {
+const navCopy: Record<InterfaceLanguage, {
+  brand: string;
+  today: string;
+  english: string;
+  programming: string;
+  cpp: string;
+  dashboard: string;
+}> = {
   en: {
     brand: "JinMing Lab",
     today: "Today",
@@ -28,9 +35,30 @@ const navCopy = {
     cpp: "C++",
     dashboard: "面板",
   },
-} as const;
+  ja: { brand: "JinMing Lab", today: "今日", english: "英語", programming: "プログラミング", cpp: "C++", dashboard: "ダッシュボード" },
+  ko: { brand: "JinMing Lab", today: "오늘", english: "영어", programming: "프로그래밍", cpp: "C++", dashboard: "대시보드" },
+  es: { brand: "JinMing Lab", today: "Hoy", english: "Ingles", programming: "Programacion", cpp: "C++", dashboard: "Panel" },
+  fr: { brand: "JinMing Lab", today: "Aujourd hui", english: "Anglais", programming: "Code", cpp: "C++", dashboard: "Tableau" },
+  de: { brand: "JinMing Lab", today: "Heute", english: "Englisch", programming: "Programmieren", cpp: "C++", dashboard: "Dashboard" },
+  pt: { brand: "JinMing Lab", today: "Hoje", english: "Ingles", programming: "Programacao", cpp: "C++", dashboard: "Painel" },
+  ru: { brand: "JinMing Lab", today: "Сегодня", english: "Английский", programming: "Кодинг", cpp: "C++", dashboard: "Панель" },
+  ar: { brand: "JinMing Lab", today: "اليوم", english: "الإنجليزية", programming: "البرمجة", cpp: "C++", dashboard: "لوحة التحكم" },
+  hi: { brand: "JinMing Lab", today: "आज", english: "अंग्रेज़ी", programming: "प्रोग्रामिंग", cpp: "C++", dashboard: "डैशबोर्ड" },
+  id: { brand: "JinMing Lab", today: "Hari ini", english: "Inggris", programming: "Pemrograman", cpp: "C++", dashboard: "Dasbor" },
+  vi: { brand: "JinMing Lab", today: "Hom nay", english: "Tieng Anh", programming: "Lap trinh", cpp: "C++", dashboard: "Bang dieu khien" },
+  th: { brand: "JinMing Lab", today: "วันนี้", english: "อังกฤษ", programming: "เขียนโปรแกรม", cpp: "C++", dashboard: "แดชบอร์ด" },
+  tr: { brand: "JinMing Lab", today: "Bugun", english: "Ingilizce", programming: "Programlama", cpp: "C++", dashboard: "Panel" },
+  it: { brand: "JinMing Lab", today: "Oggi", english: "Inglese", programming: "Programmazione", cpp: "C++", dashboard: "Pannello" },
+  nl: { brand: "JinMing Lab", today: "Vandaag", english: "Engels", programming: "Programmeren", cpp: "C++", dashboard: "Dashboard" },
+  pl: { brand: "JinMing Lab", today: "Dzisiaj", english: "Angielski", programming: "Programowanie", cpp: "C++", dashboard: "Panel" },
+};
 
-const moduleHubCopy = {
+const moduleHubCopy: Record<InterfaceLanguage, {
+  pathOverview: string;
+  open: string;
+  back: string;
+  startQuiz: string;
+}> = {
   en: {
     pathOverview: "Path Overview",
     open: "Open",
@@ -43,10 +71,26 @@ const moduleHubCopy = {
     back: "返回学习中心",
     startQuiz: "开始测验",
   },
-} as const;
+  ja: { pathOverview: "ルート概要", open: "開く", back: "学習ハブへ戻る", startQuiz: "クイズを開始" },
+  ko: { pathOverview: "경로 개요", open: "열기", back: "학습 허브로 돌아가기", startQuiz: "퀴즈 시작" },
+  es: { pathOverview: "Resumen de ruta", open: "Abrir", back: "Volver al hub", startQuiz: "Iniciar quiz" },
+  fr: { pathOverview: "Apercu du parcours", open: "Ouvrir", back: "Retour au hub", startQuiz: "Demarrer quiz" },
+  de: { pathOverview: "Pfaduebersicht", open: "Oeffnen", back: "Zurueck zum Lernhub", startQuiz: "Quiz starten" },
+  pt: { pathOverview: "Visao da rota", open: "Abrir", back: "Voltar ao hub", startQuiz: "Iniciar quiz" },
+  ru: { pathOverview: "Обзор маршрута", open: "Открыть", back: "Назад к обучению", startQuiz: "Начать тест" },
+  ar: { pathOverview: "نظرة على المسار", open: "فتح", back: "العودة إلى مركز التعلم", startQuiz: "ابدأ الاختبار" },
+  hi: { pathOverview: "मार्ग अवलोकन", open: "खोलें", back: "लर्निंग हब पर वापस", startQuiz: "क्विज़ शुरू करें" },
+  id: { pathOverview: "Ringkasan jalur", open: "Buka", back: "Kembali ke hub", startQuiz: "Mulai kuis" },
+  vi: { pathOverview: "Tong quan lo trinh", open: "Mo", back: "Quay lai trung tam hoc", startQuiz: "Bat dau quiz" },
+  th: { pathOverview: "ภาพรวมเส้นทาง", open: "เปิด", back: "กลับไปศูนย์เรียน", startQuiz: "เริ่มแบบทดสอบ" },
+  tr: { pathOverview: "Rota ozeti", open: "Ac", back: "Ogrenme hub ina don", startQuiz: "Quizi baslat" },
+  it: { pathOverview: "Panoramica percorso", open: "Apri", back: "Torna all hub", startQuiz: "Avvia quiz" },
+  nl: { pathOverview: "Route overzicht", open: "Open", back: "Terug naar leerhub", startQuiz: "Quiz starten" },
+  pl: { pathOverview: "Przeglad sciezki", open: "Otworz", back: "Wroc do centrum nauki", startQuiz: "Rozpocznij quiz" },
+};
 
 export function AppleStudyHeader({ language = "en" }: { language?: InterfaceLanguage } = {}) {
-  const copy = navCopy[bilingualLanguage(language)];
+  const copy = navCopy[language] || navCopy.en;
 
   return (
     <header className="apple-shell apple-nav px-5 py-3">
@@ -85,7 +129,7 @@ export function ModuleHub({
   ctaLabel?: string;
   language?: InterfaceLanguage;
 }) {
-  const hubCopy = moduleHubCopy[bilingualLanguage(language)];
+  const hubCopy = moduleHubCopy[language] || moduleHubCopy.en;
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -158,7 +202,7 @@ export function ModuleDetail({
   practiceHref?: string;
   language?: InterfaceLanguage;
 }) {
-  const hubCopy = moduleHubCopy[bilingualLanguage(language)];
+  const hubCopy = moduleHubCopy[language] || moduleHubCopy.en;
 
   return (
     <main className="apple-page pb-12 pt-4">

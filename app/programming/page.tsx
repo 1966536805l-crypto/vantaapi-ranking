@@ -1,12 +1,8 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
-import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { programmingLanguages, type ProgrammingLanguage, type ProgrammingLanguageSlug } from "@/lib/programming-content";
-
-export const metadata = {
-  title: "Programming Language Learning Lab - JinMing Lab",
-  description: "Zero foundation programming paths with beginner concepts tutorials drills hints answers and practice workbenches",
-};
 
 const zeroSteps = {
   en: [
@@ -26,6 +22,145 @@ const zeroSteps = {
     { key: "06", title: "集合", body: "数组、列表、字典、集合用来存很多相关值", example: "scores = [40, 2]" },
   ],
 } as const;
+
+type ZeroStep = {
+  key: string;
+  title: string;
+  body: string;
+  example: string;
+};
+
+const localizedZeroSteps: Partial<Record<InterfaceLanguage, readonly ZeroStep[]>> = {
+  ...zeroSteps,
+  ja: [
+    { key: "01", title: "プログラム", body: "入力を規則で処理し、出力に変える正確な指示です。", example: "input → rules → output" },
+    { key: "02", title: "出力", body: "値を表示できれば、コードが動いていることを確認できます。", example: "print 42" },
+    { key: "03", title: "値と変数", body: "変数は数値、文字列、真偽値、リスト、オブジェクトに名前を付けます。", example: "total = 42" },
+    { key: "04", title: "流れ", body: "分岐は道を選び、ループは役に立つ作業を繰り返します。", example: "if condition then repeat" },
+    { key: "05", title: "関数", body: "関数は一つの仕事に名前を付け、同じ考えを再利用します。", example: "add(a, b) → result" },
+    { key: "06", title: "コレクション", body: "配列、リスト、マップ、セットは関連する値をまとめます。", example: "scores = [40, 2]" },
+  ],
+  ko: [
+    { key: "01", title: "프로그램", body: "입력을 규칙으로 처리해 출력으로 바꾸는 정확한 명령입니다.", example: "input → rules → output" },
+    { key: "02", title: "출력", body: "값을 출력하면 코드가 실제로 실행되는지 확인할 수 있습니다.", example: "print 42" },
+    { key: "03", title: "값과 변수", body: "변수는 숫자, 문자열, 불리언, 리스트, 객체에 이름을 붙입니다.", example: "total = 42" },
+    { key: "04", title: "흐름", body: "분기는 길을 고르고 반복문은 필요한 일을 반복합니다.", example: "if condition then repeat" },
+    { key: "05", title: "함수", body: "함수는 한 가지 일을 묶어 같은 아이디어를 다시 쓰게 합니다.", example: "add(a, b) → result" },
+    { key: "06", title: "컬렉션", body: "배열, 리스트, 맵, 세트는 관련 값을 여러 개 저장합니다.", example: "scores = [40, 2]" },
+  ],
+  es: [
+    { key: "01", title: "Programa", body: "Instrucciones exactas que convierten entrada en salida.", example: "input → rules → output" },
+    { key: "02", title: "Salida", body: "Imprimir un valor confirma que el código está vivo.", example: "print 42" },
+    { key: "03", title: "Valores", body: "Las variables dan nombre a números, texto, booleanos, listas y objetos.", example: "total = 42" },
+    { key: "04", title: "Flujo", body: "Las ramas eligen un camino y los bucles repiten trabajo útil.", example: "if condition then repeat" },
+    { key: "05", title: "Funciones", body: "Una función empaqueta una tarea para reutilizar la idea.", example: "add(a, b) → result" },
+    { key: "06", title: "Colecciones", body: "Arrays, listas, mapas y sets guardan muchos valores relacionados.", example: "scores = [40, 2]" },
+  ],
+  fr: [
+    { key: "01", title: "Programme", body: "Des instructions exactes transforment une entree en sortie.", example: "input → rules → output" },
+    { key: "02", title: "Sortie", body: "Afficher une valeur confirme que le code fonctionne.", example: "print 42" },
+    { key: "03", title: "Valeurs", body: "Les variables nomment nombres, texte, booleens, listes et objets.", example: "total = 42" },
+    { key: "04", title: "Flux", body: "Les conditions choisissent un chemin et les boucles repetent un travail utile.", example: "if condition then repeat" },
+    { key: "05", title: "Fonctions", body: "Une fonction regroupe une tache pour reutiliser une idee.", example: "add(a, b) → result" },
+    { key: "06", title: "Collections", body: "Tableaux, listes, maps et sets stockent plusieurs valeurs liees.", example: "scores = [40, 2]" },
+  ],
+  de: [
+    { key: "01", title: "Programm", body: "Exakte Anweisungen verwandeln Eingabe nach Regeln in Ausgabe.", example: "input → rules → output" },
+    { key: "02", title: "Ausgabe", body: "Ein Wert auf dem Bildschirm zeigt, dass Code wirklich laeuft.", example: "print 42" },
+    { key: "03", title: "Werte", body: "Variablen geben Zahlen, Text, Booleans, Listen und Objekten Namen.", example: "total = 42" },
+    { key: "04", title: "Ablauf", body: "Bedingungen waehlen Wege, Schleifen wiederholen nuetzliche Arbeit.", example: "if condition then repeat" },
+    { key: "05", title: "Funktionen", body: "Funktionen packen eine Aufgabe so, dass du sie wiederverwenden kannst.", example: "add(a, b) → result" },
+    { key: "06", title: "Sammlungen", body: "Arrays, Listen, Maps und Sets speichern zusammenhaengende Werte.", example: "scores = [40, 2]" },
+  ],
+  pt: [
+    { key: "01", title: "Programa", body: "Instrucoes exatas transformam entrada em saida.", example: "input → rules → output" },
+    { key: "02", title: "Saida", body: "Imprimir um valor confirma que o codigo esta rodando.", example: "print 42" },
+    { key: "03", title: "Valores", body: "Variaveis dao nome a numeros, texto, booleanos, listas e objetos.", example: "total = 42" },
+    { key: "04", title: "Fluxo", body: "Condicoes escolhem caminhos e loops repetem trabalho util.", example: "if condition then repeat" },
+    { key: "05", title: "Funcoes", body: "Funcoes empacotam uma tarefa para reutilizar a ideia.", example: "add(a, b) → result" },
+    { key: "06", title: "Colecoes", body: "Arrays, listas, maps e sets guardam valores relacionados.", example: "scores = [40, 2]" },
+  ],
+  ru: [
+    { key: "01", title: "Программа", body: "Точные инструкции превращают входные данные в результат.", example: "input → rules → output" },
+    { key: "02", title: "Вывод", body: "Печать значения показывает, что код действительно работает.", example: "print 42" },
+    { key: "03", title: "Значения", body: "Переменные дают имена числам, строкам, boolean, спискам и объектам.", example: "total = 42" },
+    { key: "04", title: "Поток", body: "Условия выбирают путь, циклы повторяют полезную работу.", example: "if condition then repeat" },
+    { key: "05", title: "Функции", body: "Функция упаковывает одну задачу и позволяет повторно использовать идею.", example: "add(a, b) → result" },
+    { key: "06", title: "Коллекции", body: "Массивы, списки, maps и sets хранят связанные значения.", example: "scores = [40, 2]" },
+  ],
+  ar: [
+    { key: "01", title: "البرنامج", body: "تعليمات دقيقة تحول المدخلات إلى مخرجات عبر قواعد واضحة.", example: "input → rules → output" },
+    { key: "02", title: "الإخراج", body: "طباعة قيمة هي أول طريقة للتأكد من أن الكود يعمل.", example: "print 42" },
+    { key: "03", title: "القيم", body: "المتغيرات تعطي أسماء للأرقام والنصوص والقوائم والكائنات.", example: "total = 42" },
+    { key: "04", title: "تدفق التنفيذ", body: "الشروط تختار مسارا والحلقات تكرر عملا مفيدا.", example: "if condition then repeat" },
+    { key: "05", title: "الدوال", body: "الدالة تجمع مهمة واحدة حتى تعيد استخدام الفكرة.", example: "add(a, b) → result" },
+    { key: "06", title: "المجموعات", body: "المصفوفات والقوائم والخرائط والمجموعات تخزن قيما مترابطة.", example: "scores = [40, 2]" },
+  ],
+  hi: [
+    { key: "01", title: "Program", body: "Exact instructions input ko rules se output me badalte hain.", example: "input → rules → output" },
+    { key: "02", title: "Output", body: "Value print karna code ke chalne ka pehla proof hai.", example: "print 42" },
+    { key: "03", title: "Values", body: "Variables numbers, text, boolean, lists aur objects ko naam dete hain.", example: "total = 42" },
+    { key: "04", title: "Flow", body: "Branches path chunti hain aur loops useful work repeat karte hain.", example: "if condition then repeat" },
+    { key: "05", title: "Functions", body: "Function ek chhote kaam ko pack karta hai taki idea repeat ho sake.", example: "add(a, b) → result" },
+    { key: "06", title: "Collections", body: "Arrays, lists, maps aur sets related values store karte hain.", example: "scores = [40, 2]" },
+  ],
+  id: [
+    { key: "01", title: "Program", body: "Instruksi tepat mengubah input menjadi output lewat aturan.", example: "input → rules → output" },
+    { key: "02", title: "Output", body: "Mencetak nilai adalah cara pertama memastikan kode hidup.", example: "print 42" },
+    { key: "03", title: "Nilai", body: "Variabel memberi nama untuk angka teks boolean list dan object.", example: "total = 42" },
+    { key: "04", title: "Alur", body: "Cabang memilih jalan dan loop mengulang kerja berguna.", example: "if condition then repeat" },
+    { key: "05", title: "Fungsi", body: "Fungsi membungkus satu tugas agar idenya bisa dipakai ulang.", example: "add(a, b) → result" },
+    { key: "06", title: "Koleksi", body: "Array list map dan set menyimpan nilai yang saling terkait.", example: "scores = [40, 2]" },
+  ],
+  vi: [
+    { key: "01", title: "Chuong trinh", body: "Lenh chinh xac bien dau vao thanh dau ra qua quy tac.", example: "input → rules → output" },
+    { key: "02", title: "Dau ra", body: "In mot gia tri la cach dau tien de biet code dang chay.", example: "print 42" },
+    { key: "03", title: "Gia tri", body: "Bien dat ten cho so, chuoi, boolean, list va object.", example: "total = 42" },
+    { key: "04", title: "Luong chay", body: "Nhanh chon duong, vong lap lap lai cong viec huu ich.", example: "if condition then repeat" },
+    { key: "05", title: "Ham", body: "Ham dong goi mot viec nho de dung lai y tuong.", example: "add(a, b) → result" },
+    { key: "06", title: "Bo suu tap", body: "Array, list, map va set luu nhieu gia tri lien quan.", example: "scores = [40, 2]" },
+  ],
+  th: [
+    { key: "01", title: "โปรแกรม", body: "คำสั่งที่ชัดเจนเปลี่ยน input เป็น output ผ่านกฎ", example: "input → rules → output" },
+    { key: "02", title: "ผลลัพธ์", body: "การพิมพ์ค่าเป็นวิธีแรกที่รู้ว่าโค้ดทำงาน", example: "print 42" },
+    { key: "03", title: "ค่า", body: "ตัวแปรตั้งชื่อให้ตัวเลข ข้อความ boolean list และ object", example: "total = 42" },
+    { key: "04", title: "ลำดับงาน", body: "เงื่อนไขเลือกทาง และ loop ทำงานที่มีประโยชน์ซ้ำ", example: "if condition then repeat" },
+    { key: "05", title: "ฟังก์ชัน", body: "ฟังก์ชันรวมงานหนึ่งอย่างเพื่อใช้แนวคิดซ้ำได้", example: "add(a, b) → result" },
+    { key: "06", title: "ชุดข้อมูล", body: "array list map และ set เก็บค่าหลายค่าที่เกี่ยวข้องกัน", example: "scores = [40, 2]" },
+  ],
+  tr: [
+    { key: "01", title: "Program", body: "Kesin talimatlar girdiyi kurallarla ciktiya cevirir.", example: "input → rules → output" },
+    { key: "02", title: "Cikti", body: "Bir degeri yazdirmak kodun calistigini gosterir.", example: "print 42" },
+    { key: "03", title: "Degerler", body: "Degiskenler sayi, metin, boolean, liste ve nesnelere isim verir.", example: "total = 42" },
+    { key: "04", title: "Akis", body: "Kosullar yol secer, donguler faydali isi tekrarlar.", example: "if condition then repeat" },
+    { key: "05", title: "Fonksiyonlar", body: "Fonksiyon bir isi paketler ve fikri tekrar kullanir.", example: "add(a, b) → result" },
+    { key: "06", title: "Koleksiyonlar", body: "Array, list, map ve set ilgili degerleri saklar.", example: "scores = [40, 2]" },
+  ],
+  it: [
+    { key: "01", title: "Programma", body: "Istruzioni precise trasformano input in output con regole.", example: "input → rules → output" },
+    { key: "02", title: "Output", body: "Stampare un valore conferma che il codice e vivo.", example: "print 42" },
+    { key: "03", title: "Valori", body: "Le variabili danno nomi a numeri, testo, boolean, liste e oggetti.", example: "total = 42" },
+    { key: "04", title: "Flusso", body: "Le condizioni scelgono una strada e i cicli ripetono lavoro utile.", example: "if condition then repeat" },
+    { key: "05", title: "Funzioni", body: "Una funzione impacchetta un compito per riusare l idea.", example: "add(a, b) → result" },
+    { key: "06", title: "Collezioni", body: "Array, liste, map e set salvano valori collegati.", example: "scores = [40, 2]" },
+  ],
+  nl: [
+    { key: "01", title: "Programma", body: "Exacte instructies veranderen input via regels in output.", example: "input → rules → output" },
+    { key: "02", title: "Uitvoer", body: "Een waarde tonen bevestigt dat code echt draait.", example: "print 42" },
+    { key: "03", title: "Waarden", body: "Variabelen geven namen aan getallen, tekst, boolean, lijsten en objecten.", example: "total = 42" },
+    { key: "04", title: "Stroom", body: "Branches kiezen een pad en loops herhalen nuttig werk.", example: "if condition then repeat" },
+    { key: "05", title: "Functies", body: "Een functie verpakt een taak zodat je het idee opnieuw gebruikt.", example: "add(a, b) → result" },
+    { key: "06", title: "Collecties", body: "Arrays, lists, maps en sets bewaren verwante waarden.", example: "scores = [40, 2]" },
+  ],
+  pl: [
+    { key: "01", title: "Program", body: "Dokladne instrukcje zmieniaja wejscie w wynik wedlug zasad.", example: "input → rules → output" },
+    { key: "02", title: "Wyjscie", body: "Wypisanie wartosci pokazuje, ze kod naprawde dziala.", example: "print 42" },
+    { key: "03", title: "Wartosci", body: "Zmienne nadaja nazwy liczbom, tekstom, boolean, listom i obiektom.", example: "total = 42" },
+    { key: "04", title: "Przeplyw", body: "Warunki wybieraja sciezke, petle powtarzaja przydatna prace.", example: "if condition then repeat" },
+    { key: "05", title: "Funkcje", body: "Funkcja pakuje jedno zadanie, aby ponownie uzyc idei.", example: "add(a, b) → result" },
+    { key: "06", title: "Kolekcje", body: "Arrays, lists, maps i sets przechowuja powiazane wartosci.", example: "scores = [40, 2]" },
+  ],
+};
 
 const groups: Array<{
   key: string;
@@ -479,6 +614,247 @@ const copy: Record<InterfaceLanguage, ProgrammingPageCopy> = {
   },
 };
 
+type GroupDisplay = { title: string; summary: string };
+
+const groupDisplayCopy: Partial<Record<InterfaceLanguage, Record<string, GroupDisplay>>> = {
+  ja: {
+    web: { title: "Web とプロダクト", summary: "ページ · ツール · API · プロダクト UI" },
+    backend: { title: "バックエンドとクラウド", summary: "サービス · データベース · CLI · 安定した API" },
+    mobile: { title: "モバイルとアプリ", summary: "iOS · Android · クロスプラットフォーム" },
+    systems: { title: "システムと性能", summary: "メモリ · 速度 · コンパイラ · 低レイヤー" },
+    data: { title: "データと科学計算", summary: "分析 · 数値処理 · 研究ワークフロー" },
+    functional: { title: "関数型と言語設計", summary: "型 · 変換 · 並行処理 · コンパイラ思考" },
+    scripting: { title: "スクリプトと自動化", summary: "ファイル · テキスト · プラグイン · 日常作業" },
+    blockchain: { title: "コントラクトとセキュリティ", summary: "状態 · 権限 · 取引 · 安全なレビュー" },
+    enterprise: { title: "企業とレガシー", summary: "SAP · 金融 · デスクトップ · 業務システム" },
+  },
+  ko: {
+    web: { title: "웹과 제품", summary: "페이지 · 도구 · API · 제품 UI" },
+    backend: { title: "백엔드와 클라우드", summary: "서비스 · 데이터베이스 · CLI · 안정 API" },
+    mobile: { title: "모바일과 앱", summary: "iOS · Android · 크로스 플랫폼" },
+    systems: { title: "시스템과 성능", summary: "메모리 · 속도 · 컴파일러 · 저수준 코드" },
+    data: { title: "데이터와 과학 계산", summary: "분석 · 수치 모델 · 연구 흐름" },
+    functional: { title: "함수형과 언어 설계", summary: "타입 · 변환 · 동시성 · 컴파일러 사고" },
+    scripting: { title: "스크립트와 자동화", summary: "파일 · 텍스트 · 플러그인 · 일상 자동화" },
+    blockchain: { title: "컨트랙트와 보안", summary: "상태 · 권한 · 거래 · 안전 리뷰" },
+    enterprise: { title: "기업과 레거시", summary: "SAP · 금융 · 데스크톱 · 비즈니스 시스템" },
+  },
+  es: {
+    web: { title: "Web y producto", summary: "Paginas · herramientas · API · interfaces" },
+    backend: { title: "Backend y nube", summary: "Servicios · bases de datos · CLI · API fiables" },
+    mobile: { title: "Movil y apps", summary: "iOS · Android · apps multiplataforma" },
+    systems: { title: "Sistemas y rendimiento", summary: "Memoria · velocidad · compiladores · bajo nivel" },
+    data: { title: "Datos y ciencia", summary: "Analisis · numeros · flujos de investigacion" },
+    functional: { title: "Funcional y diseno de lenguajes", summary: "Tipos · transformaciones · concurrencia" },
+    scripting: { title: "Scripts y automatizacion", summary: "Archivos · texto · plugins · flujos diarios" },
+    blockchain: { title: "Contratos y seguridad", summary: "Estado · permisos · transacciones · revision segura" },
+    enterprise: { title: "Empresa y legado", summary: "SAP · finanzas · escritorio · sistemas clasicos" },
+  },
+  fr: {
+    web: { title: "Web et produit", summary: "Pages · outils · API · interfaces produit" },
+    backend: { title: "Backend et cloud", summary: "Services · bases de donnees · CLI · API fiables" },
+    mobile: { title: "Mobile et app", summary: "iOS · Android · apps multiplateformes" },
+    systems: { title: "Systemes et performance", summary: "Memoire · vitesse · compilateurs · bas niveau" },
+    data: { title: "Donnees et science", summary: "Analyse · calcul · recherche" },
+    functional: { title: "Fonctionnel et design de langage", summary: "Types · transformations · concurrence" },
+    scripting: { title: "Scripts et automatisation", summary: "Fichiers · texte · plugins · routines" },
+    blockchain: { title: "Contrats et securite", summary: "Etat · permissions · transactions · revue sure" },
+    enterprise: { title: "Entreprise et legacy", summary: "SAP · finance · desktop · systemes classiques" },
+  },
+  de: {
+    web: { title: "Web und Produkt", summary: "Seiten · Werkzeuge · APIs · Produktoberflaechen" },
+    backend: { title: "Backend und Cloud", summary: "Services · Datenbanken · CLIs · stabile APIs" },
+    mobile: { title: "Mobile und App", summary: "iOS · Android · plattformuebergreifend" },
+    systems: { title: "Systeme und Performance", summary: "Speicher · Tempo · Compiler · Low Level" },
+    data: { title: "Daten und Wissenschaft", summary: "Analyse · Zahlen · Research Workflows" },
+    functional: { title: "Funktional und Sprachdesign", summary: "Typen · Transformation · Nebenlaeufigkeit" },
+    scripting: { title: "Scripting und Automatisierung", summary: "Dateien · Text · Plugins · Alltag" },
+    blockchain: { title: "Contracts und Sicherheit", summary: "State · Rechte · Transaktionen · sichere Reviews" },
+    enterprise: { title: "Enterprise und Legacy", summary: "SAP · Finance · Desktop · klassische Systeme" },
+  },
+  ru: {
+    web: { title: "Web и продукт", summary: "Страницы · инструменты · API · интерфейсы" },
+    backend: { title: "Backend и cloud", summary: "Сервисы · базы данных · CLI · надежные API" },
+    mobile: { title: "Mobile и apps", summary: "iOS · Android · кроссплатформа" },
+    systems: { title: "Системы и производительность", summary: "Память · скорость · компиляторы · low level" },
+    data: { title: "Данные и наука", summary: "Анализ · числа · исследовательские процессы" },
+    functional: { title: "Функциональный стиль и языки", summary: "Типы · преобразования · конкуррентность" },
+    scripting: { title: "Скрипты и автоматизация", summary: "Файлы · текст · плагины · ежедневные задачи" },
+    blockchain: { title: "Контракты и безопасность", summary: "Состояние · права · транзакции · secure review" },
+    enterprise: { title: "Enterprise и legacy", summary: "SAP · финансы · desktop · классические системы" },
+  },
+  ar: {
+    web: { title: "الويب والمنتجات", summary: "صفحات · أدوات · API · واجهات منتجات" },
+    backend: { title: "الخلفية والسحابة", summary: "خدمات · قواعد بيانات · CLI · API موثوقة" },
+    mobile: { title: "الجوال والتطبيقات", summary: "iOS · Android · تطبيقات متعددة المنصات" },
+    systems: { title: "الأنظمة والأداء", summary: "ذاكرة · سرعة · مترجمات · كود منخفض المستوى" },
+    data: { title: "البيانات والحوسبة العلمية", summary: "تحليل · أرقام · نماذج · سير عمل بحثي" },
+    functional: { title: "الدوال وتصميم اللغات", summary: "أنواع · تحويلات · تزامن · تفكير المترجم" },
+    scripting: { title: "السكربتات والأتمتة", summary: "ملفات · نصوص · إضافات · أعمال يومية" },
+    blockchain: { title: "العقود والأمان", summary: "حالة · صلاحيات · معاملات · مراجعة آمنة" },
+    enterprise: { title: "المؤسسات والأنظمة القديمة", summary: "SAP · مالية · تطبيقات مكتبية · أنظمة أعمال" },
+  },
+  pt: {
+    web: { title: "Web e produto", summary: "Paginas · ferramentas · APIs · interfaces" },
+    backend: { title: "Backend e nuvem", summary: "Servicos · bancos · CLIs · APIs confiaveis" },
+    mobile: { title: "Mobile e app", summary: "iOS · Android · apps multiplataforma" },
+    systems: { title: "Sistemas e desempenho", summary: "Memoria · velocidade · compiladores · baixo nivel" },
+    data: { title: "Dados e ciencia", summary: "Analise · numeros · pesquisa" },
+    functional: { title: "Funcional e design de linguagem", summary: "Tipos · transformacoes · concorrencia" },
+    scripting: { title: "Scripts e automacao", summary: "Arquivos · texto · plugins · rotinas" },
+    blockchain: { title: "Contratos e seguranca", summary: "Estado · permissoes · transacoes · revisao segura" },
+    enterprise: { title: "Empresa e legado", summary: "SAP · financeiro · desktop · sistemas classicos" },
+  },
+  id: {
+    web: { title: "Web dan produk", summary: "Halaman · alat · API · antarmuka produk" },
+    backend: { title: "Backend dan cloud", summary: "Layanan · database · CLI · API andal" },
+    mobile: { title: "Mobile dan app", summary: "iOS · Android · aplikasi lintas platform" },
+    systems: { title: "Sistem dan performa", summary: "Memori · kecepatan · compiler · low level" },
+    data: { title: "Data dan sains", summary: "Analisis · angka · alur riset" },
+    functional: { title: "Fungsional dan desain bahasa", summary: "Tipe · transformasi · konkurensi" },
+    scripting: { title: "Skrip dan otomasi", summary: "File · teks · plugin · alur harian" },
+    blockchain: { title: "Kontrak dan keamanan", summary: "State · izin · transaksi · review aman" },
+    enterprise: { title: "Enterprise dan legacy", summary: "SAP · finansial · desktop · sistem klasik" },
+  },
+  hi: {
+    web: { title: "वेब और उत्पाद", summary: "पेज · टूल · API · उत्पाद इंटरफेस" },
+    backend: { title: "बैकएंड और क्लाउड", summary: "सेवाएं · डेटाबेस · CLI · भरोसेमंद API" },
+    mobile: { title: "मोबाइल और ऐप", summary: "iOS · Android · क्रॉस प्लेटफॉर्म ऐप" },
+    systems: { title: "सिस्टम और प्रदर्शन", summary: "मेमोरी · गति · कंपाइलर · लो लेवल कोड" },
+    data: { title: "डेटा और विज्ञान", summary: "विश्लेषण · संख्याएं · शोध वर्कफ्लो" },
+    functional: { title: "फंक्शनल और भाषा डिजाइन", summary: "टाइप · रूपांतरण · concurrency" },
+    scripting: { title: "स्क्रिप्ट और ऑटोमेशन", summary: "फाइल · टेक्स्ट · प्लगइन · रोजमर्रा काम" },
+    blockchain: { title: "कॉन्ट्रैक्ट और सुरक्षा", summary: "स्टेट · अनुमति · लेनदेन · सुरक्षित समीक्षा" },
+    enterprise: { title: "एंटरप्राइज और legacy", summary: "SAP · वित्त · डेस्कटॉप · बिजनेस सिस्टम" },
+  },
+  vi: {
+    web: { title: "Web va san pham", summary: "Trang · cong cu · API · giao dien san pham" },
+    backend: { title: "Backend va cloud", summary: "Dich vu · co so du lieu · CLI · API on dinh" },
+    mobile: { title: "Mobile va ung dung", summary: "iOS · Android · ung dung da nen tang" },
+    systems: { title: "He thong va hieu nang", summary: "Bo nho · toc do · compiler · low level" },
+    data: { title: "Du lieu va khoa hoc", summary: "Phan tich · so lieu · quy trinh nghien cuu" },
+    functional: { title: "Ham va thiet ke ngon ngu", summary: "Kieu · bien doi · dong thoi" },
+    scripting: { title: "Script va tu dong hoa", summary: "Tep · van ban · plugin · cong viec hang ngay" },
+    blockchain: { title: "Hop dong va bao mat", summary: "Trang thai · quyen · giao dich · review an toan" },
+    enterprise: { title: "Doanh nghiep va he cu", summary: "SAP · tai chinh · desktop · he thong nghiep vu" },
+  },
+  th: {
+    web: { title: "เว็บและผลิตภัณฑ์", summary: "หน้า · เครื่องมือ · API · หน้าจอผลิตภัณฑ์" },
+    backend: { title: "แบ็กเอนด์และคลาวด์", summary: "บริการ · ฐานข้อมูล · CLI · API ที่เชื่อถือได้" },
+    mobile: { title: "มือถือและแอป", summary: "iOS · Android · แอปข้ามแพลตฟอร์ม" },
+    systems: { title: "ระบบและประสิทธิภาพ", summary: "หน่วยความจำ · ความเร็ว · คอมไพเลอร์ · low level" },
+    data: { title: "ข้อมูลและวิทยาศาสตร์", summary: "วิเคราะห์ · ตัวเลข · เวิร์กโฟลว์วิจัย" },
+    functional: { title: "ฟังก์ชันและการออกแบบภาษา", summary: "ชนิดข้อมูล · การแปลง · concurrency" },
+    scripting: { title: "สคริปต์และอัตโนมัติ", summary: "ไฟล์ · ข้อความ · ปลั๊กอิน · งานประจำวัน" },
+    blockchain: { title: "สัญญาและความปลอดภัย", summary: "สถานะ · สิทธิ์ · ธุรกรรม · ตรวจสอบอย่างปลอดภัย" },
+    enterprise: { title: "องค์กรและระบบเดิม", summary: "SAP · การเงิน · เดสก์ท็อป · ระบบธุรกิจ" },
+  },
+  tr: {
+    web: { title: "Web ve urun", summary: "Sayfalar · araclar · API · urun arayuzleri" },
+    backend: { title: "Backend ve bulut", summary: "Servisler · veritabani · CLI · guvenilir API" },
+    mobile: { title: "Mobil ve uygulama", summary: "iOS · Android · cok platformlu uygulama" },
+    systems: { title: "Sistemler ve performans", summary: "Bellek · hiz · derleyici · low level" },
+    data: { title: "Veri ve bilim", summary: "Analiz · sayilar · arastirma akisleri" },
+    functional: { title: "Fonksiyonel ve dil tasarimi", summary: "Tipler · donusumler · eszamanlilik" },
+    scripting: { title: "Script ve otomasyon", summary: "Dosya · metin · eklenti · gunluk isler" },
+    blockchain: { title: "Kontrat ve guvenlik", summary: "Durum · izin · islem · guvenli inceleme" },
+    enterprise: { title: "Kurumsal ve legacy", summary: "SAP · finans · masaustu · is sistemleri" },
+  },
+  it: {
+    web: { title: "Web e prodotto", summary: "Pagine · strumenti · API · interfacce prodotto" },
+    backend: { title: "Backend e cloud", summary: "Servizi · database · CLI · API affidabili" },
+    mobile: { title: "Mobile e app", summary: "iOS · Android · app multipiattaforma" },
+    systems: { title: "Sistemi e prestazioni", summary: "Memoria · velocita · compilatori · basso livello" },
+    data: { title: "Dati e scienza", summary: "Analisi · numeri · flussi di ricerca" },
+    functional: { title: "Funzionale e design dei linguaggi", summary: "Tipi · trasformazioni · concorrenza" },
+    scripting: { title: "Script e automazione", summary: "File · testo · plugin · routine" },
+    blockchain: { title: "Contratti e sicurezza", summary: "Stato · permessi · transazioni · revisione sicura" },
+    enterprise: { title: "Enterprise e legacy", summary: "SAP · finanza · desktop · sistemi classici" },
+  },
+  nl: {
+    web: { title: "Web en product", summary: "Pagina's · tools · API · productinterfaces" },
+    backend: { title: "Backend en cloud", summary: "Services · databases · CLI · betrouwbare API" },
+    mobile: { title: "Mobiel en apps", summary: "iOS · Android · cross platform apps" },
+    systems: { title: "Systemen en performance", summary: "Geheugen · snelheid · compilers · low level" },
+    data: { title: "Data en wetenschap", summary: "Analyse · cijfers · onderzoeksflows" },
+    functional: { title: "Functioneel en taalontwerp", summary: "Types · transformaties · concurrency" },
+    scripting: { title: "Scripts en automatisering", summary: "Bestanden · tekst · plugins · dagelijkse taken" },
+    blockchain: { title: "Contracten en veiligheid", summary: "State · rechten · transacties · veilige review" },
+    enterprise: { title: "Enterprise en legacy", summary: "SAP · finance · desktop · klassieke systemen" },
+  },
+  pl: {
+    web: { title: "Web i produkt", summary: "Strony · narzedzia · API · interfejsy produktu" },
+    backend: { title: "Backend i chmura", summary: "Uslugi · bazy danych · CLI · stabilne API" },
+    mobile: { title: "Mobile i aplikacje", summary: "iOS · Android · aplikacje wieloplatformowe" },
+    systems: { title: "Systemy i wydajnosc", summary: "Pamiec · szybkosc · kompilatory · low level" },
+    data: { title: "Dane i nauka", summary: "Analiza · liczby · procesy badawcze" },
+    functional: { title: "Funkcyjne i projektowanie jezykow", summary: "Typy · transformacje · wspolbieznosc" },
+    scripting: { title: "Skrypty i automatyzacja", summary: "Pliki · tekst · wtyczki · codzienne zadania" },
+    blockchain: { title: "Kontrakty i bezpieczenstwo", summary: "Stan · uprawnienia · transakcje · bezpieczny review" },
+    enterprise: { title: "Enterprise i legacy", summary: "SAP · finanse · desktop · systemy biznesowe" },
+  },
+};
+
+function getGroupDisplay(group: (typeof groups)[number], language: InterfaceLanguage): GroupDisplay {
+  if (language === "zh") return { title: group.zh, summary: group.summaryZh };
+  return groupDisplayCopy[language]?.[group.key] || { title: group.title, summary: group.summary };
+}
+
+const programmingCardDescription: Record<InterfaceLanguage, (name: string, fallback: string) => string> = {
+  en: (_name, fallback) => fallback,
+  zh: (name) => `${name} 的定义、语法、例子和训练题，适合从零开始逐步练。`,
+  ja: (name) => `${name} の定義、文法、例、練習をゼロから順に学べます。`,
+  ko: (name) => `${name} 정의, 문법, 예제, 연습을 처음부터 차례로 익힙니다.`,
+  es: (name) => `Definiciones, sintaxis, ejemplos y práctica para aprender ${name} desde cero.`,
+  fr: (name) => `Definitions, syntaxe, exemples et pratique pour apprendre ${name} depuis zero.`,
+  de: (name) => `Definitionen, Syntax, Beispiele und Uebungen, um ${name} ab null zu lernen.`,
+  pt: (name) => `Definicoes, sintaxe, exemplos e pratica para aprender ${name} do zero.`,
+  ru: (name) => `Определения, синтаксис, примеры и практика для изучения ${name} с нуля.`,
+  ar: (name) => `تعريفات وقواعد وأمثلة وتمارين لتعلم ${name} من الصفر خطوة بخطوة.`,
+  hi: (name) => `${name} ke definitions, syntax, examples aur practice zero se seekhne ke liye.`,
+  id: (name) => `Definisi, sintaks, contoh, dan latihan untuk belajar ${name} dari nol.`,
+  vi: (name) => `Dinh nghia, cu phap, vi du va bai tap de hoc ${name} tu con so 0.`,
+  th: (name) => `นิยาม syntax ตัวอย่าง และแบบฝึกสำหรับเรียน ${name} จากศูนย์`,
+  tr: (name) => `${name} icin tanimlar, soz dizimi, ornekler ve sifirdan pratik.`,
+  it: (name) => `Definizioni, sintassi, esempi e pratica per imparare ${name} da zero.`,
+  nl: (name) => `Definities, syntax, voorbeelden en oefeningen om ${name} vanaf nul te leren.`,
+  pl: (name) => `Definicje, skladnia, przyklady i cwiczenia do nauki ${name} od zera.`,
+};
+
+const practiceModeLabel: Record<InterfaceLanguage, string> = {
+  en: "choice · fill blank · build tasks",
+  zh: "选择 · 填空 · 实操任务",
+  ja: "選択 · 穴埋め · 実践課題",
+  ko: "선택 · 빈칸 · 실습 과제",
+  es: "opcion · rellenar · tareas",
+  fr: "choix · texte manquant · taches",
+  de: "Auswahl · Luecke · Aufgaben",
+  pt: "escolha · lacuna · tarefas",
+  ru: "выбор · пропуски · практика",
+  ar: "اختيار · فراغ · مهام عملية",
+  hi: "choice · fill blank · build tasks",
+  id: "pilihan · isian · tugas praktik",
+  vi: "lua chon · dien cho trong · bai thuc hanh",
+  th: "ตัวเลือก · เติมคำ · งานปฏิบัติ",
+  tr: "secim · bosluk · pratik gorev",
+  it: "scelta · completa · compiti",
+  nl: "keuze · invullen · taken",
+  pl: "wybor · luka · zadania",
+};
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<PageSearchParams>;
+}): Promise<Metadata> {
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const t = copy[language];
+  return {
+    title: `${t.title} - JinMing Lab`,
+    description: t.subtitle,
+  };
+}
+
 const firstLanguageSlugs = new Set<ProgrammingLanguageSlug>(["python", "javascript", "html-css", "sql"]);
 
 function getLanguage(slug: ProgrammingLanguageSlug) {
@@ -495,8 +871,8 @@ export default async function ProgrammingPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
-  const foundationLanguage = bilingualLanguage(language);
   const t = copy[language];
+  const zeroStepList = localizedZeroSteps[language] || zeroSteps.en;
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -522,7 +898,7 @@ export default async function ProgrammingPage({
             </div>
             <div className="dense-chip">
               <p className="text-[11px] text-[color:var(--muted)]">{t.stats[2]}</p>
-              <p className="mt-1 text-3xl font-semibold">{zeroSteps[foundationLanguage].length}</p>
+              <p className="mt-1 text-3xl font-semibold">{zeroStepList.length}</p>
             </div>
           </div>
         </div>
@@ -533,10 +909,10 @@ export default async function ProgrammingPage({
               <p className="eyebrow">{t.zeroEyebrow}</p>
               <h2 className="mt-2 text-2xl font-semibold">{t.zeroTitle}</h2>
             </div>
-            <span className="dense-status">choice · fill blank · build tasks</span>
+            <span className="dense-status">{practiceModeLabel[language]}</span>
           </div>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {zeroSteps[foundationLanguage].map((step) => (
+            {zeroStepList.map((step) => (
               <article key={step.key} className="dense-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <span className="dense-status">{step.key}</span>
@@ -554,28 +930,31 @@ export default async function ProgrammingPage({
             <p className="eyebrow text-slate-400">{t.groupsEyebrow}</p>
             <h2 className="mt-2 text-2xl font-semibold text-white">{t.groupsTitle}</h2>
             <div className="mt-5 grid gap-2">
-              {groups.map((group) => (
-                <div key={group.key} className="rounded-[8px] border border-white/10 bg-white/[0.07] p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <h3 className="font-semibold text-white">{language === "zh" ? group.zh : group.title}</h3>
-                      <p className="mt-1 text-xs leading-5 text-slate-300">{language === "zh" ? group.summaryZh : group.summary}</p>
+              {groups.map((group) => {
+                const groupDisplay = getGroupDisplay(group, language);
+                return (
+                  <div key={group.key} className="rounded-[8px] border border-white/10 bg-white/[0.07] p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <h3 className="font-semibold text-white">{groupDisplay.title}</h3>
+                        <p className="mt-1 text-xs leading-5 text-slate-300">{groupDisplay.summary}</p>
+                      </div>
+                      <span className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-slate-200">{group.slugs.length}</span>
                     </div>
-                    <span className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-slate-200">{group.slugs.length}</span>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {groupLanguages(group.slugs).map((item) => (
+                        <Link
+                          key={`${group.key}-${item.slug}`}
+                          href={localizedHref(`/programming/${item.slug}`, language)}
+                          className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1 text-xs font-semibold text-white hover:border-sky-200/50"
+                        >
+                          {item.shortTitle}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {groupLanguages(group.slugs).map((item) => (
-                      <Link
-                        key={`${group.key}-${item.slug}`}
-                        href={localizedHref(`/programming/${item.slug}`, language)}
-                        className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1 text-xs font-semibold text-white hover:border-sky-200/50"
-                      >
-                        {item.shortTitle}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -592,7 +971,9 @@ export default async function ProgrammingPage({
                     </div>
                     <span className="dense-status">{t.open}</span>
                   </div>
-                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-[color:var(--muted)]">{item.role}</p>
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-[color:var(--muted)]">
+                    {programmingCardDescription[language](item.title, item.role)}
+                  </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <span className="dense-status">{t.drillsEach}</span>
                     <span className="dense-status">{firstLanguageSlugs.has(item.slug) ? t.firstChoice : t.advanced}</span>
