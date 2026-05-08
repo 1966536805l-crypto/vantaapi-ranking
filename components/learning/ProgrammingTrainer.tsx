@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import AICoachPanel from "@/components/learning/AICoachPanel";
@@ -328,6 +328,7 @@ type ProgrammingRailSearchCopy = {
   placeholder: string;
   clear: string;
   noMatch: string;
+  shortcut: string;
   count: (visible: number, total: number) => string;
 };
 
@@ -337,6 +338,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Clear",
     noMatch: "No matching language yet.",
+    shortcut: "Enter opens the first match. Escape clears the search.",
     count: (visible, total) => `${visible} of ${total}`,
   },
   zh: {
@@ -344,6 +346,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "清空",
     noMatch: "暂时没有匹配的语言",
+    shortcut: "Enter 打开第一个结果，Esc 清空搜索",
     count: (visible, total) => `${visible} / ${total}`,
   },
   ja: {
@@ -351,6 +354,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "クリア",
     noMatch: "一致する言語はまだありません。",
+    shortcut: "Enter で最初の結果を開き、Esc でクリアします。",
     count: (visible, total) => `${visible} / ${total}`,
   },
   ko: {
@@ -358,6 +362,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "지우기",
     noMatch: "일치하는 언어가 아직 없습니다.",
+    shortcut: "Enter 는 첫 결과를 열고 Esc 는 검색을 지웁니다.",
     count: (visible, total) => `${visible} / ${total}`,
   },
   es: {
@@ -365,6 +370,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Limpiar",
     noMatch: "No hay lenguajes coincidentes.",
+    shortcut: "Enter abre el primer resultado. Escape limpia la busqueda.",
     count: (visible, total) => `${visible} de ${total}`,
   },
   fr: {
@@ -372,6 +378,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Effacer",
     noMatch: "Aucun langage correspondant.",
+    shortcut: "Enter ouvre le premier resultat. Escape efface la recherche.",
     count: (visible, total) => `${visible} sur ${total}`,
   },
   de: {
@@ -379,6 +386,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Zuruecksetzen",
     noMatch: "Noch keine passende Sprache.",
+    shortcut: "Enter oeffnet den ersten Treffer. Escape leert die Suche.",
     count: (visible, total) => `${visible} von ${total}`,
   },
   pt: {
@@ -386,6 +394,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Limpar",
     noMatch: "Nenhuma linguagem encontrada.",
+    shortcut: "Enter abre o primeiro resultado. Escape limpa a busca.",
     count: (visible, total) => `${visible} de ${total}`,
   },
   ru: {
@@ -393,6 +402,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Сбросить",
     noMatch: "Подходящий язык пока не найден.",
+    shortcut: "Enter открывает первый результат. Escape очищает поиск.",
     count: (visible, total) => `${visible} из ${total}`,
   },
   ar: {
@@ -400,6 +410,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "مسح",
     noMatch: "لا توجد لغة مطابقة بعد.",
+    shortcut: "Enter يفتح أول نتيجة. Escape يمسح البحث.",
     count: (visible, total) => `${visible} من ${total}`,
   },
   hi: {
@@ -407,6 +418,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "साफ करें",
     noMatch: "अभी कोई मेल खाती भाषा नहीं है।",
+    shortcut: "Enter पहला परिणाम खोलता है. Escape search साफ करता है.",
     count: (visible, total) => `${visible} / ${total}`,
   },
   id: {
@@ -414,6 +426,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Bersihkan",
     noMatch: "Belum ada bahasa yang cocok.",
+    shortcut: "Enter membuka hasil pertama. Escape membersihkan pencarian.",
     count: (visible, total) => `${visible} dari ${total}`,
   },
   vi: {
@@ -421,6 +434,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Xoa",
     noMatch: "Chua co ngon ngu phu hop.",
+    shortcut: "Enter mo ket qua dau tien. Escape xoa tim kiem.",
     count: (visible, total) => `${visible} / ${total}`,
   },
   th: {
@@ -428,6 +442,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "ล้าง",
     noMatch: "ยังไม่มีภาษาที่ตรงกัน",
+    shortcut: "Enter เปิดผลลัพธ์แรก Escape ล้างการค้นหา",
     count: (visible, total) => `${visible} / ${total}`,
   },
   tr: {
@@ -435,6 +450,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Temizle",
     noMatch: "Henuz eslesen dil yok.",
+    shortcut: "Enter ilk sonucu acar. Escape aramayi temizler.",
     count: (visible, total) => `${visible} / ${total}`,
   },
   it: {
@@ -442,6 +458,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Pulisci",
     noMatch: "Nessun linguaggio corrispondente.",
+    shortcut: "Enter apre il primo risultato. Escape pulisce la ricerca.",
     count: (visible, total) => `${visible} di ${total}`,
   },
   nl: {
@@ -449,6 +466,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Wissen",
     noMatch: "Nog geen passende taal.",
+    shortcut: "Enter opent het eerste resultaat. Escape wist de zoekopdracht.",
     count: (visible, total) => `${visible} van ${total}`,
   },
   pl: {
@@ -456,6 +474,7 @@ const programmingRailSearchCopy: Record<InterfaceLanguage, ProgrammingRailSearch
     placeholder: "Python JavaScript Rust SQL Bash",
     clear: "Wyczysc",
     noMatch: "Brak pasujacego jezyka.",
+    shortcut: "Enter otwiera pierwszy wynik. Escape czysci wyszukiwanie.",
     count: (visible, total) => `${visible} z ${total}`,
   },
 };
@@ -4514,6 +4533,7 @@ export default function ProgrammingTrainer({
   initialSiteLanguage?: InterfaceLanguage;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [language, setLanguage] = useState<InterfaceLanguage>(initialSiteLanguage);
   const copy = programmingCopy[language];
   const activeLanguage = useMemo(() => {
@@ -4583,6 +4603,12 @@ export default function ProgrammingTrainer({
       return searchable.includes(cleanLanguageFilter);
     });
   }, [cleanLanguageFilter]);
+  const openFirstRailMatch = useCallback(() => {
+    if (!cleanLanguageFilter) return;
+    const [firstMatch] = railLanguages;
+    if (!firstMatch) return;
+    router.push(localizedHref(`/programming/${firstMatch.slug}`, language));
+  }, [cleanLanguageFilter, language, railLanguages, router]);
   const coachContext = useMemo(() => ({
     language: activeLanguage.title,
     languageRole: activeRole,
@@ -4810,8 +4836,20 @@ export default function ProgrammingTrainer({
               type="search"
               value={languageFilter}
               onChange={(event) => setLanguageFilter(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  openFirstRailMatch();
+                }
+
+                if (event.key === "Escape" && languageFilter) {
+                  event.preventDefault();
+                  setLanguageFilter("");
+                }
+              }}
               placeholder={railSearch.placeholder}
               aria-label={railSearch.label}
+              title={railSearch.shortcut}
               dir="ltr"
             />
             <div className="mt-2 flex items-center justify-between gap-2">
