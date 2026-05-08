@@ -538,12 +538,36 @@ async function main() {
     41,
   );
   await checkPage(
+    "cpp-basics-es",
+    "/cpp/basics?lang=es",
+    "es-ES,es;q=0.9,en;q=0.2",
+    ["Sintaxis y tipos", "Alcance central", "Tipos de pregunta", "/cpp/quiz/basics?lang=es"],
+    ["Syntax And Types", "構文と型", "الصياغة والأنواع", "/cpp/quiz/basics\""],
+    57,
+  );
+  await checkPage(
+    "cpp-oop-de",
+    "/cpp/oop?lang=de",
+    "de-DE,de;q=0.9,en;q=0.2",
+    ["Objektorientiertes C++", "Kernkonzepte", "Trainingsziel", "/cpp/quiz/oop?lang=de"],
+    ["Object Oriented C++", "オブジェクト指向 C++", "البرمجة الكائنية في C++", "/cpp/quiz/oop\""],
+    58,
+  );
+  await checkPage(
     "cpp-stl-ar",
     "/cpp/stl?lang=ar",
     "ar-SA,ar;q=0.9,en;q=0.2",
     ["حاويات STL", "الحاويات", "التدريب", "/cpp/quiz/stl?lang=ar"],
     ["STL Containers", "Containers", "Practice", "/cpp/quiz/stl\""],
     42,
+  );
+  await checkPage(
+    "cpp-algorithms-fr",
+    "/cpp/algorithms?lang=fr",
+    "fr-FR,fr;q=0.9,en;q=0.2",
+    ["Bases des algorithmes", "Premier perimetre", "Perimetre plus tard", "/cpp/quiz/algorithms?lang=fr"],
+    ["Algorithm Basics", "基礎アルゴリズム", "أساسيات الخوارزميات", "/cpp/quiz/algorithms\""],
+    59,
   );
   await checkPage(
     "cpp-quiz-ar",
