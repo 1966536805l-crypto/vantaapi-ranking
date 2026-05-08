@@ -10,7 +10,7 @@ const providers = [
     name: "DATABASE_URL",
     source: "Managed Postgres",
     examples: ["Neon", "Supabase", "Vercel Postgres", "Railway Postgres"],
-    shape: "postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require",
+    shape: "Postgres connection URL with user, password, host, port, database, and sslmode",
     vercel: "vercel env add DATABASE_URL production",
     note: "Must be Postgres. Do not use MySQL, SQLite, localhost, or a laptop database.",
   },

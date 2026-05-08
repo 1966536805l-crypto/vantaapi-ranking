@@ -255,6 +255,10 @@ function RepoInputPanel({
   onAnalyze: (targetUrl?: string) => void;
   onUrlChange: (value: string) => void;
 }) {
+  const trustNote = language === "zh"
+    ? "只提交公开 GitHub 仓库根地址。不要粘贴 API Key 密码 私有源码或公司内部链接。"
+    : "Submit public GitHub repository root URLs only. Do not paste API keys passwords private source or internal company links.";
+
   return (
     <>
       <label className="block">
@@ -269,6 +273,7 @@ function RepoInputPanel({
           placeholder={sampleRepoUrl}
         />
       </label>
+      <p className="tool-trust-note">{trustNote}</p>
       <div className="tool-field-grid">
         <div className="dense-row">
           <span className="text-sm font-semibold">{t.auditMethod}</span>

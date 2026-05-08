@@ -168,6 +168,15 @@ body:has(.home-audit-page) .global-search-trigger {
   font-weight: 800;
 }
 
+.home-audit-trust-note {
+  max-width: 660px;
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.6;
+}
+
 .home-audit-outcomes {
   display: flex;
   flex-wrap: wrap;

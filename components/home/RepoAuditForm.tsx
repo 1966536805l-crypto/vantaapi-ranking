@@ -27,9 +27,21 @@ const formCopy: Record<InterfaceLanguage, { label: string; action: string; sampl
   pl: { label: "URL repo GitHub", action: "Uruchom audyt", sample: "Użyj przykładu vercel/swr" },
 };
 
+const trustNotice: Partial<Record<InterfaceLanguage, string>> = {
+  en: "Use public GitHub repository URLs only. Do not paste API keys, passwords, private source, or internal company links.",
+  zh: "只粘贴公开 GitHub 仓库地址。不要提交 API Key、密码、私有源码或公司内部链接。",
+  ja: "公開 GitHub リポジトリ URL のみ使用してください。API key、パスワード、非公開コード、社内リンクは貼らないでください。",
+  ko: "공개 GitHub 저장소 URL만 사용하세요. API 키, 비밀번호, 비공개 소스, 내부 링크는 붙여 넣지 마세요.",
+  es: "Usa solo URLs de repos públicos de GitHub. No pegues API keys, contraseñas, código privado ni enlaces internos.",
+  fr: "Utilisez uniquement des repos GitHub publics. Ne collez pas de clés API, mots de passe, code privé ou liens internes.",
+  de: "Nur öffentliche GitHub Repo URLs verwenden. Keine API Keys, Passwörter, privaten Quellcodes oder internen Links einfügen.",
+  ar: "استخدم روابط مستودعات GitHub العامة فقط. لا تلصق مفاتيح API أو كلمات مرور أو كودا خاصا أو روابط داخلية.",
+};
+
 export default function RepoAuditForm({ language }: { language: InterfaceLanguage }) {
   const [repoUrl, setRepoUrl] = useState(sampleRepo);
   const t = formCopy[language];
+  const notice = trustNotice[language] || trustNotice.en;
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,6 +76,7 @@ export default function RepoAuditForm({ language }: { language: InterfaceLanguag
       <button type="button" className="home-audit-sample" onClick={useSample}>
         {t.sample}
       </button>
+      <p className="home-audit-trust-note">{notice}</p>
     </form>
   );
 }

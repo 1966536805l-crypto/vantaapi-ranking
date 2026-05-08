@@ -224,6 +224,7 @@ async function main() {
   await checkPage("/", "JinMing Lab");
   await checkSecurityHeaders("/");
   await checkPage("/tools/github-repo-analyzer", "GitHub Launch Audit");
+  await checkPage("/security", "How JinMing Lab handles your data");
   await checkRedirect("/games?lang=ja", "/");
   await checkRedirect("/projects?lang=ja", "/tools/github-repo-analyzer");
   await checkRedirect("/questions?lang=ja", "/tools/github-repo-analyzer");

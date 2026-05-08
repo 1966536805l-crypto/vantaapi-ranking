@@ -11,6 +11,8 @@ const copy = {
     sections: [
       ["Scope", "JinMing Lab provides AI tools coding practice and learning utilities"],
       ["Responsibility", "Use the tools lawfully and do not submit harmful or infringing content"],
+      ["Sensitive Data", "Do not submit secrets, passwords, private repositories, private source code, customer data or internal company links"],
+      ["AI Output", "Generated reports and AI-assisted text are for reference and should be reviewed before release"],
       ["Content", "Unsafe, illegal or abusive content may be removed"],
       ["Privacy", "Information is handled according to the privacy policy"],
     ],
@@ -23,6 +25,8 @@ const copy = {
     sections: [
       ["范围", "JinMing Lab 提供 AI 工具、编程练习和学习工具"],
       ["责任", "请合法使用工具，不要提交有害或侵权内容"],
+      ["敏感数据", "不要提交密钥、密码、私有仓库、私有源码、客户数据或公司内部链接"],
+      ["AI 输出", "生成报告和 AI 辅助文本仅供参考，真实发布前请人工复核"],
       ["内容", "不安全、违法或滥用性质的内容可能会被移除"],
       ["隐私", "信息按隐私政策处理"],
     ],

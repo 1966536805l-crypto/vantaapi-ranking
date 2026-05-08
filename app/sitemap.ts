@@ -21,6 +21,7 @@ const multilingualBaseRoutes = [
 ];
 
 const legalRoutes = [
+  "/security",
   "/privacy",
   "/terms",
 ];

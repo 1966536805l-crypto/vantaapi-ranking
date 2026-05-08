@@ -458,6 +458,7 @@ function checkFocusedSitemap() {
     "/tools/learning-roadmap",
     "/programming",
     "/search",
+    "/security",
     "/privacy",
     "/terms",
   ];
@@ -491,7 +492,7 @@ function checkFocusedSitemap() {
     return;
   }
   if (exposed.length) {
-    action("Focus sitemap", "Keep sitemap focused on GitHub Launch Audit, AI tools, programming route, search, privacy, and terms. Do not include old learning or retired pages.");
+    action("Focus sitemap", "Keep sitemap focused on GitHub Launch Audit, AI tools, programming route, search, security, privacy, and terms. Do not include old learning or retired pages.");
     bad("seo:sitemap-focus", `off-focus routes in sitemap: ${exposed.join(", ")}`);
     return;
   }

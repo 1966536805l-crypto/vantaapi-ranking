@@ -232,6 +232,7 @@ async function checkSitemapAlternates() {
       "<loc>https://vantaapi.com/programming/javascript</loc>",
       "hreflang=\"ar\" href=\"https://vantaapi.com/programming/javascript?lang=ar\"",
       "hreflang=\"ja-JP\" href=\"https://vantaapi.com/tools/github-repo-analyzer?lang=ja\"",
+      "<loc>https://vantaapi.com/security</loc>",
       "<loc>https://vantaapi.com/privacy</loc>",
     ];
     const missing = required.filter((snippet) => !body.includes(snippet));

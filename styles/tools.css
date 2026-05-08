@@ -1008,6 +1008,14 @@
   box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.08);
 }
 
+.tool-trust-note {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
 .tool-field-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
