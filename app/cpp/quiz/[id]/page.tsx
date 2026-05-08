@@ -10,7 +10,7 @@ import {
   type CppQuestionTypeFilter,
 } from "@/lib/cpp-bank";
 import { cppQuestionBank, getCppCategory } from "@/lib/exam-content";
-import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams, type SiteLanguage } from "@/lib/language";
+import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 
 const baseQuestions = [
   {
@@ -49,7 +49,14 @@ const baseQuestions = [
   },
 ];
 
-const typeLabel: Record<SiteLanguage, Record<CppQuestionTypeFilter, string>> = {
+type CppQuizLanguage = "en" | "zh" | "ja" | "ar";
+
+function cppQuizLanguage(language: InterfaceLanguage): CppQuizLanguage {
+  if (language === "zh" || language === "ja" || language === "ar") return language;
+  return "en";
+}
+
+const typeLabel: Record<CppQuizLanguage, Record<CppQuestionTypeFilter, string>> = {
   en: {
     ALL: "All",
     MULTIPLE_CHOICE: "Choice",
@@ -62,9 +69,21 @@ const typeLabel: Record<SiteLanguage, Record<CppQuestionTypeFilter, string>> = {
     FILL_BLANK: "填空题",
     CODE_READING: "代码阅读",
   },
+  ja: {
+    ALL: "すべて",
+    MULTIPLE_CHOICE: "選択",
+    FILL_BLANK: "穴埋め",
+    CODE_READING: "コード読解",
+  },
+  ar: {
+    ALL: "الكل",
+    MULTIPLE_CHOICE: "اختيار",
+    FILL_BLANK: "فراغ",
+    CODE_READING: "قراءة كود",
+  },
 };
 
-const difficultyLabel: Record<SiteLanguage, Record<string, string>> = {
+const difficultyLabel: Record<CppQuizLanguage, Record<string, string>> = {
   en: {
     EASY: "Easy",
     MEDIUM: "Medium",
@@ -75,9 +94,49 @@ const difficultyLabel: Record<SiteLanguage, Record<string, string>> = {
     MEDIUM: "进阶",
     HARD: "挑战",
   },
+  ja: {
+    EASY: "基礎",
+    MEDIUM: "発展",
+    HARD: "挑戦",
+  },
+  ar: {
+    EASY: "سهل",
+    MEDIUM: "متوسط",
+    HARD: "صعب",
+  },
 };
 
-const pageCopy = {
+const pageCopy: Record<CppQuizLanguage, {
+  eyebrow: string;
+  title: string;
+  description: string;
+  course: string;
+  back: string;
+  search: string;
+  searchPlaceholder: string;
+  allTopics: string;
+  topicClassify: string;
+  topicHeading: string;
+  typeClassify: string;
+  tableTitle: string;
+  tableMeta: string;
+  startSelected: string;
+  practiceThis: string;
+  preview: string;
+  category: string;
+  type: string;
+  difficulty: string;
+  question: string;
+  empty: string;
+  previous: string;
+  next: string;
+  practiceTitle: string;
+  exitPractice: string;
+  activeBank: string;
+  page: string;
+  current: string;
+  drills: string;
+}> = {
   en: {
     eyebrow: "C++ Questions",
     title: "C++ Question Search",
@@ -88,6 +147,7 @@ const pageCopy = {
     searchPlaceholder: "Search loop vector pointer class output",
     allTopics: "All topics",
     topicClassify: "Topic categories",
+    topicHeading: "Choose a topic then inspect the table",
     typeClassify: "Question types",
     tableTitle: "Question table",
     tableMeta: "Matching questions",
@@ -118,6 +178,7 @@ const pageCopy = {
     searchPlaceholder: "搜索 循环 vector 指针 class 输出",
     allTopics: "全部模块",
     topicClassify: "知识模块",
+    topicHeading: "先选模块 再看题目表",
     typeClassify: "题型分类",
     tableTitle: "题目表",
     tableMeta: "匹配题目",
@@ -138,7 +199,69 @@ const pageCopy = {
     current: "当前",
     drills: "题",
   },
-} as const;
+  ja: {
+    eyebrow: "C++ 問題",
+    title: "C++ 問題検索",
+    description: "検索してからトピックと問題形式を選び 練習を開始します 分類済み問題庫で オンライン実行は使いません",
+    course: "コースパスを開く",
+    back: "C++ ハブへ戻る",
+    search: "検索",
+    searchPlaceholder: "loop vector pointer class output を検索",
+    allTopics: "すべてのトピック",
+    topicClassify: "トピック分類",
+    topicHeading: "トピックを選び 問題表を確認",
+    typeClassify: "問題形式",
+    tableTitle: "問題表",
+    tableMeta: "一致した問題",
+    startSelected: "現在の条件で練習",
+    practiceThis: "この形式を練習",
+    preview: "プレビュー",
+    category: "カテゴリ",
+    type: "形式",
+    difficulty: "難度",
+    question: "問題",
+    empty: "一致する問題がありません 短いキーワードにするかフィルターをリセットしてください",
+    previous: "前へ",
+    next: "次へ",
+    practiceTitle: "練習モード",
+    exitPractice: "問題表へ戻る",
+    activeBank: "現在のセット",
+    page: "ページ",
+    current: "現在",
+    drills: "問",
+  },
+  ar: {
+    eyebrow: "أسئلة C++",
+    title: "بحث أسئلة C++",
+    description: "ابحث أولا ثم اختر الموضوع ونوع السؤال وابدأ التدريب البنك مصنف ويتوسع ولا يوجد تشغيل كود هنا",
+    course: "افتح مسار الدورة",
+    back: "العودة إلى مركز C++",
+    search: "بحث",
+    searchPlaceholder: "ابحث loop vector pointer class output",
+    allTopics: "كل المواضيع",
+    topicClassify: "تصنيف المواضيع",
+    topicHeading: "اختر موضوعا ثم افحص جدول الأسئلة",
+    typeClassify: "أنواع الأسئلة",
+    tableTitle: "جدول الأسئلة",
+    tableMeta: "أسئلة مطابقة",
+    startSelected: "تدرب على المجموعة المحددة",
+    practiceThis: "تدرب على هذا النوع",
+    preview: "معاينة",
+    category: "الفئة",
+    type: "النوع",
+    difficulty: "الصعوبة",
+    question: "السؤال",
+    empty: "لا توجد أسئلة مطابقة جرب كلمة أقصر أو أعد ضبط الفلاتر",
+    previous: "السابق",
+    next: "التالي",
+    practiceTitle: "وضع التدريب",
+    exitPractice: "العودة إلى جدول الأسئلة",
+    activeBank: "المجموعة الحالية",
+    page: "صفحة",
+    current: "الحالي",
+    drills: "تدريبات",
+  },
+};
 
 function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -173,7 +296,7 @@ function buildHref({
   return localizedHref(`/cpp/quiz/mega-1000${suffix ? `?${params.toString()}` : ""}`, language);
 }
 
-function RowPracticeLink({ copy, language, row }: { copy: typeof pageCopy.en | typeof pageCopy.zh; language: InterfaceLanguage; row: CppQuestionIndexRow }) {
+function RowPracticeLink({ copy, language, row }: { copy: (typeof pageCopy)[CppQuizLanguage]; language: InterfaceLanguage; row: CppQuestionIndexRow }) {
   return (
     <Link
       href={buildHref({ language, category: row.categorySlug, type: row.type, mode: "practice" })}
@@ -194,7 +317,7 @@ export default async function Page({
   const { id } = await params;
   const query = await searchParams;
   const language = resolveInterfaceLanguage(query);
-  const copyLanguage = bilingualLanguage(language);
+  const copyLanguage = cppQuizLanguage(language);
   const copy = pageCopy[copyLanguage];
   const page = Math.max(Number(firstParam(query.page) || 1) || 1, 1);
   const selectedCategory = firstParam(query.category);
@@ -276,7 +399,7 @@ export default async function Page({
             <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="eyebrow">{copy.topicClassify}</p>
-                <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? "先选模块 再看题目表" : "Choose a topic then inspect the table"}</h2>
+                <h2 className="mt-2 text-xl font-semibold">{copy.topicHeading}</h2>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link
@@ -398,7 +521,7 @@ export default async function Page({
             )}
 
             <div className="mt-6">
-              <QuizBlock lessonId={`fallback-cpp-quiz-${id}-${mega?.category.slug || "base"}-${mega?.type || "ALL"}-page-${mega?.page || 1}`} questions={questions} language={copyLanguage} />
+              <QuizBlock lessonId={`fallback-cpp-quiz-${id}-${mega?.category.slug || "base"}-${mega?.type || "ALL"}-page-${mega?.page || 1}`} questions={questions} language={language} />
             </div>
           </>
         )}

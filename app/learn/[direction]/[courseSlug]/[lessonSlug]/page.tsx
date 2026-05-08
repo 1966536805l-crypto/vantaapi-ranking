@@ -4,7 +4,7 @@ import StudyShell from "@/components/layout/StudyShell";
 import ProgressButton from "@/components/learning/ProgressButton";
 import QuizBlock from "@/components/learning/QuizBlock";
 import { getFallbackLesson, getFallbackTrack } from "@/lib/fallback-learning";
-import { bilingualLanguage, localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { publicQuestionSelect, toLearningDirection } from "@/lib/learning";
 import { getLearnPageCopy, getStudyPageCopy } from "@/lib/study-page-copy";
 
@@ -122,7 +122,7 @@ export default async function LessonPage({
       <section className="mt-5">
         <h2 className="mb-3 text-2xl font-semibold">{copy.practice}</h2>
         {lesson.questions.length > 0 ? (
-          <QuizBlock lessonId={lesson.id} questions={lesson.questions} language={bilingualLanguage(language)} />
+          <QuizBlock lessonId={lesson.id} questions={lesson.questions} language={language} />
         ) : (
           <div className="border border-dashed border-slate-300 bg-white py-8 text-center text-sm text-slate-500">
             {copy.noPractice}

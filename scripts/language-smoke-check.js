@@ -436,6 +436,22 @@ async function main() {
     42,
   );
   await checkPage(
+    "cpp-quiz-ar",
+    "/cpp/quiz/mega-1000?lang=ar&q=vector",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    ["بحث أسئلة C++", "تصنيف المواضيع", "جدول الأسئلة", "تدرب على المجموعة المحددة"],
+    ["C++ Question Search", "Topic categories", "Question table", "Practice selected set"],
+    43,
+  );
+  await checkPage(
+    "cpp-quiz-practice-ja",
+    "/cpp/quiz/mega-1000?lang=ja&mode=practice&type=MULTIPLE_CHOICE",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["練習モード", "現在のセット", "選択問題"],
+    ["Practice mode", "Current set", "Exercise 1", "Multiple choice"],
+    44,
+  );
+  await checkPage(
     "learn-english-ja",
     "/learn/english?lang=ja",
     "ja-JP,ja;q=0.9,en;q=0.2",

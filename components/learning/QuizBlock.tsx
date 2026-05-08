@@ -1,9 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { SiteLanguage } from "@/lib/language";
+import { localizedHref, type InterfaceLanguage, type SiteLanguage } from "@/lib/language";
 
-const typeLabel: Record<SiteLanguage, Record<string, string>> = {
+type QuizLanguage = SiteLanguage | "ja" | "ar";
+
+function quizLanguage(language: InterfaceLanguage | SiteLanguage): QuizLanguage {
+  if (language === "zh" || language === "ja" || language === "ar") return language;
+  return "en";
+}
+
+const typeLabel: Record<QuizLanguage, Record<string, string>> = {
   en: {
     MULTIPLE_CHOICE: "Multiple choice",
     FILL_BLANK: "Fill blank",
@@ -14,9 +21,38 @@ const typeLabel: Record<SiteLanguage, Record<string, string>> = {
     FILL_BLANK: "填空题",
     CODE_READING: "代码阅读",
   },
+  ja: {
+    MULTIPLE_CHOICE: "選択問題",
+    FILL_BLANK: "穴埋め",
+    CODE_READING: "コード読解",
+  },
+  ar: {
+    MULTIPLE_CHOICE: "اختيار من متعدد",
+    FILL_BLANK: "ملء الفراغ",
+    CODE_READING: "قراءة كود",
+  },
 };
 
-const copy = {
+const copy: Record<QuizLanguage, {
+  score: string;
+  completed: string;
+  correct: string;
+  exercise: string;
+  placeholder: string;
+  submit: string;
+  saveWrong: string;
+  localWrong: string;
+  saved: string;
+  saveFailed: string;
+  submitFailed: string;
+  correctResult: string;
+  incorrectLocal: string;
+  incorrectSaved: string;
+  correctAnswer: string;
+  timerLabel: string;
+  timeoutResult: string;
+  locked: string;
+}> = {
   en: {
     score: "Score",
     completed: "Completed",
@@ -57,7 +93,47 @@ const copy = {
     timeoutResult: "超时 已算错",
     locked: "先完成当前限时题",
   },
-} as const;
+  ja: {
+    score: "スコア",
+    completed: "完了",
+    correct: "正解",
+    exercise: "練習",
+    placeholder: "答えを入力",
+    submit: "送信",
+    saveWrong: "間違いに保存",
+    localWrong: "データベース付き問題は復習ノートに保存できます",
+    saved: "復習ノートに保存しました",
+    saveFailed: "保存に失敗しました",
+    submitFailed: "送信に失敗しました",
+    correctResult: "正解",
+    incorrectLocal: "ローカル練習の間違いは保存されません",
+    incorrectSaved: "間違いを復習ノートに保存しました",
+    correctAnswer: "正解",
+    timerLabel: "選択問題 5 秒制限",
+    timeoutResult: "時間切れ 不正解",
+    locked: "現在の時間制限問題を先に完了してください",
+  },
+  ar: {
+    score: "النتيجة",
+    completed: "مكتمل",
+    correct: "صحيح",
+    exercise: "تدريب",
+    placeholder: "أدخل الإجابة",
+    submit: "إرسال",
+    saveWrong: "حفظ في دفتر الأخطاء",
+    localWrong: "يمكن حفظ أسئلة الدورة المدعومة بقاعدة بيانات في دفتر الأخطاء",
+    saved: "تم الحفظ في دفتر الأخطاء",
+    saveFailed: "فشل الحفظ",
+    submitFailed: "فشل الإرسال",
+    correctResult: "صحيح",
+    incorrectLocal: "خطأ التدريب المحلي لا يتم حفظه",
+    incorrectSaved: "تم حفظ الخطأ في دفتر الأخطاء",
+    correctAnswer: "الإجابة الصحيحة",
+    timerLabel: "اختيار خلال 5 ثوان",
+    timeoutResult: "انتهى الوقت واحتسب خطأ",
+    locked: "أكمل السؤال المحدد بالوقت أولا",
+  },
+};
 
 type Option = { id: string; label: string; content: string };
 type Question = {
@@ -79,10 +155,11 @@ export default function QuizBlock({
 }: {
   questions: Question[];
   lessonId: string;
-  language?: SiteLanguage;
+  language?: InterfaceLanguage | SiteLanguage;
   strictChoiceTimer?: boolean;
 }) {
-  const t = copy[language];
+  const uiLanguage = quizLanguage(language);
+  const t = copy[uiLanguage];
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Record<string, { correct: boolean; explanation: string; answer: string }>>({});
   const [message, setMessage] = useState<Record<string, string>>({});
@@ -125,7 +202,7 @@ export default function QuizBlock({
     });
     const data = await response.json().catch(() => ({}));
     setSaving(false);
-    if (response.status === 401) return window.location.assign("/login");
+    if (response.status === 401) return window.location.assign(localizedHref("/login", language));
     if (data.result) {
       setResults((current) => ({ ...current, [questionId]: data.result }));
       moveToNextQuestion(questionId);
@@ -147,7 +224,7 @@ export default function QuizBlock({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ questionId, note: "Saved manually" }),
     });
-    if (response.status === 401) return window.location.assign("/login");
+    if (response.status === 401) return window.location.assign(localizedHref("/login", language));
     setMessage((current) => ({ ...current, [questionId]: response.ok ? t.saved : t.saveFailed }));
   }
 
@@ -201,7 +278,7 @@ export default function QuizBlock({
         return (
         <article key={q.id} className={`border border-slate-200 bg-white p-5 ${locked ? "opacity-55" : ""}`}>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="eyebrow">{t.exercise} {index + 1}  {typeLabel[language][q.type] || q.type}</p>
+            <p className="eyebrow">{t.exercise} {index + 1}  {typeLabel[uiLanguage][q.type] || q.type}</p>
             {choiceTimed ? (
               <div className={`vocab-timer min-w-[180px] ${timeLeft <= 2 ? "urgent" : ""}`} aria-label={t.timerLabel}>
                 <span>{t.timerLabel}</span>
