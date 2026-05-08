@@ -3,6 +3,7 @@ import { requireServerUser } from "@/lib/server-auth";
 import { prisma } from "@/lib/prisma";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
+import { getStudyPageCopy } from "@/lib/study-page-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ function lessonHref(direction: "english" | "cpp", lesson: NextLesson | null, lan
 
 export default async function DashboardPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
   const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const copy = getStudyPageCopy(language);
   const user = await requireServerUser();
   const [progress, wrongCount, totalLessons, englishTotal, cppTotal, nextEnglishLesson, nextCppLesson] = await Promise.all([
     prisma.userProgress.findMany({
@@ -67,57 +69,57 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
       <AppleStudyHeader language={language} />
       <section className="apple-shell py-7">
         <div className="apple-card soft-gradient p-5">
-          <p className="eyebrow">Continue Learning</p>
-          <h1 className="mt-3 font-serif text-4xl">Your next study step</h1>
+          <p className="eyebrow">{copy.dashboard.eyebrow}</p>
+          <h1 className="mt-3 font-serif text-4xl">{copy.dashboard.title}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--muted)]">
-            {user.email} can jump back into English, C++, today&apos;s plan, and wrong-question review from one place.
+            {copy.dashboard.intro(user.email)}
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <Link href={localizedHref("/today", language)} className="apple-button-primary px-4 py-2 text-sm">Open Today&apos;s Plan</Link>
-            <Link href={localizedHref("/wrong", language)} className="apple-button-secondary px-4 py-2 text-sm">Review Wrong Questions</Link>
-            <Link href={localizedHref("/progress", language)} className="apple-button-secondary px-4 py-2 text-sm">Full Progress</Link>
+            <Link href={localizedHref("/today", language)} className="apple-button-primary px-4 py-2 text-sm">{copy.dashboard.today}</Link>
+            <Link href={localizedHref("/wrong", language)} className="apple-button-secondary px-4 py-2 text-sm">{copy.dashboard.wrong}</Link>
+            <Link href={localizedHref("/progress", language)} className="apple-button-secondary px-4 py-2 text-sm">{copy.dashboard.progress}</Link>
           </div>
         </div>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <Stat label="Completed" value={`${completed}/${totalLessons}`} />
-          <Stat label="Completion" value={`${percent}%`} />
-          <Stat label="Wrong Items" value={`${wrongCount}`} />
+          <Stat label={copy.dashboard.completed} value={`${completed}/${totalLessons}`} />
+          <Stat label={copy.dashboard.completion} value={`${percent}%`} />
+          <Stat label={copy.dashboard.wrongItems} value={`${wrongCount}`} />
         </div>
 
         <section className="mt-4 grid gap-3 lg:grid-cols-2">
           <NextActionCard
-            eyebrow={`English ${englishCompleted}/${englishTotal}`}
-            title={nextEnglishLesson?.title || "English path complete"}
-            body={nextEnglishLesson?.summary || "You have completed the published English lessons. Use review and typing practice to keep momentum."}
+            eyebrow={`${copy.directions.english} ${englishCompleted}/${englishTotal}`}
+            title={nextEnglishLesson?.title || copy.dashboard.englishComplete}
+            body={nextEnglishLesson?.summary || copy.dashboard.englishCompleteBody}
             href={lessonHref("english", nextEnglishLesson, language)}
             progress={englishPercent}
-            cta="Continue English"
+            cta={copy.dashboard.continueEnglish}
           />
           <NextActionCard
-            eyebrow={`C++ ${cppCompleted}/${cppTotal}`}
-            title={nextCppLesson?.title || "C++ path complete"}
-            body={nextCppLesson?.summary || "You have completed the published C++ lessons. Review code-reading and output-prediction questions next."}
+            eyebrow={`${copy.directions.cpp} ${cppCompleted}/${cppTotal}`}
+            title={nextCppLesson?.title || copy.dashboard.cppComplete}
+            body={nextCppLesson?.summary || copy.dashboard.cppCompleteBody}
             href={lessonHref("cpp", nextCppLesson, language)}
             progress={cppPercent}
-            cta="Continue C++"
+            cta={copy.dashboard.continueCpp}
           />
         </section>
 
         <section className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="apple-card p-5">
-            <p className="eyebrow">Learning Loop</p>
-            <h2 className="mt-2 text-2xl font-semibold">Today, practice, review</h2>
+            <p className="eyebrow">{copy.dashboard.loopEyebrow}</p>
+            <h2 className="mt-2 text-2xl font-semibold">{copy.dashboard.loopTitle}</h2>
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <Link href={localizedHref("/today", language)} className="dense-row"><span className="text-sm font-semibold">Today Plan</span><span className="text-xs text-[color:var(--muted)]">Daily entry</span></Link>
-              <Link href={localizedHref("/wrong", language)} className="dense-row"><span className="text-sm font-semibold">Wrong Bank</span><span className="text-xs text-[color:var(--muted)]">Fix mistakes</span></Link>
-              <Link href={localizedHref("/tools", language)} className="dense-row"><span className="text-sm font-semibold">AI Tools</span><span className="text-xs text-[color:var(--muted)]">Support only</span></Link>
+              <Link href={localizedHref("/today", language)} className="dense-row"><span className="text-sm font-semibold">{copy.dashboard.todayPlan}</span><span className="text-xs text-[color:var(--muted)]">{copy.dashboard.todayPlanHint}</span></Link>
+              <Link href={localizedHref("/wrong", language)} className="dense-row"><span className="text-sm font-semibold">{copy.dashboard.wrongBank}</span><span className="text-xs text-[color:var(--muted)]">{copy.dashboard.wrongBankHint}</span></Link>
+              <Link href={localizedHref("/tools", language)} className="dense-row"><span className="text-sm font-semibold">{copy.dashboard.tools}</span><span className="text-xs text-[color:var(--muted)]">{copy.dashboard.toolsHint}</span></Link>
             </div>
           </div>
 
           <div className="apple-card p-5">
-            <p className="eyebrow">Recent Activity</p>
-            <h2 className="mt-2 text-2xl font-semibold">Last touched lessons</h2>
+            <p className="eyebrow">{copy.dashboard.recentEyebrow}</p>
+            <h2 className="mt-2 text-2xl font-semibold">{copy.dashboard.recentTitle}</h2>
             <div className="mt-4 grid gap-2">
               {recent.map((item) => (
                 <Link
@@ -126,10 +128,10 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
                   className="dense-row"
                 >
                   <span className="text-sm font-semibold">{item.lesson.title}</span>
-                  <span className="text-xs text-[color:var(--muted)]">{item.status.toLowerCase().replace("_", " ")}</span>
+                  <span className="text-xs text-[color:var(--muted)]">{item.status === "COMPLETED" ? copy.status.completed : copy.status.inProgress}</span>
                 </Link>
               ))}
-              {recent.length === 0 && <p className="text-sm leading-6 text-[color:var(--muted)]">No saved lesson activity yet. Start with English or C++.</p>}
+              {recent.length === 0 && <p className="text-sm leading-6 text-[color:var(--muted)]">{copy.dashboard.noRecent}</p>}
             </div>
           </div>
         </section>
