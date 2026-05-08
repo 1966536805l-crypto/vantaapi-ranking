@@ -6,15 +6,15 @@ import { localizedHref, type SiteLanguage } from "@/lib/language";
 export const metadata: Metadata = {
   title: "GitHub Launch Audit - Repo Readiness Checker | JinMing Lab",
   description:
-    "Paste a public GitHub repository and get a launch-readiness audit with scorecard, P0/P1/P2 blockers, evidence, GitHub issue drafts, PR description, and release checklist.",
-  keywords: ["GitHub launch audit", "repo readiness checker", "release checklist", "GitHub issue template", "PR description generator", "GitHub 项目体检"],
+    "Paste a public GitHub repository and get a rules-first launch-readiness audit with scorecard, blockers, evidence, GitHub issue drafts, PR description, and release checklist.",
+  keywords: ["GitHub launch audit", "repo readiness checker", "deterministic checks", "release checklist", "GitHub issue template", "PR description generator", "GitHub 项目体检"],
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "GitHub Launch Audit - JinMing Lab",
     description:
-      "Audit a public GitHub repository before launch with scorecard, evidence, blockers, issue drafts, PR description, and release checklist.",
+      "Rules-first launch checks for README, env, CI, deploy, security, issue drafts, PR description, and release checklist.",
     url: "https://vantaapi.com",
     siteName: "JinMing Lab",
     type: "website",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "GitHub Launch Audit - JinMing Lab",
     description:
-      "Paste a GitHub repo and get a launch-readiness report with score, evidence, blockers, and PR-ready output.",
+      "Paste a GitHub repo and get rules-first launch checks with evidence, blockers, and PR-ready output.",
   },
 };
 
@@ -84,14 +84,14 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
           <h1>{zh ? "粘贴仓库，拿到上线前检查报告。" : "Paste a repo. Get the launch blockers."}</h1>
           <p>
             {zh
-              ? "检查 README、环境变量、CI、部署、安全提示、Issue 草稿和发布清单。适合公开上线前最后一轮体检。"
-              : "Check README gaps, env files, CI signals, deployment clues, security notes, issue drafts, and release checklists before launch."}
+              ? "先用确定性规则检查 README、环境变量、CI、部署和安全提示，再整理成 Issue 草稿、PR 描述和发布清单。"
+              : "Deterministic checks first: README, env files, CI, deploy, and security signals. Then package the result into issue drafts, PR copy, and a release checklist."}
           </p>
           <RepoAuditForm language={language} />
           <div className="home-audit-outcomes" aria-label={zh ? "核心结果" : "Core outcomes"}>
             {(zh
               ? ["上线评分", "阻塞项", "Issue 草稿", "PR 描述"]
-              : ["Launch score", "Blockers", "Issue drafts", "PR description"]
+              : ["Rules-first score", "Blockers", "Issue drafts", "PR description"]
             ).map((item) => (
               <span key={item}>{item}</span>
             ))}

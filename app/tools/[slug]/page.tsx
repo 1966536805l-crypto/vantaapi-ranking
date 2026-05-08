@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: ToolRouteProps): Promise<Meta
       ? "GitHub Launch Audit - Repo Readiness Report | JinMing Lab"
       : `${tool.title} - JinMing Lab`,
     description: tool.slug === "github-repo-analyzer"
-      ? "Generate a launch-readiness report for a public GitHub repository with scorecard, P0/P1/P2 blockers, evidence, GitHub issue drafts, PR description, and release checklist."
+      ? "Generate a rules-first launch-readiness report for a public GitHub repository with scorecard, blockers, evidence, GitHub issue drafts, PR description, and release checklist."
       : `${tool.description}. ${tool.promise}.`,
     keywords: toolKeywords(tool),
     alternates: {
@@ -100,7 +100,7 @@ export async function generateMetadata({ params }: ToolRouteProps): Promise<Meta
     openGraph: {
       title: tool.slug === "github-repo-analyzer" ? "GitHub Launch Audit - JinMing Lab" : `${tool.title} - JinMing Lab`,
       description: tool.slug === "github-repo-analyzer"
-        ? "Audit a public GitHub repository before launch with scorecard, evidence, blockers, issue drafts, PR description, and release checklist."
+        ? "Audit a public GitHub repository with deterministic checks for README, env, CI, deploy, security, issues, PR copy, and release checklist."
         : `${tool.description}. ${tool.promise}.`,
       url: toolUrl(tool),
       siteName: "JinMing Lab",
@@ -110,7 +110,7 @@ export async function generateMetadata({ params }: ToolRouteProps): Promise<Meta
       card: "summary",
       title: tool.slug === "github-repo-analyzer" ? "GitHub Launch Audit - JinMing Lab" : `${tool.title} - JinMing Lab`,
       description: tool.slug === "github-repo-analyzer"
-        ? "Paste a GitHub repo and get a launch-readiness report with score, evidence, blockers, and PR-ready output."
+        ? "Paste a GitHub repo and get rules-first launch checks with evidence, blockers, and PR-ready output."
         : `${tool.description}. ${tool.promise}.`,
     },
   };

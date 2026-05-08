@@ -12,12 +12,14 @@ const fontVariables = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vantaapi.com"),
-  title: "JinMing Lab - GitHub Launch Audit and AI Developer Tools",
+  title: "JinMing Lab - Rules First GitHub Launch Audit",
   description:
-    "JinMing Lab helps developers audit public GitHub repositories before launch with README checks, env checks, CI signals, deployment steps, security notes, issue templates, and release checklists.",
+    "JinMing Lab helps developers audit public GitHub repositories before launch with deterministic README, env, CI, deployment, and security checks plus issue templates and release checklists.",
   keywords: [
     "GitHub Launch Audit",
     "GitHub 项目体检",
+    "deterministic checks",
+    "rules first audit",
     "README check",
     "env example",
     "CI check",

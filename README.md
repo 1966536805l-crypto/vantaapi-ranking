@@ -8,6 +8,8 @@ The product direction is now:
 - AI developer utilities for prompts API snippets JSON regex timestamps and roadmaps
 - Programming practice as a secondary learning lane
 
+The launch audit is rules-first. Deterministic README, env, CI, deploy, security and release checks are the core. AI-style wording is polish, not the product foundation.
+
 English and legacy learning modules can remain available, but they are secondary to the main positioning.
 
 ## MVP Scope
