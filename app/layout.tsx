@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { CSSProperties } from "react";
 import GlobalSearchLauncher from "@/components/layout/GlobalSearchLauncher";
+import LanguageDocumentBootstrap from "@/components/layout/LanguageDocumentBootstrap";
 import CsrfBootstrap from "@/components/security/CsrfBootstrap";
 import "./globals.css";
 import "@/lib/protection";
@@ -48,8 +49,10 @@ export default function RootLayout({
       lang="en-US"
       className="h-full antialiased"
       style={fontVariables}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-white text-slate-900">
+        <LanguageDocumentBootstrap />
         <CsrfBootstrap />
         <GlobalSearchLauncher />
         {children}
