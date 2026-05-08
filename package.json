@@ -32,6 +32,7 @@
     "launch:vercel": "node scripts/vercel-env-check.js",
     "launch:production": "node scripts/launch-production-gate.js",
     "launch:smoke": "node scripts/production-smoke-check.js",
+    "language:smoke": "node scripts/language-smoke-check.js",
     "launch:full": "npm run launch:check && npm run security:full",
     "production:check": "node scripts/production-readiness.js"
   },
