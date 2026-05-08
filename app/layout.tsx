@@ -45,7 +45,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="zh-CN"
+      lang="en-US"
       className="h-full antialiased"
       style={fontVariables}
     >

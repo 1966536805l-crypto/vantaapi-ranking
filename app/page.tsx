@@ -13,7 +13,7 @@ function firstParam(value: string | string[] | undefined) {
 function resolveHomeLanguage(rawLang?: string | string[], rawUi?: string | string[]): InterfaceLanguage {
   const lang = firstParam(rawLang);
   if (isInterfaceLanguage(lang)) return lang;
-  return firstParam(rawUi) === "english" ? "en" : "zh";
+  return firstParam(rawUi) === "zh" ? "zh" : "en";
 }
 
 const homeCopy = {

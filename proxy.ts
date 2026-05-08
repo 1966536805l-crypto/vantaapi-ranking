@@ -193,6 +193,28 @@ function readLanguageCookie(request: NextRequest): SiteLanguage | null {
   return null;
 }
 
+function preferredLanguageFromHeader(request: NextRequest): SiteLanguage | null {
+  const header = request.headers.get("accept-language");
+  if (!header) return null;
+
+  const candidates = header
+    .split(",")
+    .map((part) => {
+      const [tag = "", quality = "q=1"] = part.trim().split(";");
+      const q = Number(quality.replace(/^q=/, "")) || 0;
+      const base = tag.toLowerCase().split("-")[0];
+      return { base, q };
+    })
+    .filter((item) => item.q > 0)
+    .sort((a, b) => b.q - a.q);
+
+  for (const candidate of candidates) {
+    if (isSupportedSiteLanguage(candidate.base)) return candidate.base;
+  }
+
+  return null;
+}
+
 function isSupportedSiteLanguage(value: string | undefined | null): value is SiteLanguage {
   return supportedSiteLanguages.some((language) => language === value);
 }
@@ -226,7 +248,7 @@ function languageRedirectGuard(request: NextRequest, pathname: string) {
   const explicitLanguage = request.nextUrl.searchParams.get("lang");
   if (isSupportedSiteLanguage(explicitLanguage)) return null;
 
-  const preferredLanguage = readLanguageCookie(request);
+  const preferredLanguage = readLanguageCookie(request) || preferredLanguageFromHeader(request);
   if (!preferredLanguage || preferredLanguage === "en") return null;
 
   const url = request.nextUrl.clone();
