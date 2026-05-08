@@ -503,7 +503,7 @@ export default function AICoachPanel({
     setPhase("checking");
 
     try {
-      const response = await fetch("/api/ai/coach", {
+      const response = await fetch(`/api/ai/coach?lang=${encodeURIComponent(language)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode, prompt: cleanPrompt, context, language, stream: true }),

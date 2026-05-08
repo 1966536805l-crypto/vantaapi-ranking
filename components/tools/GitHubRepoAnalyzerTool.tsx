@@ -1744,7 +1744,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
     setError("");
     setRunStatus(t.readingSignals);
     try {
-      const response = await fetch("/api/tools/github-repo-analyzer", {
+      const response = await fetch(`/api/tools/github-repo-analyzer?lang=${encodeURIComponent(language)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: trimmed }),
@@ -1768,7 +1768,7 @@ function GitHubRepoAnalyzer({ language = "en", initialRepoUrl }: { language?: In
     } finally {
       setLoading(false);
     }
-  }, [loadSamplePreview, t, url]);
+  }, [language, loadSamplePreview, t, url]);
 
   function runSampleAudit() {
     loadSamplePreview(t.localSampleLoaded);

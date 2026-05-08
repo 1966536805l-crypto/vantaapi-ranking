@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   if (!parsed.ok) return parsed.response;
 
   if (typeof parsed.body.url !== "string") {
-    return jsonError("Repository URL is required", 400);
+    return jsonError("Repository URL is required", 400, request);
   }
 
   try {
@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
     return guardedJson({ success: true, analysis });
   } catch (error) {
     if (error instanceof GitHubRepoAnalyzerError) {
-      return jsonError(error.message, error.status);
+      return jsonError(error.message, error.status, request);
     }
-    return jsonError("Could not run repository launch audit", 500);
+    return jsonError("Could not run repository launch audit", 500, request);
   }
 }

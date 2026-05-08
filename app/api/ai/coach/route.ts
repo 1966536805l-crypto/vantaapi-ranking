@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { guardedJson, readJsonBody, requireSameOrigin, sanitizeText } from "@/lib/api-guard";
+import { guardedJson, localizedApiMessage, readJsonBody, requireSameOrigin, sanitizeText } from "@/lib/api-guard";
 import { askCoach, streamCoach, type CoachMode } from "@/lib/ai-coaches";
 import { requireUser } from "@/lib/auth";
 import { isInterfaceLanguage } from "@/lib/language";
@@ -29,8 +29,9 @@ export async function POST(request: NextRequest) {
 
   const burstLimit = await fastRateLimit(`${ipKey}:ai-coach`, AI_COACH_BURST_LIMIT, 5 * 60_000);
   if (!burstLimit.allowed) {
+    const message = localizedApiMessage("Too many requests", 429, request);
     return guardedJson(
-      { success: false, error: "Too many requests / 请求过于频繁" },
+      { success: false, message, error: message },
       {
         status: 429,
         headers: {
@@ -45,8 +46,9 @@ export async function POST(request: NextRequest) {
   const dailyKey = `ai-coach:user:${userResult.user.id}`;
   const dailyLimit = await fastRateLimit(dailyKey, AI_COACH_DAILY_LIMIT, 24 * 60 * 60_000);
   if (!dailyLimit.allowed) {
+    const message = localizedApiMessage("Too many requests", 429, request);
     return guardedJson(
-      { success: false, message: "今日 AI 助教使用次数已达上限，请明天再试" },
+      { success: false, message, error: message },
       {
         status: 429,
         headers: {
@@ -67,7 +69,8 @@ export async function POST(request: NextRequest) {
   const wantsStream = parsedBody.body.stream === true;
 
   if (!prompt && !parsedBody.body.context) {
-    return guardedJson({ success: false, message: "Missing coach prompt" }, { status: 400 });
+    const message = localizedApiMessage("Missing coach prompt", 400, language);
+    return guardedJson({ success: false, message, error: message }, { status: 400 });
   }
 
   if (wantsStream) {

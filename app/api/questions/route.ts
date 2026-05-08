@@ -29,26 +29,26 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   for (const key of searchParams.keys()) {
     if (!ALLOWED_QUERY_KEYS.has(key)) {
-      return jsonError("Unsupported query parameter", 400);
+      return jsonError("Unsupported query parameter", 400, request);
     }
   }
 
   const lessonId = searchParams.get("lessonId")?.trim() || "";
   if (!lessonId) {
-    return jsonError("lessonId is required", 400);
+    return jsonError("lessonId is required", 400, request);
   }
   if (!LESSON_ID_RE.test(lessonId)) {
-    return jsonError("Invalid lessonId", 400);
+    return jsonError("Invalid lessonId", 400, request);
   }
 
   const type = parseEnumParam(searchParams.get("type"), Object.values(QuestionType));
-  if (type === null) return jsonError("Invalid question type", 400);
+  if (type === null) return jsonError("Invalid question type", 400, request);
 
   const difficulty = parseEnumParam(searchParams.get("difficulty"), Object.values(Difficulty));
-  if (difficulty === null) return jsonError("Invalid difficulty", 400);
+  if (difficulty === null) return jsonError("Invalid difficulty", 400, request);
 
   const limit = parseQuestionLimit(searchParams.get("limit"));
-  if (limit === null) return jsonError("Invalid limit", 400);
+  if (limit === null) return jsonError("Invalid limit", 400, request);
 
   try {
     const lesson = await prisma.lesson.findFirst({
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       select: { id: true },
     });
 
-    if (!lesson) return jsonError("Lesson not found", 404);
+    if (!lesson) return jsonError("Lesson not found", 404, request);
 
     const questions = await prisma.question.findMany({
       where: {
@@ -81,6 +81,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Questions API error:", error);
-    return jsonError("Server error / 服务器错误", 500);
+    return jsonError("Server error / 服务器错误", 500, request);
   }
 }
