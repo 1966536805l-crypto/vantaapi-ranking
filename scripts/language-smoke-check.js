@@ -381,6 +381,14 @@ async function main() {
     ["Developer Tool Search", "Run GitHub Launch Audit"],
     6,
   );
+  await checkPage(
+    "today-ja-language-links",
+    "/today?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    ["/?lang=ja", "/programming?lang=ja", "/english/typing?lang=ja", "/wrong?lang=ja"],
+    ["/english/typing?lang=zh", "/english/vocabulary?lang=zh", "/wrong?lang=zh", "/programming?lang=zh"],
+    34,
+  );
 
   await checkPage(
     "prompt-ar",
