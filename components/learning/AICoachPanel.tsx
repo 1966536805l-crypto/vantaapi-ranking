@@ -168,8 +168,8 @@ const coachCopy: Partial<Record<InterfaceLanguage, CoachCopy>> & { en: CoachCopy
     aiTimeout: "La AI rápida tardó demasiado. Se mantuvo la respuesta instantánea.",
   },
   ar: {
-    codeEyebrow: "AI للكود",
-    englishEyebrow: "AI للإنجليزية",
+    codeEyebrow: "الذكاء الاصطناعي للكود",
+    englishEyebrow: "الذكاء الاصطناعي للإنجليزية",
     ask: "اسأل المدرب",
     thinking: "إجابة سريعة",
     instantDraft: "مسودة فورية",
@@ -179,7 +179,7 @@ const coachCopy: Partial<Record<InterfaceLanguage, CoachCopy>> & { en: CoachCopy
     unavailable: "المدرب غير متاح",
     noAnswer: "لا توجد إجابة",
     local: "فوري",
-    ai: "AI سريع",
+    ai: "ذكاء اصطناعي سريع",
     provider: "المزود",
     draftStep: "مسودة",
     checkStep: "فحص",
@@ -187,8 +187,8 @@ const coachCopy: Partial<Record<InterfaceLanguage, CoachCopy>> & { en: CoachCopy
     ready: "جاهز",
     fallback: "تم تفعيل البديل",
     cooldown: "المزود في فترة تهدئة",
-    aiEmpty: "لم يرجع AI محتوى مفيدا لذلك بقيت الإجابة الفورية.",
-    aiTimeout: "انتهت مهلة AI السريع لذلك بقيت الإجابة الفورية.",
+    aiEmpty: "لم يرجع الذكاء الاصطناعي محتوى مفيدا لذلك بقيت الإجابة الفورية.",
+    aiTimeout: "انتهت مهلة الذكاء الاصطناعي السريع لذلك بقيت الإجابة الفورية.",
   },
 };
 
