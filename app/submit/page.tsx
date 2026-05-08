@@ -1,2 +1,7 @@
 import { redirect } from "next/navigation";
-export default function SubmitPage() { redirect("/"); }
+import { localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
+
+export default async function SubmitPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  redirect(localizedHref("/", language));
+}

@@ -140,6 +140,22 @@ async function checkProtectedLanguageRedirect(name, path, acceptLanguage, expect
   }
 }
 
+async function checkRetiredLanguageRedirect(name, path, acceptLanguage, expectedLocation, index) {
+  try {
+    const response = await fetchWithTimeout(path, browserHeaders(acceptLanguage, index));
+    const location = response.headers.get("location") || "";
+    if (![301, 302, 303, 307, 308].includes(response.status)) {
+      return bad(name, `expected retired redirect to ${expectedLocation}, got HTTP ${response.status}`);
+    }
+    if (location !== expectedLocation) {
+      return bad(name, `expected Location ${expectedLocation}, got ${location || "(empty)"}`);
+    }
+    return ok(name, `retired page preserves language in ${expectedLocation}`);
+  } catch (error) {
+    bad(name, error instanceof Error ? error.message : "request failed");
+  }
+}
+
 async function checkPage(name, path, acceptLanguage, requiredSnippets, forbiddenSnippets, index) {
   try {
     const response = await fetchWithTimeout(path, browserHeaders(acceptLanguage, index), { redirect: "follow" });
@@ -255,6 +271,27 @@ async function main() {
     "ar-SA,ar;q=0.9,en;q=0.2",
     "/login?next=%2Fprogress%3Flang%3Dar&lang=ar",
     36,
+  );
+  await checkRetiredLanguageRedirect(
+    "retired-projects-ja",
+    "/projects?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    "/tools/github-repo-analyzer?lang=ja",
+    47,
+  );
+  await checkRetiredLanguageRedirect(
+    "retired-cpp-errors-ar",
+    "/cpp-errors?lang=ar",
+    "ar-SA,ar;q=0.9,en;q=0.2",
+    "/learn/cpp?lang=ar",
+    48,
+  );
+  await checkRetiredLanguageRedirect(
+    "retired-category-ja",
+    "/category/old?lang=ja",
+    "ja-JP,ja;q=0.9,en;q=0.2",
+    "/?lang=ja",
+    49,
   );
   await checkVisibleText(
     "home-ar-visible-copy",

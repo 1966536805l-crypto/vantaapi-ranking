@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 
-export default function ReportRetiredPage() {
-  redirect("/tools/github-repo-analyzer");
+export default async function ReportRetiredPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  redirect(localizedHref("/tools/github-repo-analyzer", language));
 }
