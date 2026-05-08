@@ -86,6 +86,10 @@ body::before {
   margin-right: 4px;
 }
 
+[dir="rtl"] .flag-toggle-label {
+  padding: 7px 10px 7px 30px;
+}
+
 [dir="rtl"] .home-audit-nav nav {
   flex-direction: row-reverse;
 }
@@ -98,6 +102,20 @@ body::before {
 [dir="rtl"] .home-audit-score-strip,
 [dir="rtl"] .home-audit-evidence-grid {
   direction: rtl;
+}
+
+[dir="rtl"] pre,
+[dir="rtl"] code,
+[dir="rtl"] kbd,
+[dir="rtl"] samp,
+[dir="rtl"] .tool-code-input,
+[dir="rtl"] .programming-code-editor,
+[dir="rtl"] .programming-palette,
+[dir="rtl"] .programming-meta-line,
+[dir="rtl"] .programming-keyword-list {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: plaintext;
 }
 
 a,
@@ -3876,6 +3894,44 @@ body:has(.home-audit-page) .global-search-trigger {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
 }
 
+[dir="rtl"] .programming-workbench {
+  grid-template-columns: minmax(0, 1fr) 220px;
+}
+
+[dir="rtl"] .programming-rail {
+  order: 2;
+}
+
+[dir="rtl"] .programming-main {
+  order: 1;
+}
+
+[dir="rtl"] .programming-topbar-actions,
+[dir="rtl"] .programming-command-bar,
+[dir="rtl"] .programming-question-nav,
+[dir="rtl"] .programming-runtime-inline {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .programming-language,
+[dir="rtl"] .programming-track,
+[dir="rtl"] .programming-track-summary button {
+  text-align: right;
+}
+
+[dir="rtl"] .programming-definition-head,
+[dir="rtl"] .programming-reference-head,
+[dir="rtl"] .programming-question-head,
+[dir="rtl"] .programming-inspector-head {
+  text-align: right;
+}
+
+[dir="rtl"] .programming-definition-starter,
+[dir="rtl"] .programming-track-summary button,
+[dir="rtl"] .programming-zero-path > div {
+  direction: rtl;
+}
+
 @media (max-width: 1220px) {
   .programming-board-grid {
     grid-template-columns: 1fr;
@@ -3889,6 +3945,10 @@ body:has(.home-audit-page) .global-search-trigger {
 
 @media (max-width: 980px) {
   .programming-workbench {
+    grid-template-columns: 1fr;
+  }
+
+  [dir="rtl"] .programming-workbench {
     grid-template-columns: 1fr;
   }
 

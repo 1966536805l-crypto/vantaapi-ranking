@@ -6,7 +6,7 @@ import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import AICoachPanel from "@/components/learning/AICoachPanel";
 import LearningFullscreenButton from "@/components/learning/LearningFullscreenButton";
-import { bilingualLanguage, localizedHref, type InterfaceLanguage } from "@/lib/language";
+import { localizedHref, type InterfaceLanguage } from "@/lib/language";
 import { recordLocalActivity } from "@/lib/local-progress";
 import {
   buildProgrammingQuestion,
@@ -34,7 +34,7 @@ type TrackSegment = {
   count: number;
 };
 
-const typeLabel = {
+const typeLabel: Record<InterfaceLanguage, Record<ProgrammingQuestion["type"], string>> = {
   en: {
     MULTIPLE_CHOICE: "Choice",
     FILL_BLANK: "Fill blank",
@@ -45,9 +45,89 @@ const typeLabel = {
     FILL_BLANK: "填空",
     PRACTICAL: "实操",
   },
-} as const;
+  ja: {
+    MULTIPLE_CHOICE: "選択",
+    FILL_BLANK: "穴埋め",
+    PRACTICAL: "実践",
+  },
+  ko: {
+    MULTIPLE_CHOICE: "선택",
+    FILL_BLANK: "빈칸",
+    PRACTICAL: "실습",
+  },
+  es: {
+    MULTIPLE_CHOICE: "opción",
+    FILL_BLANK: "rellenar",
+    PRACTICAL: "práctica",
+  },
+  fr: {
+    MULTIPLE_CHOICE: "Choix",
+    FILL_BLANK: "Texte manquant",
+    PRACTICAL: "Pratique",
+  },
+  de: {
+    MULTIPLE_CHOICE: "Auswahl",
+    FILL_BLANK: "Luecke",
+    PRACTICAL: "Praxis",
+  },
+  pt: {
+    MULTIPLE_CHOICE: "Escolha",
+    FILL_BLANK: "Lacuna",
+    PRACTICAL: "Pratica",
+  },
+  ru: {
+    MULTIPLE_CHOICE: "Выбор",
+    FILL_BLANK: "Пропуск",
+    PRACTICAL: "Практика",
+  },
+  ar: {
+    MULTIPLE_CHOICE: "اختيار",
+    FILL_BLANK: "فراغ",
+    PRACTICAL: "عملي",
+  },
+  hi: {
+    MULTIPLE_CHOICE: "विकल्प",
+    FILL_BLANK: "रिक्त",
+    PRACTICAL: "अभ्यास",
+  },
+  id: {
+    MULTIPLE_CHOICE: "Pilihan",
+    FILL_BLANK: "Isian",
+    PRACTICAL: "Praktik",
+  },
+  vi: {
+    MULTIPLE_CHOICE: "Lua chon",
+    FILL_BLANK: "Dien cho trong",
+    PRACTICAL: "Thuc hanh",
+  },
+  th: {
+    MULTIPLE_CHOICE: "ตัวเลือก",
+    FILL_BLANK: "เติมคำ",
+    PRACTICAL: "ฝึกปฏิบัติ",
+  },
+  tr: {
+    MULTIPLE_CHOICE: "Secim",
+    FILL_BLANK: "Bosluk",
+    PRACTICAL: "Pratik",
+  },
+  it: {
+    MULTIPLE_CHOICE: "Scelta",
+    FILL_BLANK: "Completa",
+    PRACTICAL: "Pratica",
+  },
+  nl: {
+    MULTIPLE_CHOICE: "Keuze",
+    FILL_BLANK: "Invullen",
+    PRACTICAL: "Praktijk",
+  },
+  pl: {
+    MULTIPLE_CHOICE: "Wybor",
+    FILL_BLANK: "Luka",
+    PRACTICAL: "Praktyka",
+  },
+};
 
-const zeroBaseSteps = {
+const zeroBaseSteps: Partial<Record<InterfaceLanguage, string[]>> & { en: string[]; zh: string[] } = {
   en: [
     "Read one rule",
     "Predict output",
@@ -62,7 +142,119 @@ const zeroBaseSteps = {
     "跑检查器",
     "改一处重做",
   ],
-} as const;
+  ja: [
+    "規則を一つ読む",
+    "出力を予測",
+    "記憶で入力",
+    "チェックを実行",
+    "一つ変えて反復",
+  ],
+  ko: [
+    "규칙 하나 읽기",
+    "출력 예측",
+    "기억으로 입력",
+    "검사 실행",
+    "하나 바꿔 반복",
+  ],
+  es: [
+    "lee una regla",
+    "predice la salida",
+    "escribe de memoria",
+    "ejecuta revisión",
+    "repite con un cambio",
+  ],
+  fr: [
+    "lire une regle",
+    "prevoir la sortie",
+    "taper de memoire",
+    "lancer la verification",
+    "recommencer avec un changement",
+  ],
+  de: [
+    "eine Regel lesen",
+    "Ausgabe vorhersagen",
+    "aus dem Gedaechtnis tippen",
+    "Pruefung ausfuehren",
+    "mit einer Aenderung wiederholen",
+  ],
+  pt: [
+    "ler uma regra",
+    "prever a saida",
+    "digitar de memoria",
+    "rodar a verificacao",
+    "repetir com uma mudanca",
+  ],
+  ru: [
+    "прочитать одно правило",
+    "предсказать вывод",
+    "набрать по памяти",
+    "запустить проверку",
+    "повторить с одним изменением",
+  ],
+  ar: [
+    "اقرأ قاعدة واحدة",
+    "توقع الناتج",
+    "اكتب من الذاكرة",
+    "شغل الفحص",
+    "كرر مع تغيير واحد",
+  ],
+  hi: [
+    "एक नियम पढ़ें",
+    "आउटपुट सोचें",
+    "याद से टाइप करें",
+    "जांच चलाएं",
+    "एक बदलाव के साथ दोहराएं",
+  ],
+  id: [
+    "baca satu aturan",
+    "tebak keluaran",
+    "ketik dari ingatan",
+    "jalankan cek",
+    "ulang dengan satu perubahan",
+  ],
+  vi: [
+    "doc mot quy tac",
+    "doan dau ra",
+    "go bang tri nho",
+    "chay kiem tra",
+    "lap lai voi mot thay doi",
+  ],
+  th: [
+    "อ่านกฎหนึ่งข้อ",
+    "ทายผลลัพธ์",
+    "พิมพ์จากความจำ",
+    "รันการตรวจ",
+    "ทำซ้ำโดยเปลี่ยนหนึ่งจุด",
+  ],
+  tr: [
+    "bir kural oku",
+    "ciktisini tahmin et",
+    "hafizadan yaz",
+    "kontrolu calistir",
+    "bir degisiklikle tekrarla",
+  ],
+  it: [
+    "leggi una regola",
+    "prevedi l output",
+    "scrivi a memoria",
+    "esegui il controllo",
+    "ripeti con una modifica",
+  ],
+  nl: [
+    "lees een regel",
+    "voorspel uitvoer",
+    "typ uit geheugen",
+    "draai controle",
+    "herhaal met een wijziging",
+  ],
+  pl: [
+    "przeczytaj jedna zasade",
+    "przewidz wynik",
+    "pisz z pamieci",
+    "uruchom sprawdzanie",
+    "powtorz z jedna zmiana",
+  ],
+};
 
 type ProgrammingCopyType = {
   brand: string;
@@ -823,6 +1015,69 @@ function getConcept(question: ProgrammingQuestion) {
   return question.prompt.match(/matches (.+)\.$/)?.[1] || "current concept";
 }
 
+const conceptI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
+  zh: {
+    "current concept": "当前知识点",
+    "constant variable": "常量变量",
+    "function return": "函数返回值",
+    "array mapping": "数组映射",
+    "async await": "异步等待",
+    "printing a value": "输出一个值",
+    "naming a value": "给值命名",
+    "reusable function": "可复用函数",
+    "basic collection": "基础集合",
+  },
+  ja: {
+    "current concept": "現在の概念",
+    "constant variable": "定数変数",
+    "function return": "関数の戻り値",
+    "array mapping": "配列の map",
+    "async await": "async await",
+    "printing a value": "値の出力",
+    "naming a value": "値に名前を付ける",
+    "reusable function": "再利用できる関数",
+    "basic collection": "基本コレクション",
+  },
+  ko: {
+    "current concept": "현재 개념",
+    "constant variable": "상수 변수",
+    "function return": "함수 반환",
+    "array mapping": "배열 매핑",
+    "async await": "async await",
+    "printing a value": "값 출력",
+    "naming a value": "값 이름 붙이기",
+    "reusable function": "재사용 함수",
+    "basic collection": "기본 컬렉션",
+  },
+  es: {
+    "current concept": "concepto actual",
+    "constant variable": "variable constante",
+    "function return": "retorno de funcion",
+    "array mapping": "map de arreglo",
+    "async await": "async await",
+    "printing a value": "imprimir un valor",
+    "naming a value": "nombrar un valor",
+    "reusable function": "funcion reutilizable",
+    "basic collection": "coleccion basica",
+  },
+  ar: {
+    "current concept": "المفهوم الحالي",
+    "constant variable": "المتغير الثابت",
+    "function return": "إرجاع الدالة",
+    "array mapping": "تحويل المصفوفة",
+    "async await": "async await",
+    "printing a value": "طباعة قيمة",
+    "naming a value": "تسمية قيمة",
+    "reusable function": "دالة قابلة لإعادة الاستخدام",
+    "basic collection": "مجموعة أساسية",
+  },
+};
+
+function conceptLabel(question: ProgrammingQuestion, language: InterfaceLanguage) {
+  const concept = getConcept(question);
+  return conceptI18n[language]?.[concept] ?? concept;
+}
+
 function questionTitle(question: ProgrammingQuestion, language: InterfaceLanguage, languageTitle: string) {
   if (language === "en") return question.title;
   if (language === "zh") return `${languageTitle} 第 ${question.index} 题`;
@@ -836,56 +1091,54 @@ function questionTitle(question: ProgrammingQuestion, language: InterfaceLanguag
 function questionPrompt(question: ProgrammingQuestion, language: InterfaceLanguage, languageTitle: string) {
   if (language === "en") return question.prompt;
 
-  const firstLine = question.prompt.split("\n")[0] || question.prompt;
-
   if (language === "zh") {
     if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} 第 ${question.index} 题 选择和 ${getConcept(question)} 最匹配的说法`;
+      return `${languageTitle} 第 ${question.index} 题 选择和 ${conceptLabel(question, language)} 最匹配的说法`;
     }
     if (question.type === "FILL_BLANK") {
-      return `${firstLine}\n填出这道 ${languageTitle} 题缺失的部分`;
+      return `看代码里的空白处 填出这道 ${languageTitle} 题缺失的部分`;
     }
-    return `${firstLine}\n先自己写一遍 出错后再开提示或对照答案`;
+    return `先自己写一遍 ${languageTitle} 小练习 出错后再开提示或对照答案`;
   }
 
   if (language === "ja") {
     if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} 問題 ${question.index} ${getConcept(question)} に最も合う説明を選んでください`;
+      return `${languageTitle} 問題 ${question.index} ${conceptLabel(question, language)} に最も合う説明を選んでください`;
     }
     if (question.type === "FILL_BLANK") {
-      return `${firstLine}\n欠けている部分を埋めてください`;
+      return `コードの空欄を見て 欠けている部分を埋めてください`;
     }
-    return `${firstLine}\n自分で書いてみてください`;
+    return `${languageTitle} の小さな練習をまず自分で書いてみてください`;
   }
 
   if (language === "ko") {
     if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} 문제 ${question.index} ${getConcept(question)} 와 가장 일치하는 설명을 선택하세요`;
+      return `${languageTitle} 문제 ${question.index} ${conceptLabel(question, language)} 와 가장 일치하는 설명을 선택하세요`;
     }
     if (question.type === "FILL_BLANK") {
-      return `${firstLine}\n빠진 부분을 채우세요`;
+      return `코드의 빈칸을 보고 빠진 부분을 채우세요`;
     }
-    return `${firstLine}\n직접 작성해 보세요`;
+    return `${languageTitle} 작은 연습을 먼저 직접 작성해 보세요`;
   }
 
   if (language === "es") {
     if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} pregunta ${question.index}. Elige la explicación que mejor coincide con ${getConcept(question)}`;
+      return `${languageTitle} pregunta ${question.index}. Elige la explicacion que mejor coincide con ${conceptLabel(question, language)}`;
     }
     if (question.type === "FILL_BLANK") {
-      return `${firstLine}\nCompleta la parte que falta`;
+      return `Mira el espacio en blanco del codigo y completa la parte que falta`;
     }
-    return `${firstLine}\nEscribe una solución antes de mirar pistas o respuesta`;
+    return `Escribe una solucion pequeña de ${languageTitle} antes de mirar pistas o respuesta`;
   }
 
   if (language === "ar") {
     if (question.type === "MULTIPLE_CHOICE") {
-      return `${languageTitle} السؤال ${question.index}. اختر الوصف الأقرب إلى ${getConcept(question)}`;
+      return `${languageTitle} السؤال ${question.index}. اختر الوصف الأقرب إلى ${conceptLabel(question, language)}`;
     }
     if (question.type === "FILL_BLANK") {
-      return `${firstLine}\nاملأ الجزء الناقص`;
+      return `انظر إلى الفراغ داخل الكود ثم املأ الجزء الناقص`;
     }
-    return `${firstLine}\nاكتب حلا أولا ثم افتح التلميحات أو الإجابة`;
+    return `اكتب حلا صغيرا في ${languageTitle} أولا ثم افتح التلميحات أو الإجابة`;
   }
 
   return question.prompt;
@@ -896,7 +1149,7 @@ function questionHints(question: ProgrammingQuestion, activeRole: string, langua
 
   if (language === "zh") {
     return [
-      `先看 ${getConcept(question)} 找出缺的那一块`,
+      `先看 ${conceptLabel(question, language)} 找出缺的那一块`,
       `保持这个练习习惯 ${activeRole}`,
       `大概率需要 ${question.answer.split("\n")[0]} 答案里应该包含 ${question.requiredKeywords.slice(0, 3).join(" ")}`,
     ];
@@ -904,7 +1157,7 @@ function questionHints(question: ProgrammingQuestion, activeRole: string, langua
 
   if (language === "ja") {
     return [
-      `${getConcept(question)} を確認して足りない部分を見つけてください`,
+      `${conceptLabel(question, language)} を確認して足りない部分を見つけてください`,
       `この練習習慣を続けてください ${activeRole}`,
       `答えには ${question.requiredKeywords.slice(0, 3).join(" ")} が含まれるはずです`,
     ];
@@ -912,7 +1165,7 @@ function questionHints(question: ProgrammingQuestion, activeRole: string, langua
 
   if (language === "ko") {
     return [
-      `${getConcept(question)} 를 확인하고 빠진 부분을 찾으세요`,
+      `${conceptLabel(question, language)} 를 확인하고 빠진 부분을 찾으세요`,
       `이 연습 습관을 유지하세요 ${activeRole}`,
       `답에는 ${question.requiredKeywords.slice(0, 3).join(" ")} 가 포함되어야 합니다`,
     ];
@@ -920,7 +1173,7 @@ function questionHints(question: ProgrammingQuestion, activeRole: string, langua
 
   if (language === "es") {
     return [
-      `mira ${getConcept(question)} y encuentra la pieza que falta`,
+      `mira ${conceptLabel(question, language)} y encuentra la pieza que falta`,
       `mantén este hábito de práctica ${activeRole}`,
       `la respuesta debería incluir ${question.requiredKeywords.slice(0, 3).join(" ")}`,
     ];
@@ -928,7 +1181,7 @@ function questionHints(question: ProgrammingQuestion, activeRole: string, langua
 
   if (language === "ar") {
     return [
-      `راجع ${getConcept(question)} وابحث عن الجزء الناقص`,
+      `راجع ${conceptLabel(question, language)} وابحث عن الجزء الناقص`,
       `حافظ على عادة التدريب هذه ${activeRole}`,
       `غالبا يجب أن تحتوي الإجابة على ${question.requiredKeywords.slice(0, 3).join(" ")}`,
     ];
@@ -1120,6 +1373,195 @@ function methodBody(methodTitleValue: string, methodBodyValue: string, language:
   return methodI18n[language]?.body[methodTitleValue] ?? methodBodyValue;
 }
 
+const optionI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
+  zh: {
+    "memorize random syntax without running anything": "死记随机语法 不运行不验证",
+    "skip error messages and guess": "跳过报错直接猜",
+    "rewrite the whole file before isolating the issue": "没定位问题就重写整个文件",
+    "depend on hints before the first attempt": "第一次尝试前就依赖提示",
+    "Use const for a value that should not be reassigned": "不会重新赋值的数据优先用 const",
+    "A function should return the computed value when other code needs it": "其他代码要使用结果时 函数应该 return 计算值",
+    "map creates a new array by transforming each item": "map 会把每一项转换成一个新数组",
+    "await pauses inside an async function until a promise resolves": "await 会在 async 函数中等待 Promise 完成",
+    "Use the language's standard print statement to inspect a value": "用这门语言的标准输出语句检查一个值",
+    "Store a value in a readable name before passing it around": "先把值存进可读的名字 再传给其他代码",
+    "A function should take input and return or produce a focused result": "函数应该接收输入 并返回或产生一个明确结果",
+  },
+  ja: {
+    "memorize random syntax without running anything": "実行せずにランダムな構文を暗記する",
+    "skip error messages and guess": "エラーを読まずに推測する",
+    "rewrite the whole file before isolating the issue": "原因を切り分ける前に全体を書き直す",
+    "depend on hints before the first attempt": "最初の試行前からヒントに頼る",
+    "Use const for a value that should not be reassigned": "再代入しない値には const を使う",
+    "A function should return the computed value when other code needs it": "他のコードが結果を使うなら関数は値を return する",
+    "map creates a new array by transforming each item": "map は各要素を変換して新しい配列を作る",
+    "await pauses inside an async function until a promise resolves": "await は async 関数内で Promise の完了を待つ",
+    "Use the language's standard print statement to inspect a value": "標準の出力文で値を確認する",
+    "Store a value in a readable name before passing it around": "値を読みやすい名前に保存してから渡す",
+    "A function should take input and return or produce a focused result": "関数は入力を受け取り明確な結果を返す",
+  },
+  ko: {
+    "memorize random syntax without running anything": "실행하지 않고 무작위 문법을 외운다",
+    "skip error messages and guess": "오류 메시지를 건너뛰고 추측한다",
+    "rewrite the whole file before isolating the issue": "문제를 분리하기 전에 파일 전체를 다시 쓴다",
+    "depend on hints before the first attempt": "첫 시도 전에 힌트에 의존한다",
+    "Use const for a value that should not be reassigned": "다시 할당하지 않을 값은 const 를 사용한다",
+    "A function should return the computed value when other code needs it": "다른 코드가 결과를 써야 하면 함수는 값을 return 해야 한다",
+    "map creates a new array by transforming each item": "map 은 각 항목을 변환해 새 배열을 만든다",
+    "await pauses inside an async function until a promise resolves": "await 는 async 함수 안에서 Promise 완료를 기다린다",
+    "Use the language's standard print statement to inspect a value": "표준 출력문으로 값을 확인한다",
+    "Store a value in a readable name before passing it around": "값을 읽기 쉬운 이름에 저장한 뒤 전달한다",
+    "A function should take input and return or produce a focused result": "함수는 입력을 받고 명확한 결과를 반환하거나 만들어야 한다",
+  },
+  es: {
+    "memorize random syntax without running anything": "memorizar sintaxis al azar sin ejecutar nada",
+    "skip error messages and guess": "saltar errores y adivinar",
+    "rewrite the whole file before isolating the issue": "reescribir todo antes de aislar el problema",
+    "depend on hints before the first attempt": "depender de pistas antes del primer intento",
+    "Use const for a value that should not be reassigned": "usa const para un valor que no debe reasignarse",
+    "A function should return the computed value when other code needs it": "si otro codigo necesita el resultado la funcion debe retornarlo",
+    "map creates a new array by transforming each item": "map crea un arreglo nuevo transformando cada elemento",
+    "await pauses inside an async function until a promise resolves": "await espera una promesa dentro de una funcion async",
+    "Use the language's standard print statement to inspect a value": "usa la salida estandar del lenguaje para inspeccionar un valor",
+    "Store a value in a readable name before passing it around": "guarda el valor en un nombre legible antes de pasarlo",
+    "A function should take input and return or produce a focused result": "una funcion toma entrada y devuelve o produce un resultado claro",
+  },
+  ar: {
+    "memorize random syntax without running anything": "حفظ صياغة عشوائية من غير تشغيل",
+    "skip error messages and guess": "تجاهل رسائل الخطأ والتخمين",
+    "rewrite the whole file before isolating the issue": "إعادة كتابة الملف كله قبل عزل المشكلة",
+    "depend on hints before the first attempt": "الاعتماد على التلميحات قبل أول محاولة",
+    "Use const for a value that should not be reassigned": "استخدم const للقيمة التي لن يعاد تعيينها",
+    "A function should return the computed value when other code needs it": "إذا احتاج كود آخر للنتيجة فيجب أن ترجع الدالة القيمة",
+    "map creates a new array by transforming each item": "map تنشئ مصفوفة جديدة بتحويل كل عنصر",
+    "await pauses inside an async function until a promise resolves": "await ينتظر اكتمال Promise داخل دالة async",
+    "Use the language's standard print statement to inspect a value": "استخدم أمر الطباعة القياسي في اللغة لفحص القيمة",
+    "Store a value in a readable name before passing it around": "احفظ القيمة باسم واضح قبل تمريرها",
+    "A function should take input and return or produce a focused result": "الدالة تستقبل مدخلات وترجع أو تنتج نتيجة واضحة",
+  },
+};
+
+function optionLabel(option: string, language: InterfaceLanguage) {
+  const direct = optionI18n[language]?.[option];
+  if (direct) return direct;
+
+  const collectionMatch = option.match(/^Use (.+) to keep related values together$/);
+  if (collectionMatch) {
+    const collection = collectionMatch[1];
+    if (language === "zh") return `使用 ${collection} 保存相关的值`;
+    if (language === "ja") return `${collection} で関連する値をまとめる`;
+    if (language === "ko") return `${collection} 로 관련 값을 묶는다`;
+    if (language === "es") return `usa ${collection} para mantener valores relacionados`;
+    if (language === "ar") return `استخدم ${collection} لحفظ القيم المرتبطة معا`;
+  }
+
+  return option;
+}
+
+const tutorialI18n: Partial<Record<InterfaceLanguage, Record<string, string>>> = {
+  zh: {
+    "Values and variables": "值和变量",
+    "Functions": "函数",
+    "Async APIs": "异步接口",
+    "Program output": "程序输出",
+    "Values and names": "值和命名",
+    "Functions and collections": "函数和集合",
+    "Prefer const first": "优先用 const",
+    "Use let only when the value changes": "只有值会变化时才用 let",
+    "Inspect values with console.log": "用 console.log 检查值",
+    "Name functions with verbs": "函数名用动词",
+    "Return values instead of printing inside every function": "优先 return 结果 不要每个函数都打印",
+    "Keep one function focused": "一个函数只做一件事",
+    "Check network errors": "检查网络错误",
+    "Await the promise before reading data": "读取数据前先 await Promise",
+    "Keep API parsing separate": "把接口解析单独放清楚",
+    "Run the smallest file first": "先跑最小文件",
+    "Print one known value": "先打印一个确定值",
+    "Check the output before adding more code": "加代码前先看输出",
+    "Give values readable names": "给值起可读名字",
+    "Keep one idea per line while learning": "学习时一行只放一个想法",
+    "Trace the value before changing it": "改值前先追踪它",
+    "Keep functions small": "函数保持小",
+    "Return useful values": "返回有用的值",
+    "Use the common collection before reaching for frameworks": "先用常见集合 不急着上框架",
+  },
+  ja: {
+    "Values and variables": "値と変数",
+    "Functions": "関数",
+    "Async APIs": "非同期 API",
+    "Program output": "プログラム出力",
+    "Values and names": "値と名前",
+    "Functions and collections": "関数とコレクション",
+    "Prefer const first": "まず const を使う",
+    "Use let only when the value changes": "値が変わる時だけ let を使う",
+    "Inspect values with console.log": "console.log で値を確認する",
+    "Name functions with verbs": "関数名は動詞で始める",
+    "Return values instead of printing inside every function": "各関数で出力せず値を返す",
+    "Keep one function focused": "一つの関数は一つの役割にする",
+    "Check network errors": "ネットワークエラーを確認する",
+    "Await the promise before reading data": "データを読む前に Promise を待つ",
+    "Keep API parsing separate": "API 解析を分ける",
+  },
+  ko: {
+    "Values and variables": "값과 변수",
+    "Functions": "함수",
+    "Async APIs": "비동기 API",
+    "Program output": "프로그램 출력",
+    "Values and names": "값과 이름",
+    "Functions and collections": "함수와 컬렉션",
+    "Prefer const first": "먼저 const 를 사용",
+    "Use let only when the value changes": "값이 바뀔 때만 let 사용",
+    "Inspect values with console.log": "console.log 로 값 확인",
+    "Name functions with verbs": "함수 이름은 동사로",
+    "Return values instead of printing inside every function": "모든 함수에서 출력하지 말고 값을 반환",
+    "Keep one function focused": "함수 하나는 한 가지 일만",
+  },
+  es: {
+    "Values and variables": "valores y variables",
+    "Functions": "funciones",
+    "Async APIs": "API asincronas",
+    "Program output": "salida del programa",
+    "Values and names": "valores y nombres",
+    "Functions and collections": "funciones y colecciones",
+    "Prefer const first": "prefiere const primero",
+    "Use let only when the value changes": "usa let solo si el valor cambia",
+    "Inspect values with console.log": "inspecciona valores con console.log",
+    "Name functions with verbs": "nombra funciones con verbos",
+    "Return values instead of printing inside every function": "devuelve valores en vez de imprimir dentro de cada funcion",
+    "Keep one function focused": "mantén cada funcion enfocada",
+  },
+  ar: {
+    "Values and variables": "القيم والمتغيرات",
+    "Functions": "الدوال",
+    "Async APIs": "واجهات غير متزامنة",
+    "Program output": "ناتج البرنامج",
+    "Values and names": "القيم والأسماء",
+    "Functions and collections": "الدوال والمجموعات",
+    "Prefer const first": "ابدأ ب const",
+    "Use let only when the value changes": "استخدم let فقط عندما تتغير القيمة",
+    "Inspect values with console.log": "افحص القيم باستخدام console.log",
+    "Name functions with verbs": "سم الدوال بأفعال واضحة",
+    "Return values instead of printing inside every function": "ارجع القيم بدل الطباعة داخل كل دالة",
+    "Keep one function focused": "اجعل كل دالة مركزة على مهمة واحدة",
+    "Check network errors": "افحص أخطاء الشبكة",
+    "Await the promise before reading data": "انتظر Promise قبل قراءة البيانات",
+    "Keep API parsing separate": "افصل تحليل API عن باقي الكود",
+    "Run the smallest file first": "شغل أصغر ملف أولا",
+    "Print one known value": "اطبع قيمة معروفة واحدة",
+    "Check the output before adding more code": "افحص الناتج قبل إضافة كود أكثر",
+    "Give values readable names": "أعط القيم أسماء واضحة",
+    "Keep one idea per line while learning": "اجعل كل سطر يحمل فكرة واحدة أثناء التعلم",
+    "Trace the value before changing it": "تتبع القيمة قبل تغييرها",
+    "Keep functions small": "اجعل الدوال صغيرة",
+    "Return useful values": "ارجع قيما مفيدة",
+    "Use the common collection before reaching for frameworks": "استخدم المجموعة الشائعة قبل اللجوء إلى الأطر",
+  },
+};
+
+function tutorialText(text: string, language: InterfaceLanguage) {
+  return tutorialI18n[language]?.[text] ?? text;
+}
+
 export default function ProgrammingTrainer({
   initialLanguageSlug = "javascript",
   initialSiteLanguage = "en",
@@ -1170,6 +1612,8 @@ export default function ProgrammingTrainer({
     found: answer.toLowerCase().includes(keyword.toLowerCase()),
   }));
   const definition = definitionCopy(activeLanguage, activeRole, language);
+  const zeroSteps = zeroBaseSteps[language] || zeroBaseSteps.en;
+  const isRtl = language === "ar";
   const coachContext = useMemo(() => ({
     language: activeLanguage.title,
     languageRole: activeRole,
@@ -1382,7 +1826,7 @@ export default function ProgrammingTrainer({
   }, [goToQuestion, keyPreset, question.options, questionIndex, revealAnswer, revealHint, runBuiltIn, selectChoice, submit]);
 
   return (
-    <main className="apple-page programming-page">
+    <main className="apple-page programming-page" dir={isRtl ? "rtl" : "ltr"} data-interface-language={language}>
       <div className="programming-workbench">
         <aside className="programming-rail dense-panel">
           <Link href={localizedHref("/", language)} className="tool-brand">
@@ -1471,7 +1915,7 @@ export default function ProgrammingTrainer({
             <div className="programming-definition-starter">
               <div>
                 <p className="eyebrow">{definition.starterTitle}</p>
-                <h3>{definition.starter.title}</h3>
+                <h3>{tutorialText(definition.starter.title, language)}</h3>
                 <span>{definition.starter.focus}</span>
               </div>
               <pre>{definition.starter.sampleCode}</pre>
@@ -1497,7 +1941,7 @@ export default function ProgrammingTrainer({
           <section className="dense-panel programming-zero-path" aria-label={copy.zeroBase}>
             <p className="eyebrow">{copy.zeroBase}</p>
             <div>
-              {zeroBaseSteps[bilingualLanguage(language)].map((step, index) => (
+              {zeroSteps.map((step, index) => (
                 <span key={step}>
                   <strong>{index + 1}</strong>
                   {step}
@@ -1514,7 +1958,7 @@ export default function ProgrammingTrainer({
                   <h2>{questionTitle(question, language, activeLanguage.title)}</h2>
                   <div className="programming-meta-line">
                     <span>Q {questionIndex}</span>
-                    <span>{typeLabel[bilingualLanguage(language)][question.type]}</span>
+                    <span>{typeLabel[language][question.type]}</span>
                     <span>{result ? (result.correct ? copy.statusSolved : copy.statusReview) : answer ? copy.statusDraft : copy.statusNew}</span>
                   </div>
                 </div>
@@ -1564,7 +2008,7 @@ export default function ProgrammingTrainer({
                         onClick={() => selectChoice(option)}
                       >
                         <span>{index + 1}</span>
-                        {option}
+                        {optionLabel(option, language)}
                       </button>
                     ))}
                   </div>
@@ -1681,7 +2125,7 @@ export default function ProgrammingTrainer({
               {activeLanguage.tutorialSections.map((section) => (
                 <article key={section.title} className="programming-tutorial">
                   <p className="eyebrow">{section.focus}</p>
-                  <h3>{section.title}</h3>
+                  <h3>{tutorialText(section.title, language)}</h3>
                   <pre>{section.sampleCode}</pre>
                   <button
                     type="button"
@@ -1693,7 +2137,7 @@ export default function ProgrammingTrainer({
                   {sampleRuns[section.title] && <code>{copy.output} {section.sampleOutput}</code>}
                   <ul>
                     {section.rules.map((rule) => (
-                      <li key={rule}>{rule}</li>
+                      <li key={rule}>{tutorialText(rule, language)}</li>
                     ))}
                   </ul>
                 </article>

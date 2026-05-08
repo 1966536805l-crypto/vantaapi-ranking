@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { bilingualLanguage, type InterfaceLanguage } from "@/lib/language";
+import type { InterfaceLanguage } from "@/lib/language";
 
 type CoachMode = "english" | "programming";
 type CoachEngine = "local" | "ai";
@@ -27,7 +27,31 @@ type AICoachPanelProps = {
   language?: InterfaceLanguage;
 };
 
-const coachCopy = {
+type CoachCopy = {
+  codeEyebrow: string;
+  englishEyebrow: string;
+  ask: string;
+  thinking: string;
+  instantDraft: string;
+  checking: string;
+  streaming: string;
+  fallbackStatus: string;
+  unavailable: string;
+  noAnswer: string;
+  local: string;
+  ai: string;
+  provider: string;
+  draftStep: string;
+  checkStep: string;
+  finalStep: string;
+  ready: string;
+  fallback: string;
+  cooldown: string;
+  aiEmpty: string;
+  aiTimeout: string;
+};
+
+const coachCopy: Partial<Record<InterfaceLanguage, CoachCopy>> & { en: CoachCopy; zh: CoachCopy } = {
   en: {
     codeEyebrow: "Code AI",
     englishEyebrow: "English AI",
@@ -48,6 +72,8 @@ const coachCopy = {
     ready: "Ready",
     fallback: "Fallback active",
     cooldown: "Provider cooling down",
+    aiEmpty: "AI returned no useful text. Instant answer kept.",
+    aiTimeout: "Fast AI timed out. Instant answer kept.",
   },
   zh: {
     codeEyebrow: "编程 AI",
@@ -69,8 +95,106 @@ const coachCopy = {
     ready: "待命",
     fallback: "兜底已接管",
     cooldown: "模型冷却中",
+    aiEmpty: "AI 没有返回有效内容 已保留极速答案",
+    aiTimeout: "AI 快答超时 已保留极速答案",
   },
-} as const;
+  ja: {
+    codeEyebrow: "コード AI",
+    englishEyebrow: "英語 AI",
+    ask: "コーチに聞く",
+    thinking: "高速回答",
+    instantDraft: "即時下書き",
+    checking: "モデル確認",
+    streaming: "出力中",
+    fallbackStatus: "制限中",
+    unavailable: "コーチは一時利用不可",
+    noAnswer: "回答なし",
+    local: "即時",
+    ai: "高速 AI",
+    provider: "提供元",
+    draftStep: "下書き",
+    checkStep: "確認",
+    finalStep: "回答",
+    ready: "待機中",
+    fallback: "代替回答中",
+    cooldown: "提供元クールダウン中",
+    aiEmpty: "AI から有効な内容が返らなかったため即時回答を残しました。",
+    aiTimeout: "高速 AI がタイムアウトしたため即時回答を残しました。",
+  },
+  ko: {
+    codeEyebrow: "코드 AI",
+    englishEyebrow: "영어 AI",
+    ask: "코치에게 묻기",
+    thinking: "빠른 답변",
+    instantDraft: "즉시 초안",
+    checking: "모델 확인",
+    streaming: "출력 중",
+    fallbackStatus: "제한됨",
+    unavailable: "코치를 사용할 수 없음",
+    noAnswer: "답변 없음",
+    local: "즉시",
+    ai: "빠른 AI",
+    provider: "제공자",
+    draftStep: "초안",
+    checkStep: "확인",
+    finalStep: "답변",
+    ready: "대기",
+    fallback: "대체 답변 사용",
+    cooldown: "제공자 대기 중",
+    aiEmpty: "AI 가 유효한 내용을 반환하지 않아 즉시 답변을 유지했습니다.",
+    aiTimeout: "빠른 AI 시간이 초과되어 즉시 답변을 유지했습니다.",
+  },
+  es: {
+    codeEyebrow: "AI de código",
+    englishEyebrow: "AI de inglés",
+    ask: "Preguntar al coach",
+    thinking: "Respuesta rápida",
+    instantDraft: "borrador instantáneo",
+    checking: "revisión del modelo",
+    streaming: "generando",
+    fallbackStatus: "limitado",
+    unavailable: "Coach no disponible",
+    noAnswer: "Sin respuesta",
+    local: "Instantáneo",
+    ai: "AI rápida",
+    provider: "Proveedor",
+    draftStep: "Borrador",
+    checkStep: "Revisión",
+    finalStep: "Final",
+    ready: "Listo",
+    fallback: "Fallback activo",
+    cooldown: "Proveedor en pausa",
+    aiEmpty: "La AI no devolvió contenido útil. Se mantuvo la respuesta instantánea.",
+    aiTimeout: "La AI rápida tardó demasiado. Se mantuvo la respuesta instantánea.",
+  },
+  ar: {
+    codeEyebrow: "AI للكود",
+    englishEyebrow: "AI للإنجليزية",
+    ask: "اسأل المدرب",
+    thinking: "إجابة سريعة",
+    instantDraft: "مسودة فورية",
+    checking: "فحص النموذج",
+    streaming: "جار الإرسال",
+    fallbackStatus: "محدود",
+    unavailable: "المدرب غير متاح",
+    noAnswer: "لا توجد إجابة",
+    local: "فوري",
+    ai: "AI سريع",
+    provider: "المزود",
+    draftStep: "مسودة",
+    checkStep: "فحص",
+    finalStep: "نهائي",
+    ready: "جاهز",
+    fallback: "تم تفعيل البديل",
+    cooldown: "المزود في فترة تهدئة",
+    aiEmpty: "لم يرجع AI محتوى مفيدا لذلك بقيت الإجابة الفورية.",
+    aiTimeout: "انتهت مهلة AI السريع لذلك بقيت الإجابة الفورية.",
+  },
+};
+
+function getCoachCopy(language: InterfaceLanguage) {
+  return coachCopy[language] || coachCopy.en;
+}
 
 function contextRecord(context: unknown): Record<string, unknown> {
   if (context && typeof context === "object" && !Array.isArray(context)) {
@@ -159,6 +283,42 @@ function programmingNextMove(type: string, prompt: string, language: InterfaceLa
     return "先把题目压成一个最小例子";
   }
 
+  if (language === "ja") {
+    if (source.includes("bug") || source.includes("error")) return "エラー行を特定して一つだけ変える";
+    if (source.includes("output") || source.includes("出力")) return "選ぶ前に各変数を追跡する";
+    if (source.includes("fill") || source.includes("穴埋め")) return "空欄の前後一行だけを見る";
+    if (source.includes("choice") || source.includes("選択")) return "型や出力を変える選択肢を外す";
+    if (source.includes("practical") || source.includes("実践")) return "最小の実行可能な骨組みを書く";
+    return "問題を一つの小さな例に縮める";
+  }
+
+  if (language === "ko") {
+    if (source.includes("bug") || source.includes("error")) return "오류 줄을 찾고 하나만 바꿉니다";
+    if (source.includes("output") || source.includes("출력")) return "선택 전에 각 변수를 추적합니다";
+    if (source.includes("fill") || source.includes("빈칸")) return "빈칸 앞뒤 한 줄만 봅니다";
+    if (source.includes("choice") || source.includes("선택")) return "타입이나 출력을 바꾸는 선택지를 제거합니다";
+    if (source.includes("practical") || source.includes("실습")) return "가장 작은 실행 가능한 뼈대를 씁니다";
+    return "문제를 작은 예시 하나로 줄입니다";
+  }
+
+  if (language === "es") {
+    if (source.includes("bug") || source.includes("error")) return "aísla la línea del error y cambia una sola cosa";
+    if (source.includes("output") || source.includes("salida")) return "traza cada variable antes de elegir";
+    if (source.includes("fill") || source.includes("rellenar")) return "lee solo la línea antes y después del hueco";
+    if (source.includes("choice") || source.includes("opción")) return "descarta opciones que cambian tipo o salida";
+    if (source.includes("practical") || source.includes("práctica")) return "escribe el esqueleto ejecutable más pequeño";
+    return "reduce la pregunta a un ejemplo mínimo";
+  }
+
+  if (language === "ar") {
+    if (source.includes("bug") || source.includes("error")) return "حدد سطر الخطأ ثم غيّر شيئا واحدا";
+    if (source.includes("output") || source.includes("الناتج")) return "تتبع كل متغير قبل الاختيار";
+    if (source.includes("fill") || source.includes("فراغ")) return "اقرأ السطر قبل الفراغ وبعده فقط";
+    if (source.includes("choice") || source.includes("اختيار")) return "استبعد الخيارات التي تغير النوع أو الناتج";
+    if (source.includes("practical") || source.includes("عملي")) return "اكتب أصغر هيكل قابل للتشغيل";
+    return "اختصر السؤال إلى مثال صغير جدا";
+  }
+
   if (source.includes("bug") || source.includes("error")) return "isolate the error line then change one thing";
   if (source.includes("output")) return "trace each variable before choosing";
   if (source.includes("fill")) return "read only the line before and after the blank";
@@ -182,6 +342,46 @@ function programmingInstantAnswer(promptText: string, context: unknown, language
       code ? "关键点 逐行跟踪变量 不要跳读代码" : "关键点 先讲清一个概念 再写代码",
       answer ? `你的答案 ${answer} 先找第一处不确定` : "先写预测 再开提示",
       "小练习 换一组变量名再做一次",
+    ].join("\n");
+  }
+
+  if (language === "ja") {
+    return [
+      `${topic || "現在の言語"}${questionNumber ? ` 問題 ${questionNumber}` : ""}${questionType ? ` ${questionType}` : ""} に集中`,
+      `次の一手 ${programmingNextMove(questionType, prompt, language)}`,
+      code ? "要点 変数を一行ずつ追跡する" : "要点 コードを書く前に概念を一つだけ説明する",
+      answer ? `あなたの答え ${answer} まず不確かな一歩を探す` : "先に予測してからヒントを一つ開く",
+      "小練習 変数名を変えてもう一度",
+    ].join("\n");
+  }
+
+  if (language === "ko") {
+    return [
+      `${topic || "현재 언어"}${questionNumber ? ` ${questionNumber}번 문제` : ""}${questionType ? ` ${questionType}` : ""} 에 집중`,
+      `다음 행동 ${programmingNextMove(questionType, prompt, language)}`,
+      code ? "핵심 변수 변화를 한 줄씩 추적합니다" : "핵심 코딩 전에 개념 하나를 설명합니다",
+      answer ? `내 답 ${answer} 먼저 불확실한 부분 하나를 찾습니다` : "먼저 예측하고 힌트 하나를 엽니다",
+      "작은 연습 변수 이름을 바꿔 다시 해 봅니다",
+    ].join("\n");
+  }
+
+  if (language === "es") {
+    return [
+      `enfócate en ${topic || "el lenguaje actual"}${questionNumber ? ` pregunta ${questionNumber}` : ""}${questionType ? ` ${questionType}` : ""}`,
+      `siguiente paso ${programmingNextMove(questionType, prompt, language)}`,
+      code ? "idea clave traza variables línea por línea" : "idea clave explica un concepto antes de programar",
+      answer ? `tu respuesta ${answer} busca el primer paso dudoso` : "predice primero y abre una pista",
+      "mini ejercicio repite con nuevos nombres de variables",
+    ].join("\n");
+  }
+
+  if (language === "ar") {
+    return [
+      `ركز على ${topic || "اللغة الحالية"}${questionNumber ? ` السؤال ${questionNumber}` : ""}${questionType ? ` ${questionType}` : ""}`,
+      `الخطوة التالية ${programmingNextMove(questionType, prompt, language)}`,
+      code ? "الفكرة الأساسية تتبع المتغيرات سطرا بسطر" : "الفكرة الأساسية اشرح مفهوما واحدا قبل كتابة الكود",
+      answer ? `إجابتك ${answer} ابحث عن أول خطوة غير مؤكدة` : "توقع أولا ثم افتح تلميحا واحدا",
+      "تمرين صغير كرر الحل بأسماء متغيرات جديدة",
     ].join("\n");
   }
 
@@ -218,10 +418,18 @@ function normalizeProvider(value: string | null): CoachProvider {
 }
 
 function providerName(provider: CoachProvider | undefined, language: InterfaceLanguage) {
-  if (provider === "gateway") return language === "zh" ? "GLM" : "GLM";
-  if (provider === "ollama") return language === "zh" ? "Ollama 本地" : "Ollama local";
-  if (provider === "built-in" || provider === "local") return language === "zh" ? "内置教练" : "built in coach";
-  return language === "zh" ? "AI 快答" : "fast AI";
+  const copy = getCoachCopy(language);
+  if (provider === "gateway") return "GLM";
+  if (provider === "ollama") {
+    if (language === "zh") return "Ollama 本地";
+    if (language === "ja") return "Ollama ローカル";
+    if (language === "ko") return "Ollama 로컬";
+    if (language === "es") return "Ollama local";
+    if (language === "ar") return "Ollama محلي";
+    return "Ollama local";
+  }
+  if (provider === "built-in" || provider === "local") return copy.local;
+  return copy.ai;
 }
 
 function isFallbackAnswer(answer: CoachResponse | null) {
@@ -240,7 +448,7 @@ function phaseText({
   engine: CoachEngine;
   language: InterfaceLanguage;
 }) {
-  const copy = coachCopy[bilingualLanguage(language)];
+  const copy = getCoachCopy(language);
   if (engine === "local") return copy.local;
   if (phase === "instant") return copy.instantDraft;
   if (phase === "checking") return copy.checking;
@@ -265,7 +473,7 @@ export default function AICoachPanel({
   const [engine, setEngine] = useState<CoachEngine>("ai");
   const [phase, setPhase] = useState<CoachPhase>("idle");
   const requestIdRef = useRef(0);
-  const copy = coachCopy[bilingualLanguage(language)];
+  const copy = getCoachCopy(language);
 
   async function ask(nextPrompt = prompt) {
     const cleanPrompt = nextPrompt.trim();
@@ -280,7 +488,7 @@ export default function AICoachPanel({
     setAnswer({
       success: true,
       provider: "local",
-      model: language === "zh" ? "极速草稿" : "instant draft",
+      model: copy.instantDraft,
       content: instantContent,
     });
 
@@ -310,7 +518,7 @@ export default function AICoachPanel({
         setAnswer({
           success: true,
           provider: data.provider || "local",
-          model: data.model || (language === "zh" ? "本地兜底" : "local fallback"),
+          model: data.model || copy.fallback,
           content: data.content || `${instantContent}\n\n${data.message || copy.unavailable}`,
         });
         setPhase("done");
@@ -320,7 +528,7 @@ export default function AICoachPanel({
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       const responseProvider = normalizeProvider(response.headers.get("x-coach-provider"));
-      const responseModel = response.headers.get("x-coach-model") || "fast coach";
+      const responseModel = response.headers.get("x-coach-model") || copy.ai;
       let streamed = "";
       setPhase("streaming");
       setAnswer({
@@ -347,8 +555,8 @@ export default function AICoachPanel({
         setAnswer({
           success: true,
           provider: "local",
-          model: language === "zh" ? "空响应兜底" : "empty fallback",
-          content: `${instantContent}\n\n${language === "zh" ? "AI 没有返回有效内容 已保留极速答案" : "AI returned no useful text. Instant answer kept."}`,
+          model: copy.fallback,
+          content: `${instantContent}\n\n${copy.aiEmpty}`,
         });
       }
       setPhase("done");
@@ -357,8 +565,8 @@ export default function AICoachPanel({
       setAnswer({
         success: true,
         provider: "local",
-        model: language === "zh" ? "超时兜底" : "timeout fallback",
-        content: `${instantContent}\n\n${language === "zh" ? "AI 快答超时 已保留极速答案" : "Fast AI timed out. Instant answer kept."}`,
+        model: copy.fallback,
+        content: `${instantContent}\n\n${copy.aiTimeout}`,
       });
       setPhase("done");
     } finally {
