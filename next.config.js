@@ -2,26 +2,29 @@
 const isDev = process.env.NODE_ENV !== "production";
 const hasTurnstile = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  isDev
-    ? `script-src 'self' 'unsafe-eval' 'unsafe-inline'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`
-    : `script-src 'self'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`,
-  isDev ? "style-src 'self' 'unsafe-inline'" : "style-src 'self'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  `connect-src 'self'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`,
-  "media-src 'self' data: blob:",
-  hasTurnstile ? "frame-src https://challenges.cloudflare.com" : "frame-src 'none'",
-  "child-src 'none'",
-  "worker-src 'self' blob:",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "object-src 'none'",
-  "manifest-src 'self'",
-  "upgrade-insecure-requests",
-].join("; ");
+// CSP will be set dynamically in middleware with nonce
+const buildContentSecurityPolicy = (nonce) => {
+  return [
+    "default-src 'self'",
+    isDev
+      ? `script-src 'self' 'unsafe-eval' 'unsafe-inline'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`
+      : `script-src 'self' 'nonce-${nonce}'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`,
+    isDev ? "style-src 'self' 'unsafe-inline'" : `style-src 'self' 'nonce-${nonce}'`,
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    `connect-src 'self'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`,
+    "media-src 'self' data: blob:",
+    hasTurnstile ? "frame-src https://challenges.cloudflare.com" : "frame-src 'none'",
+    "child-src 'none'",
+    "worker-src 'self' blob:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+    "manifest-src 'self'",
+    "upgrade-insecure-requests",
+  ].join("; ");
+};
 
 const nextConfig = {
   reactStrictMode: true,
@@ -61,7 +64,7 @@ const nextConfig = {
           key: "Strict-Transport-Security",
           value: "max-age=63072000; includeSubDomains; preload",
         },
-        { key: "Content-Security-Policy", value: contentSecurityPolicy },
+        // CSP is now set in middleware with nonce
       ],
     },
     {
