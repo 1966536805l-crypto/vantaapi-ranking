@@ -337,9 +337,8 @@ export async function generateMetadata({
 }
 
 export default async function EnglishHome({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const headersList = await headers();
-  const headerLanguage = headersList.get("x-jinming-language");
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
+  // Force English language for /english page - this page is specifically for English content
+  const language: InterfaceLanguage = "en";
   const pageCopy = englishHomeCopy[language];
 
   return (
