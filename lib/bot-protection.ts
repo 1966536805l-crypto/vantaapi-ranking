@@ -107,9 +107,17 @@ export function evaluateBotRequest(request: NextRequest, pathname: string): BotV
   const acceptLanguage = request.headers.get("accept-language") || "";
   const secFetchMode = request.headers.get("sec-fetch-mode") || "";
   const secFetchDest = request.headers.get("sec-fetch-dest") || "";
+  const nextRouter = request.headers.get("next-router-prefetch") || request.headers.get("next-url");
+  const purpose = request.headers.get("purpose") || "";
   const trustedCrawler = trustedCrawlerPattern.test(userAgent);
   const isApi = pathname.startsWith("/api/");
   const isUnsafe = !["GET", "HEAD", "OPTIONS"].includes(request.method);
+
+  // Allow Next.js client-side navigation and prefetch requests
+  const isNextJsNavigation = nextRouter || purpose === "prefetch" || secFetchDest === "empty";
+  if (isNextJsNavigation && !isApi && !isUnsafe) {
+    return { action: "allow", reason: "nextjs-navigation", score: 0, trustedCrawler: false };
+  }
 
   if (trapHits.get(ip) && trapHits.get(ip)! > currentTime) {
     return { action: "block", reason: "bot-trap-ip", score: 10, trustedCrawler };
