@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { requireServerUser } from "@/lib/server-auth";
 import { prisma } from "@/lib/prisma";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
@@ -23,7 +24,9 @@ function lessonHref(direction: "english" | "cpp", lesson: NextLesson | null, lan
 }
 
 export default async function DashboardPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const copy = getStudyPageCopy(language);
   const user = await requireServerUser();
   const [progress, wrongCount, totalLessons, englishTotal, cppTotal, nextEnglishLesson, nextCppLesson] = await Promise.all([

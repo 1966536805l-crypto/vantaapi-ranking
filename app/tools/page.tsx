@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import ToolWorkbench from "@/components/tools/ToolWorkbench";
 import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { toolDefinitions } from "@/lib/tool-definitions";
@@ -97,7 +98,9 @@ const toolsMetaCopy: Record<InterfaceLanguage, { title: string; description: str
 };
 
 export async function generateMetadata({ searchParams }: { searchParams?: Promise<PageSearchParams> }): Promise<Metadata> {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const meta = toolsMetaCopy[language];
 
   return {
@@ -123,7 +126,9 @@ export async function generateMetadata({ searchParams }: { searchParams?: Promis
 }
 
 export default async function ToolsPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const meta = toolsMetaCopy[language];
   const jsonLd = {
     "@context": "https://schema.org",

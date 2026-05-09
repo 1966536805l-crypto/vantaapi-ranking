@@ -35,7 +35,13 @@
     "launch:smoke": "node scripts/production-smoke-check.js",
     "language:smoke": "node scripts/language-smoke-check.js",
     "launch:full": "npm run launch:check && npm run security:full",
-    "production:check": "node scripts/production-readiness.js"
+    "production:check": "node scripts/production-readiness.js",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "perf:lighthouse": "node scripts/lighthouse-check.mjs",
+    "perf:bundle": "ANALYZE=true npm run build"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.8.0",
@@ -50,12 +56,12 @@
     "dotenv": "^17.4.2",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
-    "next": "16.2.4",
+    "next": "16.2.6",
     "pg": "8.20.0",
     "prisma": "^7.8.0",
     "qrcode": "^1.5.4",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
     "recharts": "^3.8.1",
     "speakeasy": "^2.0.0",
     "zod": "^4.4.3"
@@ -69,9 +75,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vitest": "^3.0.0",
+    "@vitest/ui": "^3.0.0",
     "webpack-obfuscator": "^3.6.1"
   },
   "overrides": {

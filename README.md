@@ -1,16 +1,28 @@
 # JinMing Lab
 
-JinMing Lab is a focused GitHub launch audit and AI developer tools platform.
+**A comprehensive GitHub launch audit and AI developer tools platform.**
 
-The product direction is now:
+## Core Product
 
-- GitHub Launch Audit as the main public product
-- AI developer utilities for prompts API snippets JSON regex timestamps and roadmaps
-- Programming practice as a secondary learning lane
+**GitHub Launch Audit** - The primary product offering deterministic, rules-based repository analysis:
+- README quality and completeness checks
+- Environment configuration validation
+- CI/CD pipeline verification
+- Deployment readiness assessment
+- Security baseline evaluation
+- Release checklist generation
 
-The launch audit is rules-first. Deterministic README, env, CI, deploy, security and release checks are the core. AI-style wording is polish, not the product foundation.
+The audit engine is deterministic and rules-first. AI-powered suggestions enhance the experience but don't replace the core analysis.
 
-English and legacy learning modules can remain available, but they are secondary to the main positioning.
+## Additional Features
+
+**AI Developer Tools** - Practical utilities for daily development:
+- Prompt templates and API snippets
+- JSON/regex validators
+- Timestamp converters
+- Roadmap generators
+
+**Programming Practice** - Interactive learning workbenches for skill development (secondary feature).
 
 ## MVP Scope
 
@@ -28,14 +40,17 @@ Not in the first focused version:
 - Official exam question reproduction
 - Online C++ judge or untrusted code execution as a public feature
 
-## Stack
+## Tech Stack
 
-- Next.js + TypeScript
-- Tailwind CSS
-- Prisma
-- Postgres through Vercel/Neon in the current production setup
+- **Framework**: Next.js 16 + React 19 + TypeScript 5
+- **Styling**: Tailwind CSS 4
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT + bcrypt + 2FA (TOTP)
+- **Security**: CSRF protection, Redis rate limiting, Cloudflare Turnstile
+- **Deployment**: Vercel (production), supports self-hosted
+- **Testing**: Vitest with coverage reporting
 
-## Local Development
+## Quick Start
 
 1. Configure `.env`:
 
@@ -97,13 +112,34 @@ Demo student users are also opt-in. Set `SEED_DEMO_USERS=true` and `SEED_STUDENT
 
 ## Verification
 
+Run the full quality check suite:
+
 ```bash
-npm run content:check
 npm run typecheck
 npm run lint
+npm run test
 npm run build
+npm run content:check
 npx prisma validate
 ```
+
+## Testing
+
+```bash
+npm test              # Run tests in watch mode
+npm run test:run      # Run tests once
+npm run test:ui       # Open Vitest UI
+```
+
+## Documentation
+
+Comprehensive documentation is available in the [`docs/`](docs/) directory:
+
+- [Development Guide](docs/development/DEVELOPMENT.md)
+- [Environment Setup](docs/development/ENV_GUIDE.md)
+- [Deployment Guide](docs/deployment/DEPLOYMENT.md)
+- [Security Policy](docs/security/SECURITY.md)
+- [Collaboration Guidelines](docs/collaboration/COLLABORATION.md)
 
 ## Production Launch
 
@@ -216,12 +252,20 @@ PRELAUNCH_ENV_FILE=.env.vercel.production.local PRELAUNCH_IGNORE_PROCESS_ENV=tru
 
 ## Admin
 
-After signing in as an admin, open `/admin`.
+After signing in as an admin, access the admin panel at `/admin`.
 
-The admin area manages:
-
-- Course
-- Lesson
-- Question
+The admin area manages courses, lessons, and questions for the programming practice feature.
 
 For choice options, enter one option per line and prefix the correct option with `*`.
+
+## Contributing
+
+See [COLLABORATION.md](docs/collaboration/COLLABORATION.md) for team workflow and contribution guidelines.
+
+## Security
+
+Report security vulnerabilities privately through GitHub's security advisory feature. See [SECURITY.md](docs/security/SECURITY.md) for our security policy.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

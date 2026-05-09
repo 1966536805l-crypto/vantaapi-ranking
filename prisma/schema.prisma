@@ -69,6 +69,7 @@ model Course {
   @@index([direction])
   @@index([isPublished])
   @@index([sortOrder])
+  @@index([direction, isPublished, sortOrder])
 }
 
 model Lesson {
@@ -91,6 +92,8 @@ model Lesson {
   @@index([courseId])
   @@index([isPublished])
   @@index([sortOrder])
+  @@index([isPublished, sortOrder])
+  @@index([courseId, isPublished, sortOrder])
 }
 
 model Example {
@@ -162,6 +165,8 @@ model UserProgress {
   @@index([userId])
   @@index([lessonId])
   @@index([status])
+  @@index([userId, updatedAt])
+  @@index([userId, status])
 }
 
 model QuestionAttempt {
@@ -178,6 +183,7 @@ model QuestionAttempt {
   @@index([questionId])
   @@index([isCorrect])
   @@index([createdAt])
+  @@index([userId, createdAt])
 }
 
 model WrongQuestion {

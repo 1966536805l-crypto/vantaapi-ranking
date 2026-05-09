@@ -67,6 +67,9 @@ export function languageRedirectGuard(request: NextRequest, pathname: string) {
   if (pathname === "/robots.txt" || pathname === "/sitemap.xml") return null;
   if (/\.[A-Za-z0-9]{2,8}$/.test(pathname)) return null;
 
+  // Skip auto-redirect for paths that should default to English
+  if (pathname === "/english" || pathname === "/languages" || pathname.startsWith("/english/") || pathname.startsWith("/languages/")) return null;
+
   const explicitLanguage = request.nextUrl.searchParams.get("lang");
   if (isSupportedSiteLanguage(explicitLanguage)) return null;
 

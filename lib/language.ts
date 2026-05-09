@@ -28,10 +28,20 @@ export function isInterfaceLanguage(value: string | undefined | null): value is 
   return interfaceLanguages.some((language) => language.code === value);
 }
 
-export function resolveInterfaceLanguage(searchParams?: PageSearchParams | null): InterfaceLanguage {
+export function resolveInterfaceLanguage(
+  searchParams?: PageSearchParams | null,
+  headerLanguage?: string | null
+): InterfaceLanguage {
+  // Priority 1: URL parameter
   const value = searchParams?.lang;
   const lang = Array.isArray(value) ? value[0] : value;
-  return isInterfaceLanguage(lang) ? lang : "en";
+  if (isInterfaceLanguage(lang)) return lang;
+
+  // Priority 2: Header from middleware (includes cookie + Accept-Language detection)
+  if (isInterfaceLanguage(headerLanguage)) return headerLanguage;
+
+  // Priority 3: Default
+  return "en";
 }
 
 export function resolveLanguage(searchParams?: PageSearchParams | null): SiteLanguage {

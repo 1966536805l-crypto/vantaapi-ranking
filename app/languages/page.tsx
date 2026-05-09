@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import { WorldLanguageExplorer } from "@/components/learning/WorldLanguageExplorer";
 import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
@@ -14,7 +15,9 @@ export async function generateMetadata({
 }: {
   searchParams?: Promise<PageSearchParams>;
 }): Promise<Metadata> {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const page = languagesPageCopy[language];
   const canonical = localizedHref("/languages", language);
 
@@ -561,7 +564,9 @@ function starterStepText(step: (typeof worldLanguageStarterPlan)[number], langua
 }
 
 export default async function WorldLanguagesPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const copy = languagesPageCopy[language];
 
   const jsonLd = {

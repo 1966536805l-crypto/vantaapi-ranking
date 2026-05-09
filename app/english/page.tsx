@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { ModuleHub, type ModuleItem } from "@/components/learning/ModuleHub";
 import {
   localizedHref,
@@ -312,7 +313,9 @@ export async function generateMetadata({
 }: {
   searchParams?: Promise<PageSearchParams>;
 }): Promise<Metadata> {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const pageCopy = englishHomeCopy[language];
   const canonical = localizedHref("/english", language);
 
@@ -334,7 +337,9 @@ export async function generateMetadata({
 }
 
 export default async function EnglishHome({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const pageCopy = englishHomeCopy[language];
 
   return (

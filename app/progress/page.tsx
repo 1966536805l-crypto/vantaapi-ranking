@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import StudyShell from "@/components/layout/StudyShell";
 import { localizedHref, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { prisma } from "@/lib/prisma";
@@ -8,7 +9,9 @@ import { formatStudyDate, getStudyPageCopy } from "@/lib/study-page-copy";
 export const dynamic = "force-dynamic";
 
 export default async function ProgressPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const copy = getStudyPageCopy(language);
   const user = await requireServerUser();
   const [items, totalLessons] = await Promise.all([

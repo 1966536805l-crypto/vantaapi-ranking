@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import FlagLanguageToggle from "@/components/layout/FlagLanguageToggle";
 import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
 import { getPublicHealthSnapshot, type PublicHealthCheck } from "@/lib/public-health";
@@ -81,7 +82,9 @@ function statusCopy(language: InterfaceLanguage) {
 }
 
 export async function generateMetadata({ searchParams }: { searchParams?: Promise<PageSearchParams> }): Promise<Metadata> {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const t = statusCopy(language);
   return {
     title: `${t.title} | JinMing Lab`,
@@ -104,7 +107,9 @@ function statusTone(status: PublicHealthCheck["status"]) {
 }
 
 export default async function StatusPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const t = statusCopy(language);
   const health = getPublicHealthSnapshot();
   const date = new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : "en-US", {

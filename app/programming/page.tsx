@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import ProgrammingLanguageFinder, { type ProgrammingFinderItem } from "@/components/learning/ProgrammingLanguageFinder";
 import { localizedHref, localizedLanguageAlternates, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
@@ -848,7 +849,9 @@ export async function generateMetadata({
 }: {
   searchParams?: Promise<PageSearchParams>;
 }): Promise<Metadata> {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const t = copy[language];
   return {
     title: `${t.title} - JinMing Lab`,
@@ -875,7 +878,9 @@ export default async function ProgrammingPage({
 }: {
   searchParams?: Promise<PageSearchParams>;
 }) {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const t = copy[language];
   const zeroStepList = localizedZeroSteps[language] || zeroSteps.en;
   const languageItems: ProgrammingFinderItem[] = programmingLanguages.map((item) => {
