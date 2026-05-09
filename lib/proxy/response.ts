@@ -35,7 +35,10 @@ export function withSecurityHeaders(response: NextResponse, botVerdict?: BotVerd
 
 export function nextWithRequestLanguage(request: NextRequest, botVerdict: BotVerdict) {
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-jinming-language", securityLanguage(request));
+  // Force English for /english page regardless of cookies or headers
+  const pathname = request.nextUrl.pathname;
+  const language = pathname === "/english" ? "en" : securityLanguage(request);
+  requestHeaders.set("x-jinming-language", language);
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,
