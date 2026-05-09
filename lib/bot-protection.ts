@@ -200,11 +200,11 @@ export function evaluateBotRequest(request: NextRequest, pathname: string): BotV
   if (score === 0) return { action: "allow", reason: "normal", score, trustedCrawler };
 
   const rollingScore = rememberViolation(ip, score);
-  if (score >= 5 || rollingScore >= 9) {
+  if (score >= 7 || rollingScore >= 12) {
     return { action: "block", reason: reasons.join(","), score: rollingScore, trustedCrawler };
   }
 
-  if (score >= 3 || rollingScore >= 5) {
+  if (score >= 5 || rollingScore >= 8) {
     return { action: "throttle", reason: reasons.join(","), score: rollingScore, trustedCrawler };
   }
 
