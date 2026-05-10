@@ -407,7 +407,6 @@
 :fullscreen .typing-mode-bar,
 :fullscreen .typing-session-strip,
 :fullscreen .typing-side,
-:fullscreen .typing-command-row,
 :fullscreen .typing-stats,
 :fullscreen .learning-head-actions {
   display: none !important;
@@ -478,6 +477,41 @@
   font-size: 40px;
   padding: 0 32px;
   color: rgba(15, 23, 42, 0.15);
+}
+
+:fullscreen .typing-command-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+:fullscreen .typing-command-row button {
+  min-height: 52px;
+  font-size: 16px;
+  padding: 0 24px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+:fullscreen .typing-command-row button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+:fullscreen .typing-command-row button.dense-action-primary {
+  background: rgba(96, 165, 250, 0.9);
+  border-color: rgba(96, 165, 250, 1);
+}
+
+:fullscreen .typing-command-row button.dense-action-primary:hover {
+  background: rgba(96, 165, 250, 1);
+}
+
+:fullscreen .typing-command-row kbd {
+  display: none;
 }
 
 :fullscreen .typing-message {
