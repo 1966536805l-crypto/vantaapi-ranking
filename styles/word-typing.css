@@ -16,6 +16,87 @@
   flex-direction: column;
   gap: 32px;
   align-items: center;
+  position: relative;
+}
+
+/* Fullscreen Buttons */
+.fullscreen-toggle-btn,
+.exit-fullscreen-btn {
+  position: absolute;
+  top: -60px;
+  right: 0;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  z-index: 10;
+}
+
+.fullscreen-toggle-btn:hover,
+.exit-fullscreen-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.exit-fullscreen-btn {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+.exit-fullscreen-btn:hover {
+  box-shadow: 0 8px 20px rgba(100, 116, 139, 0.4);
+}
+
+/* Fullscreen Mode Styles */
+:fullscreen .word-typing-trainer {
+  max-width: 1000px;
+  gap: 48px;
+}
+
+:fullscreen .word-card {
+  padding: 64px;
+  max-width: 900px;
+}
+
+:fullscreen .word-input {
+  font-size: 56px;
+  min-height: 100px;
+}
+
+:fullscreen .input-hint {
+  font-size: 42px;
+}
+
+:fullscreen .word-phonetic {
+  font-size: 28px;
+}
+
+:fullscreen .progress-ring-container {
+  width: 140px;
+  height: 140px;
+}
+
+:fullscreen .progress-ring {
+  width: 140px;
+  height: 140px;
+}
+
+:fullscreen .progress-number {
+  font-size: 38px;
+}
+
+:fullscreen .stats-bar {
+  padding: 24px 40px;
+}
+
+:fullscreen .stat-value {
+  font-size: 28px;
 }
 
 /* Progress Ring */

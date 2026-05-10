@@ -136,6 +136,45 @@ const postgraduatePriorityWords: ExamVocabularyWord[] = [
   { word: "plausible", phonetic: "/ˈplɔːzəbl/", meaningZh: "似乎合理的", meaningEn: "seeming reasonable or likely", collocation: "plausible explanation", sentence: "The author offers a plausible explanation for the trend.", examNote: "态度题中常表示谨慎认可。" },
 ];
 
+const tem4PriorityWords: ExamVocabularyWord[] = [
+  { word: "elaborate", phonetic: "/ɪˈlæbəreɪt/", meaningZh: "详细阐述；精心制作的", meaningEn: "to explain in detail or highly detailed", collocation: "elaborate on", sentence: "The speaker elaborated on the main points of the theory.", examNote: "专四听力讲座和写作论证常用。" },
+  { word: "contemplate", phonetic: "/ˈkɑːntəmpleɪt/", meaningZh: "沉思；考虑", meaningEn: "to think deeply about something", collocation: "contemplate doing", sentence: "She contemplated changing her major after the first semester.", examNote: "替代 think about，文学阅读常见。" },
+  { word: "deteriorate", phonetic: "/dɪˈtɪriəreɪt/", meaningZh: "恶化；变坏", meaningEn: "to become worse", collocation: "deteriorate rapidly", sentence: "Air quality can deteriorate rapidly in industrial areas.", examNote: "环境、健康话题高频动词。" },
+  { word: "indispensable", phonetic: "/ˌɪndɪˈspensəbl/", meaningZh: "不可或缺的", meaningEn: "absolutely necessary", collocation: "indispensable to", sentence: "Critical thinking is indispensable to academic success.", examNote: "替代 necessary，写作高分词。" },
+  { word: "versatile", phonetic: "/ˈvɜːrsətl/", meaningZh: "多才多艺的；通用的", meaningEn: "able to adapt or be used in many ways", collocation: "versatile tool", sentence: "English is a versatile language used worldwide.", examNote: "人物描写、工具评价常用。" },
+  { word: "rigorous", phonetic: "/ˈrɪɡərəs/", meaningZh: "严格的；严密的", meaningEn: "extremely thorough and careful", collocation: "rigorous training", sentence: "The program requires rigorous academic preparation.", examNote: "学术、训练类高频形容词。" },
+  { word: "spontaneous", phonetic: "/spɑːnˈteɪniəs/", meaningZh: "自发的；即兴的", meaningEn: "happening naturally without planning", collocation: "spontaneous reaction", sentence: "Spontaneous conversations help improve fluency.", examNote: "行为、反应类描写词。" },
+  { word: "ambivalent", phonetic: "/æmˈbɪvələnt/", meaningZh: "矛盾的；犹豫不决的", meaningEn: "having mixed feelings", collocation: "feel ambivalent about", sentence: "Many students feel ambivalent about online learning.", examNote: "态度题高级词汇。" },
+  { word: "meticulous", phonetic: "/məˈtɪkjələs/", meaningZh: "一丝不苟的", meaningEn: "very careful and precise", collocation: "meticulous attention", sentence: "The researcher showed meticulous attention to detail.", examNote: "人物品质、工作态度描写。" },
+  { word: "pragmatic", phonetic: "/præɡˈmætɪk/", meaningZh: "务实的；实用的", meaningEn: "dealing with things in a practical way", collocation: "pragmatic approach", sentence: "A pragmatic approach focuses on what works in practice.", examNote: "方法论、态度类高频词。" },
+];
+
+const tem8PriorityWords: ExamVocabularyWord[] = [
+  { word: "elucidate", phonetic: "/ɪˈluːsɪdeɪt/", meaningZh: "阐明；说明", meaningEn: "to make something clear", collocation: "elucidate a concept", sentence: "The author attempts to elucidate the complex relationship between culture and identity.", examNote: "专八阅读学术论述高频，替代 explain。" },
+  { word: "juxtapose", phonetic: "/ˌdʒʌkstəˈpoʊz/", meaningZh: "并置；对比", meaningEn: "to place side by side for comparison", collocation: "juxtapose two ideas", sentence: "The essay juxtaposes traditional and modern values.", examNote: "文学批评、对比分析常用。" },
+  { word: "ubiquitous", phonetic: "/juːˈbɪkwɪtəs/", meaningZh: "无处不在的", meaningEn: "present everywhere", collocation: "ubiquitous technology", sentence: "Smartphones have become ubiquitous in modern society.", examNote: "替代 everywhere，高级形容词。" },
+  { word: "ephemeral", phonetic: "/ɪˈfemərəl/", meaningZh: "短暂的；瞬息的", meaningEn: "lasting for a very short time", collocation: "ephemeral nature", sentence: "Social media trends are often ephemeral.", examNote: "文学、哲学类阅读高频。" },
+  { word: "paradigm", phonetic: "/ˈpærədaɪm/", meaningZh: "范式；典范", meaningEn: "a typical example or model", collocation: "paradigm shift", sentence: "The theory represents a paradigm shift in linguistics.", examNote: "学术写作核心抽象名词。" },
+  { word: "dichotomy", phonetic: "/daɪˈkɑːtəmi/", meaningZh: "二分法；对立", meaningEn: "a division into two contrasting parts", collocation: "false dichotomy", sentence: "The dichotomy between nature and nurture is often oversimplified.", examNote: "哲学、社会学阅读常见。" },
+  { word: "intrinsic", phonetic: "/ɪnˈtrɪnsɪk/", meaningZh: "内在的；固有的", meaningEn: "belonging naturally to something", collocation: "intrinsic value", sentence: "Education has intrinsic value beyond economic benefits.", examNote: "与 extrinsic 对比使用。" },
+  { word: "nuance", phonetic: "/ˈnuːɑːns/", meaningZh: "细微差别", meaningEn: "a subtle difference in meaning", collocation: "subtle nuance", sentence: "Translation must capture the nuances of the original text.", examNote: "语言、文学分析高频。" },
+  { word: "proliferate", phonetic: "/prəˈlɪfəreɪt/", meaningZh: "激增；扩散", meaningEn: "to increase rapidly in number", collocation: "proliferate rapidly", sentence: "Misinformation can proliferate quickly on social media.", examNote: "科技、媒体话题常用。" },
+  { word: "contentious", phonetic: "/kənˈtenʃəs/", meaningZh: "有争议的", meaningEn: "causing disagreement", collocation: "contentious issue", sentence: "The proposal remains a contentious issue among scholars.", examNote: "学术争论、观点对立常用。" },
+];
+
+const doctoralPriorityWords: ExamVocabularyWord[] = [
+  { word: "epistemology", phonetic: "/ɪˌpɪstəˈmɑːlədʒi/", meaningZh: "认识论", meaningEn: "the study of knowledge and how we know things", collocation: "epistemological framework", sentence: "The research adopts a constructivist epistemology.", examNote: "博士论文方法论核心词汇。" },
+  { word: "ontology", phonetic: "/ɑːnˈtɑːlədʒi/", meaningZh: "本体论", meaningEn: "the study of the nature of being", collocation: "ontological assumption", sentence: "The study's ontological assumptions shape its research design.", examNote: "哲学、理论框架必备。" },
+  { word: "hermeneutic", phonetic: "/ˌhɜːrmə'njuːtɪk/", meaningZh: "解释学的", meaningEn: "relating to interpretation of texts", collocation: "hermeneutic approach", sentence: "A hermeneutic approach reveals multiple layers of meaning.", examNote: "人文社科研究方法论。" },
+  { word: "dialectical", phonetic: "/ˌdaɪəˈlektɪkl/", meaningZh: "辩证的", meaningEn: "relating to logical argumentation", collocation: "dialectical relationship", sentence: "The theory explores the dialectical relationship between structure and agency.", examNote: "社会学、哲学核心概念。" },
+  { word: "hegemony", phonetic: "/hɪˈdʒeməni/", meaningZh: "霸权；支配地位", meaningEn: "dominance of one group over others", collocation: "cultural hegemony", sentence: "The study examines cultural hegemony in media discourse.", examNote: "批判理论、文化研究高频。" },
+  { word: "empiricism", phonetic: "/ɪmˈpɪrɪsɪzəm/", meaningZh: "经验主义", meaningEn: "the theory that knowledge comes from experience", collocation: "logical empiricism", sentence: "Empiricism emphasizes observation and experimentation.", examNote: "科学哲学基础概念。" },
+  { word: "phenomenology", phonetic: "/fɪˌnɑːmɪˈnɑːlədʒi/", meaningZh: "现象学", meaningEn: "the study of conscious experience", collocation: "phenomenological analysis", sentence: "Phenomenology focuses on lived experience.", examNote: "质性研究方法论。" },
+  { word: "axiom", phonetic: "/ˈæksiəm/", meaningZh: "公理；自明之理", meaningEn: "a statement accepted as true without proof", collocation: "fundamental axiom", sentence: "The theory rests on several fundamental axioms.", examNote: "数学、逻辑、理论构建。" },
+  { word: "corollary", phonetic: "/ˈkɔːrəleri/", meaningZh: "推论；必然结果", meaningEn: "a natural consequence or result", collocation: "logical corollary", sentence: "Increased automation is a corollary of technological progress.", examNote: "论证推理高级词汇。" },
+  { word: "exegesis", phonetic: "/ˌeksɪˈdʒiːsɪs/", meaningZh: "注释；阐释", meaningEn: "critical explanation of a text", collocation: "textual exegesis", sentence: "The chapter provides a detailed exegesis of the primary sources.", examNote: "文本分析、文献综述常用。" },
+];
+
 const middleSchoolPriorityWords: ExamVocabularyWord[] = [
   { word: "daily", phonetic: "/ˈdeɪli/", meaningZh: "每日的；日常的", meaningEn: "happening every day", collocation: "daily routine", sentence: "A daily reading habit makes English easier to remember.", examNote: "初中写作常用于生活习惯和学习计划。" },
   { word: "healthy", phonetic: "/ˈhelθi/", meaningZh: "健康的", meaningEn: "good for your body or mind", collocation: "healthy food", sentence: "Healthy food and enough sleep help students learn well.", examNote: "健康饮食、校园生活高频形容词。" },
@@ -290,6 +329,42 @@ export const examVocabularyPacks: ExamVocabularyPack[] = [
     route: "/english/vocabulary/postgraduate-core",
     focus: ["长难句", "学术论证", "翻译块", "写作框架"],
     priorityWords: postgraduatePriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "tem-4-core",
+    title: "TEM-4 Vocabulary",
+    shortTitle: "专四",
+    targetCount: 8000,
+    level: "Test for English Majors Band 4",
+    route: "/english/vocabulary/tem-4-core",
+    focus: ["听力讲座", "文学阅读", "写作论证", "高级搭配"],
+    priorityWords: tem4PriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "tem-8-core",
+    title: "TEM-8 Vocabulary",
+    shortTitle: "专八",
+    targetCount: 13000,
+    level: "Test for English Majors Band 8",
+    route: "/english/vocabulary/tem-8-core",
+    focus: ["学术论述", "文学批评", "高级修辞", "抽象概念"],
+    priorityWords: tem8PriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "doctoral-core",
+    title: "Doctoral Academic Vocabulary",
+    shortTitle: "博士英语",
+    targetCount: 15000,
+    level: "Doctoral Research English",
+    route: "/english/vocabulary/doctoral-core",
+    focus: ["方法论", "理论框架", "批判理论", "学术写作"],
+    priorityWords: doctoralPriorityWords,
     writingFrames: sharedWritingFrames,
     readingLogicWords: commonReadingLogicWords,
   },

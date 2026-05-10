@@ -30,6 +30,7 @@ export default function WordTypingTrainer({
   const [isComplete, setIsComplete] = useState(false);
   const [errorShake, setErrorShake] = useState(false);
   const [successPulse, setSuccessPulse] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -47,6 +48,29 @@ export default function WordTypingTrainer({
       playPronunciation();
     }
   }, [currentIndex]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (error) {
+      console.error('Fullscreen error:', error);
+    }
+  };
 
   const playPronunciation = useCallback(() => {
     if (audioRef.current) {
@@ -67,21 +91,16 @@ export default function WordTypingTrainer({
 
     setInput(value);
 
-    // Real-time validation
     const targetWord = currentWord.word.toLowerCase();
     const inputLower = value.toLowerCase();
 
-    // Check if input matches so far
     if (inputLower === targetWord) {
-      // Correct! Move to next word
       const timeSpent = startTime ? Date.now() - startTime : 0;
       setResults([...results, { word: currentWord.word, correct: true, timeSpent }]);
 
-      // Success animation
       setSuccessPulse(true);
       setTimeout(() => setSuccessPulse(false), 500);
 
-      // Move to next word
       setTimeout(() => {
         if (currentIndex < words.length - 1) {
           setCurrentIndex(currentIndex + 1);
@@ -93,7 +112,6 @@ export default function WordTypingTrainer({
         }
       }, 300);
     } else if (!targetWord.startsWith(inputLower) && value.length > 0) {
-      // Wrong character typed
       setErrorShake(true);
       setTimeout(() => setErrorShake(false), 500);
     }
@@ -158,7 +176,18 @@ export default function WordTypingTrainer({
 
   return (
     <div className="word-typing-trainer">
-      {/* Progress Ring */}
+      {!isFullscreen && (
+        <button onClick={toggleFullscreen} className="fullscreen-toggle-btn">
+          ↗ 全屏模式
+        </button>
+      )}
+
+      {isFullscreen && (
+        <button onClick={toggleFullscreen} className="exit-fullscreen-btn">
+          ↙ 退出全屏
+        </button>
+      )}
+
       <div className="progress-ring-container">
         <svg className="progress-ring" width="120" height="120">
           <circle
@@ -195,14 +224,11 @@ export default function WordTypingTrainer({
         </div>
       </div>
 
-      {/* Word Card */}
       <div className={`word-card ${errorShake ? 'shake' : ''} ${successPulse ? 'success' : ''}`}>
-        {/* Phonetic */}
         {currentWord.phonetic && (
           <div className="word-phonetic">{currentWord.phonetic}</div>
         )}
 
-        {/* Meaning Toggle */}
         <button
           className="meaning-toggle"
           onClick={() => setShowMeaning(!showMeaning)}
@@ -210,7 +236,6 @@ export default function WordTypingTrainer({
           {showMeaning ? '隐藏释义' : '显示释义'}
         </button>
 
-        {/* Meaning */}
         {showMeaning && (
           <div className="word-meaning">
             <div className="meaning-zh">{currentWord.meaningZh}</div>
@@ -221,7 +246,6 @@ export default function WordTypingTrainer({
           </div>
         )}
 
-        {/* Input Area */}
         <div className="input-container">
           <input
             ref={inputRef}
@@ -261,7 +285,6 @@ export default function WordTypingTrainer({
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="action-buttons">
           <button onClick={playPronunciation} className="action-btn pronunciation-btn">
             🔊 发音
@@ -271,14 +294,12 @@ export default function WordTypingTrainer({
           </button>
         </div>
 
-        {/* Meta Info */}
         <div className="word-meta">
           <span className="word-source">{currentWord.source}</span>
           <span className="word-level">{currentWord.level}</span>
         </div>
       </div>
 
-      {/* Stats Bar */}
       <div className="stats-bar">
         <div className="stat">
           <span className="stat-label">准确率</span>
