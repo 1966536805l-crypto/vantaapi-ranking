@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import LearningFullscreenButton from "@/components/learning/LearningFullscreenButton";
 import { localizedHref, type InterfaceLanguage } from "@/lib/language";
 import { recordLocalActivity } from "@/lib/local-progress";
-import { speakMemoryPronunciation } from "@/lib/memory-pronunciation";
+import { speakNaturalVoice, stopNaturalVoice } from "@/lib/natural-voice";
 
 export type EnglishTypingItem = {
   id: string;
@@ -163,7 +163,8 @@ export default function EnglishTypingTrainer({
 
   const speak = useCallback((text = current?.answer) => {
     if (!text) return;
-    void speakMemoryPronunciation({ text, kind: current?.type === "sentence" ? "sentence" : "word" });
+    stopNaturalVoice();
+    void speakNaturalVoice({ text, kind: current?.type === "sentence" ? "sentence" : "word" });
   }, [current.answer, current.type]);
 
   const persist = useCallback((nextStats: TypingStats) => {
@@ -188,6 +189,7 @@ export default function EnglishTypingTrainer({
   }, []);
 
   const next = useCallback(() => {
+    stopNaturalVoice();
     const nextIndex = safeItems.length ? (activeIndex + 1) % safeItems.length : 0;
     const latestStats = readStats();
     setIndex(nextIndex);

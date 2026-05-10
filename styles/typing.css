@@ -384,85 +384,108 @@
   line-height: 1;
 }
 
-/* Fullscreen focus mode */
+/* Fullscreen focus mode - Pure immersive experience */
 :fullscreen .study-fullscreen-shell {
   width: 100%;
-  max-width: 1600px;
-  padding: 24px;
+  max-width: 100%;
+  padding: 0;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 :fullscreen .typing-lab-main {
-  min-height: calc(100vh - 48px);
-  padding: 24px;
+  min-height: 100vh;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 :fullscreen .apple-nav,
-:fullscreen .global-search-trigger {
-  display: none;
+:fullscreen .global-search-trigger,
+:fullscreen .typing-lab-main > div:first-child,
+:fullscreen .typing-mode-bar,
+:fullscreen .typing-session-strip,
+:fullscreen .typing-side,
+:fullscreen .typing-command-row,
+:fullscreen .typing-stats,
+:fullscreen .learning-head-actions {
+  display: none !important;
 }
 
 :fullscreen .typing-board {
-  gap: 20px;
-  grid-template-columns: minmax(320px, 0.65fr) minmax(0, 1.35fr);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  grid-template-columns: 1fr;
+  gap: 0;
 }
 
 :fullscreen .typing-work {
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: grid;
+  gap: 32px;
   align-content: center;
-  padding: 24px;
 }
 
-:fullscreen .typing-work input {
-  font-size: 36px;
-  min-height: 96px;
-  padding: 0 20px;
+:fullscreen .typing-work label {
+  display: grid;
+  gap: 20px;
 }
 
-:fullscreen .typing-mask {
-  font-size: 28px;
-  min-height: 80px;
-  padding: 20px;
-}
-
-:fullscreen .typing-meaning-card strong {
-  font-size: 24px;
-}
-
-:fullscreen .typing-meaning-card {
-  padding: 16px;
-}
-
-:fullscreen .typing-side h3 {
-  font-size: 26px;
-}
-
-:fullscreen .typing-compact-meta {
+:fullscreen .typing-work label > span {
   display: none;
 }
 
-:fullscreen .typing-mode-bar {
-  gap: 10px;
+:fullscreen .typing-work input {
+  font-size: 48px;
+  min-height: 120px;
+  padding: 0 32px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  text-align: center;
+  color: #0f172a;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
-:fullscreen .typing-mode-bar button {
-  min-height: 42px;
-  font-size: 14px;
-  padding: 0 16px;
+:fullscreen .typing-work input:focus {
+  border-color: rgba(96, 165, 250, 0.8);
+  box-shadow: 0 0 0 6px rgba(96, 165, 250, 0.2);
 }
 
-:fullscreen .typing-command-row button {
-  min-height: 48px;
-  font-size: 15px;
-  padding: 0 18px;
+:fullscreen .typing-work input.typing-input-valid {
+  border-color: rgba(34, 197, 94, 0.8);
+  box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.2);
 }
 
-:fullscreen .typing-message {
-  font-size: 16px;
-  min-height: 32px;
+:fullscreen .typing-work input.typing-input-error {
+  border-color: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.2);
+}
+
+:fullscreen .typing-work input.typing-input-perfect {
+  border-color: rgba(34, 197, 94, 1);
+  box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.3);
+  background: rgba(240, 253, 244, 1);
 }
 
 :fullscreen .typing-answer-ghost {
-  font-size: 28px;
-  padding: 0 20px;
+  font-size: 40px;
+  padding: 0 32px;
+  color: rgba(15, 23, 42, 0.15);
+}
+
+:fullscreen .typing-message {
+  font-size: 20px;
+  min-height: 40px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
 }
 
 .typing-message {
