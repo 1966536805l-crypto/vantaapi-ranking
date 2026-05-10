@@ -13,6 +13,16 @@ type SpeakMemoryOptions = {
 };
 
 let speechRunId = 0;
+let voicesLoaded = false;
+
+// Initialize voices on load
+if (typeof window !== "undefined" && "speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    voicesLoaded = true;
+  };
+  // Trigger voice loading
+  window.speechSynthesis.getVoices();
+}
 
 function normalizedSpeechText(text: string) {
   return text.replace(/\s+/g, " ").trim();
@@ -38,28 +48,47 @@ function buildMemorySteps(text: string, kind: PronunciationKind): PronunciationS
 
   if (kind === "sentence") {
     return [
-      { text: clean, rate: 0.9, pitch: 0.98, pause: 320 },
-      ...sentenceChunks(clean).map((chunk) => ({ text: chunk, rate: 0.68, pitch: 1.02, pause: 260 })),
-      { text: clean, rate: 0.95, pitch: 0.98, pause: 0 },
+      { text: clean, rate: 0.85, pitch: 1.0, pause: 500 },
+      ...sentenceChunks(clean).map((chunk) => ({ text: chunk, rate: 0.65, pitch: 1.0, pause: 400 })),
+      { text: clean, rate: 0.9, pitch: 1.0, pause: 0 },
     ];
   }
 
   const echo = spellingEcho(clean);
   return [
-    { text: clean, rate: 0.86, pitch: 0.98, pause: 260 },
-    { text: clean, rate: 0.58, pitch: 1.04, pause: 260 },
-    ...(echo ? [{ text: echo, rate: 0.74, pitch: 0.96, pause: 260 }] : []),
-    { text: clean, rate: 0.92, pitch: 0.98, pause: 0 },
+    { text: clean, rate: 0.85, pitch: 1.0, pause: 400 },
+    { text: clean, rate: 0.6, pitch: 1.0, pause: 400 },
+    ...(echo ? [{ text: echo, rate: 0.75, pitch: 1.0, pause: 400 }] : []),
+    { text: clean, rate: 0.85, pitch: 1.0, pause: 0 },
   ];
 }
 
 function preferredEnglishVoice() {
   const voices = window.speechSynthesis.getVoices();
-  return (
-    voices.find((voice) => voice.lang.toLowerCase().startsWith("en-us") && voice.localService) ||
-    voices.find((voice) => voice.lang.toLowerCase().startsWith("en-us")) ||
-    voices.find((voice) => voice.lang.toLowerCase().startsWith("en"))
+
+  // Priority 1: High-quality named voices (Samantha, Alex on macOS, Google voices on Chrome)
+  const premiumVoice = voices.find((voice) =>
+    voice.lang.toLowerCase().startsWith("en") &&
+    (voice.name.includes("Samantha") ||
+     voice.name.includes("Alex") ||
+     voice.name.includes("Google") ||
+     voice.name.includes("Premium") ||
+     voice.name.includes("Enhanced"))
   );
+  if (premiumVoice) return premiumVoice;
+
+  // Priority 2: Local US English voices
+  const localUSVoice = voices.find((voice) =>
+    voice.lang.toLowerCase().startsWith("en-us") && voice.localService
+  );
+  if (localUSVoice) return localUSVoice;
+
+  // Priority 3: Any US English voice
+  const usVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith("en-us"));
+  if (usVoice) return usVoice;
+
+  // Priority 4: Any English voice
+  return voices.find((voice) => voice.lang.toLowerCase().startsWith("en"));
 }
 
 function speakStep(step: PronunciationStep) {
@@ -69,8 +98,19 @@ function speakStep(step: PronunciationStep) {
     utterance.rate = step.rate;
     utterance.pitch = step.pitch;
     utterance.volume = 1;
-    const voice = preferredEnglishVoice();
-    if (voice) utterance.voice = voice;
+
+    // Wait for voices to load if needed
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length === 0) {
+      window.speechSynthesis.addEventListener("voiceschanged", () => {
+        const voice = preferredEnglishVoice();
+        if (voice) utterance.voice = voice;
+      }, { once: true });
+    } else {
+      const voice = preferredEnglishVoice();
+      if (voice) utterance.voice = voice;
+    }
+
     utterance.onend = () => resolve();
     utterance.onerror = () => resolve();
     window.speechSynthesis.speak(utterance);

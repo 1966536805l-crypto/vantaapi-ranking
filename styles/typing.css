@@ -387,13 +387,13 @@
 /* Fullscreen focus mode */
 :fullscreen .study-fullscreen-shell {
   width: 100%;
-  max-width: 1400px;
-  padding: 20px;
+  max-width: 1600px;
+  padding: 24px;
 }
 
 :fullscreen .typing-lab-main {
-  min-height: calc(100vh - 40px);
-  padding: 20px;
+  min-height: calc(100vh - 48px);
+  padding: 24px;
 }
 
 :fullscreen .apple-nav,
@@ -402,17 +402,67 @@
 }
 
 :fullscreen .typing-board {
-  gap: 16px;
+  gap: 20px;
+  grid-template-columns: minmax(320px, 0.65fr) minmax(0, 1.35fr);
+}
+
+:fullscreen .typing-work {
+  align-content: center;
+  padding: 24px;
 }
 
 :fullscreen .typing-work input {
-  font-size: 28px;
-  min-height: 78px;
+  font-size: 36px;
+  min-height: 96px;
+  padding: 0 20px;
 }
 
 :fullscreen .typing-mask {
+  font-size: 28px;
+  min-height: 80px;
+  padding: 20px;
+}
+
+:fullscreen .typing-meaning-card strong {
   font-size: 24px;
-  min-height: 64px;
+}
+
+:fullscreen .typing-meaning-card {
+  padding: 16px;
+}
+
+:fullscreen .typing-side h3 {
+  font-size: 26px;
+}
+
+:fullscreen .typing-compact-meta {
+  display: none;
+}
+
+:fullscreen .typing-mode-bar {
+  gap: 10px;
+}
+
+:fullscreen .typing-mode-bar button {
+  min-height: 42px;
+  font-size: 14px;
+  padding: 0 16px;
+}
+
+:fullscreen .typing-command-row button {
+  min-height: 48px;
+  font-size: 15px;
+  padding: 0 18px;
+}
+
+:fullscreen .typing-message {
+  font-size: 16px;
+  min-height: 32px;
+}
+
+:fullscreen .typing-answer-ghost {
+  font-size: 28px;
+  padding: 0 20px;
 }
 
 .typing-message {
