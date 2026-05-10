@@ -102,3 +102,33 @@ export function stopNaturalVoice(): void {
     currentAudio = null;
   }
 }
+
+// New simplified API for word typing trainer
+export async function playNaturalVoice(text: string, kind: VoiceKind = "word"): Promise<HTMLAudioElement | null> {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const clean = normalizeText(text);
+  if (!clean) return null;
+
+  try {
+    const url = await getAudioUrl(clean);
+
+    // Stop any currently playing audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
+    const audio = new Audio(url);
+    currentAudio = audio;
+
+    await audio.play();
+
+    return audio;
+  } catch (error) {
+    console.error("Failed to play natural voice:", error);
+    return null;
+  }
+}
