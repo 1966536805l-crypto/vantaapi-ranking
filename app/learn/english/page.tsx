@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import StudyShell from "@/components/layout/StudyShell";
 import { getFallbackTrack } from "@/lib/fallback-learning";
 import { localizedHref, resolveInterfaceLanguage, type InterfaceLanguage, type PageSearchParams } from "@/lib/language";
@@ -19,7 +20,9 @@ type TrackCourse = {
 };
 
 export default async function EnglishPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
-  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
+  const headersList = await headers();
+  const headerLanguage = headersList.get("x-jinming-language");
+  const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined, headerLanguage);
   const copy = getLearnPageCopy(language);
   const studyCopy = getStudyPageCopy(language);
   let courses: TrackCourse[];
