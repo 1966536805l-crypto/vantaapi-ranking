@@ -78,7 +78,7 @@
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^3.0.0",
+    "vitest": "^4.1.5",
     "@vitest/ui": "^3.0.0",
     "webpack-obfuscator": "^3.6.1"
   },
