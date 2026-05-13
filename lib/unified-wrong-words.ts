@@ -16,7 +16,7 @@ export type UnifiedWrongWord = {
   lastWrongAt: string;
 };
 
-function readWrongWords() {
+export function readUnifiedWrongWords() {
   if (typeof window === "undefined") return [] as UnifiedWrongWord[];
 
   try {
@@ -34,7 +34,7 @@ export function recordUnifiedWrongWord(word: ExamVocabularyWord, source: WrongWo
 
   const key = word.word.toLowerCase();
   const now = new Date().toISOString();
-  const words = readWrongWords();
+  const words = readUnifiedWrongWords();
   const existing = words.find((item) => item.word.toLowerCase() === key);
 
   if (existing) {

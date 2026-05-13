@@ -7,6 +7,7 @@ import type { SiteLanguage } from "@/lib/language";
 
 type MemoryPack = Pick<ExamVocabularyPack, "slug" | "title" | "shortTitle" | "targetCount" | "level"> & {
   words: ExamVocabularyWord[];
+  generatedWords: ExamVocabularyWord[];
 };
 
 const copy = {
@@ -19,10 +20,13 @@ const copy = {
     search: "Search word meaning example",
     selected: "selected",
     useAll: "Using full bank",
+    useGenerated: "Using generated spelling words",
     selectVisible: "Select visible",
     randomCount: "Random count",
     randomPick: "Random pick",
     clearSelection: "Clear selection",
+    practiceGenerated: "Practice generated spelling words",
+    practiceVerified: "Back to verified words",
     shortcut: "Q know · 0 do not know",
     count: "words",
   },
@@ -35,10 +39,13 @@ const copy = {
     search: "搜索 单词 释义 例句",
     selected: "已选择",
     useAll: "当前使用整个词库",
+    useGenerated: "当前使用扩展拼写词",
     selectVisible: "选择当前结果",
     randomCount: "随机数量",
     randomPick: "随机抽取",
     clearSelection: "清空选择",
+    practiceGenerated: "练扩展拼写词",
+    practiceVerified: "返回精选已校验词",
     shortcut: "Q 认识 · 0 不认识",
     count: "词",
   },
@@ -69,25 +76,29 @@ export default function MemoryWordSystem({
   const [search, setSearch] = useState("");
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [randomCount, setRandomCount] = useState("200");
+  const [useGeneratedExpansion, setUseGeneratedExpansion] = useState(false);
   const selectedPack = useMemo(
     () => packs.find((pack) => pack.slug === selectedSlug) ?? packs[0],
     [packs, selectedSlug],
   );
+  const activeBankWords = useMemo(() => (
+    useGeneratedExpansion && selectedPack.generatedWords.length > 0 ? selectedPack.generatedWords : selectedPack.words
+  ), [selectedPack.generatedWords, selectedPack.words, useGeneratedExpansion]);
   const selectedWordSet = useMemo(() => new Set(selectedWords), [selectedWords]);
   const matchedWords = useMemo(
-    () => selectedPack.words.filter((word) => wordMatches(word, search)),
-    [search, selectedPack.words],
+    () => activeBankWords.filter((word) => wordMatches(word, search)),
+    [activeBankWords, search],
   );
   const filteredWords = useMemo(() => matchedWords.slice(0, 120), [matchedWords]);
   const activeWords = useMemo(() => {
-    if (selectedWords.length === 0) return selectedPack.words;
-    const selected = selectedPack.words.filter((word) => selectedWordSet.has(word.word.toLowerCase()));
-    return selected.length > 0 ? selected : selectedPack.words;
-  }, [selectedPack.words, selectedWordSet, selectedWords.length]);
-  const selectedSignature = selectedWords.length ? selectedWords.slice().sort().join("|") : "all";
+    if (selectedWords.length === 0) return activeBankWords;
+    const selected = activeBankWords.filter((word) => selectedWordSet.has(word.word.toLowerCase()));
+    return selected.length > 0 ? selected : activeBankWords;
+  }, [activeBankWords, selectedWordSet, selectedWords.length]);
+  const selectedSignature = `${useGeneratedExpansion ? "generated" : "verified"}:${selectedWords.length ? selectedWords.slice().sort().join("|") : "all"}`;
   const randomPick = () => {
-    const count = Math.max(1, Math.min(Number.parseInt(randomCount, 10) || 1, matchedWords.length || selectedPack.words.length));
-    const source = (matchedWords.length > 0 ? matchedWords : selectedPack.words).map((word) => word.word.toLowerCase());
+    const count = Math.max(1, Math.min(Number.parseInt(randomCount, 10) || 1, matchedWords.length || activeBankWords.length));
+    const source = (matchedWords.length > 0 ? matchedWords : activeBankWords).map((word) => word.word.toLowerCase());
     const shuffled = [...source].sort(() => Math.random() - 0.5);
     setSelectedWords(Array.from(new Set(shuffled.slice(0, count))));
   };
@@ -104,7 +115,7 @@ export default function MemoryWordSystem({
           <span className="dense-status">Ebbinghaus</span>
           <span className="dense-status">{t.shortcut}</span>
           <span className="dense-status">
-            {language === "zh" ? "精选已校验" : "Verified"} {selectedPack.targetCount.toLocaleString(language === "zh" ? "zh-CN" : "en-US")} {t.count}
+            {useGeneratedExpansion ? (language === "zh" ? "扩展拼写词" : "Generated spelling") : (language === "zh" ? "精选已校验" : "Verified")} {activeBankWords.length.toLocaleString(language === "zh" ? "zh-CN" : "en-US")} {t.count}
           </span>
         </div>
       </div>
@@ -125,6 +136,7 @@ export default function MemoryWordSystem({
               className={`memory-pack-button${pack.slug === selectedPack.slug ? " active" : ""}`}
               onClick={() => {
                 setSelectedSlug(pack.slug);
+                setUseGeneratedExpansion(false);
                 setSelectedWords([]);
                 setSearch("");
               }}
@@ -143,14 +155,27 @@ export default function MemoryWordSystem({
           <div>
             <p className="eyebrow">{t.selectWords}</p>
             <h2>{selectedWords.length > 0 ? `${selectedWords.length} ${t.selected}` : t.useAll}</h2>
+            {useGeneratedExpansion ? <p className="mt-1 text-sm text-[color:var(--muted)]">{t.useGenerated}</p> : null}
           </div>
           <div className="memory-picker-actions">
+            {selectedPack.generatedWords.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setUseGeneratedExpansion((current) => !current);
+                  setSelectedWords([]);
+                  setSearch("");
+                }}
+              >
+                {useGeneratedExpansion ? t.practiceVerified : t.practiceGenerated}
+              </button>
+            ) : null}
             <label className="memory-random-control">
               <span>{t.randomCount}</span>
               <input
                 type="number"
                 min={1}
-                max={Math.max(matchedWords.length, selectedPack.words.length, 1)}
+                max={Math.max(matchedWords.length, activeBankWords.length, 1)}
                 value={randomCount}
                 onChange={(event) => setRandomCount(event.target.value)}
               />
@@ -199,7 +224,7 @@ export default function MemoryWordSystem({
 
       <VocabularyTrainer
         key={`${selectedPack.slug}:${selectedSignature}`}
-        packSlug={`memory-${selectedPack.slug}`}
+        packSlug={`${useGeneratedExpansion ? "memory-generated" : "memory"}-${selectedPack.slug}`}
         words={activeWords}
         language={language}
       />

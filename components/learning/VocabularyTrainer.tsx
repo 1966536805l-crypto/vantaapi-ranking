@@ -327,11 +327,13 @@ export default function VocabularyTrainer({
   words,
   language,
   packMeta,
+  allowGenerated = false,
 }: {
   packSlug: string;
   words: ExamVocabularyWord[];
   language: SiteLanguage;
   packMeta?: Pick<ExamVocabularyPack, "slug" | "title" | "shortTitle" | "targetCount" | "level">;
+  allowGenerated?: boolean;
 }) {
   const t = copy[language];
   const [isVocabularyReady, setIsVocabularyReady] = useState(false);
@@ -365,14 +367,14 @@ export default function VocabularyTrainer({
   }, [packSlug]);
 
   const trainingWords = useMemo(() => {
-    if (!isVocabularyReady || !packMeta) return words;
+    if (!allowGenerated || !isVocabularyReady || !packMeta) return words;
     return getExpandedVocabularyWords({
       ...packMeta,
       route: `/english/vocabulary/${packMeta.slug}`,
       focus: [],
       priorityWords: words,
     });
-  }, [isVocabularyReady, packMeta, words]);
+  }, [allowGenerated, isVocabularyReady, packMeta, words]);
 
   const sessionWords = useMemo(() => {
     const oldDue = trainingWords.filter((word) => {

@@ -12,7 +12,7 @@ import {
   writeCustomWords,
   type CustomVocabularyWord,
 } from '@/lib/custom-wordbook';
-import { recordUnifiedWrongWord } from '@/lib/unified-wrong-words';
+import { readUnifiedWrongWords, recordUnifiedWrongWord, type UnifiedWrongWord } from '@/lib/unified-wrong-words';
 
 type WordWithMeta = ExamVocabularyWord & {
   source: string;
@@ -159,6 +159,7 @@ export default function WordTypingTrainer({
   const [saveMessage, setSaveMessage] = useState("自动保存开启");
   const [hydratedKey, setHydratedKey] = useState("");
   const [isVocabularyReady, setIsVocabularyReady] = useState(false);
+  const [wrongWordsPreview, setWrongWordsPreview] = useState<UnifiedWrongWord[]>([]);
   const trainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -187,6 +188,10 @@ export default function WordTypingTrainer({
   ], [customTypingWords, packs, verifiedPackCount]);
 
   const selectedPack = packOptions.find((pack) => pack.slug === selectedPackSlug) || packOptions[0];
+  const verifiedPracticeWords = useMemo(() => {
+    if (selectedPack.slug === ALL_PACK_SLUG) return packs.flatMap((pack) => pack.words);
+    return selectedPack.words.filter((word) => !word.generated);
+  }, [packs, selectedPack]);
   const fullPracticeWords = useMemo(() => {
     if (!isVocabularyReady) {
       if (selectedPack.slug === ALL_PACK_SLUG) return packs.flatMap((pack) => pack.words);
@@ -197,8 +202,8 @@ export default function WordTypingTrainer({
     return withPackMeta(getExpandedVocabularyWords(makePackForExpansion(selectedPack)), selectedPack);
   }, [isVocabularyReady, packs, selectedPack]);
   const words = useMemo(
-    () => isTodayPractice ? fullPracticeWords.slice(0, TODAY_WORD_COUNT) : fullPracticeWords,
-    [fullPracticeWords, isTodayPractice],
+    () => isTodayPractice ? verifiedPracticeWords.slice(0, TODAY_WORD_COUNT) : fullPracticeWords,
+    [fullPracticeWords, isTodayPractice, verifiedPracticeWords],
   );
   const currentWord = words[currentIndex];
   const progress = words.length > 0 ? ((currentIndex + 1) / words.length) * 100 : 0;
@@ -210,6 +215,7 @@ export default function WordTypingTrainer({
   const isFocusActive = isFullscreen || isFocusMode;
   const activePackTitle = isTodayPractice ? "今日练 50 个" : selectedPack.title;
   const activePackShortTitle = isTodayPractice ? "今日 50" : selectedPack.shortTitle;
+  const isTodayShortOfVerifiedWords = isTodayPractice && verifiedPracticeWords.length < TODAY_WORD_COUNT;
 
   const resetSession = useCallback((message = "自动保存开启") => {
     setCurrentIndex(0);
@@ -259,6 +265,7 @@ export default function WordTypingTrainer({
     if (typingWrongSavedRef.current.has(key)) return;
     typingWrongSavedRef.current.add(key);
     recordUnifiedWrongWord(word, "typing");
+    setWrongWordsPreview(readUnifiedWrongWords());
   }, []);
 
   useEffect(() => {
@@ -271,6 +278,17 @@ export default function WordTypingTrainer({
       window.clearTimeout(readyTimer);
       window.removeEventListener("storage", syncCustomWords);
       window.removeEventListener("vantaapi-custom-wordbook", syncCustomWords);
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncWrongWords = () => setWrongWordsPreview(readUnifiedWrongWords());
+    syncWrongWords();
+    window.addEventListener("storage", syncWrongWords);
+    window.addEventListener("vantaapi-wrong-words", syncWrongWords);
+    return () => {
+      window.removeEventListener("storage", syncWrongWords);
+      window.removeEventListener("vantaapi-wrong-words", syncWrongWords);
     };
   }, []);
 
@@ -577,6 +595,7 @@ export default function WordTypingTrainer({
           <a href="#word-practice">单词</a>
           <a href="#word-bank">词库</a>
           <a href="#custom-wordbook">自制</a>
+          <a href="#wrong-word-entry">错词</a>
           <a href="#word-guide">帮助</a>
           <Link href={localizedHref("/english", language)}>返回列表</Link>
         </nav>
@@ -619,6 +638,11 @@ export default function WordTypingTrainer({
           </div>
           <div className="progress-percent">{progress.toFixed(0)}%</div>
         </div>
+        {isTodayShortOfVerifiedWords ? (
+          <p className="rounded-[8px] bg-black/5 px-3 py-2 text-sm text-[color:var(--muted)]">
+            当前精选词不足 50，只练精选已校验词，不自动混入扩展拼写词。
+          </p>
+        ) : null}
 
         <div className="progress-personalize" aria-label="进度保存和样式">
           <div className="save-state">
@@ -828,6 +852,25 @@ export default function WordTypingTrainer({
           <div>
             <strong>自制题库</strong>
             <span>单个添加或不限行批量导入都可以，格式为“单词, 释义, 例句, 标签”，数据只保存在你的浏览器。</span>
+          </div>
+        </section>
+
+        <section id="wrong-word-entry" className="word-typing-guide" aria-label="本机错词表">
+          <div>
+            <strong>本机错词表</strong>
+            <span>
+              {wrongWordsPreview.length > 0
+                ? `已保存 ${wrongWordsPreview.length} 个错词，数据只在当前浏览器。`
+                : "还没有错词；背词或跟打出错后会出现在这里。"}
+            </span>
+          </div>
+          <div>
+            <strong>最近错词</strong>
+            <span>
+              {wrongWordsPreview.length > 0
+                ? wrongWordsPreview.slice(0, 8).map((item) => item.word).join(" · ")
+                : "暂无"}
+            </span>
           </div>
         </section>
 

@@ -31,7 +31,8 @@ export default async function EnglishMemoryPage({ searchParams }: { searchParams
     shortTitle: pack.shortTitle,
     targetCount: pack.priorityWords.length,
     level: pack.level,
-    words: getExpandedVocabularyWords(pack),
+    words: pack.priorityWords,
+    generatedWords: getExpandedVocabularyWords(pack).filter((word) => word.generated),
   }));
 
   return (
