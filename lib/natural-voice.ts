@@ -63,6 +63,24 @@ async function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function speakWithBrowserVoice(text: string, rate = 0.86): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      resolve(false);
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = rate;
+    utterance.pitch = 1;
+    utterance.onend = () => resolve(true);
+    utterance.onerror = () => resolve(false);
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
 export async function speakNaturalVoice({ text, kind = "word" }: VoiceOptions): Promise<boolean> {
   if (typeof window === "undefined") {
     return false;
@@ -89,9 +107,8 @@ export async function speakNaturalVoice({ text, kind = "word" }: VoiceOptions): 
     }
 
     return true;
-  } catch (error) {
-    console.error("Natural voice failed:", error);
-    return false;
+  } catch {
+    return speakWithBrowserVoice(clean, kind === "sentence" ? 0.9 : 0.82);
   }
 }
 
@@ -127,8 +144,8 @@ export async function playNaturalVoice(text: string): Promise<HTMLAudioElement |
     await audio.play();
 
     return audio;
-  } catch (error) {
-    console.error("Failed to play natural voice:", error);
+  } catch {
+    await speakWithBrowserVoice(clean, 0.82);
     return null;
   }
 }
