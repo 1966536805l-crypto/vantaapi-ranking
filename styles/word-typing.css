@@ -157,6 +157,7 @@
 
 .word-bank-panel,
 .word-typing-guide,
+.word-start-panel,
 .custom-word-bank,
 .custom-empty-state {
   border: 1px solid #e5e7eb;
@@ -271,6 +272,78 @@
   font-size: 14px;
   font-weight: 650;
   line-height: 1.7;
+}
+
+.word-start-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.word-start-panel h2 {
+  margin: 5px 0 0;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.word-start-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.word-start-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.word-start-controls input {
+  width: 112px;
+  border: 1px solid #dbe3ef;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 850;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.word-start-controls input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.word-start-controls button {
+  border: 1px solid #dbe3ef;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 850;
+  padding: 10px 18px;
+}
+
+.word-start-controls span {
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 9px 12px;
 }
 
 .custom-word-bank {
@@ -786,8 +859,14 @@
   }
 
   .word-bank-head,
-  .custom-word-bank-head {
+  .custom-word-bank-head,
+  .word-start-panel {
     flex-direction: column;
+  }
+
+  .word-start-controls {
+    justify-content: flex-start;
+    width: 100%;
   }
 
   .word-bank-grid,

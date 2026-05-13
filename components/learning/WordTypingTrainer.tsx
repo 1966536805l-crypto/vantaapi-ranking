@@ -123,6 +123,7 @@ export default function WordTypingTrainer({
   const [customDraft, setCustomDraft] = useState<CustomDraft>(initialCustomDraft);
   const [customBulkText, setCustomBulkText] = useState("");
   const [customMessage, setCustomMessage] = useState("自制词库保存在当前浏览器");
+  const [startDraft, setStartDraft] = useState("1");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [input, setInput] = useState('');
   const [results, setResults] = useState<WordResult[]>([]);
@@ -318,7 +319,25 @@ export default function WordTypingTrainer({
 
   const selectPack = (slug: string) => {
     setSelectedPackSlug(slug);
+    setStartDraft("1");
     setCustomMessage(slug === CUSTOM_PACK_SLUG ? "已切换到自制词库" : "自制词库保存在当前浏览器");
+  };
+
+  const jumpToWord = () => {
+    if (!words.length) return;
+    const requested = Number.parseInt(startDraft, 10);
+    const nextIndex = Number.isFinite(requested)
+      ? Math.min(Math.max(requested, 1), words.length) - 1
+      : 0;
+    setCurrentIndex(nextIndex);
+    setInput('');
+    setResults([]);
+    setStartTime(null);
+    setShowMeaning(false);
+    setIsComplete(false);
+    setSavedAt(null);
+    setSaveMessage(`从第 ${nextIndex + 1} 个开始`);
+    setStartDraft(String(nextIndex + 1));
   };
 
   const handleInput = (value: string) => {
@@ -405,6 +424,7 @@ export default function WordTypingTrainer({
     writeCustomWords(nextWords);
     setCustomWords(nextWords);
     setCustomDraft(initialCustomDraft);
+    setStartDraft("1");
     setSelectedPackSlug(CUSTOM_PACK_SLUG);
     setCustomMessage(`已加入 ${nextWord.word}`);
   };
@@ -424,8 +444,9 @@ export default function WordTypingTrainer({
     writeCustomWords(nextWords);
     setCustomWords(nextWords);
     setCustomBulkText("");
+    setStartDraft("1");
     setSelectedPackSlug(CUSTOM_PACK_SLUG);
-    setCustomMessage(`已导入 ${imported.length} 个单词`);
+    setCustomMessage(`已导入 ${imported.length} 个单词，共 ${nextWords.length} 个`);
   };
 
   const clearCustomWords = () => {
@@ -516,7 +537,32 @@ export default function WordTypingTrainer({
           </div>
           <div>
             <strong>自制题库</strong>
-            <span>单个添加或批量导入都可以，格式为“单词, 释义, 例句, 标签”，数据只保存在你的浏览器。</span>
+            <span>单个添加或不限行批量导入都可以，格式为“单词, 释义, 例句, 标签”，数据只保存在你的浏览器。</span>
+          </div>
+        </section>
+
+        <section className="word-start-panel" aria-label="选择开始位置">
+          <div>
+            <p className="typing-eyebrow">开始位置</p>
+            <h2>从指定单词开始</h2>
+          </div>
+          <div className="word-start-controls">
+            <label>
+              第
+              <input
+                type="number"
+                min={1}
+                max={Math.max(words.length, 1)}
+                value={startDraft}
+                onChange={(event) => setStartDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") jumpToWord();
+                }}
+              />
+              个
+            </label>
+            <button type="button" onClick={jumpToWord}>开始</button>
+            <span>当前 {words.length ? currentIndex + 1 : 0} / {words.length.toLocaleString("zh-CN")}</span>
           </div>
         </section>
 
@@ -553,7 +599,7 @@ export default function WordTypingTrainer({
           <textarea
             value={customBulkText}
             onChange={(event) => setCustomBulkText(event.target.value)}
-            placeholder={"批量导入：每行一个\nabandon, 放弃, Do not abandon your plan., 四级"}
+            placeholder={"不限行批量导入：每行一个\nabandon, 放弃, Do not abandon your plan., 四级\nhypothesis, 假设, The researcher proposed a hypothesis., TOEFL"}
           />
           <div className="custom-word-bank-actions">
             <button type="button" onClick={addCustomWord}>添加单词</button>
