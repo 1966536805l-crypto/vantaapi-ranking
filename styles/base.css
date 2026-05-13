@@ -545,6 +545,23 @@ button {
   -webkit-backdrop-filter: blur(20px) saturate(160%);
 }
 
+.english-entry-rounded .module-hero,
+.english-entry-rounded .apple-card {
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.english-entry-rounded aside.apple-card a {
+  border-radius: 18px;
+}
+
+.english-entry-rounded .apple-card .rounded-full,
+.english-entry-rounded .apple-button-primary,
+.english-entry-rounded .apple-button-secondary,
+.english-entry-rounded .apple-pill {
+  border-radius: 999px;
+}
+
 .learning-compact-hero {
   display: grid;
   gap: 6px;

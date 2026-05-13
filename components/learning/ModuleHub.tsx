@@ -120,6 +120,7 @@ export function ModuleHub({
   ctaHref,
   ctaLabel,
   language = "en",
+  pageClassName = "",
 }: {
   eyebrow: string;
   title: string;
@@ -128,11 +129,12 @@ export function ModuleHub({
   ctaHref?: string;
   ctaLabel?: string;
   language?: InterfaceLanguage;
+  pageClassName?: string;
 }) {
   const hubCopy = moduleHubCopy[language] || moduleHubCopy.en;
 
   return (
-    <main className="apple-page pb-12 pt-4">
+    <main className={`apple-page pb-12 pt-4 ${pageClassName}`.trim()}>
       <AppleStudyHeader language={language} />
       <section className="apple-shell grid gap-4 py-5 lg:grid-cols-[1fr_320px] lg:items-stretch">
         <div className="module-hero px-5 py-6 sm:px-6">

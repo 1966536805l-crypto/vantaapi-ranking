@@ -351,6 +351,7 @@ export default async function EnglishHome({ searchParams }: { searchParams?: Pro
       ctaHref="/learn/english"
       ctaLabel={pageCopy.cta}
       language={language}
+      pageClassName="english-entry-rounded"
     />
   );
 }
