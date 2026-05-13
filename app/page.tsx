@@ -632,6 +632,10 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
           <p className="eyebrow">{t.eyebrow}</p>
           <h1>{t.title}</h1>
           <RepoAuditForm language={language} />
+          <div className="home-audit-learning-entry">
+            <Link href={localizedHref("/english", language)}>{language === "zh" ? "英语入口" : "English entry"}</Link>
+            <Link href={localizedHref("/english/word-typing", language)}>{language === "zh" ? "单词跟打" : "Word typing"}</Link>
+          </div>
           <div className="home-audit-outcomes" aria-label={preview.outcomesAria}>
             {t.outcomes.map((item) => (
               <span key={item}>{item}</span>
