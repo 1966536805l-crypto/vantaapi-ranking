@@ -1,8 +1,5 @@
-import { NextResponse } from "next/server";
+import { retiredApi } from "@/lib/retired-api";
 
 export async function GET() {
-  return NextResponse.json(
-    { message: "旧 mistakes API 已下线，请访问 /wrong。" },
-    { status: 410, headers: { "Cache-Control": "no-store" } },
-  );
+  return retiredApi("This mistakes endpoint is retired. Use the wrong-question review flow instead.");
 }

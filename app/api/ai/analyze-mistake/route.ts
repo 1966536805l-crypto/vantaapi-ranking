@@ -1,14 +1,5 @@
-import { NextResponse } from "next/server";
+import { retiredApi } from "@/lib/retired-api";
 
 export async function POST() {
-  return NextResponse.json(
-    { message: "旧独立错题分析接口已下线，请在 AI Coach 或错题本内使用复盘能力。" },
-    {
-      status: 410,
-      headers: {
-        "Cache-Control": "no-store",
-        "X-Robots-Tag": "noindex, nofollow, noarchive",
-      },
-    },
-  );
+  return retiredApi("This standalone mistake-analysis endpoint is retired. Use AI Coach or the wrong-question review flow instead.");
 }

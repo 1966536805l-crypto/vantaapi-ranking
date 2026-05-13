@@ -1,2 +1,5 @@
-import { NextResponse } from "next/server";
-export async function POST() { return NextResponse.json({ message: "AI teacher is not part of MVP" }, { status: 404 }); }
+import { retiredApi } from "@/lib/retired-api";
+
+export async function POST() {
+  return retiredApi("The legacy AI teacher endpoint is retired. Use the focused AI Coach or developer tools instead.");
+}
