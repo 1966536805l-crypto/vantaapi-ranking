@@ -284,6 +284,8 @@ export function pageRateGuard(request: NextRequest, pathname: string, botVerdict
 }
 
 function retiredRouteTarget(pathname: string) {
+  if (pathname === "/category" || pathname.startsWith("/category/")) return "/";
+  if (pathname === "/cpp-errors" || pathname.startsWith("/cpp-errors/")) return "/learn/cpp";
   if (pathname === "/games" || pathname.startsWith("/games/")) return "/";
   if (pathname === "/projects" || pathname.startsWith("/projects/")) return "/tools/github-repo-analyzer";
   if (pathname === "/questions" || pathname.startsWith("/questions/")) return "/tools/github-repo-analyzer";
