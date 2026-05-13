@@ -257,6 +257,53 @@ const primarySchoolEntries = [
   ["playground", "/ˈpleɪɡraʊnd/", "操场；游乐场", "a place where children play", "on the playground", "The children run on the playground.", "学校地点、运动活动常见词。"],
 ] as const satisfies readonly VocabularyEntry[];
 
+const dailyEnglishEntries = [
+  ["actually", "/ˈæktʃuəli/", "其实；实际上", "used to say what is really true", "actually true", "Actually, I already finished my homework.", "日常解释和纠正常用。"],
+  ["already", "/ɔːlˈredi/", "已经", "before now or before a particular time", "already done", "I have already packed my bag.", "完成时和日常计划高频。"],
+  ["almost", "/ˈɔːlmoʊst/", "几乎；差不多", "nearly but not completely", "almost ready", "Dinner is almost ready.", "描述进度和程度常用。"],
+  ["anyway", "/ˈeniweɪ/", "不管怎样；总之", "used to change or end a topic", "anyway thanks", "Anyway, thanks for helping me.", "口语转话题高频。"],
+  ["around", "/əˈraʊnd/", "在附近；大约", "near a place or about a number", "around here", "Is there a cafe around here?", "问路和估计数量常用。"],
+  ["available", "/əˈveɪləbl/", "有空的；可用的", "free to use or free to meet", "available today", "Are you available this afternoon?", "约时间和资源场景高频。"],
+  ["borrow", "/ˈbɑːroʊ/", "借入", "to take and use something temporarily", "borrow a charger", "Can I borrow your charger?", "校园和生活借物常用。"],
+  ["bring", "/brɪŋ/", "带来", "to carry something to a place", "bring water", "Please bring your notebook tomorrow.", "日常安排常用动词。"],
+  ["careful", "/ˈkerfl/", "小心的；仔细的", "paying attention to avoid mistakes", "be careful", "Be careful when you cross the street.", "提醒别人常用。"],
+  ["change", "/tʃeɪndʒ/", "改变；零钱", "to become different or money in coins", "change plans", "Can we change the time?", "计划变动和付款场景常用。"],
+  ["comfortable", "/ˈkʌmftəbl/", "舒服的", "feeling relaxed and physically good", "comfortable seat", "This chair is comfortable.", "生活体验描述常用。"],
+  ["convenient", "/kənˈviːniənt/", "方便的", "easy and suitable", "convenient time", "Is ten o'clock convenient for you?", "约时间和地点常用。"],
+  ["decide", "/dɪˈsaɪd/", "决定", "to choose after thinking", "decide to go", "We decided to walk home.", "表达选择常用。"],
+  ["depend", "/dɪˈpend/", "取决于；依靠", "to be affected by something", "depend on", "It depends on the weather.", "回答不确定问题高频。"],
+  ["different", "/ˈdɪfrənt/", "不同的", "not the same", "different idea", "I have a different idea.", "比较和表达观点常用。"],
+  ["enough", "/ɪˈnʌf/", "足够的", "as much as needed", "enough time", "We have enough time.", "数量和时间判断常用。"],
+  ["especially", "/ɪˈspeʃəli/", "尤其；特别", "more than usual or more than others", "especially useful", "I like fruit, especially apples.", "补充强调常用。"],
+  ["exactly", "/ɪɡˈzæktli/", "确切地；正是", "completely correct or precise", "exactly right", "That is exactly what I mean.", "确认对方理解常用。"],
+  ["favorite", "/ˈfeɪvərɪt/", "最喜欢的", "liked more than others", "favorite movie", "What is your favorite movie?", "兴趣聊天核心词。"],
+  ["finally", "/ˈfaɪnəli/", "终于；最后", "after a long time or at the end", "finally arrive", "The bus finally arrived.", "叙事和流程常用。"],
+  ["forget", "/fərˈɡet/", "忘记", "to not remember", "forget keys", "Do not forget your keys.", "提醒和学习场景高频。"],
+  ["happen", "/ˈhæpən/", "发生", "to take place", "what happened", "What happened yesterday?", "询问事件常用。"],
+  ["healthy", "/ˈhelθi/", "健康的", "good for body or mind", "healthy food", "Try to eat healthy food.", "健康生活常用。"],
+  ["important", "/ɪmˈpɔːrtnt/", "重要的", "having great value", "important meeting", "This message is important.", "提醒优先级常用。"],
+  ["instead", "/ɪnˈsted/", "代替；反而", "in place of something else", "go instead", "Let's take the bus instead.", "改计划常用。"],
+  ["later", "/ˈleɪtər/", "稍后；以后", "at a time after now", "see you later", "I will call you later.", "日常告别和安排高频。"],
+  ["maybe", "/ˈmeɪbi/", "也许；可能", "perhaps", "maybe tomorrow", "Maybe we can meet tomorrow.", "委婉表达常用。"],
+  ["message", "/ˈmesɪdʒ/", "消息；留言", "information sent to someone", "send a message", "Send me a message when you arrive.", "手机沟通常用。"],
+  ["moment", "/ˈmoʊmənt/", "片刻；时刻", "a short time", "one moment", "Wait a moment, please.", "礼貌等待常用。"],
+  ["nearby", "/ˌnɪrˈbaɪ/", "附近的", "not far away", "nearby store", "There is a supermarket nearby.", "问路生活高频。"],
+  ["probably", "/ˈprɑːbəbli/", "很可能", "likely to happen or be true", "probably right", "I will probably stay home tonight.", "表达可能性常用。"],
+  ["quickly", "/ˈkwɪkli/", "快速地", "fast", "finish quickly", "Please reply quickly.", "催促和行动描述常用。"],
+  ["really", "/ˈriːəli/", "真的；非常", "truly or very", "really good", "This song is really good.", "口语加强语气高频。"],
+  ["remember", "/rɪˈmembər/", "记得；记住", "to keep something in mind", "remember to call", "Remember to drink water.", "提醒和复习场景高频。"],
+  ["right", "/raɪt/", "正确的；右边", "correct or the opposite of left", "right answer", "Turn right at the corner.", "答案和方向常用。"],
+  ["schedule", "/ˈskedʒuːl/", "日程；安排", "a plan of times", "busy schedule", "My schedule is full today.", "学习工作安排常用。"],
+  ["share", "/ʃer/", "分享；共用", "to use or give with others", "share a link", "Can you share the link with me?", "网络和社交常用。"],
+  ["something", "/ˈsʌmθɪŋ/", "某事；某物", "an unknown or unnamed thing", "something else", "I need something to drink.", "日常表达核心代词。"],
+  ["sometimes", "/ˈsʌmtaɪmz/", "有时", "on some occasions", "sometimes late", "I sometimes walk to school.", "频率表达常用。"],
+  ["usually", "/ˈjuːʒuəli/", "通常", "in most situations", "usually busy", "I usually get up at seven.", "日常习惯高频。"],
+  ["weather", "/ˈweðər/", "天气", "the condition outside", "good weather", "The weather is nice today.", "闲聊和计划常用。"],
+  ["without", "/wɪˈðaʊt/", "没有；不带", "not having something", "without sugar", "I drink coffee without sugar.", "点餐和描述习惯常用。"],
+] as const satisfies readonly VocabularyEntry[];
+
+const dailyEnglishPriorityWords = toVocabularyWords(dailyEnglishEntries);
+
 const universityCoreEntries = [
   ["lecture", "/ˈlektʃər/", "讲座；授课", "a formal talk or class", "attend a lecture", "Students attend a lecture on academic writing.", "大学课堂和学术听力高频。"],
   ["seminar", "/ˈsemɪnɑːr/", "研讨课", "a small class for discussion", "seminar discussion", "The seminar discussion helped us understand the article.", "大学课程和研究训练常见。"],
@@ -446,6 +493,18 @@ export const commonReadingLogicWords = [
 const sharedWritingFrames = keySentenceFrames.map((frame) => `${frame.sentence} — ${frame.usageZh}`);
 
 export const examVocabularyPacks: ExamVocabularyPack[] = [
+  {
+    slug: "daily-english-core",
+    title: "Daily English Core Vocabulary",
+    shortTitle: "日常英语",
+    targetCount: 2500,
+    level: "Daily English",
+    route: "/english/vocabulary/daily-english-core",
+    focus: ["日常沟通", "美式发音", "生活场景", "高频表达"],
+    priorityWords: dailyEnglishPriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
   {
     slug: "primary-school-core",
     title: "Primary School English Vocabulary",

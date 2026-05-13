@@ -24,7 +24,7 @@ async function getAudioUrl(text: string): Promise<string> {
   try {
     // Use a free TTS service with natural male voice
     // Option 1: Google Translate TTS (free, no API key needed)
-    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=${encodeURIComponent(normalized)}`;
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en-US&client=tw-ob&q=${encodeURIComponent(normalized)}`;
 
     // Cache the URL
     audioCache.set(normalized, url);
@@ -74,6 +74,14 @@ function speakWithBrowserVoice(text: string, rate = 0.86): Promise<boolean> {
     utterance.lang = "en-US";
     utterance.rate = rate;
     utterance.pitch = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const usVoices = voices.filter((voice) => voice.lang.toLowerCase().startsWith("en-us"));
+    const voice =
+      usVoices.find((item) => /Samantha|Ava|Allison|Susan|Zoe|Nicky|Google US English|Microsoft (Aria|Jenny|Guy|Ana)/i.test(item.name)) ||
+      usVoices.find((item) => item.localService) ||
+      usVoices[0] ||
+      voices.find((item) => item.lang.toLowerCase().startsWith("en"));
+    if (voice) utterance.voice = voice;
     utterance.onend = () => resolve(true);
     utterance.onerror = () => resolve(false);
     window.speechSynthesis.cancel();

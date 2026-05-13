@@ -61,29 +61,30 @@ function buildMemorySteps(text: string, kind: PronunciationKind): PronunciationS
 
 function preferredEnglishVoice() {
   const voices = window.speechSynthesis.getVoices();
+  const usVoices = voices.filter((voice) => voice.lang.toLowerCase().startsWith("en-us"));
 
-  // Priority 1: High-quality named voices (Samantha, Alex on macOS, Google voices on Chrome)
+  // Priority 1: High-quality US English voices when the browser/OS provides them.
+  const premiumUSVoice = usVoices.find((voice) =>
+    /Samantha|Ava|Allison|Susan|Zoe|Nicky|Google US English|Microsoft (Aria|Jenny|Guy|Ana)/i.test(voice.name) ||
+    /Premium|Enhanced/i.test(voice.name)
+  );
+  if (premiumUSVoice) return premiumUSVoice;
+
+  // Priority 2: Local US English voices.
+  const localUSVoice = usVoices.find((voice) => voice.localService);
+  if (localUSVoice) return localUSVoice;
+
+  // Priority 3: Any US English voice.
+  const usVoice = usVoices[0];
+  if (usVoice) return usVoice;
+
+  // Priority 4: Any high-quality English voice, then any English voice.
   const premiumVoice = voices.find((voice) =>
     voice.lang.toLowerCase().startsWith("en") &&
-    (voice.name.includes("Samantha") ||
-     voice.name.includes("Alex") ||
-     voice.name.includes("Google") ||
-     voice.name.includes("Premium") ||
-     voice.name.includes("Enhanced"))
+    /Samantha|Alex|Google|Microsoft|Premium|Enhanced/i.test(voice.name)
   );
   if (premiumVoice) return premiumVoice;
 
-  // Priority 2: Local US English voices
-  const localUSVoice = voices.find((voice) =>
-    voice.lang.toLowerCase().startsWith("en-us") && voice.localService
-  );
-  if (localUSVoice) return localUSVoice;
-
-  // Priority 3: Any US English voice
-  const usVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith("en-us"));
-  if (usVoice) return usVoice;
-
-  // Priority 4: Any English voice
   return voices.find((voice) => voice.lang.toLowerCase().startsWith("en"));
 }
 
