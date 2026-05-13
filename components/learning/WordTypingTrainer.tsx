@@ -17,7 +17,6 @@ type WordResult = {
 
 export default function WordTypingTrainer({
   words,
-  language,
 }: {
   words: WordWithMeta[];
   language: string;
@@ -39,6 +38,18 @@ export default function WordTypingTrainer({
   const correctCount = results.filter((r) => r.correct).length;
   const accuracy = results.length > 0 ? (correctCount / results.length) * 100 : 0;
 
+  const playPronunciation = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (currentWord) {
+      playNaturalVoice(currentWord.word).then((audio) => {
+        audioRef.current = audio;
+      });
+    }
+  }, [currentWord]);
+
   useEffect(() => {
     inputRef.current?.focus();
   }, [currentIndex]);
@@ -47,7 +58,7 @@ export default function WordTypingTrainer({
     if (currentWord) {
       playPronunciation();
     }
-  }, [currentIndex]);
+  }, [currentWord, playPronunciation]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -71,18 +82,6 @@ export default function WordTypingTrainer({
       console.error('Fullscreen error:', error);
     }
   };
-
-  const playPronunciation = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-    if (currentWord) {
-      playNaturalVoice(currentWord.word, 'word').then((audio) => {
-        audioRef.current = audio;
-      });
-    }
-  }, [currentWord]);
 
   const handleInput = (value: string) => {
     if (!startTime) {

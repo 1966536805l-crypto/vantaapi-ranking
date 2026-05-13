@@ -6,7 +6,7 @@ type VoiceOptions = {
 };
 
 let currentAudio: HTMLAudioElement | null = null;
-let audioCache = new Map<string, string>();
+const audioCache = new Map<string, string>();
 
 function normalizeText(text: string) {
   return text.replace(/\s+/g, " ").trim();
@@ -104,7 +104,7 @@ export function stopNaturalVoice(): void {
 }
 
 // New simplified API for word typing trainer
-export async function playNaturalVoice(text: string, kind: VoiceKind = "word"): Promise<HTMLAudioElement | null> {
+export async function playNaturalVoice(text: string): Promise<HTMLAudioElement | null> {
   if (typeof window === "undefined") {
     return null;
   }

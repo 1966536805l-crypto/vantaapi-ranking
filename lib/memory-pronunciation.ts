@@ -13,13 +13,9 @@ type SpeakMemoryOptions = {
 };
 
 let speechRunId = 0;
-let voicesLoaded = false;
 
 // Initialize voices on load
 if (typeof window !== "undefined" && "speechSynthesis" in window) {
-  window.speechSynthesis.onvoiceschanged = () => {
-    voicesLoaded = true;
-  };
   // Trigger voice loading
   window.speechSynthesis.getVoices();
 }
