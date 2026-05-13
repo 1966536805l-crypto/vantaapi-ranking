@@ -71,8 +71,8 @@ export default function AuthStatusButton({ language = "en" }: { language?: Inter
 
   if (!user) {
     return (
-      <Link className="apple-button-primary px-4 py-1.5" href={localizedHref("/login", language)}>
-        {t.login}
+      <Link className="hidden-login-link" href={localizedHref("/login", language)} title={t.login} aria-label={t.login}>
+        {language === "zh" ? "账号" : t.account}
       </Link>
     );
   }

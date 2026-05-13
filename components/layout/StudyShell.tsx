@@ -180,7 +180,9 @@ export default async function StudyShell({
               {user ? (
                 <StudyShellLogoutButton language={language} label={copy.logout} />
               ) : (
-                <Link href={localizedHref("/login", language)} className="apple-button-primary px-4 py-1.5">{copy.login}</Link>
+                <Link href={localizedHref("/login", language)} className="hidden-login-link" title={copy.login} aria-label={copy.login}>
+                  {language === "zh" ? "账号" : "Account"}
+                </Link>
               )}
             </nav>
           </div>

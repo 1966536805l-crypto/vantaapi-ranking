@@ -349,6 +349,27 @@
   animation: auth-shimmer 1.2s linear infinite;
 }
 
+.hidden-login-link {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: rgba(100, 116, 139, 0.68);
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 720;
+  text-decoration: none;
+}
+
+.hidden-login-link:hover,
+.hidden-login-link:focus-visible {
+  border-color: rgba(15, 23, 42, 0.10);
+  background: rgba(255, 255, 255, 0.72);
+  color: #334155;
+}
+
 .auth-nav-user {
   display: inline-flex;
   align-items: center;
