@@ -490,7 +490,7 @@ export default function VocabularyTrainer({
 
     if (!knows && pendingUnknownWord !== currentWord.word) {
       setPendingUnknownWord(currentWord.word);
-      setPresetDetails("meaning");
+      setPresetDetails("all");
       setTimeLeft(REVIEW_SECONDS);
       setMessage(t.unknownReveal);
       return;

@@ -187,7 +187,6 @@ export default function MemoryWordSystem({
                   }}
                 />
                 <strong>{word.word}</strong>
-                <span>{language === "zh" ? word.meaningZh : word.meaningEn}</span>
               </label>
             );
           })}
