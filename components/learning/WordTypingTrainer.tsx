@@ -1,12 +1,26 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { playNaturalVoice } from '@/lib/natural-voice';
 import type { ExamVocabularyWord } from '@/lib/exam-content';
+import {
+  makeCustomWord,
+  readCustomWords,
+  writeCustomWords,
+  type CustomVocabularyWord,
+} from '@/lib/custom-wordbook';
 
 type WordWithMeta = ExamVocabularyWord & {
   source: string;
   level: string;
+};
+
+export type WordTypingPack = {
+  slug: string;
+  title: string;
+  shortTitle: string;
+  level: string;
+  words: WordWithMeta[];
 };
 
 type WordResult = {
@@ -24,6 +38,16 @@ type SavedWordProgress = {
   savedAt: string;
 };
 
+type CustomDraft = {
+  word: string;
+  meaning: string;
+  sentence: string;
+  tags: string;
+};
+
+const ALL_PACK_SLUG = "all-exam-words";
+const CUSTOM_PACK_SLUG = "custom-wordbook";
+
 const progressThemes: { id: ProgressTheme; label: string }[] = [
   { id: "blue", label: "蓝" },
   { id: "mint", label: "绿" },
@@ -31,12 +55,51 @@ const progressThemes: { id: ProgressTheme; label: string }[] = [
   { id: "ink", label: "黑" },
 ];
 
+const initialCustomDraft: CustomDraft = {
+  word: "",
+  meaning: "",
+  sentence: "",
+  tags: "",
+};
+
+function customToTypingWord(word: CustomVocabularyWord): WordWithMeta {
+  return {
+    ...word,
+    source: "自制词库",
+    level: word.tags.slice(0, 2).join(" / ") || "Custom",
+  };
+}
+
+function parseBulkWords(text: string) {
+  return text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [word, meaning, sentence, tags] = line.split(/[,\t，|]/).map((item) => item.trim());
+      return makeCustomWord({
+        word: word || "",
+        meaningZh: meaning || "",
+        meaningEn: meaning || "",
+        sentence: sentence || "",
+        tags: tags || "自制",
+        source: "word typing",
+      });
+    })
+    .filter((word): word is CustomVocabularyWord => Boolean(word));
+}
+
 export default function WordTypingTrainer({
-  words,
+  packs,
 }: {
-  words: WordWithMeta[];
+  packs: WordTypingPack[];
   language: string;
 }) {
+  const [selectedPackSlug, setSelectedPackSlug] = useState(ALL_PACK_SLUG);
+  const [customWords, setCustomWords] = useState<CustomVocabularyWord[]>([]);
+  const [customDraft, setCustomDraft] = useState<CustomDraft>(initialCustomDraft);
+  const [customBulkText, setCustomBulkText] = useState("");
+  const [customMessage, setCustomMessage] = useState("自制词库保存在当前浏览器");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [input, setInput] = useState('');
   const [results, setResults] = useState<WordResult[]>([]);
@@ -49,19 +112,52 @@ export default function WordTypingTrainer({
   const [progressTheme, setProgressTheme] = useState<ProgressTheme>("blue");
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState("自动保存开启");
+  const [hydratedKey, setHydratedKey] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const restoredRef = useRef(false);
 
+  const allOfficialWords = useMemo(() => packs.flatMap((pack) => pack.words), [packs]);
+  const customTypingWords = useMemo(() => customWords.map(customToTypingWord), [customWords]);
+  const packOptions = useMemo<WordTypingPack[]>(() => [
+    {
+      slug: ALL_PACK_SLUG,
+      title: "全部热门考试词库",
+      shortTitle: "全部词库",
+      level: "All",
+      words: allOfficialWords,
+    },
+    ...packs,
+    {
+      slug: CUSTOM_PACK_SLUG,
+      title: "我的自制题库",
+      shortTitle: "自制词库",
+      level: "Custom",
+      words: customTypingWords,
+    },
+  ], [allOfficialWords, customTypingWords, packs]);
+
+  const selectedPack = packOptions.find((pack) => pack.slug === selectedPackSlug) || packOptions[0];
+  const words = selectedPack.words;
   const currentWord = words[currentIndex];
-  const progress = ((currentIndex + 1) / words.length) * 100;
+  const progress = words.length > 0 ? ((currentIndex + 1) / words.length) * 100 : 0;
   const correctCount = results.filter((r) => r.correct).length;
   const accuracy = results.length > 0 ? (correctCount / results.length) * 100 : 0;
-  const storageKey = `word-typing-progress:${words.length}:${words[0]?.word ?? "start"}:${words[words.length - 1]?.word ?? "end"}`;
+  const storageKey = `word-typing-progress:${selectedPack.slug}:${words.length}:${words[0]?.word ?? "start"}:${words[words.length - 1]?.word ?? "end"}`;
   const savedTimeLabel = savedAt ? new Date(savedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) : "尚未保存";
 
+  const resetSession = useCallback((message = "自动保存开启") => {
+    setCurrentIndex(0);
+    setInput('');
+    setResults([]);
+    setStartTime(null);
+    setShowMeaning(false);
+    setIsComplete(false);
+    setSavedAt(null);
+    setSaveMessage(message);
+  }, []);
+
   const persistProgress = useCallback((message = "已保存") => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !words.length) return;
     const nextSavedAt = new Date().toISOString();
     const payload: SavedWordProgress = {
       currentIndex,
@@ -72,7 +168,7 @@ export default function WordTypingTrainer({
     window.localStorage.setItem(storageKey, JSON.stringify(payload));
     setSavedAt(nextSavedAt);
     setSaveMessage(message);
-  }, [currentIndex, progressTheme, results, storageKey]);
+  }, [currentIndex, progressTheme, results, storageKey, words.length]);
 
   const playPronunciation = useCallback(() => {
     if (audioRef.current) {
@@ -87,21 +183,32 @@ export default function WordTypingTrainer({
   }, [currentWord]);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, [currentIndex]);
+    const syncCustomWords = () => setCustomWords(readCustomWords());
+    syncCustomWords();
+    window.addEventListener("storage", syncCustomWords);
+    window.addEventListener("vantaapi-custom-wordbook", syncCustomWords);
+    return () => {
+      window.removeEventListener("storage", syncCustomWords);
+      window.removeEventListener("vantaapi-custom-wordbook", syncCustomWords);
+    };
+  }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined" || restoredRef.current) return;
-    restoredRef.current = true;
+    if (typeof window === "undefined") return;
+    const timer = window.setTimeout(() => {
+      resetSession("自动保存开启");
+      setHydratedKey("");
 
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return;
+      const raw = window.localStorage.getItem(storageKey);
+      if (!raw || !words.length) {
+        setHydratedKey(storageKey);
+        return;
+      }
 
-    try {
-      const saved = JSON.parse(raw) as Partial<SavedWordProgress>;
-      const savedIndex = Number(saved.currentIndex);
-      const savedResults = Array.isArray(saved.results) ? saved.results : [];
-      if (Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < words.length) {
+      try {
+        const saved = JSON.parse(raw) as Partial<SavedWordProgress>;
+        const savedIndex = Number(saved.currentIndex);
+        const savedResults = Array.isArray(saved.results) ? saved.results : [];
         const nextResults = savedResults.filter((item): item is WordResult =>
           typeof item?.word === "string" &&
           typeof item.correct === "boolean" &&
@@ -110,24 +217,32 @@ export default function WordTypingTrainer({
         const nextTheme = progressThemes.some((theme) => theme.id === saved.theme) ? saved.theme as ProgressTheme : "blue";
         const nextSavedAt = typeof saved.savedAt === "string" ? saved.savedAt : null;
 
-        window.setTimeout(() => {
+        if (Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < words.length) {
           setCurrentIndex(savedIndex);
           setResults(nextResults);
           setProgressTheme(nextTheme);
           setSavedAt(nextSavedAt);
           setSaveMessage("已恢复上次进度");
-        }, 0);
+        }
+      } catch {
+        window.localStorage.removeItem(storageKey);
+      } finally {
+        setHydratedKey(storageKey);
       }
-    } catch {
-      window.localStorage.removeItem(storageKey);
-    }
-  }, [storageKey, words.length]);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [resetSession, storageKey, words.length]);
 
   useEffect(() => {
-    if (!restoredRef.current || typeof window === "undefined") return;
+    if (hydratedKey !== storageKey || typeof window === "undefined" || !words.length) return;
     const timer = window.setTimeout(() => persistProgress("自动保存"), 250);
     return () => window.clearTimeout(timer);
-  }, [persistProgress]);
+  }, [hydratedKey, persistProgress, storageKey, words.length]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [currentIndex, selectedPackSlug]);
 
   useEffect(() => {
     if (currentWord) {
@@ -158,7 +273,13 @@ export default function WordTypingTrainer({
     }
   };
 
+  const selectPack = (slug: string) => {
+    setSelectedPackSlug(slug);
+    setCustomMessage(slug === CUSTOM_PACK_SLUG ? "已切换到自制词库" : "自制词库保存在当前浏览器");
+  };
+
   const handleInput = (value: string) => {
+    if (!currentWord) return;
     if (!startTime) {
       setStartTime(Date.now());
     }
@@ -192,6 +313,7 @@ export default function WordTypingTrainer({
   };
 
   const skipWord = () => {
+    if (!currentWord) return;
     const timeSpent = startTime ? Date.now() - startTime : 0;
     setResults([...results, { word: currentWord.word, correct: false, timeSpent }]);
 
@@ -206,14 +328,7 @@ export default function WordTypingTrainer({
   };
 
   const restart = () => {
-    setCurrentIndex(0);
-    setInput('');
-    setResults([]);
-    setStartTime(null);
-    setShowMeaning(false);
-    setIsComplete(false);
-    setSavedAt(null);
-    setSaveMessage("重新开始");
+    resetSession("重新开始");
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(storageKey);
     }
@@ -223,24 +338,68 @@ export default function WordTypingTrainer({
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(storageKey);
     }
-    setCurrentIndex(0);
-    setInput('');
-    setResults([]);
-    setStartTime(null);
-    setShowMeaning(false);
-    setIsComplete(false);
-    setSavedAt(null);
-    setSaveMessage("进度已清空");
+    resetSession("进度已清空");
+  };
+
+  const addCustomWord = () => {
+    const nextWord = makeCustomWord({
+      word: customDraft.word,
+      meaningZh: customDraft.meaning,
+      meaningEn: customDraft.meaning,
+      sentence: customDraft.sentence,
+      tags: customDraft.tags || "自制",
+      source: "word typing",
+    });
+    if (!nextWord) {
+      setCustomMessage("先写英文单词，再添加");
+      return;
+    }
+
+    const nextWords = [
+      nextWord,
+      ...customWords.filter((item) => item.word.toLowerCase() !== nextWord.word.toLowerCase()),
+    ];
+    writeCustomWords(nextWords);
+    setCustomWords(nextWords);
+    setCustomDraft(initialCustomDraft);
+    setSelectedPackSlug(CUSTOM_PACK_SLUG);
+    setCustomMessage(`已加入 ${nextWord.word}`);
+  };
+
+  const importCustomWords = () => {
+    const imported = parseBulkWords(customBulkText);
+    if (!imported.length) {
+      setCustomMessage("批量导入格式：单词, 释义, 例句, 标签");
+      return;
+    }
+
+    const importedKeys = new Set(imported.map((item) => item.word.toLowerCase()));
+    const nextWords = [
+      ...imported,
+      ...customWords.filter((item) => !importedKeys.has(item.word.toLowerCase())),
+    ];
+    writeCustomWords(nextWords);
+    setCustomWords(nextWords);
+    setCustomBulkText("");
+    setSelectedPackSlug(CUSTOM_PACK_SLUG);
+    setCustomMessage(`已导入 ${imported.length} 个单词`);
+  };
+
+  const clearCustomWords = () => {
+    writeCustomWords([]);
+    setCustomWords([]);
+    setCustomMessage("自制词库已清空");
   };
 
   if (isComplete) {
     const totalTime = results.reduce((sum, r) => sum + r.timeSpent, 0);
-    const avgTime = totalTime / results.length;
+    const avgTime = results.length > 0 ? totalTime / results.length : 0;
 
     return (
       <div className="word-typing-complete">
         <div className="complete-card">
           <h1>训练完成</h1>
+          <p className="complete-pack-name">{selectedPack.shortTitle}</p>
           <div className="stats-grid">
             <div className="stat-item">
               <div className="stat-value">{results.length}</div>
@@ -284,9 +443,88 @@ export default function WordTypingTrainer({
           </button>
         </div>
 
-        <div className={`progress-panel theme-${progressTheme}`} aria-label={`进度 ${currentIndex + 1} / ${words.length}`}>
+        <section className="word-bank-panel" aria-label="选择词库">
+          <div className="word-bank-head">
+            <div>
+              <p className="typing-eyebrow">选择词库</p>
+              <h2>{selectedPack.title}</h2>
+            </div>
+            <span>{words.length} 词</span>
+          </div>
+          <div className="word-bank-grid">
+            {packOptions.map((pack) => (
+              <button
+                key={pack.slug}
+                type="button"
+                className={`word-bank-option${selectedPackSlug === pack.slug ? " active" : ""}`}
+                onClick={() => selectPack(pack.slug)}
+              >
+                <strong>{pack.shortTitle}</strong>
+                <small>{pack.level} · {pack.words.length} 词</small>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="word-typing-guide" aria-label="使用说明">
+          <div>
+            <strong>使用说明</strong>
+            <span>先选官方或自制词库，听发音、看例句，在输入框完整打出英文；每个词库的进度都会自动保存。</span>
+          </div>
+          <div>
+            <strong>自制题库</strong>
+            <span>单个添加或批量导入都可以，格式为“单词, 释义, 例句, 标签”，数据只保存在你的浏览器。</span>
+          </div>
+        </section>
+
+        <section className="custom-word-bank" aria-label="自制题库">
+          <div className="custom-word-bank-head">
+            <div>
+              <p className="typing-eyebrow">自制题库</p>
+              <h2>添加自己的单词</h2>
+            </div>
+            <span>{customMessage}</span>
+          </div>
+          <div className="custom-word-bank-grid">
+            <input
+              value={customDraft.word}
+              onChange={(event) => setCustomDraft((draft) => ({ ...draft, word: event.target.value }))}
+              placeholder="英文单词"
+            />
+            <input
+              value={customDraft.meaning}
+              onChange={(event) => setCustomDraft((draft) => ({ ...draft, meaning: event.target.value }))}
+              placeholder="中文释义"
+            />
+            <input
+              value={customDraft.sentence}
+              onChange={(event) => setCustomDraft((draft) => ({ ...draft, sentence: event.target.value }))}
+              placeholder="例句，可不填"
+            />
+            <input
+              value={customDraft.tags}
+              onChange={(event) => setCustomDraft((draft) => ({ ...draft, tags: event.target.value }))}
+              placeholder="标签，如 考研/高中"
+            />
+          </div>
+          <textarea
+            value={customBulkText}
+            onChange={(event) => setCustomBulkText(event.target.value)}
+            placeholder={"批量导入：每行一个\nabandon, 放弃, Do not abandon your plan., 四级"}
+          />
+          <div className="custom-word-bank-actions">
+            <button type="button" onClick={addCustomWord}>添加单词</button>
+            <button type="button" onClick={importCustomWords}>批量导入</button>
+            <button type="button" onClick={() => selectPack(CUSTOM_PACK_SLUG)}>练自制词库</button>
+            {customWords.length > 0 && (
+              <button type="button" onClick={clearCustomWords} className="quiet-action">清空自制词库</button>
+            )}
+          </div>
+        </section>
+
+        <div className={`progress-panel theme-${progressTheme}`} aria-label={`进度 ${words.length ? currentIndex + 1 : 0} / ${words.length}`}>
           <div className="progress-copy">
-            <span>{currentIndex + 1}</span>
+            <span>{words.length ? currentIndex + 1 : 0}</span>
             <small>/ {words.length}</small>
           </div>
           <div className="progress-track">
@@ -324,96 +562,103 @@ export default function WordTypingTrainer({
           </div>
         </div>
 
-        <div className={`word-card ${errorShake ? 'shake' : ''} ${successPulse ? 'success' : ''}`}>
-          <div className="word-card-header">
-            <div className="word-meta">
-              <span className="word-source">{currentWord.source}</span>
-              <span className="word-level">{currentWord.level}</span>
-            </div>
-            <button onClick={playPronunciation} className="pronunciation-chip">
-              发音
-            </button>
-          </div>
-
-          <div className="word-display">
-            <div className="word-text">{currentWord.word}</div>
-            {currentWord.phonetic && (
-              <div className="word-phonetic">{currentWord.phonetic}</div>
-            )}
-          </div>
-
-          <div className="word-meaning">
-            <div>
-              <span className="field-label">释义</span>
-              <p className="meaning-zh">{currentWord.meaningZh}</p>
-              <p className="meaning-en">{currentWord.meaningEn}</p>
-            </div>
-            <div>
-              <span className="field-label">例句</span>
-              <p className="example-sentence">{currentWord.sentence}</p>
-            </div>
-            {currentWord.collocation && (
-              <div>
-                <span className="field-label">搭配</span>
-                <p className="collocation">{currentWord.collocation}</p>
+        {currentWord ? (
+          <div className={`word-card ${errorShake ? 'shake' : ''} ${successPulse ? 'success' : ''}`}>
+            <div className="word-card-header">
+              <div className="word-meta">
+                <span className="word-source">{currentWord.source}</span>
+                <span className="word-level">{currentWord.level}</span>
               </div>
-            )}
-          </div>
+              <button onClick={playPronunciation} className="pronunciation-chip">
+                发音
+              </button>
+            </div>
 
-          <div className="input-container">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => handleInput(e.target.value)}
-              className="word-input"
-              placeholder="在这里输入上面的单词"
-              autoComplete="off"
-              spellCheck={false}
-            />
-            <div className="input-hint" aria-live="polite">
-              {currentWord.word.split('').map((char, i) => {
-                const inputChar = input[i]?.toLowerCase();
-                const targetChar = char.toLowerCase();
+            <div className="word-display">
+              <div className="word-text">{currentWord.word}</div>
+              {currentWord.phonetic && (
+                <div className="word-phonetic">{currentWord.phonetic}</div>
+              )}
+            </div>
 
-                if (i < input.length) {
+            <div className="word-meaning">
+              <div>
+                <span className="field-label">释义</span>
+                <p className="meaning-zh">{currentWord.meaningZh}</p>
+                <p className="meaning-en">{currentWord.meaningEn}</p>
+              </div>
+              <div>
+                <span className="field-label">例句</span>
+                <p className="example-sentence">{currentWord.sentence}</p>
+              </div>
+              {currentWord.collocation && (
+                <div>
+                  <span className="field-label">搭配</span>
+                  <p className="collocation">{currentWord.collocation}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="input-container">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => handleInput(e.target.value)}
+                className="word-input"
+                placeholder="在这里输入上面的单词"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <div className="input-hint" aria-live="polite">
+                {currentWord.word.split('').map((char, i) => {
+                  const inputChar = input[i]?.toLowerCase();
+                  const targetChar = char.toLowerCase();
+
+                  if (i < input.length) {
+                    return (
+                      <span
+                        key={i}
+                        className={inputChar === targetChar ? 'correct' : 'incorrect'}
+                      >
+                        {char}
+                      </span>
+                    );
+                  }
                   return (
-                    <span
-                      key={i}
-                      className={inputChar === targetChar ? 'correct' : 'incorrect'}
-                    >
+                    <span key={i} className="pending">
                       {char}
                     </span>
                   );
-                }
-                return (
-                  <span key={i} className="pending">
-                    {char}
-                  </span>
-                );
-              })}
+                })}
+              </div>
             </div>
-          </div>
 
-          <div className="action-buttons">
-            <button onClick={playPronunciation} className="action-btn pronunciation-btn">
-              再听一遍
-            </button>
-            <button onClick={() => setShowMeaning(!showMeaning)} className="action-btn hint-btn">
-              {showMeaning ? '收起笔记' : '考试笔记'}
-            </button>
-            <button onClick={skipWord} className="action-btn skip-btn">
-              跳过
-            </button>
-          </div>
-
-          {showMeaning && (
-            <div className="exam-note">
-              <span className="field-label">考试笔记</span>
-              <p>{currentWord.examNote}</p>
+            <div className="action-buttons">
+              <button onClick={playPronunciation} className="action-btn pronunciation-btn">
+                再听一遍
+              </button>
+              <button onClick={() => setShowMeaning(!showMeaning)} className="action-btn hint-btn">
+                {showMeaning ? '收起笔记' : '考试笔记'}
+              </button>
+              <button onClick={skipWord} className="action-btn skip-btn">
+                跳过
+              </button>
             </div>
-          )}
-        </div>
+
+            {showMeaning && (
+              <div className="exam-note">
+                <span className="field-label">考试笔记</span>
+                <p>{currentWord.examNote}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="custom-empty-state">
+            <h2>自制词库还是空的</h2>
+            <p>先在上面添加单词，或者批量导入几行，再点“练自制词库”。</p>
+          </div>
+        )}
 
         <div className="stats-bar">
           <div className="stat">

@@ -29,18 +29,21 @@ export default async function WordTypingPage({
   const language = resolveInterfaceLanguage(searchParams ? await searchParams : undefined);
   requireChineseForEnglishLearning(language);
 
-  // Get all words from all packs
-  const allWords = examVocabularyPacks.flatMap((pack) =>
-    pack.priorityWords.map((word) => ({
+  const packs = examVocabularyPacks.map((pack) => ({
+    slug: pack.slug,
+    title: pack.title,
+    shortTitle: pack.shortTitle,
+    level: pack.level,
+    words: pack.priorityWords.map((word) => ({
       ...word,
       source: pack.shortTitle,
       level: pack.level,
-    }))
-  );
+    })),
+  }));
 
   return (
     <main className="word-typing-page">
-      <WordTypingTrainer words={allWords} language={language} />
+      <WordTypingTrainer packs={packs} language={language} />
     </main>
   );
 }
