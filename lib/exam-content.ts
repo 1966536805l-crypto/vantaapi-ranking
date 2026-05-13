@@ -461,8 +461,8 @@ export const examVocabularyPacks: ExamVocabularyPack[] = [
   {
     slug: "middle-school-core",
     title: "Middle School Core Vocabulary",
-    shortTitle: "Middle School",
-    targetCount: 1800,
+    shortTitle: "初中英语",
+    targetCount: 2500,
     level: "Grade 7 to 9",
     route: "/english/vocabulary/middle-school-core",
     focus: ["校园生活", "基础写作", "中考阅读", "高频搭配"],
@@ -473,8 +473,8 @@ export const examVocabularyPacks: ExamVocabularyPack[] = [
   {
     slug: "high-school-core",
     title: "High School Core Vocabulary",
-    shortTitle: "High School",
-    targetCount: 3500,
+    shortTitle: "高中英语",
+    targetCount: 4000,
     level: "Grade 10 to 12",
     route: "/english/vocabulary/high-school-core",
     focus: ["高中阅读", "议论文写作", "读后续写", "核心搭配"],

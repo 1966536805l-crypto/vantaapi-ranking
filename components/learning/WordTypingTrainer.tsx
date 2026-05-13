@@ -133,11 +133,13 @@ export default function WordTypingTrainer({
   const [errorShake, setErrorShake] = useState(false);
   const [successPulse, setSuccessPulse] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState(false);
   const [progressTheme, setProgressTheme] = useState<ProgressTheme>("blue");
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState("自动保存开启");
   const [hydratedKey, setHydratedKey] = useState("");
   const [isVocabularyReady, setIsVocabularyReady] = useState(false);
+  const trainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -186,6 +188,7 @@ export default function WordTypingTrainer({
   const accuracy = results.length > 0 ? (correctCount / results.length) * 100 : 0;
   const storageKey = `word-typing-progress:${selectedPack.slug}:${words.length}:${words[0]?.word ?? "start"}:${words[words.length - 1]?.word ?? "end"}`;
   const savedTimeLabel = savedAt ? new Date(savedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) : "尚未保存";
+  const isFocusActive = isFullscreen || isFocusMode;
 
   const resetSession = useCallback((message = "自动保存开启") => {
     setCurrentIndex(0);
@@ -296,7 +299,10 @@ export default function WordTypingTrainer({
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+      const ownsFullscreen = document.fullscreenElement === trainerRef.current;
+      setIsFullscreen(ownsFullscreen);
+      setIsFocusMode(ownsFullscreen);
+      window.setTimeout(() => inputRef.current?.focus(), 50);
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -307,13 +313,17 @@ export default function WordTypingTrainer({
 
   const toggleFullscreen = async () => {
     try {
-      if (document.fullscreenElement) {
+      if (isFocusActive) {
+        setIsFocusMode(false);
         await document.exitFullscreen();
       } else {
-        await document.documentElement.requestFullscreen();
+        setIsFocusMode(true);
+        await trainerRef.current?.requestFullscreen();
+        window.setTimeout(() => inputRef.current?.focus(), 100);
       }
     } catch (error) {
       console.error('Fullscreen error:', error);
+      window.setTimeout(() => inputRef.current?.focus(), 50);
     }
   };
 
@@ -491,19 +501,19 @@ export default function WordTypingTrainer({
   }
 
   return (
-    <div className="word-typing-trainer">
+    <div ref={trainerRef} className={`word-typing-trainer${isFocusActive ? " is-focus-fullscreen" : ""}`}>
       <div className="typing-shell">
         <div className="typing-topbar">
           <div>
             <p className="typing-eyebrow">单词跟打</p>
-            <h1>看词、听音、跟打</h1>
+            <h1>{isFocusActive ? `${selectedPack.shortTitle} 专注跟打` : "看词、听音、跟打"}</h1>
           </div>
           <button
             onClick={toggleFullscreen}
             className="fullscreen-toggle-btn"
-            aria-label={isFullscreen ? "退出全屏" : "进入全屏"}
+            aria-label={isFocusActive ? "退出全屏" : "进入全屏"}
           >
-            {isFullscreen ? '退出全屏' : '全屏'}
+            {isFocusActive ? '退出全屏' : '专注全屏'}
           </button>
         </div>
 
