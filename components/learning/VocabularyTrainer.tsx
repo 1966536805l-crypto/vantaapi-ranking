@@ -45,6 +45,8 @@ const reviewIntervals = [
   { labelEn: "30 d", labelZh: "30 天", ms: 30 * 24 * 60 * 60 * 1000 },
 ];
 
+const REVIEW_SECONDS = 12;
+
 const emptyWord: ExamVocabularyWord = {
   word: "",
   meaningZh: "",
@@ -107,9 +109,9 @@ const copy = {
     spellingSubmit: "Check spelling",
     spellingCorrect: "Spelling passed",
     spellingWrong: "Wrong spelling. Listen again and type it once more.",
-    timerLabel: "5 second limit",
+    timerLabel: "12 second limit",
     timeout: "Time out. Counted wrong.",
-    timeoutNote: "Answer first within 5 seconds then read the note.",
+    timeoutNote: "Answer first within 12 seconds then read the note.",
     sessionComplete: "This set is done for now",
     sessionCompleteBody: "Known words moved into old review and will return only when your personal curve says they are due.",
     nextDue: "Next old-word review",
@@ -167,9 +169,9 @@ const copy = {
     spellingSubmit: "检查拼写",
     spellingCorrect: "拼写过关",
     spellingWrong: "拼写不对 再听一次继续打",
-    timerLabel: "5 秒限时",
+    timerLabel: "12 秒限时",
     timeout: "超时 已算错",
-    timeoutNote: "5 秒内先答 答完再看注释",
+    timeoutNote: "12 秒内先答 答完再看注释",
     sessionComplete: "这组词本轮背完了",
     sessionCompleteBody: "认识的词已经进入旧词复习区，不会再当新词反复出现；到你的个人遗忘曲线时间才会回来。",
     nextDue: "下次旧词复习",
@@ -329,7 +331,7 @@ export default function VocabularyTrainer({
   const [audioLoading, setAudioLoading] = useState(false);
   const [practiceMode, setPracticeMode] = useState<PracticeMode>("choice");
   const [spellingDraft, setSpellingDraft] = useState("");
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(REVIEW_SECONDS);
   const [detailMode, setDetailMode] = useState<DetailMode>("hidden");
   const [customDetails, setCustomDetails] = useState<Record<DetailKey, boolean>>({
     meaning: false,
@@ -433,7 +435,7 @@ export default function VocabularyTrainer({
   const advanceAfterAnswer = useCallback(() => {
     setSelectedChoice(null);
     setSpellingDraft("");
-    setTimeLeft(5);
+    setTimeLeft(REVIEW_SECONDS);
     setCurrentIndex((index) => (index + 1) % Math.max(sessionWords.length, 1));
   }, [sessionWords.length]);
 
@@ -514,7 +516,7 @@ export default function VocabularyTrainer({
     setCurrentIndex((index) => (index + 1) % Math.max(sessionWords.length, 1));
     setSelectedChoice(null);
     setSpellingDraft("");
-    setTimeLeft(5);
+    setTimeLeft(REVIEW_SECONDS);
     setMessage("");
   }, [sessionWords.length]);
 
@@ -530,24 +532,24 @@ export default function VocabularyTrainer({
     setProgress({});
     setSelectedChoice(null);
     setSpellingDraft("");
-    setTimeLeft(5);
+    setTimeLeft(REVIEW_SECONDS);
     setMessage("");
     window.localStorage.removeItem(storageKey(packSlug));
   }
 
   useEffect(() => {
     if (practiceMode === "spelling" || activeChoice) {
-      const reset = window.setTimeout(() => setTimeLeft(5), 0);
+      const reset = window.setTimeout(() => setTimeLeft(REVIEW_SECONDS), 0);
       return () => window.clearTimeout(reset);
     }
 
-    const deadline = Date.now() + 5000;
-    const reset = window.setTimeout(() => setTimeLeft(5), 0);
+    const deadline = Date.now() + REVIEW_SECONDS * 1000;
+    const reset = window.setTimeout(() => setTimeLeft(REVIEW_SECONDS), 0);
 
     const tick = window.setInterval(() => {
       setTimeLeft(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
     }, 200);
-    const timeout = window.setTimeout(failByTimeout, 5000);
+    const timeout = window.setTimeout(failByTimeout, REVIEW_SECONDS * 1000);
 
     return () => {
       window.clearTimeout(reset);
@@ -677,7 +679,7 @@ export default function VocabularyTrainer({
               <div className={`vocab-timer ${timeLeft <= 2 ? "urgent" : ""}`} aria-label={t.timerLabel}>
                 <span>{t.timerLabel}</span>
                 <strong>{timeLeft}s</strong>
-                <i style={{ width: `${Math.max(0, Math.min(100, (timeLeft / 5) * 100))}%` }} />
+                <i style={{ width: `${Math.max(0, Math.min(100, (timeLeft / REVIEW_SECONDS) * 100))}%` }} />
               </div>
             ) : null}
 

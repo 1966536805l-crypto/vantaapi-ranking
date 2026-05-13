@@ -20,6 +20,8 @@ const copy = {
     selected: "selected",
     useAll: "Using full bank",
     selectVisible: "Select visible",
+    randomCount: "Random count",
+    randomPick: "Random pick",
     clearSelection: "Clear selection",
     shortcut: "Q know · 0 do not know",
     count: "words",
@@ -34,6 +36,8 @@ const copy = {
     selected: "已选择",
     useAll: "当前使用整个词库",
     selectVisible: "选择当前结果",
+    randomCount: "随机数量",
+    randomPick: "随机抽取",
     clearSelection: "清空选择",
     shortcut: "Q 认识 · 0 不认识",
     count: "词",
@@ -64,6 +68,7 @@ export default function MemoryWordSystem({
   const [selectedSlug, setSelectedSlug] = useState(packs[0]?.slug ?? "");
   const [search, setSearch] = useState("");
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
+  const [randomCount, setRandomCount] = useState("20");
   const selectedPack = useMemo(
     () => packs.find((pack) => pack.slug === selectedSlug) ?? packs[0],
     [packs, selectedSlug],
@@ -79,6 +84,12 @@ export default function MemoryWordSystem({
     return selected.length > 0 ? selected : selectedPack.words;
   }, [selectedPack.words, selectedWordSet, selectedWords.length]);
   const selectedSignature = selectedWords.length ? selectedWords.slice().sort().join("|") : "all";
+  const randomPick = () => {
+    const count = Math.max(1, Math.min(Number.parseInt(randomCount, 10) || 1, filteredWords.length || selectedPack.words.length));
+    const source = (filteredWords.length > 0 ? filteredWords : selectedPack.words).map((word) => word.word.toLowerCase());
+    const shuffled = [...source].sort(() => Math.random() - 0.5);
+    setSelectedWords(Array.from(new Set(shuffled.slice(0, count))));
+  };
 
   if (!selectedPack) return null;
 
@@ -129,6 +140,17 @@ export default function MemoryWordSystem({
             <h2>{selectedWords.length > 0 ? `${selectedWords.length} ${t.selected}` : t.useAll}</h2>
           </div>
           <div className="memory-picker-actions">
+            <label className="memory-random-control">
+              <span>{t.randomCount}</span>
+              <input
+                type="number"
+                min={1}
+                max={Math.max(filteredWords.length, selectedPack.words.length, 1)}
+                value={randomCount}
+                onChange={(event) => setRandomCount(event.target.value)}
+              />
+            </label>
+            <button type="button" onClick={randomPick}>{t.randomPick}</button>
             <button
               type="button"
               onClick={() => {
