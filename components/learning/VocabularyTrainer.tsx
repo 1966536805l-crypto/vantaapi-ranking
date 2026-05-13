@@ -87,12 +87,14 @@ const copy = {
     fallbackAudio: "JinMing Lab US Voice",
     unsupported: "Audio is not supported in this browser",
     shortcutsTitle: "Shortcuts",
-    shortcutChoices: "1 2 3 4 choices",
+    shortcutChoices: "Choice mode: 1 2 3 4",
     shortcutAudio: "P or Space audio",
     shortcutKnow: "Q know",
     shortcutUnknown: "0 do not know",
     shortcutNext: "Enter next",
     shortcutSpelling: "S spelling",
+    shortcutReveal: "W meaning · 2 phonetic · 3 roots · 4 example",
+    hotkeysLead: "Fast keys",
     modeTitle: "Practice mode",
     choiceMode: "Four choice",
     freeMode: "Free recall",
@@ -149,12 +151,14 @@ const copy = {
     fallbackAudio: "JinMing Lab 美音发音",
     unsupported: "当前浏览器不支持发音",
     shortcutsTitle: "快捷键",
-    shortcutChoices: "1 2 3 4 选项",
+    shortcutChoices: "四选一模式：1 2 3 4",
     shortcutAudio: "P 或空格 发音",
     shortcutKnow: "Q 认识",
     shortcutUnknown: "0 不认识",
     shortcutNext: "Enter 下一个",
     shortcutSpelling: "S 拼写",
+    shortcutReveal: "W 释义 · 2 音标 · 3 词根 · 4 例句",
+    hotkeysLead: "常用快捷键",
     modeTitle: "背词模式",
     choiceMode: "四选一",
     freeMode: "自由背",
@@ -290,7 +294,9 @@ function nextRecord(record: ReviewRecord | undefined, knows: boolean) {
   const stage = knows ? Math.min((record?.stage ?? -1) + 1, reviewIntervals.length - 1) : 0;
   const previousEase = record?.ease ?? 1;
   const ease = knows ? Math.min(previousEase + 0.12, 2.2) : Math.max(previousEase - 0.25, 0.55);
-  const intervalMs = Math.round(reviewIntervals[stage].ms * ease);
+  const wrongCount = (record?.wrong ?? 0) + (knows ? 0 : 1);
+  const wrongPressure = knows ? 1 : 1 + Math.min(wrongCount, 8) * 0.45;
+  const intervalMs = Math.max(30 * 1000, Math.round((reviewIntervals[stage].ms * ease) / wrongPressure));
   return {
     status: knows ? "known" : "unknown",
     stage,
@@ -618,6 +624,30 @@ export default function VocabularyTrainer({
         return;
       }
 
+      if (practiceMode !== "spelling" && practiceMode !== "choice" && key === "w") {
+        event.preventDefault();
+        toggleDetail("meaning");
+        return;
+      }
+
+      if (practiceMode !== "spelling" && practiceMode !== "choice" && key === "2") {
+        event.preventDefault();
+        toggleDetail("phonetic");
+        return;
+      }
+
+      if (practiceMode !== "spelling" && practiceMode !== "choice" && key === "3") {
+        event.preventDefault();
+        toggleDetail("roots");
+        return;
+      }
+
+      if (practiceMode !== "spelling" && practiceMode !== "choice" && key === "4") {
+        event.preventDefault();
+        toggleDetail("example");
+        return;
+      }
+
       if (key === "enter" || key === "arrowright") {
         event.preventDefault();
         goNext();
@@ -648,9 +678,9 @@ export default function VocabularyTrainer({
               <span className="shortcut-key">{t.shortcutAudio}</span>
               <span className="shortcut-key">{t.shortcutKnow}</span>
               <span className="shortcut-key">{t.shortcutUnknown}</span>
+              <span className="shortcut-key shortcut-key-strong">{t.shortcutReveal}</span>
               <span className="shortcut-key">{t.shortcutSpelling}</span>
               <span className="shortcut-key">{t.shortcutNext}</span>
-              <span className="shortcut-key">M {t.showMeaning}</span>
               <span className="shortcut-key">{t.desktopMobile}</span>
             </div>
           </div>
@@ -698,6 +728,17 @@ export default function VocabularyTrainer({
                 <span>{t.timerLabel}</span>
                 <strong>{timeLeft}s</strong>
                 <i style={{ width: `${Math.max(0, Math.min(100, (timeLeft / REVIEW_SECONDS) * 100))}%` }} />
+              </div>
+            ) : null}
+            {practiceMode !== "spelling" ? (
+              <div className="vocab-hotkey-panel" aria-label={t.shortcutsTitle}>
+                <span>{t.hotkeysLead}</span>
+                <kbd>Q</kbd><strong>{t.know}</strong>
+                <kbd>0</kbd><strong>{t.unknown}</strong>
+                <kbd>W</kbd><strong>{t.showMeaning}</strong>
+                <kbd>2</kbd><strong>{t.showPhonetic}</strong>
+                <kbd>3</kbd><strong>{t.showRoots}</strong>
+                <kbd>4</kbd><strong>{t.showExample}</strong>
               </div>
             ) : null}
 
