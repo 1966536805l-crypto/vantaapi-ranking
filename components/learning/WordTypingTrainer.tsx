@@ -15,6 +15,22 @@ type WordResult = {
   timeSpent: number;
 };
 
+type ProgressTheme = "blue" | "mint" | "rose" | "ink";
+
+type SavedWordProgress = {
+  currentIndex: number;
+  results: WordResult[];
+  theme: ProgressTheme;
+  savedAt: string;
+};
+
+const progressThemes: { id: ProgressTheme; label: string }[] = [
+  { id: "blue", label: "蓝" },
+  { id: "mint", label: "绿" },
+  { id: "rose", label: "粉" },
+  { id: "ink", label: "黑" },
+];
+
 export default function WordTypingTrainer({
   words,
 }: {
@@ -30,13 +46,33 @@ export default function WordTypingTrainer({
   const [errorShake, setErrorShake] = useState(false);
   const [successPulse, setSuccessPulse] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [progressTheme, setProgressTheme] = useState<ProgressTheme>("blue");
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [saveMessage, setSaveMessage] = useState("自动保存开启");
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const restoredRef = useRef(false);
 
   const currentWord = words[currentIndex];
   const progress = ((currentIndex + 1) / words.length) * 100;
   const correctCount = results.filter((r) => r.correct).length;
   const accuracy = results.length > 0 ? (correctCount / results.length) * 100 : 0;
+  const storageKey = `word-typing-progress:${words.length}:${words[0]?.word ?? "start"}:${words[words.length - 1]?.word ?? "end"}`;
+  const savedTimeLabel = savedAt ? new Date(savedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) : "尚未保存";
+
+  const persistProgress = useCallback((message = "已保存") => {
+    if (typeof window === "undefined") return;
+    const nextSavedAt = new Date().toISOString();
+    const payload: SavedWordProgress = {
+      currentIndex,
+      results,
+      theme: progressTheme,
+      savedAt: nextSavedAt,
+    };
+    window.localStorage.setItem(storageKey, JSON.stringify(payload));
+    setSavedAt(nextSavedAt);
+    setSaveMessage(message);
+  }, [currentIndex, progressTheme, results, storageKey]);
 
   const playPronunciation = useCallback(() => {
     if (audioRef.current) {
@@ -53,6 +89,45 @@ export default function WordTypingTrainer({
   useEffect(() => {
     inputRef.current?.focus();
   }, [currentIndex]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || restoredRef.current) return;
+    restoredRef.current = true;
+
+    const raw = window.localStorage.getItem(storageKey);
+    if (!raw) return;
+
+    try {
+      const saved = JSON.parse(raw) as Partial<SavedWordProgress>;
+      const savedIndex = Number(saved.currentIndex);
+      const savedResults = Array.isArray(saved.results) ? saved.results : [];
+      if (Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < words.length) {
+        const nextResults = savedResults.filter((item): item is WordResult =>
+          typeof item?.word === "string" &&
+          typeof item.correct === "boolean" &&
+          typeof item.timeSpent === "number"
+        );
+        const nextTheme = progressThemes.some((theme) => theme.id === saved.theme) ? saved.theme as ProgressTheme : "blue";
+        const nextSavedAt = typeof saved.savedAt === "string" ? saved.savedAt : null;
+
+        window.setTimeout(() => {
+          setCurrentIndex(savedIndex);
+          setResults(nextResults);
+          setProgressTheme(nextTheme);
+          setSavedAt(nextSavedAt);
+          setSaveMessage("已恢复上次进度");
+        }, 0);
+      }
+    } catch {
+      window.localStorage.removeItem(storageKey);
+    }
+  }, [storageKey, words.length]);
+
+  useEffect(() => {
+    if (!restoredRef.current || typeof window === "undefined") return;
+    const timer = window.setTimeout(() => persistProgress("自动保存"), 250);
+    return () => window.clearTimeout(timer);
+  }, [persistProgress]);
 
   useEffect(() => {
     if (currentWord) {
@@ -137,6 +212,25 @@ export default function WordTypingTrainer({
     setStartTime(null);
     setShowMeaning(false);
     setIsComplete(false);
+    setSavedAt(null);
+    setSaveMessage("重新开始");
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(storageKey);
+    }
+  };
+
+  const clearSavedProgress = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(storageKey);
+    }
+    setCurrentIndex(0);
+    setInput('');
+    setResults([]);
+    setStartTime(null);
+    setShowMeaning(false);
+    setIsComplete(false);
+    setSavedAt(null);
+    setSaveMessage("进度已清空");
   };
 
   if (isComplete) {
@@ -190,13 +284,43 @@ export default function WordTypingTrainer({
           </button>
         </div>
 
-        <div className="progress-panel" aria-label={`进度 ${currentIndex + 1} / ${words.length}`}>
+        <div className={`progress-panel theme-${progressTheme}`} aria-label={`进度 ${currentIndex + 1} / ${words.length}`}>
           <div className="progress-copy">
             <span>{currentIndex + 1}</span>
             <small>/ {words.length}</small>
           </div>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${progress}%` }} />
+          </div>
+          <div className="progress-percent">{progress.toFixed(0)}%</div>
+        </div>
+
+        <div className="progress-personalize" aria-label="进度保存和样式">
+          <div className="save-state">
+            <span>{saveMessage}</span>
+            <strong>{savedTimeLabel}</strong>
+          </div>
+          <div className="theme-picker" aria-label="进度条主题">
+            {progressThemes.map((theme) => (
+              <button
+                key={theme.id}
+                type="button"
+                className={`theme-dot theme-${theme.id}${progressTheme === theme.id ? ' active' : ''}`}
+                onClick={() => setProgressTheme(theme.id)}
+                aria-label={`${theme.label}色进度条`}
+                title={`${theme.label}色进度条`}
+              >
+                {theme.label}
+              </button>
+            ))}
+          </div>
+          <div className="save-actions">
+            <button type="button" onClick={() => persistProgress("手动保存")} className="mini-action">
+              保存
+            </button>
+            <button type="button" onClick={clearSavedProgress} className="mini-action">
+              清空
+            </button>
           </div>
         </div>
 
