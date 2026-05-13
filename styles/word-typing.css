@@ -462,7 +462,8 @@
 }
 
 .theme-dot,
-.mini-action {
+.mini-action,
+.vibration-toggle {
   border: 1px solid #dbe3ef;
   border-radius: 999px;
   background: #ffffff;
@@ -476,9 +477,23 @@
 }
 
 .theme-dot:hover,
-.mini-action:hover {
+.mini-action:hover,
+.vibration-toggle:hover {
   background: #f8fafc;
   transform: translateY(-1px);
+}
+
+.vibration-toggle {
+  align-items: center;
+  display: inline-flex;
+  gap: 7px;
+}
+
+.vibration-toggle input {
+  accent-color: #0f172a;
+  height: 14px;
+  margin: 0;
+  width: 14px;
 }
 
 .theme-dot.active {

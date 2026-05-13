@@ -49,6 +49,7 @@ type CustomDraft = {
 
 const ALL_PACK_SLUG = "all-exam-words";
 const CUSTOM_PACK_SLUG = "custom-wordbook";
+const VIBRATION_SETTING_KEY = "word-typing-vibration-enabled";
 
 const progressThemes: { id: ProgressTheme; label: string }[] = [
   { id: "blue", label: "蓝" },
@@ -132,6 +133,7 @@ export default function WordTypingTrainer({
   const [isComplete, setIsComplete] = useState(false);
   const [errorShake, setErrorShake] = useState(false);
   const [successPulse, setSuccessPulse] = useState(false);
+  const [isVibrationEnabled, setIsVibrationEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [progressTheme, setProgressTheme] = useState<ProgressTheme>("blue");
@@ -227,6 +229,11 @@ export default function WordTypingTrainer({
     }
   }, [currentWord]);
 
+  const triggerVibration = useCallback((pattern: VibratePattern = 35) => {
+    if (!isVibrationEnabled || typeof navigator === "undefined" || !navigator.vibrate) return;
+    navigator.vibrate(pattern);
+  }, [isVibrationEnabled]);
+
   useEffect(() => {
     const readyTimer = window.setTimeout(() => setIsVocabularyReady(true), 0);
     const syncCustomWords = () => setCustomWords(readCustomWords());
@@ -239,6 +246,19 @@ export default function WordTypingTrainer({
       window.removeEventListener("vantaapi-custom-wordbook", syncCustomWords);
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const timer = window.setTimeout(() => {
+      setIsVibrationEnabled(window.localStorage.getItem(VIBRATION_SETTING_KEY) !== "off");
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(VIBRATION_SETTING_KEY, isVibrationEnabled ? "on" : "off");
+  }, [isVibrationEnabled]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -374,6 +394,7 @@ export default function WordTypingTrainer({
     if (inputLower === targetWord) {
       const timeSpent = startTime ? Date.now() - startTime : 0;
       setResults([...results, { word: currentWord.word, correct: true, timeSpent }]);
+      triggerVibration(18);
 
       setSuccessPulse(true);
       setTimeout(() => setSuccessPulse(false), 500);
@@ -389,6 +410,7 @@ export default function WordTypingTrainer({
         }
       }, 300);
     } else if (!targetWord.startsWith(inputLower) && value.length > 0) {
+      triggerVibration([35, 25, 35]);
       setErrorShake(true);
       setTimeout(() => setErrorShake(false), 500);
     }
@@ -662,6 +684,14 @@ export default function WordTypingTrainer({
             ))}
           </div>
           <div className="save-actions">
+            <label className="vibration-toggle">
+              <input
+                type="checkbox"
+                checked={isVibrationEnabled}
+                onChange={(event) => setIsVibrationEnabled(event.target.checked)}
+              />
+              震动
+            </label>
             <button type="button" onClick={() => persistProgress("手动保存")} className="mini-action">
               保存
             </button>
