@@ -75,8 +75,8 @@ const copy = {
     shortcutsTitle: "Shortcuts",
     shortcutChoices: "1 2 3 4 choices",
     shortcutAudio: "P or Space audio",
-    shortcutKnow: "K know",
-    shortcutUnknown: "U unknown",
+    shortcutKnow: "Q know",
+    shortcutUnknown: "0 do not know",
     shortcutNext: "Enter next",
     shortcutSpelling: "S spelling",
     modeTitle: "Practice mode",
@@ -131,8 +131,8 @@ const copy = {
     shortcutsTitle: "快捷键",
     shortcutChoices: "1 2 3 4 选项",
     shortcutAudio: "P 或空格 发音",
-    shortcutKnow: "K 认识",
-    shortcutUnknown: "U 不认识",
+    shortcutKnow: "Q 认识",
+    shortcutUnknown: "0 不认识",
     shortcutNext: "Enter 下一个",
     shortcutSpelling: "S 拼写",
     modeTitle: "背词模式",
@@ -542,13 +542,13 @@ export default function VocabularyTrainer({
         return;
       }
 
-      if (practiceMode !== "spelling" && key === "k") {
+      if (practiceMode !== "spelling" && (key === "q" || key === "k")) {
         event.preventDefault();
         markRecognition(true);
         return;
       }
 
-      if (practiceMode !== "spelling" && key === "u") {
+      if (practiceMode !== "spelling" && (event.key === "0" || key === "u")) {
         event.preventDefault();
         markRecognition(false);
         return;
@@ -758,14 +758,14 @@ export default function VocabularyTrainer({
                     className="dense-action-primary"
                     onClick={() => markRecognition(true)}
                   >
-                    {t.know}
+                    {t.know} · Q
                   </button>
                   <button
                     type="button"
                     className="dense-action"
                     onClick={() => markRecognition(false)}
                   >
-                    {t.unknown}
+                    {t.unknown} · 0
                   </button>
                 </>
               ) : null}
