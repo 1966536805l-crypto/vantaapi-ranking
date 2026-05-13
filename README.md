@@ -9,7 +9,6 @@ Try it online: <https://vantaapi.com>
 - **English word typing practice**: choose exam or school vocabulary, hear pronunciation, read examples, type the word, save progress, and use focus mode.
 - **Vocabulary banks**: primary school, middle school, high school, university, CET, TEM, IELTS, TOEFL, GRE, GMAT, SAT/ACT, postgraduate, and doctoral English practice packs.
 - **Custom word books**: add your own words one by one or import many lines at once for personal practice.
-- **Anki resources**: import ready-made daily English vocabulary from [`anki/daily-english-vocab.tsv`](anki/daily-english-vocab.tsv).
 - **Programming practice**: C++ and programming learning surfaces for structured review.
 - **GitHub launch audit**: check README quality, environment expectations, CI, security posture, and release readiness.
 
