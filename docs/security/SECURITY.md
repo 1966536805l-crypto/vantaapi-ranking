@@ -77,12 +77,12 @@ npm run security:secrets
 npm run content:check
 npm run typecheck
 npm run lint
-npm run build
+npm run build:ci
 npm run language:smoke -- --base=http://127.0.0.1:3003
 npm audit --audit-level=high
 ```
 
-GitHub Actions also run CodeQL, dependency audit, secret scanning, content strategy checks, production build, and multilingual smoke checks.
+GitHub Actions also run CodeQL, dependency audit, secret scanning, content strategy checks, database-safe production compilation, and multilingual smoke checks.
 
 ## Out of scope for public testing
 
