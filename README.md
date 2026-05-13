@@ -1,10 +1,37 @@
 # JinMing Lab
 
-**A comprehensive GitHub launch audit and AI developer tools platform.**
+**A free learning and developer tools website for English practice, programming practice, and GitHub launch checks.**
+
+Try it online: <https://vantaapi.com>
+
+## Highlights
+
+- **English word typing practice**: choose exam or school vocabulary, hear pronunciation, read examples, type the word, save progress, and use focus mode.
+- **Vocabulary banks**: primary school, middle school, high school, university, CET, TEM, IELTS, TOEFL, GRE, GMAT, SAT/ACT, postgraduate, and doctoral English practice packs.
+- **Custom word books**: add your own words one by one or import many lines at once for personal practice.
+- **Anki resources**: import ready-made daily English vocabulary from [`anki/daily-english-vocab.tsv`](anki/daily-english-vocab.tsv).
+- **Programming practice**: C++ and programming learning surfaces for structured review.
+- **GitHub launch audit**: check README quality, environment expectations, CI, security posture, and release readiness.
+
+## Who It Helps
+
+- Students preparing English exams or building daily vocabulary.
+- Learners who want a clean typing-based memorization tool with examples and pronunciation.
+- Developers who want practical launch checks before publishing a project.
+- Teachers or self-learners who want a quick custom word bank workflow.
+
+## Popular Links
+
+- English home: <https://vantaapi.com/english?lang=zh>
+- Word typing: <https://vantaapi.com/english/word-typing?lang=zh>
+- Vocabulary hub: <https://vantaapi.com/english/vocabulary?lang=zh>
+- GitHub repo analyzer: <https://vantaapi.com/tools/github-repo-analyzer>
 
 ## Core Product
 
-**GitHub Launch Audit** - The primary product offering deterministic, rules-based repository analysis:
+**Learning tools and GitHub Launch Audit** are the public focus areas.
+
+The English learning surface includes vocabulary, reading, grammar, quiz, and word typing practice. The GitHub Launch Audit offers deterministic, rules-based repository analysis:
 - README quality and completeness checks
 - Environment configuration validation
 - CI/CD pipeline verification
@@ -14,18 +41,11 @@
 
 The audit engine is deterministic and rules-first. AI-powered suggestions enhance the experience but don't replace the core analysis.
 
-## Additional Features
-
-**AI Developer Tools** - Practical utilities for daily development:
-- Prompt templates and API snippets
-- JSON/regex validators
-- Timestamp converters
-- Roadmap generators
-
-**Programming Practice** - Interactive learning workbenches for skill development (secondary feature).
+**AI Developer Tools** also provide practical utilities for daily development, including prompt templates, API snippets, validators, timestamp helpers, and roadmap generators.
 
 ## MVP Scope
 
+- English learning pages with word typing, vocabulary, question banks, reading, grammar, and custom word books
 - Public GitHub Launch Audit with scorecard evidence P0/P1/P2 findings issue drafts PR description and release checklist
 - Public AI tools page with practical developer utilities
 - Programming learning paths and practice workbenches

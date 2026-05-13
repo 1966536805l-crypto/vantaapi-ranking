@@ -1,0 +1,130 @@
+Word	Phonetic	Chinese	Example	Tags
+morning	/ˈmɔːrnɪŋ/	早晨；上午	I drink water every morning.	daily-basic
+afternoon	/ˌæftərˈnuːn/	下午	Let's meet this afternoon.	daily-basic
+evening	/ˈiːvnɪŋ/	傍晚；晚上	She reads in the evening.	daily-basic
+night	/naɪt/	夜晚	I sleep early at night.	daily-basic
+today	/təˈdeɪ/	今天	Today is a good day to start.	daily-basic
+tomorrow	/təˈmɑːroʊ/	明天	I will call you tomorrow.	daily-basic
+yesterday	/ˈjestərdeɪ/	昨天	I finished the task yesterday.	daily-basic
+weekend	/ˌwiːkˈend/	周末	We often cook at home on the weekend.	daily-basic
+breakfast	/ˈbrekfəst/	早餐	Breakfast is ready.	food-daily
+lunch	/lʌntʃ/	午餐	I usually have lunch at school.	food-daily
+dinner	/ˈdɪnər/	晚餐	What do you want for dinner?	food-daily
+snack	/snæk/	零食；小吃	I need a small snack.	food-daily
+water	/ˈwɔːtər/	水	Please drink more water.	food-daily
+coffee	/ˈkɔːfi/	咖啡	He drinks coffee every morning.	food-daily
+tea	/tiː/	茶	Would you like some tea?	food-daily
+milk	/mɪlk/	牛奶	The child drinks milk before bed.	food-daily
+bread	/bred/	面包	I bought fresh bread.	food-daily
+rice	/raɪs/	米饭	Rice is common in many meals.	food-daily
+noodles	/ˈnuːdlz/	面条	She likes beef noodles.	food-daily
+vegetable	/ˈvedʒtəbl/	蔬菜	Eat more vegetables.	food-daily
+fruit	/fruːt/	水果	Fruit is sweet and healthy.	food-daily
+apple	/ˈæpl/	苹果	I put an apple in my bag.	food-daily
+banana	/bəˈnænə/	香蕉	A banana is easy to carry.	food-daily
+egg	/eɡ/	鸡蛋	She boiled an egg for breakfast.	food-daily
+chicken	/ˈtʃɪkɪn/	鸡肉	We had chicken for dinner.	food-daily
+fish	/fɪʃ/	鱼；鱼肉	Fish is good for dinner.	food-daily
+shop	/ʃɑːp/	商店；购物	I need to shop for food.	shopping-daily
+store	/stɔːr/	商店	This store closes at nine.	shopping-daily
+market	/ˈmɑːrkɪt/	市场	We buy vegetables at the market.	shopping-daily
+price	/praɪs/	价格	The price is too high.	shopping-daily
+cheap	/tʃiːp/	便宜的	This T-shirt is cheap.	shopping-daily
+expensive	/ɪkˈspensɪv/	昂贵的	That phone is expensive.	shopping-daily
+cash	/kæʃ/	现金	I don't have enough cash.	shopping-daily
+card	/kɑːrd/	卡；银行卡	Can I pay by card?	shopping-daily
+receipt	/rɪˈsiːt/	收据	Keep the receipt.	shopping-daily
+discount	/ˈdɪskaʊnt/	折扣	The store has a discount today.	shopping-daily
+clothes	/kloʊðz/	衣服	I need to wash my clothes.	home-daily
+shirt	/ʃɜːrt/	衬衫	This shirt fits well.	home-daily
+coat	/koʊt/	外套	Wear a coat because it is cold.	home-daily
+shoes	/ʃuːz/	鞋子	My shoes are clean.	home-daily
+bag	/bæɡ/	包	Her bag is on the chair.	home-daily
+key	/kiː/	钥匙	I can't find my key.	home-daily
+wallet	/ˈwɑːlɪt/	钱包	He left his wallet at home.	home-daily
+phone	/foʊn/	手机；电话	My phone battery is low.	home-daily
+charger	/ˈtʃɑːrdʒər/	充电器	Do you have a charger?	home-daily
+battery	/ˈbætəri/	电池；电量	The battery is almost empty.	home-daily
+home	/hoʊm/	家	I go home after work.	home-daily
+room	/ruːm/	房间	My room is quiet.	home-daily
+kitchen	/ˈkɪtʃɪn/	厨房	She is cooking in the kitchen.	home-daily
+bathroom	/ˈbæθruːm/	浴室；卫生间	The bathroom is upstairs.	home-daily
+bedroom	/ˈbedruːm/	卧室	My bedroom has a small desk.	home-daily
+table	/ˈteɪbl/	桌子	Put the cup on the table.	home-daily
+chair	/tʃer/	椅子	Please sit on this chair.	home-daily
+window	/ˈwɪndoʊ/	窗户	Open the window, please.	home-daily
+door	/dɔːr/	门	Close the door quietly.	home-daily
+light	/laɪt/	灯；光	Turn on the light.	home-daily
+clean	/kliːn/	清洁的；打扫	I clean my room every Sunday.	home-daily
+wash	/wɑːʃ/	洗	I need to wash my hands.	home-daily
+cook	/kʊk/	做饭；厨师	My father can cook well.	home-daily
+sleep	/sliːp/	睡觉	I need eight hours of sleep.	home-daily
+wake	/weɪk/	醒来	I wake up at seven.	home-daily
+work	/wɜːrk/	工作	I work from Monday to Friday.	work-study
+office	/ˈɔːfɪs/	办公室	She works in an office.	work-study
+meeting	/ˈmiːtɪŋ/	会议	The meeting starts at ten.	work-study
+email	/ˈiːmeɪl/	电子邮件	I sent you an email.	work-study
+message	/ˈmesɪdʒ/	消息	I got your message.	work-study
+schedule	/ˈskedʒuːl/	日程；安排	My schedule is full today.	work-study
+task	/tæsk/	任务	This task is easy.	work-study
+project	/ˈprɑːdʒekt/	项目	We finished the project.	work-study
+study	/ˈstʌdi/	学习	I study English every day.	work-study
+lesson	/ˈlesn/	课；课程	The lesson is useful.	work-study
+homework	/ˈhoʊmwɜːrk/	家庭作业	I finished my homework.	work-study
+exam	/ɪɡˈzæm/	考试	The exam is next week.	work-study
+question	/ˈkwestʃən/	问题	I have a question.	work-study
+answer	/ˈænsər/	答案；回答	Please answer the question.	work-study
+practice	/ˈpræktɪs/	练习	Practice makes you better.	work-study
+remember	/rɪˈmembər/	记得；记住	Remember to bring your book.	work-study
+forget	/fərˈɡet/	忘记	Don't forget your keys.	work-study
+understand	/ˌʌndərˈstænd/	理解	I understand the sentence.	work-study
+learn	/lɜːrn/	学习	Learn one new word today.	work-study
+review	/rɪˈvjuː/	复习；回顾	Review the words before sleep.	work-study
+street	/striːt/	街道	The street is busy.	travel-daily
+road	/roʊd/	路	This road is wide.	travel-daily
+bus	/bʌs/	公交车	I take the bus to school.	travel-daily
+train	/treɪn/	火车	The train is late.	travel-daily
+subway	/ˈsʌbweɪ/	地铁	We go there by subway.	travel-daily
+taxi	/ˈtæksi/	出租车	Let's take a taxi.	travel-daily
+airport	/ˈerpɔːrt/	机场	The airport is far away.	travel-daily
+station	/ˈsteɪʃn/	车站	Meet me at the station.	travel-daily
+ticket	/ˈtɪkɪt/	票	I bought a train ticket.	travel-daily
+map	/mæp/	地图	Check the map first.	travel-daily
+left	/left/	左边	Turn left at the corner.	travel-daily
+right	/raɪt/	右边；正确的	Turn right after the bank.	travel-daily
+straight	/streɪt/	直的；径直地	Go straight for two minutes.	travel-daily
+near	/nɪr/	近的	The store is near my home.	travel-daily
+far	/fɑːr/	远的	The hospital is far from here.	travel-daily
+late	/leɪt/	迟的；晚的	Sorry, I am late.	travel-daily
+early	/ˈɜːrli/	早的	We arrived early.	travel-daily
+weather	/ˈweðər/	天气	The weather is nice today.	weather-health
+sunny	/ˈsʌni/	晴朗的	It is sunny outside.	weather-health
+cloudy	/ˈklaʊdi/	多云的	Tomorrow will be cloudy.	weather-health
+rainy	/ˈreɪni/	下雨的	It is rainy today.	weather-health
+windy	/ˈwɪndi/	有风的	The windy weather is cold.	weather-health
+cold	/koʊld/	冷的；感冒	I feel cold today.	weather-health
+hot	/hɑːt/	热的	The soup is hot.	weather-health
+warm	/wɔːrm/	温暖的	The room is warm.	weather-health
+cool	/kuːl/	凉爽的；酷的	The evening is cool.	weather-health
+doctor	/ˈdɑːktər/	医生	I need to see a doctor.	weather-health
+hospital	/ˈhɑːspɪtl/	医院	The hospital is near the park.	weather-health
+medicine	/ˈmedɪsən/	药	Take this medicine after meals.	weather-health
+headache	/ˈhedeɪk/	头痛	I have a headache.	weather-health
+fever	/ˈfiːvər/	发烧	He has a fever.	weather-health
+healthy	/ˈhelθi/	健康的	Healthy habits are important.	weather-health
+tired	/ˈtaɪərd/	疲惫的	I feel tired after work.	weather-health
+busy	/ˈbɪzi/	忙碌的	She is busy today.	feelings-daily
+free	/friː/	空闲的；免费的	Are you free tonight?	feelings-daily
+happy	/ˈhæpi/	开心的	I am happy to see you.	feelings-daily
+sad	/sæd/	伤心的	He looks sad.	feelings-daily
+angry	/ˈæŋɡri/	生气的	Don't be angry.	feelings-daily
+nervous	/ˈnɜːrvəs/	紧张的	I feel nervous before the exam.	feelings-daily
+excited	/ɪkˈsaɪtɪd/	兴奋的	The children are excited.	feelings-daily
+comfortable	/ˈkʌmftərbl/	舒服的	This chair is comfortable.	feelings-daily
+important	/ɪmˈpɔːrtnt/	重要的	This is an important message.	feelings-daily
+simple	/ˈsɪmpl/	简单的	The plan is simple.	feelings-daily
+difficult	/ˈdɪfɪkəlt/	困难的	This word is difficult.	feelings-daily
+useful	/ˈjuːsfl/	有用的	This app is useful.	feelings-daily
+possible	/ˈpɑːsəbl/	可能的	It is possible to improve.	feelings-daily
+problem	/ˈprɑːbləm/	问题；麻烦	We need to solve the problem.	feelings-daily
+idea	/aɪˈdiːə/	想法	That's a good idea.	feelings-daily
