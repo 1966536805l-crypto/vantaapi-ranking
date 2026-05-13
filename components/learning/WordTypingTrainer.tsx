@@ -312,17 +312,27 @@ export default function WordTypingTrainer({
   }, []);
 
   const toggleFullscreen = async () => {
-    try {
-      if (isFocusActive) {
-        setIsFocusMode(false);
-        await document.exitFullscreen();
-      } else {
-        setIsFocusMode(true);
-        await trainerRef.current?.requestFullscreen();
-        window.setTimeout(() => inputRef.current?.focus(), 100);
+    if (isFocusActive) {
+      setIsFocusMode(false);
+      if (document.fullscreenElement) {
+        try {
+          await document.exitFullscreen();
+        } catch {
+          // The fallback focus mode still exits even when the browser blocks native fullscreen.
+        }
       }
-    } catch (error) {
-      console.error('Fullscreen error:', error);
+      window.setTimeout(() => inputRef.current?.focus(), 50);
+      return;
+    }
+
+    setIsFocusMode(true);
+    try {
+      if (trainerRef.current?.requestFullscreen) {
+        await trainerRef.current.requestFullscreen();
+      }
+    } catch {
+      // Some embedded browsers block native fullscreen; the focus-mode layout still applies.
+    } finally {
       window.setTimeout(() => inputRef.current?.focus(), 50);
     }
   };
