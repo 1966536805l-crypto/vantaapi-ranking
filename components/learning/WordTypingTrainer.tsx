@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { playNaturalVoice } from '@/lib/natural-voice';
-import type { ExamVocabularyWord } from '@/lib/exam-content';
+import type { ExamVocabularyPack, ExamVocabularyWord } from '@/lib/exam-content';
+import { getExpandedVocabularyWords } from '@/lib/expanded-vocabulary-bank';
 import {
   makeCustomWord,
   readCustomWords,
@@ -19,6 +20,7 @@ export type WordTypingPack = {
   slug: string;
   title: string;
   shortTitle: string;
+  targetCount: number;
   level: string;
   words: WordWithMeta[];
 };
@@ -70,6 +72,27 @@ function customToTypingWord(word: CustomVocabularyWord): WordWithMeta {
   };
 }
 
+function makePackForExpansion(pack: WordTypingPack): ExamVocabularyPack {
+  return {
+    slug: pack.slug,
+    title: pack.title,
+    shortTitle: pack.shortTitle,
+    targetCount: pack.targetCount,
+    level: pack.level,
+    route: `/english/vocabulary/${pack.slug}`,
+    focus: [],
+    priorityWords: pack.words,
+  };
+}
+
+function withPackMeta(words: ExamVocabularyWord[], pack: WordTypingPack): WordWithMeta[] {
+  return words.map((word) => ({
+    ...word,
+    source: pack.shortTitle,
+    level: pack.level,
+  }));
+}
+
 function parseBulkWords(text: string) {
   return text
     .split(/\n+/)
@@ -113,31 +136,49 @@ export default function WordTypingTrainer({
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState("自动保存开启");
   const [hydratedKey, setHydratedKey] = useState("");
+  const [isVocabularyReady, setIsVocabularyReady] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const allOfficialWords = useMemo(() => packs.flatMap((pack) => pack.words), [packs]);
   const customTypingWords = useMemo(() => customWords.map(customToTypingWord), [customWords]);
   const packOptions = useMemo<WordTypingPack[]>(() => [
     {
       slug: ALL_PACK_SLUG,
       title: "全部热门考试词库",
       shortTitle: "全部词库",
+      targetCount: 18000,
       level: "All",
-      words: allOfficialWords,
+      words: [],
     },
     ...packs,
     {
       slug: CUSTOM_PACK_SLUG,
       title: "我的自制题库",
       shortTitle: "自制词库",
+      targetCount: customTypingWords.length,
       level: "Custom",
       words: customTypingWords,
     },
-  ], [allOfficialWords, customTypingWords, packs]);
+  ], [customTypingWords, packs]);
 
   const selectedPack = packOptions.find((pack) => pack.slug === selectedPackSlug) || packOptions[0];
-  const words = selectedPack.words;
+  const words = useMemo(() => {
+    if (!isVocabularyReady) {
+      if (selectedPack.slug === ALL_PACK_SLUG) return packs.flatMap((pack) => pack.words);
+      return selectedPack.words;
+    }
+    if (selectedPack.slug === CUSTOM_PACK_SLUG) return selectedPack.words;
+    if (selectedPack.slug === ALL_PACK_SLUG) {
+      const seen = new Set<string>();
+      return packs.flatMap((pack) => withPackMeta(getExpandedVocabularyWords(makePackForExpansion(pack)), pack)).filter((word) => {
+        const key = word.word.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+    return withPackMeta(getExpandedVocabularyWords(makePackForExpansion(selectedPack)), selectedPack);
+  }, [isVocabularyReady, packs, selectedPack]);
   const currentWord = words[currentIndex];
   const progress = words.length > 0 ? ((currentIndex + 1) / words.length) * 100 : 0;
   const correctCount = results.filter((r) => r.correct).length;
@@ -183,11 +224,13 @@ export default function WordTypingTrainer({
   }, [currentWord]);
 
   useEffect(() => {
+    const readyTimer = window.setTimeout(() => setIsVocabularyReady(true), 0);
     const syncCustomWords = () => setCustomWords(readCustomWords());
     syncCustomWords();
     window.addEventListener("storage", syncCustomWords);
     window.addEventListener("vantaapi-custom-wordbook", syncCustomWords);
     return () => {
+      window.clearTimeout(readyTimer);
       window.removeEventListener("storage", syncCustomWords);
       window.removeEventListener("vantaapi-custom-wordbook", syncCustomWords);
     };
@@ -460,7 +503,7 @@ export default function WordTypingTrainer({
                 onClick={() => selectPack(pack.slug)}
               >
                 <strong>{pack.shortTitle}</strong>
-                <small>{pack.level} · {pack.words.length} 词</small>
+                <small>{pack.level} · {pack.targetCount.toLocaleString("zh-CN")} 词</small>
               </button>
             ))}
           </div>

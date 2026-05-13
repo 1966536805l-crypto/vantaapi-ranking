@@ -33,6 +33,7 @@ export default async function WordTypingPage({
     slug: pack.slug,
     title: pack.title,
     shortTitle: pack.shortTitle,
+    targetCount: pack.targetCount,
     level: pack.level,
     words: pack.priorityWords.map((word) => ({
       ...word,

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
 import { examVocabularyPacks, keySentenceFrames } from "@/lib/exam-content";
+import { getExpandedVocabularyPackCount } from "@/lib/expanded-vocabulary-bank";
 import {
   getFrameLabel,
   getFrameUsage,
@@ -17,6 +18,7 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
   requireChineseForEnglishLearning(language);
   const copyLanguage = bilingualLanguage(language);
   const copy = vocabularyHubCopy[copyLanguage];
+  const totalVocabularyCount = examVocabularyPacks.reduce((sum, pack) => sum + getExpandedVocabularyPackCount(pack), 0);
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -45,7 +47,7 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
                 : "Exam word banks · Pronunciation and examples · Real-time feedback · Saved progress"}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {(copyLanguage === "zh" ? ["330 词", "发音", "例句", "保存进度"] : ["330 words", "audio", "examples", "saved progress"]).map((item) => (
+              {(copyLanguage === "zh" ? [`${totalVocabularyCount.toLocaleString("zh-CN")} 词`, "发音", "例句", "保存进度"] : [`${totalVocabularyCount.toLocaleString("en-US")} words`, "audio", "examples", "saved progress"]).map((item) => (
                 <span key={item} className="dense-status">{item}</span>
               ))}
             </div>
@@ -76,7 +78,7 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
                   <p className="eyebrow">{pack.level}</p>
                   <h2 className="mt-2 text-xl font-semibold">{getPackShortTitle(pack, copyLanguage)}</h2>
                 </div>
-                <span className="dense-status">{copyLanguage === "zh" ? "持续扩充" : "expanding"}</span>
+                <span className="dense-status">{getExpandedVocabularyPackCount(pack).toLocaleString(copyLanguage === "zh" ? "zh-CN" : "en-US")} 词</span>
               </div>
               <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">{getPackFocus(pack, copyLanguage).join("  ")}</p>
               <div className="mt-3 flex flex-wrap gap-2">

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import AICoachPanel from "@/components/learning/AICoachPanel";
 import LearningFullscreenButton from "@/components/learning/LearningFullscreenButton";
 import { CUSTOM_WORDBOOK_SLUG, upsertCustomWord } from "@/lib/custom-wordbook";
-import type { ExamVocabularyWord } from "@/lib/exam-content";
+import type { ExamVocabularyPack, ExamVocabularyWord } from "@/lib/exam-content";
+import { getExpandedVocabularyWords } from "@/lib/expanded-vocabulary-bank";
 import type { SiteLanguage } from "@/lib/language";
 import { recordLocalActivity } from "@/lib/local-progress";
 import { speakMemoryPronunciation } from "@/lib/memory-pronunciation";
@@ -288,12 +289,15 @@ export default function VocabularyTrainer({
   packSlug,
   words,
   language,
+  packMeta,
 }: {
   packSlug: string;
   words: ExamVocabularyWord[];
   language: SiteLanguage;
+  packMeta?: Pick<ExamVocabularyPack, "slug" | "title" | "shortTitle" | "targetCount" | "level">;
 }) {
   const t = copy[language];
+  const [isVocabularyReady, setIsVocabularyReady] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState<ReviewProgress>({});
   const [selectedChoice, setSelectedChoice] = useState<SelectedChoice | null>(null);
@@ -311,15 +315,29 @@ export default function VocabularyTrainer({
   });
 
   useEffect(() => {
+    const readyTimer = window.setTimeout(() => setIsVocabularyReady(true), 0);
     const timer = window.setTimeout(() => {
       setProgress(readProgress(packSlug));
     }, 0);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(readyTimer);
+      window.clearTimeout(timer);
+    };
   }, [packSlug]);
 
-  const safeIndex = words.length > 0 ? currentIndex % words.length : 0;
-  const currentWord = words[safeIndex];
+  const trainingWords = useMemo(() => {
+    if (!isVocabularyReady || !packMeta) return words;
+    return getExpandedVocabularyWords({
+      ...packMeta,
+      route: `/english/vocabulary/${packMeta.slug}`,
+      focus: [],
+      priorityWords: words,
+    });
+  }, [isVocabularyReady, packMeta, words]);
+
+  const safeIndex = trainingWords.length > 0 ? currentIndex % trainingWords.length : 0;
+  const currentWord = trainingWords[safeIndex];
   const isCustomPack = packSlug === CUSTOM_WORDBOOK_SLUG;
   const roots = useMemo(() => getRootHints(currentWord.word, language), [currentWord.word, language]);
   const visibleDetails = {
@@ -330,7 +348,7 @@ export default function VocabularyTrainer({
   };
   const currentRecord = progress[currentWord.word];
   const activeChoice = selectedChoice?.word === currentWord.word ? selectedChoice : null;
-  const choices = useMemo(() => buildChoices(words, safeIndex, language), [language, safeIndex, words]);
+  const choices = useMemo(() => buildChoices(trainingWords, safeIndex, language), [language, safeIndex, trainingWords]);
   const coachContext = useMemo(() => ({
     pack: packSlug,
     interfaceLanguage: language,
@@ -345,16 +363,16 @@ export default function VocabularyTrainer({
   }), [currentRecord?.stage, currentWord.collocation, currentWord.examNote, currentWord.meaningEn, currentWord.meaningZh, currentWord.phonetic, currentWord.sentence, currentWord.word, language, packSlug]);
 
   const stats = useMemo(() => {
-    const records = words.map((word) => progress[word.word]).filter(Boolean);
+    const records = trainingWords.map((word) => progress[word.word]).filter(Boolean);
     const known = records.filter((record) => record.status === "known").length;
     const due = records.filter((record) => isReviewDue(record)).length;
     return {
       known,
       due,
-      untouched: Math.max(words.length - records.length, 0),
-      percent: Math.round((known / Math.max(words.length, 1)) * 100),
+      untouched: Math.max(trainingWords.length - records.length, 0),
+      percent: Math.round((known / Math.max(trainingWords.length, 1)) * 100),
     };
-  }, [progress, words]);
+  }, [progress, trainingWords]);
 
   const writeRecord = useCallback((word: ExamVocabularyWord, knows: boolean, customMessage?: string) => {
     const record = nextRecord(progress[word.word], knows);
@@ -376,8 +394,8 @@ export default function VocabularyTrainer({
     setSelectedChoice(null);
     setSpellingDraft("");
     setTimeLeft(5);
-    setCurrentIndex((index) => (index + 1) % words.length);
-  }, [words.length]);
+    setCurrentIndex((index) => (index + 1) % trainingWords.length);
+  }, [trainingWords.length]);
 
   const pronounce = useCallback(async (options?: { quiet?: boolean }) => {
     if (typeof window === "undefined") return;
@@ -450,12 +468,12 @@ export default function VocabularyTrainer({
   }, [advanceAfterAnswer, currentWord, pronounce, spellingDraft, t.spellingCorrect, t.spellingWrong, writeRecord]);
 
   const goNext = useCallback(() => {
-    setCurrentIndex((index) => (index + 1) % words.length);
+    setCurrentIndex((index) => (index + 1) % trainingWords.length);
     setSelectedChoice(null);
     setSpellingDraft("");
     setTimeLeft(5);
     setMessage("");
-  }, [words.length]);
+  }, [trainingWords.length]);
 
   const saveCurrentWord = useCallback(() => {
     upsertCustomWord(currentWord, {
