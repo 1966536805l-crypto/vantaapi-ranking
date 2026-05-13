@@ -538,7 +538,11 @@ export default function WordTypingTrainer({
         <div className="typing-topbar">
           <div>
             <p className="typing-eyebrow">单词跟打</p>
-            <h1>{isFocusActive ? `${selectedPack.shortTitle} 专注跟打` : "看词、听音、跟打"}</h1>
+            <h1>{isFocusActive ? `${selectedPack.shortTitle} 专注跟打` : "全屏单词跟打"}</h1>
+          </div>
+          <div className="typing-session-summary" aria-label="当前训练信息">
+            <span>{selectedPack.shortTitle}</span>
+            <strong>{words.length ? currentIndex + 1 : 0} / {words.length.toLocaleString("zh-CN")}</strong>
           </div>
           <button
             onClick={toggleFullscreen}
@@ -548,110 +552,6 @@ export default function WordTypingTrainer({
             {isFocusActive ? '退出全屏' : '专注全屏'}
           </button>
         </div>
-
-        <section className="word-bank-panel" aria-label="选择词库">
-          <div className="word-bank-head">
-            <div>
-              <p className="typing-eyebrow">选择词库</p>
-              <h2>{selectedPack.title}</h2>
-            </div>
-            <span>{words.length} 词</span>
-          </div>
-          <div className="word-bank-grid">
-            {packOptions.map((pack) => (
-              <button
-                key={pack.slug}
-                type="button"
-                className={`word-bank-option${selectedPackSlug === pack.slug ? " active" : ""}`}
-                onClick={() => selectPack(pack.slug)}
-              >
-                <strong>{pack.shortTitle}</strong>
-                <small>{pack.level} · {pack.targetCount.toLocaleString("zh-CN")} 词</small>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="word-typing-guide" aria-label="使用说明">
-          <div>
-            <strong>使用说明</strong>
-            <span>先选官方或自制词库，听发音、看例句，在输入框完整打出英文；每个词库的进度都会自动保存。</span>
-          </div>
-          <div>
-            <strong>自制题库</strong>
-            <span>单个添加或不限行批量导入都可以，格式为“单词, 释义, 例句, 标签”，数据只保存在你的浏览器。</span>
-          </div>
-        </section>
-
-        <section className="word-start-panel" aria-label="选择开始位置">
-          <div>
-            <p className="typing-eyebrow">开始位置</p>
-            <h2>从指定单词开始</h2>
-          </div>
-          <div className="word-start-controls">
-            <label>
-              第
-              <input
-                type="number"
-                min={1}
-                max={Math.max(words.length, 1)}
-                value={startDraft}
-                onChange={(event) => setStartDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") jumpToWord();
-                }}
-              />
-              个
-            </label>
-            <button type="button" onClick={jumpToWord}>开始</button>
-            <span>当前 {words.length ? currentIndex + 1 : 0} / {words.length.toLocaleString("zh-CN")}</span>
-          </div>
-        </section>
-
-        <section className="custom-word-bank" aria-label="自制题库">
-          <div className="custom-word-bank-head">
-            <div>
-              <p className="typing-eyebrow">自制题库</p>
-              <h2>添加自己的单词</h2>
-            </div>
-            <span>{customMessage}</span>
-          </div>
-          <div className="custom-word-bank-grid">
-            <input
-              value={customDraft.word}
-              onChange={(event) => setCustomDraft((draft) => ({ ...draft, word: event.target.value }))}
-              placeholder="英文单词"
-            />
-            <input
-              value={customDraft.meaning}
-              onChange={(event) => setCustomDraft((draft) => ({ ...draft, meaning: event.target.value }))}
-              placeholder="中文释义"
-            />
-            <input
-              value={customDraft.sentence}
-              onChange={(event) => setCustomDraft((draft) => ({ ...draft, sentence: event.target.value }))}
-              placeholder="例句，可不填"
-            />
-            <input
-              value={customDraft.tags}
-              onChange={(event) => setCustomDraft((draft) => ({ ...draft, tags: event.target.value }))}
-              placeholder="标签，如 考研/高中"
-            />
-          </div>
-          <textarea
-            value={customBulkText}
-            onChange={(event) => setCustomBulkText(event.target.value)}
-            placeholder={"不限行批量导入：每行一个\nabandon, 放弃, Do not abandon your plan., 四级\nhypothesis, 假设, The researcher proposed a hypothesis., TOEFL"}
-          />
-          <div className="custom-word-bank-actions">
-            <button type="button" onClick={addCustomWord}>添加单词</button>
-            <button type="button" onClick={importCustomWords}>批量导入</button>
-            <button type="button" onClick={() => selectPack(CUSTOM_PACK_SLUG)}>练自制词库</button>
-            {customWords.length > 0 && (
-              <button type="button" onClick={clearCustomWords} className="quiet-action">清空自制词库</button>
-            )}
-          </div>
-        </section>
 
         <div className={`progress-panel theme-${progressTheme}`} aria-label={`进度 ${words.length ? currentIndex + 1 : 0} / ${words.length}`}>
           <div className="progress-copy">
@@ -813,6 +713,112 @@ export default function WordTypingTrainer({
             <span className="stat-value correct-count">{correctCount}</span>
           </div>
         </div>
+
+        <div className="typing-manage-grid">
+          <section className="word-bank-panel" aria-label="选择词库">
+            <div className="word-bank-head">
+              <div>
+                <p className="typing-eyebrow">选择词库</p>
+                <h2>{selectedPack.title}</h2>
+              </div>
+              <span>{words.length} 词</span>
+            </div>
+            <div className="word-bank-grid">
+              {packOptions.map((pack) => (
+                <button
+                  key={pack.slug}
+                  type="button"
+                  className={`word-bank-option${selectedPackSlug === pack.slug ? " active" : ""}`}
+                  onClick={() => selectPack(pack.slug)}
+                >
+                  <strong>{pack.shortTitle}</strong>
+                  <small>{pack.level} · {pack.targetCount.toLocaleString("zh-CN")} 词</small>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="word-start-panel" aria-label="选择开始位置">
+            <div>
+              <p className="typing-eyebrow">开始位置</p>
+              <h2>从指定单词开始</h2>
+            </div>
+            <div className="word-start-controls">
+              <label>
+                第
+                <input
+                  type="number"
+                  min={1}
+                  max={Math.max(words.length, 1)}
+                  value={startDraft}
+                  onChange={(event) => setStartDraft(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") jumpToWord();
+                  }}
+                />
+                个
+              </label>
+              <button type="button" onClick={jumpToWord}>开始</button>
+              <span>当前 {words.length ? currentIndex + 1 : 0} / {words.length.toLocaleString("zh-CN")}</span>
+            </div>
+          </section>
+        </div>
+
+        <section className="word-typing-guide" aria-label="使用说明">
+          <div>
+            <strong>使用说明</strong>
+            <span>先选官方或自制词库，听发音、看例句，在输入框完整打出英文；每个词库的进度都会自动保存。</span>
+          </div>
+          <div>
+            <strong>自制题库</strong>
+            <span>单个添加或不限行批量导入都可以，格式为“单词, 释义, 例句, 标签”，数据只保存在你的浏览器。</span>
+          </div>
+        </section>
+
+        <section className="custom-word-bank" aria-label="自制题库">
+          <div className="custom-word-bank-head">
+            <div>
+              <p className="typing-eyebrow">自制题库</p>
+              <h2>添加自己的单词</h2>
+            </div>
+            <span>{customMessage}</span>
+          </div>
+          <div className="custom-word-bank-grid">
+            <input
+              value={customDraft.word}
+              onChange={(event) => setCustomDraft((draft) => ({ ...draft, word: event.target.value }))}
+              placeholder="英文单词"
+            />
+            <input
+              value={customDraft.meaning}
+              onChange={(event) => setCustomDraft((draft) => ({ ...draft, meaning: event.target.value }))}
+              placeholder="中文释义"
+            />
+            <input
+              value={customDraft.sentence}
+              onChange={(event) => setCustomDraft((draft) => ({ ...draft, sentence: event.target.value }))}
+              placeholder="例句，可不填"
+            />
+            <input
+              value={customDraft.tags}
+              onChange={(event) => setCustomDraft((draft) => ({ ...draft, tags: event.target.value }))}
+              placeholder="标签，如 考研/高中"
+            />
+          </div>
+          <textarea
+            value={customBulkText}
+            onChange={(event) => setCustomBulkText(event.target.value)}
+            placeholder={"不限行批量导入：每行一个\nabandon, 放弃, Do not abandon your plan., 四级\nhypothesis, 假设, The researcher proposed a hypothesis., TOEFL"}
+          />
+          <div className="custom-word-bank-actions">
+            <button type="button" onClick={addCustomWord}>添加单词</button>
+            <button type="button" onClick={importCustomWords}>批量导入</button>
+            <button type="button" onClick={() => selectPack(CUSTOM_PACK_SLUG)}>练自制词库</button>
+            {customWords.length > 0 && (
+              <button type="button" onClick={clearCustomWords} className="quiet-action">清空自制词库</button>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );
