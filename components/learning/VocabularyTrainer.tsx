@@ -67,6 +67,8 @@ const copy = {
     loadingAudio: "Loading",
     know: "Know",
     unknown: "Do not know",
+    unknownReveal: "Meaning revealed. Press 0 again to flip",
+    unknownConfirm: "Flip card",
     next: "Next word",
     reset: "Reset pack",
     saveWord: "Save to my wordbook",
@@ -127,6 +129,8 @@ const copy = {
     loadingAudio: "加载中",
     know: "认识",
     unknown: "不认识",
+    unknownReveal: "释义已显示 再按 0 翻卡",
+    unknownConfirm: "翻卡",
     next: "下一个",
     reset: "重置本包",
     saveWord: "加入我的词书",
@@ -332,6 +336,7 @@ export default function VocabularyTrainer({
   const [practiceMode, setPracticeMode] = useState<PracticeMode>("choice");
   const [spellingDraft, setSpellingDraft] = useState("");
   const [timeLeft, setTimeLeft] = useState(REVIEW_SECONDS);
+  const [pendingUnknownWord, setPendingUnknownWord] = useState("");
   const [detailMode, setDetailMode] = useState<DetailMode>("hidden");
   const [customDetails, setCustomDetails] = useState<Record<DetailKey, boolean>>({
     meaning: false,
@@ -388,6 +393,7 @@ export default function VocabularyTrainer({
   };
   const currentRecord = progress[currentWord.word];
   const activeChoice = selectedChoice?.word === currentWord.word ? selectedChoice : null;
+  const isUnknownPreview = pendingUnknownWord === currentWord.word;
   const choiceIndex = Math.max(trainingWords.findIndex((word) => word.word === currentWord.word), 0);
   const choices = useMemo(() => buildChoices(trainingWords, choiceIndex, language), [choiceIndex, language, trainingWords]);
   const coachContext = useMemo(() => ({
@@ -434,6 +440,7 @@ export default function VocabularyTrainer({
 
   const advanceAfterAnswer = useCallback(() => {
     setSelectedChoice(null);
+    setPendingUnknownWord("");
     setSpellingDraft("");
     setTimeLeft(REVIEW_SECONDS);
     setCurrentIndex((index) => (index + 1) % Math.max(sessionWords.length, 1));
@@ -480,9 +487,18 @@ export default function VocabularyTrainer({
 
   const markRecognition = useCallback((knows: boolean) => {
     if (isSessionComplete) return;
+
+    if (!knows && pendingUnknownWord !== currentWord.word) {
+      setPendingUnknownWord(currentWord.word);
+      setPresetDetails("meaning");
+      setTimeLeft(REVIEW_SECONDS);
+      setMessage(t.unknownReveal);
+      return;
+    }
+
     writeRecord(currentWord, knows);
     advanceAfterAnswer();
-  }, [advanceAfterAnswer, currentWord, isSessionComplete, writeRecord]);
+  }, [advanceAfterAnswer, currentWord, isSessionComplete, pendingUnknownWord, setPresetDetails, t.unknownReveal, writeRecord]);
 
   const failByTimeout = useCallback(() => {
     if (practiceMode === "spelling" || isSessionComplete) return;
@@ -515,6 +531,7 @@ export default function VocabularyTrainer({
   const goNext = useCallback(() => {
     setCurrentIndex((index) => (index + 1) % Math.max(sessionWords.length, 1));
     setSelectedChoice(null);
+    setPendingUnknownWord("");
     setSpellingDraft("");
     setTimeLeft(REVIEW_SECONDS);
     setMessage("");
@@ -531,6 +548,7 @@ export default function VocabularyTrainer({
   function resetPack() {
     setProgress({});
     setSelectedChoice(null);
+    setPendingUnknownWord("");
     setSpellingDraft("");
     setTimeLeft(REVIEW_SECONDS);
     setMessage("");
@@ -538,7 +556,7 @@ export default function VocabularyTrainer({
   }
 
   useEffect(() => {
-    if (practiceMode === "spelling" || activeChoice) {
+    if (practiceMode === "spelling" || activeChoice || isUnknownPreview) {
       const reset = window.setTimeout(() => setTimeLeft(REVIEW_SECONDS), 0);
       return () => window.clearTimeout(reset);
     }
@@ -556,7 +574,7 @@ export default function VocabularyTrainer({
       window.clearInterval(tick);
       window.clearTimeout(timeout);
     };
-  }, [activeChoice, currentWord.word, failByTimeout, practiceMode]);
+  }, [activeChoice, currentWord.word, failByTimeout, isUnknownPreview, practiceMode]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -823,7 +841,7 @@ export default function VocabularyTrainer({
                     className="dense-action"
                     onClick={() => markRecognition(false)}
                   >
-                    {t.unknown} · 0
+                    {isUnknownPreview ? t.unknownConfirm : t.unknown} · 0
                   </button>
                 </>
               ) : null}
