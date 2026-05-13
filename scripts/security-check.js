@@ -27,7 +27,7 @@ const proxy = [
   "lib/proxy/response.ts",
 ].map(read).join("\n");
 const nextConfig = read("next.config.js");
-const deployment = read("DEPLOYMENT.md");
+const deployment = read("docs/deployment/DEPLOYMENT.md");
 const edgeSecurity = read("docs/EDGE_SECURITY.md");
 const githubSecurityWorkflow = read(".github/workflows/security.yml");
 const networkHardening = read("docs/NETWORK_HARDENING.md");
@@ -111,10 +111,16 @@ if (has(envExample, 'ENABLE_REDIS_RATE_LIMITS="true"') && has(redis, "REDIS_RATE
   add("warn", "ratelimit:redis", "Redis rate limit defaults or fail-closed behavior need review");
 }
 
-if (!has(nextConfig, /\?\s*`script-src 'self' 'unsafe-inline'/) && has(nextConfig, "isDev ? \"style-src 'self' 'unsafe-inline'\" : \"style-src 'self'\"")) {
-  add("pass", "headers:csp-inline", "production CSP removes unsafe-inline for scripts and styles");
+if (
+  has(proxy, "const effectiveNonce = nonce || generateNonce()") &&
+  has(proxy, "Content-Security-Policy") &&
+  has(proxy, "script-src 'self' 'nonce-") &&
+  has(proxy, "style-src 'self' 'nonce-") &&
+  !has(proxy, "production CSP may still allow unsafe-inline")
+) {
+  add("pass", "headers:csp-inline", "production CSP removes unsafe-inline and applies nonce headers through middleware");
 } else {
-  add("warn", "headers:csp-inline", "production CSP may still allow unsafe-inline");
+  add("warn", "headers:csp-inline", "production CSP nonce handling needs review");
 }
 
 if (has(languageBootstrap, '"use client"') && !has(languageBootstrap, "dangerouslySetInnerHTML") && !has(languageBootstrap, "<script")) {
@@ -154,12 +160,18 @@ for (const [name, pattern] of Object.entries({
 }
 
 for (const [name, pattern] of Object.entries({
-  "headers:csp": "Content-Security-Policy",
   "headers:hsts": "Strict-Transport-Security",
   "headers:frame": "X-Frame-Options",
   "headers:nosniff": "X-Content-Type-Options",
 })) {
   add(has(nextConfig, pattern) ? "pass" : "fail", name, has(nextConfig, pattern) ? "present" : "missing");
+}
+
+// CSP is set dynamically in middleware, not in next.config.js
+if (has(proxy, "Content-Security-Policy") && has(proxy, "nonce-")) {
+  add("pass", "headers:csp", "CSP with nonce is set in middleware");
+} else {
+  add("fail", "headers:csp", "CSP with nonce is missing in middleware");
 }
 
 if (has(deployment, "只开放 `80/tcp` 和 `443/tcp`") || has(deployment, "80/tcp") && has(deployment, "443/tcp")) {

@@ -5,7 +5,9 @@ import { localizedSecurityMessage, securityLanguage, withLanguagePreference } fr
 export type SecurityMode = "normal" | "elevated" | "emergency";
 
 export function generateNonce(): string {
-  return Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64');
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
 }
 
 export function securityMode(): SecurityMode {
@@ -22,6 +24,7 @@ export function jsonError(message: string, status: number, extraHeaders: Record<
 }
 
 export function withSecurityHeaders(response: NextResponse, botVerdict?: BotVerdict, nonce?: string) {
+  const effectiveNonce = nonce || generateNonce();
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Permitted-Cross-Domain-Policies", "none");
@@ -31,32 +34,29 @@ export function withSecurityHeaders(response: NextResponse, botVerdict?: BotVerd
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), serial=(), browsing-topics=()");
   response.headers.set("X-Security-Mode", securityMode());
 
-  // Set CSP with nonce if provided
-  if (nonce) {
-    const isDev = process.env.NODE_ENV !== "production";
-    const hasTurnstile = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
-    const csp = [
-      "default-src 'self'",
-      isDev
-        ? `script-src 'self' 'unsafe-eval' 'unsafe-inline'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`
-        : `script-src 'self' 'nonce-${nonce}'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`,
-      isDev ? "style-src 'self' 'unsafe-inline'" : `style-src 'self' 'nonce-${nonce}'`,
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      `connect-src 'self'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`,
-      "media-src 'self' data: blob:",
-      hasTurnstile ? "frame-src https://challenges.cloudflare.com" : "frame-src 'none'",
-      "child-src 'none'",
-      "worker-src 'self' blob:",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "object-src 'none'",
-      "manifest-src 'self'",
-      "upgrade-insecure-requests",
-    ].join("; ");
-    response.headers.set("Content-Security-Policy", csp);
-  }
+  const isDev = process.env.NODE_ENV !== "production";
+  const hasTurnstile = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+  const csp = [
+    "default-src 'self'",
+    isDev
+      ? `script-src 'self' 'unsafe-eval' 'unsafe-inline'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`
+      : `script-src 'self' 'nonce-${effectiveNonce}'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`,
+    isDev ? "style-src 'self' 'unsafe-inline'" : `style-src 'self' 'nonce-${effectiveNonce}'`,
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    `connect-src 'self'${hasTurnstile ? " https://challenges.cloudflare.com" : ""}`,
+    "media-src 'self' data: blob:",
+    hasTurnstile ? "frame-src https://challenges.cloudflare.com" : "frame-src 'none'",
+    "child-src 'none'",
+    "worker-src 'self' blob:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+    "manifest-src 'self'",
+    "upgrade-insecure-requests",
+  ].join("; ");
+  response.headers.set("Content-Security-Policy", csp);
 
   if (response.headers.get("content-type")?.includes("application/json")) {
     response.headers.set("Cache-Control", "no-store");
