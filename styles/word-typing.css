@@ -133,6 +133,27 @@
   padding: 7px 10px;
 }
 
+.typing-back-link {
+  align-items: center;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.64);
+  color: #475569;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 800;
+  min-height: 36px;
+  padding: 0 12px;
+  text-decoration: none;
+}
+
+.typing-back-link:hover {
+  background: #ffffff;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
 .typing-session-summary span {
   color: #64748b;
   font-size: 13px;

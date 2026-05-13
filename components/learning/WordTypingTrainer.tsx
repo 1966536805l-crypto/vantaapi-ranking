@@ -1,9 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { playNaturalVoice } from '@/lib/natural-voice';
 import type { ExamVocabularyPack, ExamVocabularyWord } from '@/lib/exam-content';
 import { getExpandedVocabularyWords } from '@/lib/expanded-vocabulary-bank';
+import { localizedHref, type InterfaceLanguage } from '@/lib/language';
 import {
   makeCustomWord,
   readCustomWords,
@@ -115,9 +117,10 @@ function parseBulkWords(text: string) {
 
 export default function WordTypingTrainer({
   packs,
+  language,
 }: {
   packs: WordTypingPack[];
-  language: string;
+  language: InterfaceLanguage;
 }) {
   const [selectedPackSlug, setSelectedPackSlug] = useState(ALL_PACK_SLUG);
   const [customWords, setCustomWords] = useState<CustomVocabularyWord[]>([]);
@@ -541,6 +544,7 @@ export default function WordTypingTrainer({
           <a href="#word-bank">词库</a>
           <a href="#custom-wordbook">自制</a>
           <a href="#word-guide">帮助</a>
+          <Link href={localizedHref("/english", language)}>返回列表</Link>
         </nav>
         <button type="button" onClick={toggleFullscreen}>
           {isFocusActive ? "退出" : "全屏"}
@@ -552,6 +556,9 @@ export default function WordTypingTrainer({
             <p className="typing-eyebrow">单词跟打</p>
             <h1>{isFocusActive ? `${selectedPack.shortTitle} 专注跟打` : "全屏单词跟打"}</h1>
           </div>
+          <Link href={localizedHref("/english", language)} className="typing-back-link">
+            返回英语列表
+          </Link>
           <div className="typing-session-summary" aria-label="当前训练信息">
             <span>{selectedPack.shortTitle}</span>
             <strong>{words.length ? currentIndex + 1 : 0} / {words.length.toLocaleString("zh-CN")}</strong>

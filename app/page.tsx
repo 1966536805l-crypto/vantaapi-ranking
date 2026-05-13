@@ -27,8 +27,8 @@ async function headerLanguage() {
 const homeCopy = {
   en: {
     audit: "Audit", tools: "Tools", programming: "Programming", eyebrow: "GitHub Launch Audit",
-    title: "Paste a repo. Get the launch blockers.",
-    subtitle: "Deterministic checks first: README, env files, CI, deploy, and security signals. Then package the result into issue drafts, PR copy, and a release checklist.",
+    title: "Launch-ready GitHub projects in one clean check",
+    subtitle: "A focused public-launch console for README quality, env safety, CI, deployment and security signals. Turn the result into issue drafts, PR copy and a release checklist before you share the repo.",
     outcomes: ["Rules-first score", "Blockers", "Issue drafts", "PR description"],
     pass: "Pass", review: "Review", sample: "Sample report", evidence: [["P1", ".env.example", "Env keys need local preview production separation"], ["P1", "README.md", "Quick start should stay under five minutes"], ["P2", "release docs", "Release checklist should be visible to maintainers"]],
     pr: "Copy-ready PR description", workflow: "Move the audit into the developer workflow", developerTools: "View developer tools", programmingLab: "Open programming lab",
@@ -36,8 +36,8 @@ const homeCopy = {
   },
   zh: {
     audit: "上线体检", tools: "工具", programming: "编程", eyebrow: "GitHub 上线体检",
-    title: "粘贴仓库，拿到上线前检查报告。",
-    subtitle: "先用确定性规则检查 README、环境变量、CI、部署和安全提示，再整理成 Issue 草稿、PR 描述和发布清单。",
+    title: "把 GitHub 项目做成可发布状态",
+    subtitle: "一个更聚焦的公开发布控制台，检查 README、环境变量、CI、部署和安全信号，再整理成 Issue 草稿、PR 描述和发布清单。",
     outcomes: ["上线评分", "阻塞项", "Issue 草稿", "PR 描述"],
     pass: "通过", review: "待确认", sample: "示例报告", evidence: [["P1", ".env.example", "环境变量需要区分本地 预览 生产"], ["P1", "README.md", "快速开始路径需要控制在五分钟内"], ["P2", "release docs", "发布清单不应该只存在维护者脑子里"]],
     pr: "可复制 PR 描述", workflow: "把体检结果直接放进开发流程", developerTools: "查看开发者工具", programmingLab: "进入编程训练",
@@ -610,6 +610,9 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
   ];
 
   const evidenceCards = t.evidence;
+  const homeSignals = language === "zh"
+    ? [["Launch", "发布前体检"], ["Security", "安全信号"], ["Learning", "英语与编程入口"]]
+    : [["Launch", "public readiness"], ["Security", "risk signals"], ["Learning", "English and coding"]];
 
   return (
     <main className="home-audit-page" dir={isRtl ? "rtl" : "ltr"}>
@@ -639,6 +642,14 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
           <div className="home-audit-outcomes" aria-label={preview.outcomesAria}>
             {t.outcomes.map((item) => (
               <span key={item}>{item}</span>
+            ))}
+          </div>
+          <div className="home-audit-signal-row" aria-label="JinMing Lab signals">
+            {homeSignals.map(([label, value]) => (
+              <div key={label}>
+                <strong>{label}</strong>
+                <span>{value}</span>
+              </div>
             ))}
           </div>
           <p>{t.subtitle}</p>

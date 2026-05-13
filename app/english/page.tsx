@@ -26,7 +26,7 @@ const englishHomeCopy: Record<InterfaceLanguage, EnglishHomeCopy> = {
     modules: [
       { href: "/today", eyebrow: "Today", title: "Today Study", description: "Review, new words, typing, reading and practice in one daily queue.", points: ["daily queue", "review", "local progress", "no login needed"] },
       { href: "/english/vocabulary/custom", eyebrow: "Wordbook", title: "Custom Wordbook", description: "Import your own words, tag them, search them, back up JSON and drill immediately.", points: ["import", "tags", "multiple choice", "spaced review"] },
-      { href: "/english/word-typing", eyebrow: "Word Typing", title: "Exam Word Typing Drill", description: "Type exam words with pronunciation, examples, real-time feedback and saved progress.", points: ["330 words", "audio", "examples", "progress"] },
+      { href: "/english/word-typing", eyebrow: "Word Typing", title: "Exam Word Typing Drill", description: "Type exam words with pronunciation, examples, real-time feedback and saved progress.", points: ["exam packs", "audio", "examples", "progress"] },
       { href: "/english/vocabulary", eyebrow: "Vocabulary", title: "Vocabulary Center", description: "Junior high, senior high, IELTS, TOEFL, CET and graduate vocabulary packs keep expanding.", points: ["school words", "IELTS", "TOEFL", "CET"] },
       { href: "/english/grammar", eyebrow: "Grammar", title: "Grammar System", description: "Short rules, examples, judgment and multiple-choice practice.", points: ["rules", "examples", "judgment", "choice"] },
       { href: "/english/reading", eyebrow: "Reading", title: "Original Article Library", description: "Original leveled reading for school, IELTS and TOEFL style practice without official exam content.", points: ["original", "leveled", "reading", "analysis"] },
@@ -42,7 +42,7 @@ const englishHomeCopy: Record<InterfaceLanguage, EnglishHomeCopy> = {
     modules: [
       { href: "/today", eyebrow: "今日", title: "今日学习", description: "复习 新词 打字 阅读 刷题集中在一页 打开就知道下一步做什么", points: ["每日队列", "复习", "本地进度", "不用登录"] },
       { href: "/english/vocabulary/custom", eyebrow: "我的词书", title: "自定义词书", description: "自己导入单词 标签分组 搜索筛选 JSON 备份 并直接进入背词训练", points: ["批量导入", "标签", "四选一", "艾宾浩斯"] },
-      { href: "/english/word-typing", eyebrow: "单词打字", title: "单词跟打训练", description: "热门考试词库 发音 例句 实时验证 自动保存进度 打开就能练", points: ["330 词", "发音例句", "实时验证", "保存进度"] },
+      { href: "/english/word-typing", eyebrow: "单词打字", title: "单词跟打训练", description: "热门考试词库 发音 例句 实时验证 自动保存进度 打开就能练", points: ["考试词库", "发音例句", "实时验证", "保存进度"] },
       { href: "/english/vocabulary", eyebrow: "词汇", title: "考试词汇", description: "初中 高中 雅思 托福 四级 六级 考研词汇 重点词和句式持续扩充", points: ["初中词汇", "高中词汇", "雅思托福", "四六级考研"] },
       { href: "/english/grammar", eyebrow: "语法", title: "语法系统", description: "短规则 例句 判断题 选择题 组合成可持续练习", points: ["规则", "例句", "判断", "选择"] },
       { href: "/english/reading", eyebrow: "阅读", title: "原创文章库", description: "初中 高中 雅思 托福方向原创阅读持续扩充 不收录官方试卷内容", points: ["原创文章", "分级阅读", "雅思托福"] },
