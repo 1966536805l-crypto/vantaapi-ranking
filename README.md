@@ -62,7 +62,7 @@ JWT_SECRET="<generate-a-random-secret-at-least-32-chars>"
 2. Install dependencies and generate Prisma Client:
 
 ```bash
-npm install
+npm ci
 npm run prisma:generate
 ```
 
@@ -118,10 +118,12 @@ Run the full quality check suite:
 npm run typecheck
 npm run lint
 npm run test
-npm run build
+npm run build:ci
 npm run content:check
 npx prisma validate
 ```
+
+Use `npm run build` when `DATABASE_URL` is set to the real target database. Use `npm run build:ci` for local or CI compile verification when you only need a safe Postgres-shaped placeholder.
 
 ## Testing
 
