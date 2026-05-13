@@ -1,11 +1,34 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-require-imports */
-const { execFileSync } = require("child_process");
+const { execFileSync, execSync } = require("child_process");
 const fs = require("fs");
+const path = require("path");
 
-const tracked = execFileSync("git", ["ls-files"], { encoding: "utf8" })
-  .split("\n")
-  .filter(Boolean)
+// Check if .git directory exists
+let tracked;
+try {
+  if (fs.existsSync(path.join(process.cwd(), ".git"))) {
+    // Use git ls-files if in a git repository
+    tracked = execFileSync("git", ["ls-files"], { encoding: "utf8" })
+      .split("\n")
+      .filter(Boolean);
+  } else {
+    // Fallback to find command if not in a git repository
+    const findOutput = execSync(
+      'find . -type f ! -path "*/node_modules/*" ! -path "*/.next/*" ! -path "*/.git/*" ! -path "*/.vercel/*"',
+      { encoding: "utf8", cwd: process.cwd() }
+    );
+    tracked = findOutput
+      .split("\n")
+      .filter(Boolean)
+      .map((file) => file.replace(/^\.\//, "")); // Remove leading ./
+  }
+} catch (error) {
+  console.error("❌ Failed to list files:", error.message);
+  process.exit(1);
+}
+
+tracked = tracked
   .filter((file) => !file.startsWith("package-lock.json"))
   .filter((file) => !file.endsWith(".png") && !file.endsWith(".jpg") && !file.endsWith(".jpeg") && !file.endsWith(".gif") && !file.endsWith(".ico"));
 
@@ -31,6 +54,17 @@ const allowedFragments = [
   "127.0.0.1",
   "process.env",
   "${",
+  "localhost",
+  "username:password",
+  "user:password",
+  "generate-with-",
+  "generate-64-hex",
+  "generate-a-new-random",
+  "你的_",
+  "<db_user>",
+  "<db_password>",
+  "<db_host>",
+  "<db_name>",
 ];
 
 const findings = [];
