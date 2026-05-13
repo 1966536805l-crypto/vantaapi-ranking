@@ -180,10 +180,10 @@
 }
 
 .pronunciation-chip {
-  border: 1px solid #bfdbfe;
+  border: 1px solid #dbe3ef;
   border-radius: 999px;
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: #ffffff;
+  color: #0f172a;
   cursor: pointer;
   font-size: 15px;
   font-weight: 800;
@@ -329,9 +329,9 @@
 }
 
 .pronunciation-btn {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-  color: #1d4ed8;
+  border-color: #dbe3ef;
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .hint-btn {
