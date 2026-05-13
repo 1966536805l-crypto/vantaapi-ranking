@@ -1,2 +1,5 @@
-import { NextResponse } from "next/server";
-export async function POST() { return NextResponse.json({ message: "C++ analysis is not part of MVP" }, { status: 404 }); }
+import { retiredApi } from "@/lib/retired-api";
+
+export async function POST() {
+  return retiredApi("C++ code analysis is retired. Public learning keeps code reading, fill-in, and choice practice only.");
+}

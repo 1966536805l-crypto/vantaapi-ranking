@@ -326,7 +326,12 @@ async function main() {
   await checkRobots();
   await checkSitemap();
   await checkRetiredEndpoint("/api/rankings");
+  await checkRetiredEndpoint("/api/categories");
   await checkRetiredEndpoint("/api/comments");
+  await checkRetiredEndpoint("/api/report", "POST");
+  await checkRetiredEndpoint("/api/reports", "POST");
+  await checkRetiredEndpoint("/api/ai-review", "POST");
+  await checkRetiredEndpoint("/api/cpp/analyze", "POST");
   await checkRetiredEndpoint("/api/cpp/errors");
   await checkRetiredEndpoint("/api/cpp/run", "POST");
   await checkQuestionsApiScope();
