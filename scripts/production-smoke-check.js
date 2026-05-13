@@ -327,6 +327,7 @@ async function main() {
   await checkSitemap();
   await checkRetiredEndpoint("/api/rankings");
   await checkRetiredEndpoint("/api/comments");
+  await checkRetiredEndpoint("/api/cpp/errors");
   await checkRetiredEndpoint("/api/cpp/run", "POST");
   await checkQuestionsApiScope();
   await checkAiCoachRequiresLogin();

@@ -1,3 +1,9 @@
-import { NextResponse } from "next/server";
-export async function GET() { return NextResponse.json({ message: "C++ runner errors are not part of MVP" }, { status: 404 }); }
-export async function POST() { return NextResponse.json({ message: "C++ runner errors are not part of MVP" }, { status: 404 }); }
+import { retiredApi } from "@/lib/retired-api";
+
+export async function GET() {
+  return retiredApi("C++ runner error inspection is retired. Public learning keeps code reading, fill-in, and choice practice only.");
+}
+
+export async function POST() {
+  return retiredApi("C++ runner error inspection is retired. Public learning keeps code reading, fill-in, and choice practice only.");
+}
