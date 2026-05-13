@@ -118,7 +118,7 @@ if (
   has(proxy, "style-src 'self' 'nonce-") &&
   !has(proxy, "production CSP may still allow unsafe-inline")
 ) {
-  add("pass", "headers:csp-inline", "production CSP removes unsafe-inline and applies nonce headers through middleware");
+  add("pass", "headers:csp-inline", "production CSP removes unsafe-inline and applies nonce headers through proxy");
 } else {
   add("warn", "headers:csp-inline", "production CSP nonce handling needs review");
 }
@@ -167,11 +167,11 @@ for (const [name, pattern] of Object.entries({
   add(has(nextConfig, pattern) ? "pass" : "fail", name, has(nextConfig, pattern) ? "present" : "missing");
 }
 
-// CSP is set dynamically in middleware, not in next.config.js
+// CSP is set dynamically in proxy, not in next.config.js
 if (has(proxy, "Content-Security-Policy") && has(proxy, "nonce-")) {
-  add("pass", "headers:csp", "CSP with nonce is set in middleware");
+  add("pass", "headers:csp", "CSP with nonce is set in proxy");
 } else {
-  add("fail", "headers:csp", "CSP with nonce is missing in middleware");
+  add("fail", "headers:csp", "CSP with nonce is missing in proxy");
 }
 
 if (has(deployment, "只开放 `80/tcp` 和 `443/tcp`") || has(deployment, "80/tcp") && has(deployment, "443/tcp")) {

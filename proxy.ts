@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { botBlockedResponse, evaluateBotRequest } from "@/lib/bot-protection";
 import { localizedSecurityMessage, securityLanguage } from "@/lib/proxy/language";
 import { getClientIp, penaltyGuard, rememberPenalty } from "@/lib/proxy/rate-limit";
-import { jsonError, nextWithRequestLanguage, withSecurityHeaders, generateNonce } from "@/lib/proxy/response";
+import { jsonError, nextWithRequestLanguage, withSecurityHeaders } from "@/lib/proxy/response";
 import {
   adminApiCookieGuard,
   allowedMethods,
@@ -23,7 +23,7 @@ import {
   retiredRouteRedirectGuard,
 } from "@/lib/proxy/guards";
 
-export default function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const host = request.headers.get("host");
 

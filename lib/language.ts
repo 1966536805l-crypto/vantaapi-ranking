@@ -37,7 +37,7 @@ export function resolveInterfaceLanguage(
   const lang = Array.isArray(value) ? value[0] : value;
   if (isInterfaceLanguage(lang)) return lang;
 
-  // Priority 2: Header from middleware (includes cookie + Accept-Language detection)
+  // Priority 2: Header from proxy (includes cookie + Accept-Language detection)
   if (isInterfaceLanguage(headerLanguage)) return headerLanguage;
 
   // Priority 3: Default

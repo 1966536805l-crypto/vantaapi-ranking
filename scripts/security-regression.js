@@ -22,8 +22,8 @@ function matches(path, pattern) {
 
 expect("no legacy deployment password", !/VantaAPI2026|INSERT INTO Admin|mysql -u vantaapi -p/.test(read("DEPLOYMENT.md") + read("deploy-baota.sh") + read("SECURITY_REPORT.md")), "legacy fixed DB password/Admin SQL must stay removed");
 expect("host allowlist excludes vercel wildcard", !includes("proxy.ts", ".vercel.app"), "production fallback must not allow *.vercel.app");
-expect("production CSP removes unsafe-inline scripts", matches("next.config.js", /:\s*`script-src 'self'\$\{hasTurnstile/), "production script-src should be self plus explicit providers only");
-expect("production CSP removes unsafe-inline styles", includes("next.config.js", "isDev ? \"style-src 'self' 'unsafe-inline'\" : \"style-src 'self'\""), "production style-src should not include unsafe-inline");
+expect("production CSP removes unsafe-inline scripts", matches("lib/proxy/response.ts", /script-src 'self' 'nonce-/) && matches("lib/proxy/response.ts", /isDev[\s\S]*?'unsafe-inline'/), "production script-src should use nonce (checked in lib/proxy/response.ts)");
+expect("production CSP removes unsafe-inline styles", matches("lib/proxy/response.ts", /style-src 'self' 'nonce-/) && matches("lib/proxy/response.ts", /isDev[\s\S]*?'unsafe-inline'/), "production style-src should use nonce (checked in lib/proxy/response.ts)");
 expect("CSRF double-submit token is present", includes("lib/csrf.ts", "x-csrf-token") && includes("lib/csrf.ts", "csrf-signature") && includes("components/security/CsrfBootstrap.tsx", "x-csrf-token"), "unsafe browser writes need csrf token header and signed cookie");
 expect("admin APIs require CSRF", matches("app/api/admin/courses/route.ts", /requireCsrf\(request\)/) && matches("app/api/admin/questions/[id]/route.ts", /requireCsrf\(request\)/), "admin mutation routes must call requireCsrf");
 expect("learning write APIs require CSRF", matches("app/api/wrong/route.ts", /requireCsrf\(request\)/) && matches("app/api/progress/route.ts", /requireCsrf\(request\)/) && matches("app/api/quiz/submit/route.ts", /requireCsrf\(request\)/), "wrong/progress/quiz writes must call requireCsrf");
