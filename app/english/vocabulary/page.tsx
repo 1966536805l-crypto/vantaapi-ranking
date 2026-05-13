@@ -33,6 +33,25 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
         </div>
 
         <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <Link href={localizedHref("/english/memory", language)} className="dense-card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="eyebrow">{copyLanguage === "zh" ? "背单词系统" : "Memory system"}</p>
+                <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? "艾宾浩斯复习" : "Spaced Review"}</h2>
+              </div>
+              <span className="text-3xl font-semibold">Q</span>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
+              {copyLanguage === "zh"
+                ? "选择词库 · Q 认识 · 0 不认识 · 发音拼写 · 本机保存复习计划"
+                : "Choose a bank · Q know · 0 unknown · Audio spelling · Local review plan"}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(copyLanguage === "zh" ? ["艾宾浩斯", "快捷键", "发音", "保存进度"] : ["Ebbinghaus", "shortcuts", "audio", "progress"]).map((item) => (
+                <span key={item} className="dense-status">{item}</span>
+              ))}
+            </div>
+          </Link>
           <Link href={localizedHref("/english/word-typing", language)} className="dense-card p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
