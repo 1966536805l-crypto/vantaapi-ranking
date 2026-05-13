@@ -866,6 +866,14 @@
   gap: 16px;
 }
 
+.memory-fullscreen-page {
+  background: #e7e7e9;
+}
+
+.memory-fullscreen-page .apple-shell {
+  width: min(1480px, calc(100% - 24px));
+}
+
 .memory-pack-button {
   border: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 10px;
@@ -896,4 +904,164 @@
   color: var(--muted);
   font-size: 12px;
   font-weight: 750;
+}
+
+.memory-word-picker {
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.memory-picker-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.memory-picker-head h2 {
+  margin-top: 8px;
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 850;
+}
+
+.memory-picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.memory-picker-actions button {
+  min-height: 36px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #334155;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.memory-word-search {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+}
+
+.memory-word-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+  max-height: 300px;
+  margin-top: 12px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.memory-word-list label {
+  align-items: start;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.88);
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 8px;
+  padding: 10px;
+}
+
+.memory-word-list label.active {
+  border-color: rgba(37, 99, 235, 0.32);
+  background: #eff6ff;
+}
+
+.memory-word-list input {
+  grid-row: span 2;
+  margin-top: 3px;
+}
+
+.memory-word-list strong,
+.memory-word-list span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-word-list strong {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.memory-word-list span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+:fullscreen .memory-fullscreen-page .apple-nav,
+:fullscreen .memory-fullscreen-page .module-hero,
+:fullscreen .memory-fullscreen-page .memory-word-picker,
+:fullscreen .memory-fullscreen-page .memory-word-system > .dense-panel,
+:fullscreen .memory-fullscreen-page .vocab-trainer-main > div:first-child .shortcut-strip,
+:fullscreen .memory-fullscreen-page .vocab-memory-surface,
+:fullscreen .memory-fullscreen-page .global-search-trigger {
+  display: none;
+}
+
+:fullscreen .memory-fullscreen-page,
+:fullscreen .memory-fullscreen-page .apple-shell,
+:fullscreen .memory-fullscreen-page .memory-word-system,
+:fullscreen .memory-fullscreen-page .vocab-trainer,
+:fullscreen .memory-fullscreen-page .vocab-trainer-main {
+  min-height: 100vh;
+  width: 100%;
+}
+
+:fullscreen .memory-fullscreen-page .apple-shell {
+  padding: 0;
+}
+
+:fullscreen .memory-fullscreen-page .vocab-trainer {
+  margin-top: 0;
+}
+
+:fullscreen .memory-fullscreen-page .vocab-trainer-main {
+  border: 0;
+  border-radius: 0;
+  background: #e7e7e9;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(18px, 4vw, 64px);
+}
+
+:fullscreen .memory-fullscreen-page .vocab-trainer-main > .mt-5 {
+  grid-template-columns: minmax(0, 900px);
+  justify-content: center;
+}
+
+:fullscreen .memory-fullscreen-page .vocab-practice-surface {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 70vh;
+}
+
+:fullscreen .memory-fullscreen-page .vocab-practice-surface h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(64px, 10vw, 130px);
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
 }

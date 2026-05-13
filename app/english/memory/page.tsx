@@ -3,6 +3,7 @@ import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import MemoryWordSystem from "@/components/learning/MemoryWordSystem";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
 import { examVocabularyPacks } from "@/lib/exam-content";
+import { getExpandedVocabularyWords } from "@/lib/expanded-vocabulary-bank";
 import { bilingualLanguage, resolveInterfaceLanguage, type PageSearchParams } from "@/lib/language";
 
 export const metadata: Metadata = {
@@ -30,11 +31,11 @@ export default async function EnglishMemoryPage({ searchParams }: { searchParams
     shortTitle: pack.shortTitle,
     targetCount: pack.targetCount,
     level: pack.level,
-    words: pack.priorityWords,
+    words: getExpandedVocabularyWords(pack),
   }));
 
   return (
-    <main className="apple-page pb-12 pt-4">
+    <main className="apple-page memory-fullscreen-page pb-12 pt-4">
       <AppleStudyHeader language={language} />
       <section className="apple-shell py-7">
         <MemoryWordSystem packs={packs} language={copyLanguage} />

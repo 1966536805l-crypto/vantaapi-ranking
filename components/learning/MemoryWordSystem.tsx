@@ -15,6 +15,12 @@ const copy = {
     title: "Spaced vocabulary review",
     subtitle: "Choose a pack and review with pronunciation, reveal controls, spelling mode, and Ebbinghaus scheduling saved in this browser.",
     choose: "Choose word bank",
+    selectWords: "Choose words",
+    search: "Search word meaning example",
+    selected: "selected",
+    useAll: "Using full bank",
+    selectVisible: "Select visible",
+    clearSelection: "Clear selection",
     shortcut: "Q know · 0 do not know",
     count: "words",
   },
@@ -23,10 +29,29 @@ const copy = {
     title: "艾宾浩斯遗忘曲线背单词",
     subtitle: "选择词库后直接背，支持发音、释义显示、拼写模式、本机保存进度，以及 Q 认识、0 不认识快捷键。",
     choose: "选择词库",
+    selectWords: "自己选择要背的词",
+    search: "搜索 单词 释义 例句",
+    selected: "已选择",
+    useAll: "当前使用整个词库",
+    selectVisible: "选择当前结果",
+    clearSelection: "清空选择",
     shortcut: "Q 认识 · 0 不认识",
     count: "词",
   },
 } as const;
+
+function wordMatches(word: ExamVocabularyWord, query: string) {
+  const clean = query.trim().toLowerCase();
+  if (!clean) return true;
+  return [
+    word.word,
+    word.meaningZh,
+    word.meaningEn,
+    word.collocation,
+    word.sentence,
+    word.examNote,
+  ].join(" ").toLowerCase().includes(clean);
+}
 
 export default function MemoryWordSystem({
   packs,
@@ -37,10 +62,23 @@ export default function MemoryWordSystem({
 }) {
   const t = copy[language];
   const [selectedSlug, setSelectedSlug] = useState(packs[0]?.slug ?? "");
+  const [search, setSearch] = useState("");
+  const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const selectedPack = useMemo(
     () => packs.find((pack) => pack.slug === selectedSlug) ?? packs[0],
     [packs, selectedSlug],
   );
+  const selectedWordSet = useMemo(() => new Set(selectedWords), [selectedWords]);
+  const filteredWords = useMemo(
+    () => selectedPack.words.filter((word) => wordMatches(word, search)).slice(0, 120),
+    [search, selectedPack.words],
+  );
+  const activeWords = useMemo(() => {
+    if (selectedWords.length === 0) return selectedPack.words;
+    const selected = selectedPack.words.filter((word) => selectedWordSet.has(word.word.toLowerCase()));
+    return selected.length > 0 ? selected : selectedPack.words;
+  }, [selectedPack.words, selectedWordSet, selectedWords.length]);
+  const selectedSignature = selectedWords.length ? selectedWords.slice().sort().join("|") : "all";
 
   if (!selectedPack) return null;
 
@@ -71,7 +109,11 @@ export default function MemoryWordSystem({
               key={pack.slug}
               type="button"
               className={`memory-pack-button${pack.slug === selectedPack.slug ? " active" : ""}`}
-              onClick={() => setSelectedSlug(pack.slug)}
+              onClick={() => {
+                setSelectedSlug(pack.slug);
+                setSelectedWords([]);
+                setSearch("");
+              }}
             >
               <strong>{pack.shortTitle}</strong>
               <span>{pack.level} · {pack.targetCount.toLocaleString(language === "zh" ? "zh-CN" : "en-US")} {t.count}</span>
@@ -80,18 +122,60 @@ export default function MemoryWordSystem({
         </div>
       </section>
 
+      <section className="memory-word-picker dense-panel p-4 sm:p-5" aria-label={t.selectWords}>
+        <div className="memory-picker-head">
+          <div>
+            <p className="eyebrow">{t.selectWords}</p>
+            <h2>{selectedWords.length > 0 ? `${selectedWords.length} ${t.selected}` : t.useAll}</h2>
+          </div>
+          <div className="memory-picker-actions">
+            <button
+              type="button"
+              onClick={() => {
+                const visibleKeys = filteredWords.map((word) => word.word.toLowerCase());
+                setSelectedWords((current) => Array.from(new Set([...current, ...visibleKeys])));
+              }}
+            >
+              {t.selectVisible}
+            </button>
+            <button type="button" onClick={() => setSelectedWords([])}>{t.clearSelection}</button>
+          </div>
+        </div>
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={t.search}
+          className="memory-word-search"
+        />
+        <div className="memory-word-list">
+          {filteredWords.map((word) => {
+            const key = word.word.toLowerCase();
+            const checked = selectedWordSet.has(key);
+            return (
+              <label key={word.word} className={checked ? "active" : ""}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(event) => {
+                    setSelectedWords((current) => {
+                      if (event.target.checked) return Array.from(new Set([...current, key]));
+                      return current.filter((item) => item !== key);
+                    });
+                  }}
+                />
+                <strong>{word.word}</strong>
+                <span>{language === "zh" ? word.meaningZh : word.meaningEn}</span>
+              </label>
+            );
+          })}
+        </div>
+      </section>
+
       <VocabularyTrainer
-        key={selectedPack.slug}
+        key={`${selectedPack.slug}:${selectedSignature}`}
         packSlug={`memory-${selectedPack.slug}`}
-        words={selectedPack.words}
+        words={activeWords}
         language={language}
-        packMeta={{
-          slug: selectedPack.slug,
-          title: selectedPack.title,
-          shortTitle: selectedPack.shortTitle,
-          targetCount: selectedPack.targetCount,
-          level: selectedPack.level,
-        }}
       />
     </section>
   );
