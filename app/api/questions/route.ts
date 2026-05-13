@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { Difficulty, QuestionType } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
 import { publicQuestionSelect } from "@/lib/learning";
 import { enforceRateLimitAsync, guardedJson, jsonError } from "@/lib/api-guard";
 
@@ -51,6 +50,7 @@ export async function GET(request: NextRequest) {
   if (limit === null) return jsonError("Invalid limit", 400, request);
 
   try {
+    const { prisma } = await import("@/lib/prisma");
     const lesson = await prisma.lesson.findFirst({
       where: {
         id: lessonId,

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Lightweight post-deploy smoke check for the public production site.
+ * Rate-limit-aware post-deploy smoke check for the public production site.
  * It does not print secrets and does not require admin credentials.
  */
 
@@ -10,7 +10,9 @@ const args = process.argv.slice(2);
 const baseArg = args.find((arg) => arg.startsWith("--base="));
 const baseUrl = (baseArg ? baseArg.slice("--base=".length) : process.env.SMOKE_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
 const timeoutMs = Number(process.env.SMOKE_TIMEOUT_MS || 10_000);
-const requestDelayMs = Number(process.env.SMOKE_REQUEST_DELAY_MS || (baseUrl.includes("vantaapi.com") ? 250 : 0));
+const strictRateLimit = args.includes("--strict-rate-limit") || process.env.SMOKE_STRICT_RATE_LIMIT === "true";
+const isPublicProduction = /^https:\/\/(?:www\.)?vantaapi\.com$/i.test(baseUrl);
+const requestDelayMs = Number(process.env.SMOKE_REQUEST_DELAY_MS || (isPublicProduction ? 1500 : 0));
 let requestIndex = 0;
 
 let pass = 0;
@@ -34,6 +36,21 @@ function logFail(name, message) {
 
 function sleep(ms) {
   return ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve();
+}
+
+function isRateLimited(response) {
+  return response.status === 429;
+}
+
+function handleRateLimit(name, response) {
+  const retryAfter = response.headers.get("retry-after");
+  const suffix = retryAfter ? `retry after ${retryAfter}s` : "edge protection is active";
+  if (strictRateLimit) {
+    logFail(name, `HTTP 429; ${suffix}`);
+  } else {
+    logWarn(name, `rate limited; ${suffix}`);
+  }
+  return true;
 }
 
 async function fetchWithTimeout(path, options = {}) {
@@ -75,6 +92,7 @@ async function fetchWithTimeout(path, options = {}) {
 async function checkSecurityHeaders(path) {
   try {
     const response = await fetchWithTimeout(path);
+    if (isRateLimited(response)) return handleRateLimit(`${path}:security-headers`, response);
     const requiredHeaders = {
       "x-content-type-options": /nosniff/i,
       "x-frame-options": /deny/i,
@@ -92,6 +110,7 @@ async function checkSecurityHeaders(path) {
 async function checkPage(path, mustContain) {
   try {
     const response = await fetchWithTimeout(path);
+    if (isRateLimited(response)) return handleRateLimit(path, response);
     const body = await response.text();
     if (!response.ok) return logFail(path, `HTTP ${response.status}`);
     if (mustContain && !body.includes(mustContain)) return logFail(path, `missing text: ${mustContain}`);
@@ -108,6 +127,7 @@ async function checkLocalizedPage(path, mustContain) {
         Cookie: "jinming_language=zh; vantaapi-language=zh",
       },
     });
+    if (isRateLimited(response)) return handleRateLimit(`${path}:i18n`, response);
     const body = await response.text();
     if (!response.ok) return logFail(`${path}:i18n`, `HTTP ${response.status}`);
     if (!body.includes(mustContain)) return logFail(`${path}:i18n`, `missing localized text: ${mustContain}`);
@@ -120,6 +140,7 @@ async function checkLocalizedPage(path, mustContain) {
 async function checkRedirect(path, expectedPathname) {
   try {
     const response = await fetchWithTimeout(path, { redirect: "manual" });
+    if (isRateLimited(response)) return handleRateLimit(path, response);
     const location = response.headers.get("location") || "";
     const locationPath = location
       ? new URL(location, baseUrl).pathname
@@ -139,6 +160,7 @@ async function checkRedirect(path, expectedPathname) {
 async function checkRobots() {
   try {
     const response = await fetchWithTimeout("/robots.txt");
+    if (isRateLimited(response)) return handleRateLimit("/robots.txt", response);
     const body = await response.text();
     if (!response.ok) return logFail("/robots.txt", `HTTP ${response.status}`);
     if (!body.includes("Sitemap:")) return logFail("/robots.txt", "missing Sitemap directive");
@@ -154,6 +176,7 @@ async function checkRobots() {
 async function checkSitemap() {
   try {
     const response = await fetchWithTimeout("/sitemap.xml");
+    if (isRateLimited(response)) return handleRateLimit("/sitemap.xml", response);
     const body = await response.text();
     if (!response.ok) return logFail("/sitemap.xml", `HTTP ${response.status}`);
     if (!body.includes("/tools/github-repo-analyzer")) return logFail("/sitemap.xml", "missing GitHub Audit URL");
@@ -185,6 +208,7 @@ async function checkRetiredEndpoint(path, method = "GET") {
           }
         : {}),
     });
+    if (isRateLimited(response)) return handleRateLimit(path, response);
     if (response.status !== 410) return logFail(path, `expected 410 retired response, got HTTP ${response.status}`);
     const robotsHeader = response.headers.get("x-robots-tag") || "";
     const cacheHeader = response.headers.get("cache-control") || "";
@@ -201,7 +225,7 @@ async function checkQuestionsApiScope() {
   try {
     const response = await fetchWithTimeout("/api/questions?lang=ar");
     const body = await response.text();
-    if (response.status === 429) return logWarn("questions-api", "rate limited; endpoint is protected");
+    if (isRateLimited(response)) return handleRateLimit("questions-api", response);
     if (response.status !== 400) return logFail("questions-api", `expected scoped 400 without lessonId, got HTTP ${response.status}`);
     if (/\"answer\"|passwordHash|explanation/i.test(body)) return logFail("questions-api", "public error response exposed sensitive fields");
     logPass("questions-api", "requires lessonId and does not expose answer fields");
@@ -218,7 +242,7 @@ async function checkAiCoachRequiresLogin() {
       body: JSON.stringify({ mode: "programming", prompt: "ping" }),
     });
     const body = await response.text();
-    if (response.status === 429) return logWarn("ai-coach-auth", "rate limited; endpoint is protected");
+    if (isRateLimited(response)) return handleRateLimit("ai-coach-auth", response);
     if (response.status !== 401) return logFail("ai-coach-auth", `expected 401 without login, got HTTP ${response.status}: ${body.slice(0, 120)}`);
     logPass("ai-coach-auth", "AI coach requires login");
   } catch (error) {
@@ -234,7 +258,7 @@ async function checkAuditApi() {
       body: JSON.stringify({ url: "https://github.com/vercel/swr" }),
     });
     const body = await response.text();
-    if (response.status === 429) return logWarn("audit-api", "rate limited; endpoint is protected");
+    if (isRateLimited(response)) return handleRateLimit("audit-api", response);
     if (!response.ok) return logFail("audit-api", `HTTP ${response.status}: ${body.slice(0, 120)}`);
     if (!body.includes("launchScore")) return logFail("audit-api", "response missing launchScore");
     logPass("audit-api", "GitHub audit endpoint returned analysis");
@@ -252,7 +276,7 @@ async function checkAuditRejectsSensitiveInput() {
       body: JSON.stringify({ url: `https://github.com/vercel/swr?token=${fakeToken}` }),
     });
     const body = await response.text();
-    if (response.status === 429) return logWarn("audit-sensitive-input", "rate limited; endpoint is protected");
+    if (isRateLimited(response)) return handleRateLimit("audit-sensitive-input", response);
     if (response.status !== 400) return logFail("audit-sensitive-input", `expected 400 for sensitive input, got HTTP ${response.status}`);
     if (body.includes(fakeToken)) return logFail("audit-sensitive-input", "error response echoed the submitted token");
     logPass("audit-sensitive-input", "rejects sensitive pasted repository input without echoing it");
@@ -265,7 +289,7 @@ async function checkHealthApi() {
   try {
     const response = await fetchWithTimeout("/api/health");
     const body = await response.text();
-    if (response.status === 429) return logWarn("health-api", "rate limited; endpoint is protected");
+    if (isRateLimited(response)) return handleRateLimit("health-api", response);
     if (!response.ok) return logFail("health-api", `HTTP ${response.status}: ${body.slice(0, 120)}`);
     let snapshot;
     try {

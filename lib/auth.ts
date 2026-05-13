@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { AUTH_COOKIE } from "@/lib/auth-constants";
 import { AUTH_SESSION_SECONDS, signAuthToken, verifyAuthToken, type AuthPayload } from "@/lib/auth-token";
-import { prisma } from "@/lib/prisma";
 
 export { signAuthToken, type AuthPayload };
 
@@ -45,6 +44,7 @@ export async function getCurrentUser(request: NextRequest) {
   const payload = readAuthPayload(request);
   if (!payload) return null;
 
+  const { prisma } = await import("@/lib/prisma");
   return prisma.user.findUnique({
     where: { id: payload.userId },
     select: { id: true, email: true, name: true, role: true, twoFactorEnabled: true, createdAt: true },
