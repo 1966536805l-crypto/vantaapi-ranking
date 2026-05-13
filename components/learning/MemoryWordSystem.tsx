@@ -68,16 +68,17 @@ export default function MemoryWordSystem({
   const [selectedSlug, setSelectedSlug] = useState(packs[0]?.slug ?? "");
   const [search, setSearch] = useState("");
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
-  const [randomCount, setRandomCount] = useState("20");
+  const [randomCount, setRandomCount] = useState("200");
   const selectedPack = useMemo(
     () => packs.find((pack) => pack.slug === selectedSlug) ?? packs[0],
     [packs, selectedSlug],
   );
   const selectedWordSet = useMemo(() => new Set(selectedWords), [selectedWords]);
-  const filteredWords = useMemo(
-    () => selectedPack.words.filter((word) => wordMatches(word, search)).slice(0, 120),
+  const matchedWords = useMemo(
+    () => selectedPack.words.filter((word) => wordMatches(word, search)),
     [search, selectedPack.words],
   );
+  const filteredWords = useMemo(() => matchedWords.slice(0, 120), [matchedWords]);
   const activeWords = useMemo(() => {
     if (selectedWords.length === 0) return selectedPack.words;
     const selected = selectedPack.words.filter((word) => selectedWordSet.has(word.word.toLowerCase()));
@@ -85,8 +86,8 @@ export default function MemoryWordSystem({
   }, [selectedPack.words, selectedWordSet, selectedWords.length]);
   const selectedSignature = selectedWords.length ? selectedWords.slice().sort().join("|") : "all";
   const randomPick = () => {
-    const count = Math.max(1, Math.min(Number.parseInt(randomCount, 10) || 1, filteredWords.length || selectedPack.words.length));
-    const source = (filteredWords.length > 0 ? filteredWords : selectedPack.words).map((word) => word.word.toLowerCase());
+    const count = Math.max(1, Math.min(Number.parseInt(randomCount, 10) || 1, matchedWords.length || selectedPack.words.length));
+    const source = (matchedWords.length > 0 ? matchedWords : selectedPack.words).map((word) => word.word.toLowerCase());
     const shuffled = [...source].sort(() => Math.random() - 0.5);
     setSelectedWords(Array.from(new Set(shuffled.slice(0, count))));
   };
@@ -145,7 +146,7 @@ export default function MemoryWordSystem({
               <input
                 type="number"
                 min={1}
-                max={Math.max(filteredWords.length, selectedPack.words.length, 1)}
+                max={Math.max(matchedWords.length, selectedPack.words.length, 1)}
                 value={randomCount}
                 onChange={(event) => setRandomCount(event.target.value)}
               />
