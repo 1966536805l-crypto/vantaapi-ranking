@@ -6,6 +6,8 @@ Use this copy when sharing the repository on GitHub, social media, or developer 
 
 JinMing Lab is a free learning and developer tools website with English word typing practice, exam vocabulary banks, custom word books, programming practice, and GitHub launch audits.
 
+Student-built angle: it is built by a middle school student learning in public, turning real study and coding needs into practical web tools.
+
 ## GitHub About
 
 - Website: `https://vantaapi.com`
@@ -15,6 +17,8 @@ JinMing Lab is a free learning and developer tools website with English word typ
 ## Social Post
 
 I built JinMing Lab, a free learning and developer tools site:
+
+It started as a middle-school-student-built project for real English study, coding practice, and GitHub launch checks.
 
 - English word typing with pronunciation, examples, progress saving, focus mode, and vibration feedback
 - School and exam vocabulary packs
@@ -29,6 +33,8 @@ Feedback and stars are welcome.
 ## Chinese Post
 
 我做了一个免费的学习工具站 JinMing Lab：
+
+这是一个初中生边学习边做出来的项目，目标是把真实的背单词、学编程、发 GitHub 项目的需求做成能用的工具。
 
 - 英语单词跟打，带发音、例句、进度保存、专注模式、震动反馈
 - 小学、初中、高中、大学、四六级、专四专八、雅思、托福、GRE 等词库
@@ -59,6 +65,8 @@ JinMing Lab already matches those needs:
 
 I built JinMing Lab as a free practice and launch-check workspace for learners and builders.
 
+It is a student-built project from a middle school learner who is learning in public.
+
 It is not just an English practice site. It also includes:
 
 - GitHub Launch Audit for public repos
@@ -76,6 +84,8 @@ Useful if you are preparing a public repo, learning to code, or building a portf
 ## Chinese Developer Post
 
 我做了一个免费的学习和开发者工具站 JinMing Lab。
+
+它是一个初中生边学边做的项目，想把真实学习和做项目时会遇到的问题，变成普通人也能直接用的工具。
 
 它不只是背单词，也适合正在学编程、做作品集、准备公开 GitHub 项目的人：
 
@@ -103,6 +113,7 @@ GitHub：https://github.com/1966536805l-crypto/vantaapi-ranking
 ## Best Short Hooks
 
 - Free GitHub launch audit plus coding practice in one site.
+- Student-built learning and developer tools for English, coding practice, and GitHub launch checks.
 - Check your repo before publishing: README, env, CI, deploy, security, release checklist.
 - For learners: English typing, vocabulary banks, custom word books, and 53-language programming practice.
 - For builders: code explainer, bug finder, API snippets, JSON tools, and repo launch checks.

@@ -2,6 +2,8 @@
 
 **A free learning and developer tools website for English practice, programming practice, and GitHub launch checks.**
 
+Built by a middle school student who is learning in public and turning daily study needs into practical web tools.
+
 Try it online: <https://vantaapi.com>
 
 ## Highlights
@@ -18,6 +20,10 @@ Try it online: <https://vantaapi.com>
 - Learners who want a clean typing-based memorization tool with examples and pronunciation.
 - Developers who want practical launch checks before publishing a project.
 - Teachers or self-learners who want a quick custom word bank workflow.
+
+## Why This Exists
+
+JinMing Lab started as a student-built project for real study and coding practice: memorize English words with typing, practice programming in small steps, and check whether a GitHub repo is ready to share. The goal is simple: make learning tools that are useful enough for daily use and open enough for other learners to inspect, star, fork, and improve.
 
 ## Popular Links
 
