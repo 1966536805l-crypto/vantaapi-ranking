@@ -621,6 +621,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
         <nav>
           <Link href={localizedHref("/tools/github-repo-analyzer", language)}>{t.audit}</Link>
           <Link href={localizedHref("/tools", language)}>{t.tools}</Link>
+          <Link href={localizedHref("/english", language)}>{language === "zh" ? "英语" : "English"}</Link>
           <Link href={localizedHref("/programming", language)}>{t.programming}</Link>
           <FlagLanguageToggle initialLanguage={language} />
         </nav>
@@ -681,6 +682,7 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
 
       <footer className="home-audit-footer">
         <Link href={localizedHref("/tools", language)}>{t.developerTools}</Link>
+        <Link href={localizedHref("/english", language)}>{language === "zh" ? "英语入口" : "English"}</Link>
         <Link href={localizedHref("/programming", language)}>{t.programmingLab}</Link>
         <Link href={localizedHref("/security", language)}>{t.security}</Link>
         <Link href={localizedHref("/privacy", language)}>{t.privacy}</Link>

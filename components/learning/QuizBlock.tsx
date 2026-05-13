@@ -619,7 +619,7 @@ export default function QuizBlock({
         const choiceTimed = strictChoiceTimer && isActive && q.options.length > 0 && !result;
 
         return (
-        <article key={q.id} className={`border border-slate-200 bg-white p-5 ${locked ? "opacity-55" : ""}`}>
+        <article key={q.id} className={`rounded-[20px] border border-slate-200 bg-white p-5 ${locked ? "opacity-55" : ""}`}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="eyebrow">{t.exercise} {index + 1}  {typeLabel[uiLanguage][q.type] || q.type}</p>
             {choiceTimed ? (
@@ -633,12 +633,12 @@ export default function QuizBlock({
             ) : null}
           </div>
           <p className="mt-3 whitespace-pre-wrap leading-7">{q.prompt}</p>
-          {q.codeSnippet && <pre className="mt-3 overflow-x-auto bg-slate-950 p-4 text-sm text-white">{q.codeSnippet}</pre>}
+          {q.codeSnippet && <pre className="mt-3 overflow-x-auto rounded-[18px] bg-slate-950 p-4 text-sm text-white">{q.codeSnippet}</pre>}
 
           {q.options.length > 0 ? (
             <div className="mt-4 grid gap-2">
               {q.options.map((option) => (
-                <label key={option.id} className="flex gap-3 border border-slate-200 bg-slate-50 p-3">
+                <label key={option.id} className="flex gap-3 rounded-[18px] border border-slate-200 bg-slate-50 p-3">
                   <input
                     type="radio"
                     name={q.id}
@@ -659,18 +659,18 @@ export default function QuizBlock({
               disabled={!isActive || Boolean(result)}
               onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
               placeholder={t.placeholder}
-              className="mt-4 w-full border border-slate-200 px-4 py-3 outline-none focus:border-[color:var(--accent)] disabled:opacity-60"
+              className="mt-4 w-full rounded-[18px] border border-slate-200 px-4 py-3 outline-none focus:border-[color:var(--accent)] disabled:opacity-60"
             />
           )}
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <button disabled={saving || !isActive || Boolean(result) || (strictChoiceTimer && q.options.length > 0)} onClick={() => submit(q.id)} className="border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{t.submit}</button>
-            <button onClick={() => saveWrong(q.id)} className="border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:border-slate-500">{t.saveWrong}</button>
+            <button disabled={saving || !isActive || Boolean(result) || (strictChoiceTimer && q.options.length > 0)} onClick={() => submit(q.id)} className="rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{t.submit}</button>
+            <button onClick={() => saveWrong(q.id)} className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:border-slate-500">{t.saveWrong}</button>
           </div>
 
           {message[q.id] && <p className="mt-3 text-sm text-[color:var(--accent-link)]">{message[q.id]}</p>}
           {result && (
-            <div className={`mt-4 border p-4 text-sm ${result.correct ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-red-200 bg-red-50 text-red-800"}`}>
+            <div className={`mt-4 rounded-[18px] border p-4 text-sm ${result.correct ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-red-200 bg-red-50 text-red-800"}`}>
               <p className="font-semibold">{result.correct ? t.correctResult : q.id.startsWith("fallback-") ? t.incorrectLocal : t.incorrectSaved}</p>
               <p className="mt-2">{t.correctAnswer} {result.answer}</p>
               <p className="mt-2">{result.explanation}</p>

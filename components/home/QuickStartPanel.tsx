@@ -256,7 +256,12 @@ export default function QuickStartPanel({ ui = "english" }: { ui?: string }) {
   const language = quickLanguageByUi[ui] ?? "en";
   const copy = quickCopy[ui] ?? quickCopy.english;
   const actions = quickActions[ui] ?? quickActions.english;
-  const focusedActions = actions.filter((action) => action.kind === "tool" || action.kind === "programming" || action.id === "quick:search");
+  const focusedActions = actions.filter((action) =>
+    action.kind === "tool" ||
+    action.kind === "programming" ||
+    action.id === "quick:search" ||
+    action.id === "quick:english:typing"
+  );
   const [state, setState] = useState<LocalProgressState>(() => readState());
   const summary = useMemo(() => localProgressSummary(state), [state]);
   const continueItem = summary.recents[0];
