@@ -416,6 +416,7 @@ export default function WordTypingTrainer({
   const selectPack = (slug: string) => {
     setSelectedPackSlug(slug);
     setIsTodayPractice(false);
+    setIncludeGeneratedWords(false);
     setStartDraft("1");
     setCustomMessage(slug === CUSTOM_PACK_SLUG ? "已切换到自制词库" : "自制词库保存在当前浏览器");
   };
@@ -423,6 +424,7 @@ export default function WordTypingTrainer({
   const startTodayPractice = () => {
     setSelectedPackSlug(defaultPackSlug);
     setIsTodayPractice(true);
+    setIncludeGeneratedWords(false);
     setStartDraft("1");
     resetSession("今日 50 个已准备好");
   };
