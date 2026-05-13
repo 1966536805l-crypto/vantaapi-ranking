@@ -187,7 +187,7 @@ const quickActions: Record<string, QuickAction[]> = {
     { id: "quick:wordbook", title: "My Wordbook", label: "Open Wordbook", href: "/english/vocabulary/custom", kind: "english", body: "Import your own words add tags and train them directly." },
     { id: "quick:tool:prompt", title: "AI Tool", label: "Start AI Tool", href: "/tools/prompt-optimizer", kind: "tool", body: "Turn a rough idea into a copy ready prompt." },
     { id: "quick:programming:python", title: "Python Drill", label: "Start Python Drill", href: "/programming/python", kind: "programming", body: "Answer one zero foundation programming question." },
-    { id: "quick:english:typing", title: "English Typing", label: "Start Typing Drill", href: "/english/typing", kind: "english", body: "Listen then type words and sentences until correct." },
+    { id: "quick:english:typing", title: "Word Typing", label: "Start Word Drill", href: "/english/word-typing", kind: "english", body: "Type exam words with pronunciation examples and saved progress." },
     { id: "quick:language:japanese", title: "Japanese From Zero", label: "Start Japanese", href: "/languages/japanese", kind: "world-language", body: "Begin with sound script and first phrases." },
   ],
   chinese: [
@@ -196,7 +196,7 @@ const quickActions: Record<string, QuickAction[]> = {
     { id: "quick:wordbook", title: "我的词书", label: "打开词书", href: "/english/vocabulary/custom", kind: "english", body: "导入自己的单词 加标签 直接训练" },
     { id: "quick:tool:prompt", title: "AI 工具", label: "启动工具", href: "/tools/prompt-optimizer", kind: "tool", body: "把粗糙想法改成可直接使用的提示词" },
     { id: "quick:programming:python", title: "Python 练习", label: "开始 Python", href: "/programming/python", kind: "programming", body: "做一道零基础编程题" },
-    { id: "quick:english:typing", title: "英语打字", label: "开始打字", href: "/english/typing", kind: "english", body: "听音后输入单词和句子 直到正确" },
+    { id: "quick:english:typing", title: "单词跟打", label: "开始跟打", href: "/english/word-typing", kind: "english", body: "热门考试词库 发音例句 实时验证 自动保存进度" },
     { id: "quick:language:japanese", title: "日语零基础", label: "开始日语", href: "/languages/japanese", kind: "world-language", body: "从声音 文字和第一批短句开始" },
   ],
   japanese: [

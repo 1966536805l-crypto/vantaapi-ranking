@@ -31,21 +31,21 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
         </div>
 
         <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <Link href={localizedHref("/english/typing", language)} className="dense-card p-4">
+          <Link href={localizedHref("/english/word-typing", language)} className="dense-card p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="eyebrow">{copyLanguage === "zh" ? "英文打字" : "English typing"}</p>
-                <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? "听写打字系统" : "Typing System"}</h2>
+                <p className="eyebrow">{copyLanguage === "zh" ? "单词打字" : "Word typing"}</p>
+                <h2 className="mt-2 text-xl font-semibold">{copyLanguage === "zh" ? "单词跟打训练" : "Word Typing Drill"}</h2>
               </div>
               <span className="text-3xl font-semibold">⌨</span>
             </div>
             <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
               {copyLanguage === "zh"
-                ? "听发音后输入英文 · 实时验证 · 拼对过关 · 本地进度"
-                : "Listen then type English · Real-time feedback · Spell to pass · Local progress"}
+                ? "热门考试词库 · 发音例句 · 实时验证 · 自动保存进度"
+                : "Exam word banks · Pronunciation and examples · Real-time feedback · Saved progress"}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {(copyLanguage === "zh" ? ["听音", "盲打", "错了重听", "本地进度"] : ["listen", "type", "retry", "local progress"]).map((item) => (
+              {(copyLanguage === "zh" ? ["330 词", "发音", "例句", "保存进度"] : ["330 words", "audio", "examples", "saved progress"]).map((item) => (
                 <span key={item} className="dense-status">{item}</span>
               ))}
             </div>
