@@ -13,6 +13,7 @@ import { speakMemoryPronunciation } from "@/lib/memory-pronunciation";
 type ReviewRecord = {
   status: "known" | "unknown";
   stage: number;
+  ease?: number;
   nextAt: number;
   seen: number;
   correct: number;
@@ -43,6 +44,15 @@ const reviewIntervals = [
   { labelEn: "15 d", labelZh: "15 天", ms: 15 * 24 * 60 * 60 * 1000 },
   { labelEn: "30 d", labelZh: "30 天", ms: 30 * 24 * 60 * 60 * 1000 },
 ];
+
+const emptyWord: ExamVocabularyWord = {
+  word: "",
+  meaningZh: "",
+  meaningEn: "",
+  collocation: "",
+  sentence: "",
+  examNote: "",
+};
 
 const copy = {
   en: {
@@ -100,6 +110,10 @@ const copy = {
     timerLabel: "5 second limit",
     timeout: "Time out. Counted wrong.",
     timeoutNote: "Answer first within 5 seconds then read the note.",
+    sessionComplete: "This set is done for now",
+    sessionCompleteBody: "Known words moved into old review and will return only when your personal curve says they are due.",
+    nextDue: "Next old-word review",
+    personalCurve: "Personal curve",
   },
   zh: {
     eyebrow: "词汇训练",
@@ -156,6 +170,10 @@ const copy = {
     timerLabel: "5 秒限时",
     timeout: "超时 已算错",
     timeoutNote: "5 秒内先答 答完再看注释",
+    sessionComplete: "这组词本轮背完了",
+    sessionCompleteBody: "认识的词已经进入旧词复习区，不会再当新词反复出现；到你的个人遗忘曲线时间才会回来。",
+    nextDue: "下次旧词复习",
+    personalCurve: "个人曲线",
   },
 } as const;
 
@@ -217,6 +235,8 @@ function getRootHints(word: string, language: SiteLanguage) {
 }
 
 function buildChoices(words: ExamVocabularyWord[], index: number, language: SiteLanguage) {
+  if (words.length === 0) return [];
+
   const offsets = [0, 1, 5, 11, 17, 23];
   const picked: ExamVocabularyWord[] = [];
 
@@ -262,10 +282,14 @@ function formatRelativeTime(timestamp: number, language: SiteLanguage) {
 function nextRecord(record: ReviewRecord | undefined, knows: boolean) {
   const now = Date.now();
   const stage = knows ? Math.min((record?.stage ?? -1) + 1, reviewIntervals.length - 1) : 0;
+  const previousEase = record?.ease ?? 1;
+  const ease = knows ? Math.min(previousEase + 0.12, 2.2) : Math.max(previousEase - 0.25, 0.55);
+  const intervalMs = Math.round(reviewIntervals[stage].ms * ease);
   return {
     status: knows ? "known" : "unknown",
     stage,
-    nextAt: now + reviewIntervals[stage].ms,
+    ease,
+    nextAt: now + intervalMs,
     seen: (record?.seen ?? 0) + 1,
     correct: (record?.correct ?? 0) + (knows ? 1 : 0),
     wrong: (record?.wrong ?? 0) + (knows ? 0 : 1),
@@ -336,8 +360,22 @@ export default function VocabularyTrainer({
     });
   }, [isVocabularyReady, packMeta, words]);
 
-  const safeIndex = trainingWords.length > 0 ? currentIndex % trainingWords.length : 0;
-  const currentWord = trainingWords[safeIndex];
+  const sessionWords = useMemo(() => {
+    const oldDue = trainingWords.filter((word) => {
+      const record = progress[word.word];
+      return record && isReviewDue(record);
+    });
+    const fresh = trainingWords.filter((word) => !progress[word.word]);
+    return [...oldDue, ...fresh];
+  }, [progress, trainingWords]);
+  const nextScheduledWord = useMemo(() => {
+    return trainingWords
+      .filter((word) => progress[word.word]?.nextAt)
+      .sort((left, right) => (progress[left.word]?.nextAt ?? 0) - (progress[right.word]?.nextAt ?? 0))[0];
+  }, [progress, trainingWords]);
+  const isSessionComplete = trainingWords.length > 0 && sessionWords.length === 0;
+  const safeIndex = sessionWords.length > 0 ? currentIndex % sessionWords.length : 0;
+  const currentWord = sessionWords[safeIndex] ?? nextScheduledWord ?? trainingWords[0] ?? emptyWord;
   const isCustomPack = packSlug === CUSTOM_WORDBOOK_SLUG;
   const roots = useMemo(() => getRootHints(currentWord.word, language), [currentWord.word, language]);
   const visibleDetails = {
@@ -348,7 +386,8 @@ export default function VocabularyTrainer({
   };
   const currentRecord = progress[currentWord.word];
   const activeChoice = selectedChoice?.word === currentWord.word ? selectedChoice : null;
-  const choices = useMemo(() => buildChoices(trainingWords, safeIndex, language), [language, safeIndex, trainingWords]);
+  const choiceIndex = Math.max(trainingWords.findIndex((word) => word.word === currentWord.word), 0);
+  const choices = useMemo(() => buildChoices(trainingWords, choiceIndex, language), [choiceIndex, language, trainingWords]);
   const coachContext = useMemo(() => ({
     pack: packSlug,
     interfaceLanguage: language,
@@ -370,9 +409,10 @@ export default function VocabularyTrainer({
       known,
       due,
       untouched: Math.max(trainingWords.length - records.length, 0),
+      active: sessionWords.length,
       percent: Math.round((known / Math.max(trainingWords.length, 1)) * 100),
     };
-  }, [progress, trainingWords]);
+  }, [progress, sessionWords.length, trainingWords]);
 
   const writeRecord = useCallback((word: ExamVocabularyWord, knows: boolean, customMessage?: string) => {
     const record = nextRecord(progress[word.word], knows);
@@ -394,8 +434,8 @@ export default function VocabularyTrainer({
     setSelectedChoice(null);
     setSpellingDraft("");
     setTimeLeft(5);
-    setCurrentIndex((index) => (index + 1) % trainingWords.length);
-  }, [trainingWords.length]);
+    setCurrentIndex((index) => (index + 1) % Math.max(sessionWords.length, 1));
+  }, [sessionWords.length]);
 
   const pronounce = useCallback(async (options?: { quiet?: boolean }) => {
     if (typeof window === "undefined") return;
@@ -429,19 +469,21 @@ export default function VocabularyTrainer({
   }, []);
 
   const choose = useCallback((optionWord: string) => {
+    if (isSessionComplete) return;
     const correct = optionWord === currentWord.word;
     setSelectedChoice({ word: currentWord.word, optionWord, correct });
     writeRecord(currentWord, correct);
     advanceAfterAnswer();
-  }, [advanceAfterAnswer, currentWord, writeRecord]);
+  }, [advanceAfterAnswer, currentWord, isSessionComplete, writeRecord]);
 
   const markRecognition = useCallback((knows: boolean) => {
+    if (isSessionComplete) return;
     writeRecord(currentWord, knows);
     advanceAfterAnswer();
-  }, [advanceAfterAnswer, currentWord, writeRecord]);
+  }, [advanceAfterAnswer, currentWord, isSessionComplete, writeRecord]);
 
   const failByTimeout = useCallback(() => {
-    if (practiceMode === "spelling") return;
+    if (practiceMode === "spelling" || isSessionComplete) return;
     setSelectedChoice({ word: currentWord.word, optionWord: "__timeout__", correct: false });
     setPresetDetails("all");
     writeRecord(
@@ -449,9 +491,10 @@ export default function VocabularyTrainer({
       false,
       `${t.timeout} ${currentWord.word} ${wordMeaning(currentWord, language)}. ${wordNote(currentWord, language)} ${t.timeoutNote}`,
     );
-  }, [currentWord, language, practiceMode, setPresetDetails, t.timeout, t.timeoutNote, writeRecord]);
+  }, [currentWord, isSessionComplete, language, practiceMode, setPresetDetails, t.timeout, t.timeoutNote, writeRecord]);
 
   const submitSpelling = useCallback(() => {
+    if (isSessionComplete) return;
     const correct = normalizeSpelling(spellingDraft) === normalizeSpelling(currentWord.word);
 
     if (correct) {
@@ -465,15 +508,15 @@ export default function VocabularyTrainer({
     setSelectedChoice({ word: currentWord.word, optionWord: "__spelling__", correct: false });
     void pronounce({ quiet: true });
     setMessage(wrongMessage);
-  }, [advanceAfterAnswer, currentWord, pronounce, spellingDraft, t.spellingCorrect, t.spellingWrong, writeRecord]);
+  }, [advanceAfterAnswer, currentWord, isSessionComplete, pronounce, spellingDraft, t.spellingCorrect, t.spellingWrong, writeRecord]);
 
   const goNext = useCallback(() => {
-    setCurrentIndex((index) => (index + 1) % trainingWords.length);
+    setCurrentIndex((index) => (index + 1) % Math.max(sessionWords.length, 1));
     setSelectedChoice(null);
     setSpellingDraft("");
     setTimeLeft(5);
     setMessage("");
-  }, [trainingWords.length]);
+  }, [sessionWords.length]);
 
   const saveCurrentWord = useCallback(() => {
     upsertCustomWord(currentWord, {
@@ -518,6 +561,7 @@ export default function VocabularyTrainer({
       const target = event.target as HTMLElement | null;
       if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
       if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (isSessionComplete) return;
 
       const key = event.key.toLowerCase();
       const choiceIndex = Number(key) - 1;
@@ -568,7 +612,7 @@ export default function VocabularyTrainer({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [choices, choose, goNext, markRecognition, practiceMode, pronounce, toggleDetail]);
+  }, [choices, choose, goNext, isSessionComplete, markRecognition, practiceMode, pronounce, toggleDetail]);
 
   return (
     <section className="vocab-trainer mt-6">
@@ -637,6 +681,18 @@ export default function VocabularyTrainer({
               </div>
             ) : null}
 
+            {isSessionComplete ? (
+              <div className="vocab-session-complete">
+                <p className="eyebrow">{t.personalCurve}</p>
+                <h3>{t.sessionComplete}</h3>
+                <p>{t.sessionCompleteBody}</p>
+                <div>
+                  <span>{t.nextDue}</span>
+                  <strong>{currentRecord ? formatRelativeTime(currentRecord.nextAt, language) : t.newWord}</strong>
+                </div>
+              </div>
+            ) : (
+              <>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="eyebrow">
@@ -782,6 +838,8 @@ export default function VocabularyTrainer({
               </p>
             ) : null}
             {message ? <p className="mt-2 text-sm text-[color:var(--muted)]">{message}</p> : null}
+              </>
+            )}
           </div>
 
           <aside className="vocab-memory-surface">

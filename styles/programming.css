@@ -1337,6 +1337,57 @@
   background: rgba(248, 250, 252, 0.76);
 }
 
+.vocab-session-complete {
+  display: grid;
+  min-height: 420px;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: clamp(22px, 5vw, 54px);
+  text-align: center;
+}
+
+.vocab-session-complete h3 {
+  color: var(--foreground);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 6vw, 76px);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.vocab-session-complete p:not(.eyebrow) {
+  max-width: 620px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.8;
+}
+
+.vocab-session-complete div {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 9px 14px;
+}
+
+.vocab-session-complete span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.vocab-session-complete strong {
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .vocab-ghost-button,
 .vocab-choice-button {
   border: 1px solid var(--hair);
