@@ -6,6 +6,7 @@ export type ExamVocabularyWord = {
   collocation: string;
   sentence: string;
   examNote: string;
+  generated?: boolean;
 };
 
 export type ExamVocabularyPack = {

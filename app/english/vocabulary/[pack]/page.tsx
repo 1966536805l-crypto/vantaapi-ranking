@@ -4,7 +4,7 @@ import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import VocabularyTrainer from "@/components/learning/VocabularyTrainer";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
 import { examVocabularyPacks, getVocabularyPack, keySentenceFrames } from "@/lib/exam-content";
-import { getExpandedVocabularyWords } from "@/lib/expanded-vocabulary-bank";
+import { getExpandedVocabularyWords, getGeneratedVocabularyPackCount, getVerifiedVocabularyPackCount } from "@/lib/expanded-vocabulary-bank";
 import {
   getFrameLabel,
   getFrameUsage,
@@ -37,6 +37,8 @@ export default async function VocabularyPackPage({
   if (!pack) notFound();
   const expandedWords = getExpandedVocabularyWords(pack);
   const previewWords = expandedWords.slice(0, 40);
+  const verifiedCount = getVerifiedVocabularyPackCount(pack);
+  const generatedCount = getGeneratedVocabularyPackCount(pack);
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -77,8 +79,19 @@ export default async function VocabularyPackPage({
                 <p className="eyebrow">{copy.wordsEyebrow}</p>
                 <h2 className="mt-2 text-2xl font-semibold">{copy.wordsTitle}</h2>
               </div>
-                <span className="dense-status">{expandedWords.length.toLocaleString("zh-CN")} 词 · 预览 {previewWords.length}</span>
+                <span className="dense-status">
+                  {copyLanguage === "zh"
+                    ? `精选已校验 ${verifiedCount.toLocaleString("zh-CN")} 词`
+                    : `${verifiedCount.toLocaleString("en-US")} verified`}
+                </span>
             </div>
+            {generatedCount > 0 ? (
+              <p className="mt-3 rounded-[8px] bg-black/5 px-3 py-2 text-sm text-[color:var(--muted)]">
+                {copyLanguage === "zh"
+                  ? "另有扩展拼写练习词，带 generated 标记，用于跟打、拼写和阅读识别，不作为人工校验词库展示。"
+                  : "Generated expansion words are marked for spelling and recognition practice, not presented as human-verified vocabulary."}
+              </p>
+            ) : null}
             <div className="mt-4 grid gap-2 md:grid-cols-2">
               {previewWords.map((item) => (
                 <article key={item.word} className="dense-card p-3">
@@ -86,7 +99,7 @@ export default async function VocabularyPackPage({
                     <div>
                       <h3 className="text-lg font-semibold">{item.word}</h3>
                     </div>
-                    <span className="dense-status">{item.collocation}</span>
+                    <span className="dense-status">{item.generated ? (copyLanguage === "zh" ? "扩展练习" : "generated") : item.collocation}</span>
                   </div>
                   <details className="word-reveal-details mt-3">
                     <summary>{copyLanguage === "zh" ? "查看释义音标例句" : "Show details"}</summary>
@@ -104,7 +117,9 @@ export default async function VocabularyPackPage({
             </div>
             {expandedWords.length > previewWords.length ? (
               <p className="mt-4 rounded-[8px] bg-black/5 px-3 py-2 text-sm text-[color:var(--muted)]">
-                当前页展示前 {previewWords.length} 个词，顶部训练器和单词跟打使用完整 {expandedWords.length.toLocaleString("zh-CN")} 词库。
+                {copyLanguage === "zh"
+                  ? `当前页预览 ${previewWords.length} 个词；扩展词仅用于额外拼写练习。`
+                  : `This page previews ${previewWords.length} words; generated words are only extra spelling practice.`}
               </p>
             ) : null}
           </div>

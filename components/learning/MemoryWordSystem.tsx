@@ -103,7 +103,9 @@ export default function MemoryWordSystem({
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="dense-status">Ebbinghaus</span>
           <span className="dense-status">{t.shortcut}</span>
-          <span className="dense-status">{selectedPack.targetCount.toLocaleString(language === "zh" ? "zh-CN" : "en-US")} {t.count}</span>
+          <span className="dense-status">
+            {language === "zh" ? "精选已校验" : "Verified"} {selectedPack.targetCount.toLocaleString(language === "zh" ? "zh-CN" : "en-US")} {t.count}
+          </span>
         </div>
       </div>
 
@@ -128,7 +130,9 @@ export default function MemoryWordSystem({
               }}
             >
               <strong>{pack.shortTitle}</strong>
-              <span>{pack.level} · {pack.targetCount.toLocaleString(language === "zh" ? "zh-CN" : "en-US")} {t.count}</span>
+              <span>
+                {pack.level} · {language === "zh" ? "精选" : "verified"} {pack.targetCount.toLocaleString(language === "zh" ? "zh-CN" : "en-US")} {t.count}
+              </span>
             </button>
           ))}
         </div>

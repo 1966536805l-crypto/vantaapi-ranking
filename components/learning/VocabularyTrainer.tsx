@@ -9,6 +9,7 @@ import { getExpandedVocabularyWords } from "@/lib/expanded-vocabulary-bank";
 import type { SiteLanguage } from "@/lib/language";
 import { recordLocalActivity } from "@/lib/local-progress";
 import { speakMemoryPronunciation } from "@/lib/memory-pronunciation";
+import { recordUnifiedWrongWord } from "@/lib/unified-wrong-words";
 
 type ReviewRecord = {
   status: "known" | "unknown";
@@ -433,6 +434,7 @@ export default function VocabularyTrainer({
     const nextProgress = { ...progress, [word.word]: record };
     setProgress(nextProgress);
     persistProgress(packSlug, nextProgress);
+    if (!knows) recordUnifiedWrongWord(word, "memory");
     recordLocalActivity({
       id: `english:${packSlug}:${word.word}`,
       title: `${word.word} vocabulary`,

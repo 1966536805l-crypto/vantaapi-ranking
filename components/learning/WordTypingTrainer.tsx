@@ -12,6 +12,7 @@ import {
   writeCustomWords,
   type CustomVocabularyWord,
 } from '@/lib/custom-wordbook';
+import { recordUnifiedWrongWord } from '@/lib/unified-wrong-words';
 
 type WordWithMeta = ExamVocabularyWord & {
   source: string;
@@ -52,6 +53,8 @@ type CustomDraft = {
 const ALL_PACK_SLUG = "all-exam-words";
 const CUSTOM_PACK_SLUG = "custom-wordbook";
 const VIBRATION_SETTING_KEY = "word-typing-vibration-enabled";
+const TODAY_WORD_COUNT = 50;
+const DEFAULT_PACK_SLUGS = ["daily-english-core", "middle-school-core"] as const;
 
 const progressThemes: { id: ProgressTheme; label: string }[] = [
   { id: "blue", label: "蓝" },
@@ -91,9 +94,19 @@ function makePackForExpansion(pack: WordTypingPack): ExamVocabularyPack {
 function withPackMeta(words: ExamVocabularyWord[], pack: WordTypingPack): WordWithMeta[] {
   return words.map((word) => ({
     ...word,
-    source: pack.shortTitle,
-    level: pack.level,
+    source: word.generated ? "扩展拼写练习" : pack.shortTitle,
+    level: word.generated ? "Generated" : pack.level,
   }));
+}
+
+function getDefaultTypingPackSlug(packs: WordTypingPack[]) {
+  return DEFAULT_PACK_SLUGS.find((slug) => packs.some((pack) => pack.slug === slug)) ?? packs[0]?.slug ?? CUSTOM_PACK_SLUG;
+}
+
+function getPackOptionMeta(pack: WordTypingPack) {
+  if (pack.slug === CUSTOM_PACK_SLUG) return `Custom · ${pack.words.length.toLocaleString("zh-CN")} 词`;
+  if (pack.slug === ALL_PACK_SLUG) return `All · 精选 ${pack.targetCount.toLocaleString("zh-CN")} 词`;
+  return `${pack.level} · 精选 ${pack.words.length.toLocaleString("zh-CN")} 词 · 扩展拼写练习`;
 }
 
 function parseBulkWords(text: string) {
@@ -122,7 +135,9 @@ export default function WordTypingTrainer({
   packs: WordTypingPack[];
   language: InterfaceLanguage;
 }) {
-  const [selectedPackSlug, setSelectedPackSlug] = useState(ALL_PACK_SLUG);
+  const defaultPackSlug = getDefaultTypingPackSlug(packs);
+  const [selectedPackSlug, setSelectedPackSlug] = useState(defaultPackSlug);
+  const [isTodayPractice, setIsTodayPractice] = useState(true);
   const [customWords, setCustomWords] = useState<CustomVocabularyWord[]>([]);
   const [customDraft, setCustomDraft] = useState<CustomDraft>(initialCustomDraft);
   const [customBulkText, setCustomBulkText] = useState("");
@@ -147,14 +162,16 @@ export default function WordTypingTrainer({
   const trainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const typingWrongSavedRef = useRef<Set<string>>(new Set());
 
   const customTypingWords = useMemo(() => customWords.map(customToTypingWord), [customWords]);
+  const verifiedPackCount = useMemo(() => packs.reduce((sum, pack) => sum + pack.words.length, 0), [packs]);
   const packOptions = useMemo<WordTypingPack[]>(() => [
     {
       slug: ALL_PACK_SLUG,
-      title: "全部热门考试词库",
-      shortTitle: "全部词库",
-      targetCount: 18000,
+      title: "全部精选已校验词",
+      shortTitle: "全部精选",
+      targetCount: verifiedPackCount,
       level: "All",
       words: [],
     },
@@ -167,33 +184,32 @@ export default function WordTypingTrainer({
       level: "Custom",
       words: customTypingWords,
     },
-  ], [customTypingWords, packs]);
+  ], [customTypingWords, packs, verifiedPackCount]);
 
   const selectedPack = packOptions.find((pack) => pack.slug === selectedPackSlug) || packOptions[0];
-  const words = useMemo(() => {
+  const fullPracticeWords = useMemo(() => {
     if (!isVocabularyReady) {
       if (selectedPack.slug === ALL_PACK_SLUG) return packs.flatMap((pack) => pack.words);
       return selectedPack.words;
     }
     if (selectedPack.slug === CUSTOM_PACK_SLUG) return selectedPack.words;
-    if (selectedPack.slug === ALL_PACK_SLUG) {
-      const seen = new Set<string>();
-      return packs.flatMap((pack) => withPackMeta(getExpandedVocabularyWords(makePackForExpansion(pack)), pack)).filter((word) => {
-        const key = word.word.toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-    }
+    if (selectedPack.slug === ALL_PACK_SLUG) return packs.flatMap((pack) => pack.words);
     return withPackMeta(getExpandedVocabularyWords(makePackForExpansion(selectedPack)), selectedPack);
   }, [isVocabularyReady, packs, selectedPack]);
+  const words = useMemo(
+    () => isTodayPractice ? fullPracticeWords.slice(0, TODAY_WORD_COUNT) : fullPracticeWords,
+    [fullPracticeWords, isTodayPractice],
+  );
   const currentWord = words[currentIndex];
   const progress = words.length > 0 ? ((currentIndex + 1) / words.length) * 100 : 0;
   const correctCount = results.filter((r) => r.correct).length;
   const accuracy = results.length > 0 ? (correctCount / results.length) * 100 : 0;
-  const storageKey = `word-typing-progress:${selectedPack.slug}:${words.length}:${words[0]?.word ?? "start"}:${words[words.length - 1]?.word ?? "end"}`;
+  const sessionModeKey = isTodayPractice ? "today-50" : "full";
+  const storageKey = `word-typing-progress:${selectedPack.slug}:${sessionModeKey}:${words.length}:${words[0]?.word ?? "start"}:${words[words.length - 1]?.word ?? "end"}`;
   const savedTimeLabel = savedAt ? new Date(savedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) : "尚未保存";
   const isFocusActive = isFullscreen || isFocusMode;
+  const activePackTitle = isTodayPractice ? "今日练 50 个" : selectedPack.title;
+  const activePackShortTitle = isTodayPractice ? "今日 50" : selectedPack.shortTitle;
 
   const resetSession = useCallback((message = "自动保存开启") => {
     setCurrentIndex(0);
@@ -204,6 +220,7 @@ export default function WordTypingTrainer({
     setIsComplete(false);
     setSavedAt(null);
     setSaveMessage(message);
+    typingWrongSavedRef.current.clear();
   }, []);
 
   const persistProgress = useCallback((message = "已保存") => {
@@ -236,6 +253,13 @@ export default function WordTypingTrainer({
     if (!isVibrationEnabled || typeof navigator === "undefined" || !navigator.vibrate) return;
     navigator.vibrate(pattern);
   }, [isVibrationEnabled]);
+
+  const recordTypingWrong = useCallback((word: WordWithMeta) => {
+    const key = word.word.toLowerCase();
+    if (typingWrongSavedRef.current.has(key)) return;
+    typingWrongSavedRef.current.add(key);
+    recordUnifiedWrongWord(word, "typing");
+  }, []);
 
   useEffect(() => {
     const readyTimer = window.setTimeout(() => setIsVocabularyReady(true), 0);
@@ -362,8 +386,16 @@ export default function WordTypingTrainer({
 
   const selectPack = (slug: string) => {
     setSelectedPackSlug(slug);
+    setIsTodayPractice(false);
     setStartDraft("1");
     setCustomMessage(slug === CUSTOM_PACK_SLUG ? "已切换到自制词库" : "自制词库保存在当前浏览器");
+  };
+
+  const startTodayPractice = () => {
+    setSelectedPackSlug(defaultPackSlug);
+    setIsTodayPractice(true);
+    setStartDraft("1");
+    resetSession("今日 50 个已准备好");
   };
 
   const jumpToWord = () => {
@@ -413,6 +445,7 @@ export default function WordTypingTrainer({
         }
       }, 300);
     } else if (!targetWord.startsWith(inputLower) && value.length > 0) {
+      recordTypingWrong(currentWord);
       triggerVibration([35, 25, 35]);
       setErrorShake(true);
       setTimeout(() => setErrorShake(false), 500);
@@ -422,6 +455,7 @@ export default function WordTypingTrainer({
   const skipWord = () => {
     if (!currentWord) return;
     const timeSpent = startTime ? Date.now() - startTime : 0;
+    recordTypingWrong(currentWord);
     setResults([...results, { word: currentWord.word, correct: false, timeSpent }]);
 
     if (currentIndex < words.length - 1) {
@@ -508,7 +542,7 @@ export default function WordTypingTrainer({
       <div className="word-typing-complete">
         <div className="complete-card">
           <h1>训练完成</h1>
-          <p className="complete-pack-name">{selectedPack.shortTitle}</p>
+          <p className="complete-pack-name">{activePackShortTitle}</p>
           <div className="stats-grid">
             <div className="stat-item">
               <div className="stat-value">{results.length}</div>
@@ -554,13 +588,16 @@ export default function WordTypingTrainer({
         <div className="typing-topbar">
           <div>
             <p className="typing-eyebrow">单词跟打</p>
-            <h1>{isFocusActive ? `${selectedPack.shortTitle} 专注跟打` : "全屏单词跟打"}</h1>
+            <h1>{isFocusActive ? `${activePackShortTitle} 专注跟打` : "全屏单词跟打"}</h1>
           </div>
           <Link href={localizedHref("/english", language)} className="typing-back-link">
             返回英语列表
           </Link>
+          <button type="button" onClick={startTodayPractice} className="typing-back-link">
+            今日练 50 个
+          </button>
           <div className="typing-session-summary" aria-label="当前训练信息">
-            <span>{selectedPack.shortTitle}</span>
+            <span>{activePackShortTitle}</span>
             <strong>{words.length ? currentIndex + 1 : 0} / {words.length.toLocaleString("zh-CN")}</strong>
           </div>
           <button
@@ -624,8 +661,8 @@ export default function WordTypingTrainer({
           <div id="word-practice" className={`word-card ${errorShake ? 'shake' : ''} ${successPulse ? 'success' : ''}`}>
             <div className="word-card-header">
               <div className="word-meta">
-                <span className="word-source">{currentWord.source}</span>
-                <span className="word-level">{currentWord.level}</span>
+                <span className="word-source">{currentWord.generated ? "扩展拼写练习" : currentWord.source}</span>
+                <span className="word-level">{currentWord.generated ? "非人工校验释义" : currentWord.level}</span>
               </div>
               <button onClick={playPronunciation} className="pronunciation-chip">
                 发音
@@ -738,9 +775,9 @@ export default function WordTypingTrainer({
             <div className="word-bank-head">
               <div>
                 <p className="typing-eyebrow">选择词库</p>
-                <h2>{selectedPack.title}</h2>
+                <h2>{activePackTitle}</h2>
               </div>
-              <span>{words.length} 词</span>
+              <span>{isTodayPractice ? "今日 50" : `${words.length} 词`}</span>
             </div>
             <div className="word-bank-grid">
               {packOptions.map((pack) => (
@@ -751,7 +788,7 @@ export default function WordTypingTrainer({
                   onClick={() => selectPack(pack.slug)}
                 >
                   <strong>{pack.shortTitle}</strong>
-                  <small>{pack.level} · {pack.targetCount.toLocaleString("zh-CN")} 词</small>
+                  <small>{getPackOptionMeta(pack)}</small>
                 </button>
               ))}
             </div>

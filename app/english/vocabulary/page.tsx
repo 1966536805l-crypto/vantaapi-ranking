@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AppleStudyHeader } from "@/components/learning/ModuleHub";
 import { requireChineseForEnglishLearning } from "@/lib/english-content-access";
 import { examVocabularyPacks, keySentenceFrames } from "@/lib/exam-content";
-import { getExpandedVocabularyPackCount } from "@/lib/expanded-vocabulary-bank";
+import { getGeneratedVocabularyPackCount, getVerifiedVocabularyPackCount } from "@/lib/expanded-vocabulary-bank";
 import {
   getFrameLabel,
   getFrameUsage,
@@ -18,7 +18,6 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
   requireChineseForEnglishLearning(language);
   const copyLanguage = bilingualLanguage(language);
   const copy = vocabularyHubCopy[copyLanguage];
-  const totalVocabularyCount = examVocabularyPacks.reduce((sum, pack) => sum + getExpandedVocabularyPackCount(pack), 0);
 
   return (
     <main className="apple-page pb-12 pt-4">
@@ -62,11 +61,11 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
             </div>
             <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
               {copyLanguage === "zh"
-                ? "热门考试词库 · 发音例句 · 实时验证 · 自动保存进度"
-                : "Exam word banks · Pronunciation and examples · Real-time feedback · Saved progress"}
+                ? "默认从日常/初中精选词开始 · 发音例句 · 实时验证 · 自动保存进度"
+                : "Starts from daily or middle-school verified words · Audio examples · Real-time feedback · Saved progress"}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {(copyLanguage === "zh" ? [`${totalVocabularyCount.toLocaleString("zh-CN")} 词`, "发音", "例句", "保存进度"] : [`${totalVocabularyCount.toLocaleString("en-US")} words`, "audio", "examples", "saved progress"]).map((item) => (
+              {(copyLanguage === "zh" ? ["精选已校验词", "扩展拼写练习", "今日 50 个", "保存进度"] : ["verified core words", "generated spelling practice", "today 50", "saved progress"]).map((item) => (
                 <span key={item} className="dense-status">{item}</span>
               ))}
             </div>
@@ -97,10 +96,19 @@ export default async function VocabularyPage({ searchParams }: { searchParams?: 
                   <p className="eyebrow">{pack.level}</p>
                   <h2 className="mt-2 text-xl font-semibold">{getPackShortTitle(pack, copyLanguage)}</h2>
                 </div>
-                <span className="dense-status">{getExpandedVocabularyPackCount(pack).toLocaleString(copyLanguage === "zh" ? "zh-CN" : "en-US")} 词</span>
+                <span className="dense-status">
+                  {copyLanguage === "zh"
+                    ? `精选 ${getVerifiedVocabularyPackCount(pack).toLocaleString("zh-CN")} 词`
+                    : `${getVerifiedVocabularyPackCount(pack).toLocaleString("en-US")} verified`}
+                </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">{getPackFocus(pack, copyLanguage).join("  ")}</p>
               <div className="mt-3 flex flex-wrap gap-2">
+                {getGeneratedVocabularyPackCount(pack) > 0 ? (
+                  <span className="dense-status">
+                    {copyLanguage === "zh" ? "另含扩展拼写练习词" : "plus generated spelling practice"}
+                  </span>
+                ) : null}
                 {pack.priorityWords.slice(0, 4).map((item) => (
                   <span key={item.word} className="dense-status">{item.word}</span>
                 ))}

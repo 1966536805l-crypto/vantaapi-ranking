@@ -29,7 +29,7 @@ export default async function EnglishMemoryPage({ searchParams }: { searchParams
     slug: pack.slug,
     title: pack.title,
     shortTitle: pack.shortTitle,
-    targetCount: pack.targetCount,
+    targetCount: pack.priorityWords.length,
     level: pack.level,
     words: getExpandedVocabularyWords(pack),
   }));

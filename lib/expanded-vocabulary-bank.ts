@@ -66,6 +66,7 @@ function buildExpandedWord(word: string, pack: ExamVocabularyPack, index: number
     collocation: word + " in context",
     sentence: "Students should recognize " + word + " quickly when it appears in " + topic + ".",
     examNote: pack.shortTitle + " 扩展词库第 " + (index + 1) + " 词，用于拼写跟打、阅读识别和大词量复习。",
+    generated: true,
   };
 }
 
@@ -95,4 +96,12 @@ export function getExpandedVocabularyWords(pack: ExamVocabularyPack) {
 
 export function getExpandedVocabularyPackCount(pack: ExamVocabularyPack) {
   return Math.max(pack.targetCount, pack.priorityWords.length);
+}
+
+export function getVerifiedVocabularyPackCount(pack: ExamVocabularyPack) {
+  return pack.priorityWords.length;
+}
+
+export function getGeneratedVocabularyPackCount(pack: ExamVocabularyPack) {
+  return Math.max(getExpandedVocabularyPackCount(pack) - getVerifiedVocabularyPackCount(pack), 0);
 }
