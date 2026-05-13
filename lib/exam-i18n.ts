@@ -8,6 +8,13 @@ type Frame = {
 };
 
 const packCopy: Record<string, { titleZh: string; shortEn: string; shortZh: string; focusEn: string[]; focusZh: string[] }> = {
+  "primary-school-core": {
+    titleZh: "小学英语基础词汇",
+    shortEn: "Primary School",
+    shortZh: "小学英语",
+    focusEn: ["phonics", "school life", "picture writing", "basic sentences"],
+    focusZh: ["自然拼读", "校园生活", "看图写话", "基础句型"],
+  },
   "middle-school-core": {
     titleZh: "初中核心词汇",
     shortEn: "Middle School",
@@ -22,6 +29,13 @@ const packCopy: Record<string, { titleZh: string; shortEn: string; shortZh: stri
     focusEn: ["advanced reading", "essay writing", "continuation writing", "core collocations"],
     focusZh: ["高中阅读", "议论文写作", "读后续写", "核心搭配"],
   },
+  "university-core": {
+    titleZh: "大学英语核心词汇",
+    shortEn: "University English",
+    shortZh: "大学英语",
+    focusEn: ["college classes", "academic writing", "integrity", "career development"],
+    focusZh: ["大学课堂", "论文写作", "学术诚信", "职业发展"],
+  },
   "ielts-5000": {
     titleZh: "雅思词汇",
     shortEn: "IELTS",
@@ -35,6 +49,27 @@ const packCopy: Record<string, { titleZh: string; shortEn: string; shortZh: stri
     shortZh: "托福",
     focusEn: ["lecture verbs", "campus reading", "academic nouns", "evidence and inference"],
     focusZh: ["讲座动词", "校园阅读", "学术名词", "证据与推断"],
+  },
+  "gre-core": {
+    titleZh: "GRE 核心词汇",
+    shortEn: "GRE",
+    shortZh: "GRE",
+    focusEn: ["text completion", "argument reading", "academic attitude", "advanced abstractions"],
+    focusZh: ["填空词义", "阅读论证", "学术态度", "高级抽象词"],
+  },
+  "gmat-core": {
+    titleZh: "GMAT 商科词汇",
+    shortEn: "GMAT",
+    shortZh: "GMAT",
+    focusEn: ["business reading", "finance management", "data reasoning", "corporate strategy"],
+    focusZh: ["商业阅读", "金融管理", "数据推理", "公司战略"],
+  },
+  "sat-act-core": {
+    titleZh: "SAT/ACT 学术词汇",
+    shortEn: "SAT/ACT",
+    shortZh: "SAT/ACT",
+    focusEn: ["text evidence", "rhetoric", "passage logic", "ACT science reading"],
+    focusZh: ["文本证据", "修辞分析", "语篇逻辑", "ACT 科学阅读"],
   },
   "cet-4-core": {
     titleZh: "大学英语四级核心词汇",
@@ -90,7 +125,7 @@ export const vocabularyHubCopy = {
   en: {
     eyebrow: "Vocabulary System",
     title: "Exam Vocabulary Hub",
-    subtitle: "Middle school high school IELTS TOEFL CET 4 CET 6 and postgraduate vocabulary with priority words collocations sentence frames and quiz conversion. The original bank keeps expanding.",
+    subtitle: "Primary middle high school university IELTS TOEFL GRE GMAT SAT ACT CET TEM postgraduate and doctoral vocabulary with priority words collocations sentence frames and quiz conversion. The original bank keeps expanding.",
     sentenceEyebrow: "Key Sentences",
     sentenceTitle: "Reusable writing and reading frames",
     quizLabel: "Start quiz",
@@ -100,7 +135,7 @@ export const vocabularyHubCopy = {
   zh: {
     eyebrow: "词汇系统",
     title: "考试词汇中心",
-    subtitle: "初中词汇 高中词汇 雅思 托福 四级 六级 考研英语 重点词 搭配 例句 考点 练习集中呈现 原创题库持续扩充",
+    subtitle: "小学 初中 高中 大学 雅思 托福 GRE GMAT SAT ACT 四级 六级 专四 专八 考研 博士英语 重点词 搭配 例句 考点 练习集中呈现 原创题库持续扩充",
     sentenceEyebrow: "重点句式",
     sentenceTitle: "写作阅读高频句式",
     quizLabel: "开始测验",

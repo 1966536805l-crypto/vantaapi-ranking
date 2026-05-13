@@ -221,6 +221,134 @@ const highSchoolPriorityWords: ExamVocabularyWord[] = [
   { word: "strategy", phonetic: "/ˈstrætədʒi/", meaningZh: "策略", meaningEn: "a plan for achieving a goal", collocation: "learning strategy", sentence: "A clear learning strategy makes review more effective.", examNote: "学习方法类写作核心名词。" },
 ];
 
+type VocabularyEntry = readonly [string, string, string, string, string, string, string];
+
+const toVocabularyWords = (entries: readonly VocabularyEntry[]): ExamVocabularyWord[] =>
+  entries.map(([word, phonetic, meaningZh, meaningEn, collocation, sentence, examNote]) => ({
+    word,
+    phonetic,
+    meaningZh,
+    meaningEn,
+    collocation,
+    sentence,
+    examNote,
+  }));
+
+const primarySchoolEntries = [
+  ["apple", "/ˈæpl/", "苹果", "a round fruit with red, green, or yellow skin", "eat an apple", "I eat an apple after lunch.", "小学食物和日常生活高频名词。"],
+  ["banana", "/bəˈnænə/", "香蕉", "a long yellow fruit", "a yellow banana", "She puts a banana in her school bag.", "小学颜色、食物和物品描述常用。"],
+  ["orange", "/ˈɔːrɪndʒ/", "橙子；橙色的", "a citrus fruit or a color", "orange juice", "Would you like some orange juice?", "兼具名词和形容词用法，适合基础辨析。"],
+  ["family", "/ˈfæməli/", "家庭；家人", "people who are related to each other", "my family", "My family has dinner together every evening.", "小学自我介绍、家庭成员主题核心词。"],
+  ["school", "/skuːl/", "学校", "a place where students learn", "go to school", "We go to school from Monday to Friday.", "校园生活最基础名词。"],
+  ["teacher", "/ˈtiːtʃər/", "老师", "a person who helps students learn", "English teacher", "Our English teacher reads a story to us.", "人物职业和课堂场景高频。"],
+  ["friend", "/frend/", "朋友", "a person you like and spend time with", "best friend", "My best friend helps me with English.", "小学写人和校园关系常用。"],
+  ["animal", "/ˈænɪml/", "动物", "a living creature such as a dog or bird", "wild animal", "A panda is a lovely animal.", "动物主题和简单说明文高频。"],
+  ["water", "/ˈwɔːtər/", "水", "the clear liquid people drink", "drink water", "Please drink more water after sports.", "饮食、健康和生活习惯基础词。"],
+  ["breakfast", "/ˈbrekfəst/", "早餐", "the meal eaten in the morning", "have breakfast", "I usually have breakfast at seven.", "一日三餐和时间表达常用。"],
+  ["color", "/ˈkʌlər/", "颜色", "the way something looks, such as red or blue", "favorite color", "Blue is my favorite color.", "颜色问答、物品描述核心词。"],
+  ["number", "/ˈnʌmbər/", "数字；号码", "a word or sign that shows an amount", "phone number", "Can you read this number?", "数字、年龄、电话场景高频。"],
+  ["garden", "/ˈɡɑːrdn/", "花园", "a place where flowers or vegetables grow", "school garden", "There are many flowers in the garden.", "地点描述和 there be 句型常用。"],
+  ["weather", "/ˈweðər/", "天气", "the conditions outside, such as rain or sun", "fine weather", "The weather is sunny today.", "小学天气问答和日记常用。"],
+  ["holiday", "/ˈhɑːlədeɪ/", "假期；节日", "a day or time without school or work", "summer holiday", "We visit grandparents during the holiday.", "节日、计划和旅行表达高频。"],
+  ["homework", "/ˈhoʊmwɜːrk/", "家庭作业", "school work done at home", "finish homework", "He finishes his homework before dinner.", "校园生活和学习习惯常用。"],
+  ["story", "/ˈstɔːri/", "故事", "a description of events", "read a story", "The story is funny and easy to read.", "阅读兴趣和课堂活动高频。"],
+  ["picture", "/ˈpɪktʃər/", "图片；照片", "a drawing or photo", "draw a picture", "Please draw a picture of your room.", "看图写话和物品描述常用。"],
+  ["music", "/ˈmjuːzɪk/", "音乐", "sounds people sing or play", "listen to music", "I listen to music after school.", "爱好介绍核心词。"],
+  ["playground", "/ˈpleɪɡraʊnd/", "操场；游乐场", "a place where children play", "on the playground", "The children run on the playground.", "学校地点、运动活动常见词。"],
+] as const satisfies readonly VocabularyEntry[];
+
+const universityCoreEntries = [
+  ["lecture", "/ˈlektʃər/", "讲座；授课", "a formal talk or class", "attend a lecture", "Students attend a lecture on academic writing.", "大学课堂和学术听力高频。"],
+  ["seminar", "/ˈsemɪnɑːr/", "研讨课", "a small class for discussion", "seminar discussion", "The seminar discussion helped us understand the article.", "大学课程和研究训练常见。"],
+  ["assignment", "/əˈsaɪnmənt/", "作业；任务", "a task given for study or work", "submit an assignment", "The assignment is due next Friday.", "大学课程、网课和写作场景高频。"],
+  ["deadline", "/ˈdedlaɪn/", "截止日期", "the latest time something must be finished", "meet a deadline", "Good planning helps students meet every deadline.", "学习规划和任务管理核心词。"],
+  ["credit", "/ˈkredɪt/", "学分；信用", "a unit counting toward a degree", "course credit", "This course gives three credits.", "大学选课、成绩体系常用。"],
+  ["campus", "/ˈkæmpəs/", "校园", "the land and buildings of a university", "college campus", "The campus library stays open late.", "大学地点和校园生活基础词。"],
+  ["major", "/ˈmeɪdʒər/", "专业；主修", "the main subject a student studies", "choose a major", "She chose computer science as her major.", "大学专业选择和自我介绍高频。"],
+  ["minor", "/ˈmaɪnər/", "辅修；较小的", "a secondary subject of study", "minor in economics", "He plans to minor in economics.", "大学学业规划常用。"],
+  ["thesis", "/ˈθiːsɪs/", "论文；毕业论文", "a long piece of academic writing", "write a thesis", "The thesis includes interviews and data analysis.", "大学高年级和研究写作核心词。"],
+  ["reference", "/ˈrefrəns/", "参考文献；引用", "a source used for information", "reference list", "Each reference must be cited correctly.", "学术写作和论文规范常见。"],
+  ["plagiarism", "/ˈpleɪdʒərɪzəm/", "剽窃；抄袭", "using someone else's work as your own", "avoid plagiarism", "Students learn how to avoid plagiarism in essays.", "大学学术诚信核心词。"],
+  ["scholarship", "/ˈskɑːlərʃɪp/", "奖学金", "money given to support study", "win a scholarship", "She won a scholarship for excellent grades.", "留学、大学申请和校园新闻高频。"],
+  ["internship", "/ˈɪntɜːrnʃɪp/", "实习", "temporary work for learning experience", "summer internship", "A summer internship can improve career skills.", "大学就业、职业规划常用。"],
+  ["curriculum", "/kəˈrɪkjələm/", "课程体系", "the subjects included in a course of study", "core curriculum", "The curriculum includes writing and presentation training.", "教育类阅读和大学介绍常见。"],
+  ["laboratory", "/ˈlæbrətɔːri/", "实验室", "a room for scientific work", "science laboratory", "Students test samples in the laboratory.", "理工科课堂和研究场景高频。"],
+  ["presentation", "/ˌprezənˈteɪʃn/", "展示；演示", "a talk given to an audience", "give a presentation", "Each group will give a presentation next week.", "大学课堂任务和口语表达高频。"],
+  ["attendance", "/əˈtendəns/", "出勤；到场", "being present at a class or event", "class attendance", "Class attendance counts toward the final grade.", "课程要求和学校通知常用。"],
+  ["tuition", "/tuˈɪʃn/", "学费；教学", "money paid for instruction", "tuition fee", "Tuition fees vary among universities.", "留学、教育成本话题常见。"],
+  ["graduate", "/ˈɡrædʒuət/", "毕业生；研究生；毕业", "a person with a degree or to finish a degree", "graduate student", "Graduate students often join research projects.", "大学阶段和升学场景核心词。"],
+  ["faculty", "/ˈfækəlti/", "院系；全体教师", "teachers in a university department", "faculty member", "Faculty members provide academic guidance.", "大学组织和学术介绍常见。"],
+] as const satisfies readonly VocabularyEntry[];
+
+const greEntries = [
+  ["abate", "/əˈbeɪt/", "减弱；缓和", "to become less strong", "abate gradually", "The storm began to abate after midnight.", "GRE 阅读和填空中常考程度变化。"],
+  ["ambiguous", "/æmˈbɪɡjuəs/", "模棱两可的", "having more than one possible meaning", "ambiguous statement", "The author's ambiguous statement led to debate.", "GRE 文本完成和阅读态度题高频。"],
+  ["austere", "/ɔːˈstɪr/", "朴素的；严厉的", "plain, strict, or without comfort", "austere style", "The building has an austere but elegant style.", "GRE 形容词辨析常见。"],
+  ["bolster", "/ˈboʊlstər/", "支持；加强", "to support or strengthen", "bolster an argument", "Additional evidence can bolster the scientist's claim.", "论证关系和证据支持类高频。"],
+  ["capricious", "/kəˈprɪʃəs/", "反复无常的", "changing suddenly and unpredictably", "capricious behavior", "Investors disliked the manager's capricious decisions.", "GRE 人物评价和态度词。"],
+  ["conundrum", "/kəˈnʌndrəm/", "难题；谜题", "a difficult problem", "solve a conundrum", "The discovery created a conundrum for historians.", "学术阅读中的问题引入词。"],
+  ["erudite", "/ˈerjudaɪt/", "博学的", "having deep knowledge", "erudite scholar", "The erudite scholar connected literature with philosophy.", "GRE 人物特征类高级词。"],
+  ["esoteric", "/ˌesəˈterɪk/", "深奥的；小众的", "understood by only a few people", "esoteric theory", "The lecture covered an esoteric theory of language.", "学术难度和专业性描述高频。"],
+  ["garrulous", "/ˈɡærələs/", "话多的；唠叨的", "talking too much", "garrulous host", "The garrulous host answered questions before they were asked.", "GRE 性格词反义常配 laconic。"],
+  ["laconic", "/ləˈkɑːnɪk/", "简洁的；寡言的", "using very few words", "laconic reply", "Her laconic reply suggested quiet confidence.", "GRE 反义、语气和人物态度常考。"],
+  ["mitigate", "/ˈmɪtɪɡeɪt/", "缓解；减轻", "to make something less severe", "mitigate damage", "The policy aims to mitigate economic inequality.", "GRE/IELTS/托福共同高频动词。"],
+  ["pragmatic", "/præɡˈmætɪk/", "务实的", "practical rather than theoretical", "pragmatic solution", "The committee chose a pragmatic solution.", "GRE 观点评价和学术论证常用。"],
+  ["prodigious", "/prəˈdɪdʒəs/", "巨大的；惊人的", "very great in size or degree", "prodigious talent", "The composer showed prodigious talent at an early age.", "GRE 程度形容词高频。"],
+  ["refute", "/rɪˈfjuːt/", "反驳；驳斥", "to prove that something is wrong", "refute a claim", "The new data refute the old explanation.", "论证反驳关系核心词。"],
+  ["scrupulous", "/ˈskruːpjələs/", "一丝不苟的；正直的", "careful and morally honest", "scrupulous research", "Scrupulous research requires accurate records.", "GRE 品质词和学术方法词。"],
+  ["tenuous", "/ˈtenjuəs/", "薄弱的；牵强的", "weak or not certain", "tenuous link", "The argument rests on a tenuous link between two events.", "GRE 论证强弱判断高频。"],
+  ["ubiquitous", "/juːˈbɪkwɪtəs/", "无处不在的", "present everywhere", "ubiquitous technology", "Smartphones have become ubiquitous in daily life.", "GRE/托福科技社会话题常见。"],
+  ["vindicate", "/ˈvɪndɪkeɪt/", "证明正确；洗清", "to show that someone or something was right", "vindicate a theory", "Later evidence vindicated the researcher's prediction.", "GRE 证据结果关系常考。"],
+  ["wary", "/ˈweri/", "谨慎的；警惕的", "careful because of possible danger", "be wary of", "Readers should be wary of unsupported claims.", "GRE 阅读态度和批判思维常用。"],
+  ["zeal", "/ziːl/", "热情；热忱", "great energy or enthusiasm", "religious zeal", "Her zeal for reform inspired many students.", "GRE 抽象名词和人物动机常见。"],
+] as const satisfies readonly VocabularyEntry[];
+
+const gmatEntries = [
+  ["aggregate", "/ˈæɡrɪɡət/", "总计；集合的", "total or formed by several parts", "aggregate demand", "Aggregate demand increased during the holiday season.", "GMAT 商业阅读和数据题高频。"],
+  ["benchmark", "/ˈbentʃmɑːrk/", "基准；标杆", "a standard used for comparison", "industry benchmark", "The company uses customer satisfaction as a benchmark.", "管理、业绩比较和图表题常见。"],
+  ["commodity", "/kəˈmɑːdəti/", "商品；大宗商品", "a product bought and sold", "commodity price", "Commodity prices affect transportation costs.", "商业、供应链和经济阅读核心词。"],
+  ["compliance", "/kəmˈplaɪəns/", "合规；遵守", "following rules or laws", "regulatory compliance", "The audit checks compliance with safety standards.", "GMAT 商业法规和公司治理常用。"],
+  ["deficit", "/ˈdefɪsɪt/", "赤字；不足", "an amount by which something is less than needed", "budget deficit", "A budget deficit forced the city to reduce spending.", "经济和财务阅读高频。"],
+  ["diversify", "/daɪˈvɜːrsɪfaɪ/", "多样化", "to add variety to reduce risk", "diversify a portfolio", "Investors diversify a portfolio to manage risk.", "GMAT 金融、战略和风险管理核心词。"],
+  ["equity", "/ˈekwəti/", "股权；公平", "ownership value or fairness", "private equity", "The firm raised equity to fund expansion.", "商业金融和公司结构高频。"],
+  ["forecast", "/ˈfɔːrkæst/", "预测", "a prediction about the future", "sales forecast", "The sales forecast was revised after weak demand.", "数据解释和市场分析常用。"],
+  ["incentive", "/ɪnˈsentɪv/", "激励；诱因", "something that encourages action", "financial incentive", "A bonus can be an effective incentive.", "GMAT 管理和经济行为题高频。"],
+  ["leverage", "/ˈlevərɪdʒ/", "杠杆；利用", "to use something for advantage", "leverage resources", "The company leveraged its brand to enter a new market.", "商业战略和金融语境常见。"],
+  ["margin", "/ˈmɑːrdʒɪn/", "利润率；边际", "the difference between cost and selling price", "profit margin", "Higher production costs reduced the profit margin.", "GMAT 财务分析核心词。"],
+  ["merger", "/ˈmɜːrdʒər/", "合并；并购", "the joining of two companies", "corporate merger", "The merger created a larger retail chain.", "商业案例和公司战略高频。"],
+  ["optimize", "/ˈɑːptɪmaɪz/", "优化", "to make something as effective as possible", "optimize operations", "Managers used data to optimize delivery routes.", "效率、运营和决策题常用。"],
+  ["overhead", "/ˈoʊvərhed/", "运营成本；经常费用", "regular business expenses", "reduce overhead", "Remote work helped the firm reduce overhead.", "GMAT 成本结构和管理阅读高频。"],
+  ["portfolio", "/pɔːrtˈfoʊlioʊ/", "投资组合；作品集", "a collection of investments or work", "investment portfolio", "A balanced portfolio may reduce long-term risk.", "金融、申请和战略扩张常见。"],
+  ["revenue", "/ˈrevənuː/", "收入；营收", "money a business receives", "annual revenue", "Annual revenue rose despite weaker exports.", "商业数据和图表题基础词。"],
+  ["stakeholder", "/ˈsteɪkhoʊldər/", "利益相关者", "a person or group affected by a decision", "key stakeholder", "Managers must consider each key stakeholder.", "GMAT 管理伦理和组织决策高频。"],
+  ["subsidiary", "/səbˈsɪdieri/", "子公司", "a company controlled by another company", "foreign subsidiary", "The firm opened a foreign subsidiary in Singapore.", "公司结构和国际商务常用。"],
+  ["transaction", "/trænˈzækʃn/", "交易；业务", "an act of buying, selling, or exchanging", "online transaction", "Each transaction is recorded in the database.", "商业流程和数据系统高频。"],
+  ["volatility", "/ˌvɑːləˈtɪləti/", "波动性", "rapid and unpredictable change", "market volatility", "Market volatility made investors cautious.", "GMAT 金融市场和风险分析常见。"],
+] as const satisfies readonly VocabularyEntry[];
+
+const satActEntries = [
+  ["assertion", "/əˈsɜːrʃn/", "断言；主张", "a confident statement of belief", "support an assertion", "The passage supports the assertion with historical examples.", "SAT/ACT 阅读论证题核心词。"],
+  ["coherent", "/koʊˈhɪrənt/", "连贯的；一致的", "logical and well organized", "coherent essay", "A coherent essay develops one clear argument.", "SAT 写作和语篇结构高频。"],
+  ["concise", "/kənˈsaɪs/", "简明的", "using few words clearly", "concise summary", "A concise summary keeps only the main ideas.", "语法修改和写作表达常考。"],
+  ["derive", "/dɪˈraɪv/", "获得；推导；源自", "to get from a source", "derive meaning", "Readers derive meaning from context clues.", "阅读词义推断和证据题高频。"],
+  ["explicit", "/ɪkˈsplɪsɪt/", "明确的；直说的", "clearly stated", "explicit detail", "The answer must be based on explicit details in the passage.", "SAT/ACT 文本证据题常用。"],
+  ["implicit", "/ɪmˈplɪsɪt/", "含蓄的；暗示的", "suggested but not directly stated", "implicit meaning", "The poem has an implicit meaning about change.", "推断题和文学阅读高频。"],
+  ["infer", "/ɪnˈfɜːr/", "推断", "to reach a conclusion from evidence", "infer from context", "We can infer the speaker's attitude from her word choice.", "SAT/ACT 阅读指令词。"],
+  ["literal", "/ˈlɪtərəl/", "字面的；确切的", "based on the exact meaning of words", "literal meaning", "The literal meaning differs from the metaphor.", "文学修辞和语义辨析常见。"],
+  ["metaphor", "/ˈmetəfɔːr/", "隐喻", "a figure of speech comparing things indirectly", "extended metaphor", "The author uses a metaphor to describe memory.", "文学阅读和修辞分析核心词。"],
+  ["nuance", "/ˈnuːɑːns/", "细微差别", "a small difference in meaning or feeling", "subtle nuance", "Strong readers notice the nuance in word choice.", "SAT 高分阅读和词汇辨析常用。"],
+  ["objective", "/əbˈdʒektɪv/", "客观的；目标", "based on facts rather than feelings", "objective tone", "The article keeps an objective tone throughout.", "语气态度题和写作评价常见。"],
+  ["passage", "/ˈpæsɪdʒ/", "文章；段落", "a section of written text", "reading passage", "The first passage compares two scientific theories.", "SAT/ACT 阅读基础术语。"],
+  ["perspective", "/pərˈspektɪv/", "视角；观点", "a way of seeing or thinking", "author's perspective", "The author's perspective changes in the final paragraph.", "双篇阅读和观点题高频。"],
+  ["relevant", "/ˈreləvənt/", "相关的", "connected with the subject", "relevant evidence", "Only relevant evidence should be included in the answer.", "证据选择和写作逻辑常用。"],
+  ["rhetoric", "/ˈretərɪk/", "修辞；说服性语言", "language used to persuade or impress", "rhetorical strategy", "The speech uses rhetoric to inspire action.", "SAT 文法和修辞目的题核心。"],
+  ["synthesize", "/ˈsɪnθəsaɪz/", "综合；合成", "to combine ideas into a whole", "synthesize information", "Students synthesize information from both passages.", "双篇阅读和综合题常见。"],
+  ["transition", "/trænˈzɪʃn/", "过渡；转变", "a change or connecting word", "smooth transition", "A smooth transition links the two paragraphs.", "文法修改和篇章结构高频。"],
+  ["valid", "/ˈvælɪd/", "有效的；有根据的", "logical or supported by evidence", "valid conclusion", "The data lead to a valid conclusion.", "阅读论证和数学文字题常用。"],
+  ["variable", "/ˈveriəbl/", "变量；可变的", "a factor that can change", "independent variable", "The experiment changed only one variable.", "ACT 科学和SAT数据题高频。"],
+  ["warrant", "/ˈwɔːrənt/", "证明……合理；授权", "to justify or make necessary", "warrant a conclusion", "The evidence does not warrant such a strong conclusion.", "SAT 高阶论证和语气判断常见。"],
+] as const satisfies readonly VocabularyEntry[];
+
 const crossExamExpansionEntries = [
   ["adapt", "/əˈdæpt/", "适应；改编", "to change so something fits a new situation", "adapt to change", "Students need to adapt to a new learning environment.", "阅读和写作中常见的变化适应类动词。"],
   ["adequate", "/ˈædɪkwət/", "足够的；合适的", "enough for a particular purpose", "adequate support", "Adequate sleep helps students stay focused.", "替代 enough，适合教育和健康话题。"],
@@ -284,17 +412,12 @@ const crossExamExpansionEntries = [
   ["widespread", "/ˈwaɪdspred/", "广泛的；普遍的", "existing or happening in many places", "widespread concern", "There is widespread concern about online privacy.", "社会问题、科技影响、公共观点类常见形容词。"],
 ] as const;
 
-const crossExamExpansionPriorityWords: ExamVocabularyWord[] = crossExamExpansionEntries.map(
-  ([word, phonetic, meaningZh, meaningEn, collocation, sentence, examNote]) => ({
-    word,
-    phonetic,
-    meaningZh,
-    meaningEn,
-    collocation,
-    sentence,
-    examNote,
-  })
-);
+const primarySchoolPriorityWords = toVocabularyWords(primarySchoolEntries);
+const universityCorePriorityWords = toVocabularyWords(universityCoreEntries);
+const grePriorityWords = toVocabularyWords(greEntries);
+const gmatPriorityWords = toVocabularyWords(gmatEntries);
+const satActPriorityWords = toVocabularyWords(satActEntries);
+const crossExamExpansionPriorityWords = toVocabularyWords(crossExamExpansionEntries);
 
 export const keySentenceFrames = [
   { label: "观点引入", sentence: "It is widely acknowledged that ...", usageZh: "用于作文开头，替代 people think。" },
@@ -324,6 +447,18 @@ const sharedWritingFrames = keySentenceFrames.map((frame) => `${frame.sentence} 
 
 export const examVocabularyPacks: ExamVocabularyPack[] = [
   {
+    slug: "primary-school-core",
+    title: "Primary School English Vocabulary",
+    shortTitle: "小学英语",
+    targetCount: 1200,
+    level: "Grade 1 to 6",
+    route: "/english/vocabulary/primary-school-core",
+    focus: ["自然拼读", "校园生活", "看图写话", "基础句型"],
+    priorityWords: primarySchoolPriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
     slug: "middle-school-core",
     title: "Middle School Core Vocabulary",
     shortTitle: "Middle School",
@@ -348,6 +483,18 @@ export const examVocabularyPacks: ExamVocabularyPack[] = [
     readingLogicWords: commonReadingLogicWords,
   },
   {
+    slug: "university-core",
+    title: "University English Core Vocabulary",
+    shortTitle: "大学英语",
+    targetCount: 6500,
+    level: "University English",
+    route: "/english/vocabulary/university-core",
+    focus: ["大学课堂", "论文写作", "学术诚信", "职业发展"],
+    priorityWords: universityCorePriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
     slug: "ielts-5000",
     title: "IELTS Vocabulary",
     shortTitle: "IELTS",
@@ -368,6 +515,42 @@ export const examVocabularyPacks: ExamVocabularyPack[] = [
     route: "/english/vocabulary/toefl-5000",
     focus: ["lecture verbs", "校园阅读", "学术名词", "证据与推断"],
     priorityWords: toeflPriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "gre-core",
+    title: "GRE Core Vocabulary",
+    shortTitle: "GRE",
+    targetCount: 12000,
+    level: "US Graduate Admissions",
+    route: "/english/vocabulary/gre-core",
+    focus: ["填空词义", "阅读论证", "学术态度", "高级抽象词"],
+    priorityWords: grePriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "gmat-core",
+    title: "GMAT Business Vocabulary",
+    shortTitle: "GMAT",
+    targetCount: 9000,
+    level: "US Graduate Business Admissions",
+    route: "/english/vocabulary/gmat-core",
+    focus: ["商业阅读", "金融管理", "数据推理", "公司战略"],
+    priorityWords: gmatPriorityWords,
+    writingFrames: sharedWritingFrames,
+    readingLogicWords: commonReadingLogicWords,
+  },
+  {
+    slug: "sat-act-core",
+    title: "SAT and ACT Academic Vocabulary",
+    shortTitle: "SAT/ACT",
+    targetCount: 7000,
+    level: "US Undergraduate Admissions",
+    route: "/english/vocabulary/sat-act-core",
+    focus: ["文本证据", "修辞分析", "语篇逻辑", "ACT 科学阅读"],
+    priorityWords: satActPriorityWords,
     writingFrames: sharedWritingFrames,
     readingLogicWords: commonReadingLogicWords,
   },
