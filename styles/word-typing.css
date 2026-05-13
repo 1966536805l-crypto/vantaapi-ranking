@@ -2,7 +2,7 @@
 
 .word-typing-page {
   min-height: 100svh;
-  background: #ffffff;
+  background: #e7e7e9;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -10,7 +10,64 @@
 }
 
 .word-typing-trainer {
+  background: #e7e7e9;
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  min-height: 100svh;
   width: 100%;
+}
+
+.typing-side-nav {
+  align-items: stretch;
+  background: #ffffff;
+  border-right: 1px solid #d8d8dc;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-height: 100svh;
+  padding: 26px 18px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.typing-brand-mark {
+  color: #334155;
+  font-family: "Comic Sans MS", "Bradley Hand", cursive;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+}
+
+.typing-side-nav nav {
+  display: grid;
+  gap: 12px;
+}
+
+.typing-side-nav a,
+.typing-side-nav button {
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 10px 12px;
+  text-align: left;
+  text-decoration: none;
+}
+
+.typing-side-nav a:hover,
+.typing-side-nav button:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.typing-side-nav button {
+  margin-top: auto;
 }
 
 .typing-shell,
@@ -18,16 +75,16 @@
   width: 100%;
   border: 0;
   border-radius: 0;
-  background: #ffffff;
+  background: #e7e7e9;
   box-shadow: none;
 }
 
 .typing-shell {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   min-height: 100svh;
-  padding: clamp(16px, 2.4vw, 34px);
+  padding: clamp(16px, 2.4vw, 34px) clamp(18px, 4vw, 72px);
 }
 
 .typing-topbar {
@@ -39,11 +96,11 @@
   position: sticky;
   top: 0;
   z-index: 3;
-  border: 1px solid #eef2f7;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  padding: 8px 10px 8px 16px;
-  backdrop-filter: blur(16px);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  backdrop-filter: none;
 }
 
 .typing-eyebrow,
@@ -58,22 +115,22 @@
 }
 
 .typing-topbar h1 {
-  margin: 2px 0 0;
-  color: #0f172a;
-  font-size: clamp(18px, 1.8vw, 24px);
-  font-weight: 750;
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+  font-weight: 800;
   letter-spacing: 0;
 }
 
 .typing-session-summary {
   align-items: center;
-  border: 1px solid #e5e7eb;
+  border: 0;
   border-radius: 999px;
   display: inline-flex;
   gap: 10px;
   margin-left: auto;
   min-width: 0;
-  padding: 9px 14px;
+  padding: 7px 10px;
 }
 
 .typing-session-summary span {
@@ -94,10 +151,10 @@
 
 .fullscreen-toggle-btn {
   flex: 0 0 auto;
-  border: 1px solid #dbe3ef;
+  border: 0;
   border-radius: 999px;
-  background: #ffffff;
-  color: #0f172a;
+  background: transparent;
+  color: #475569;
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
@@ -106,8 +163,8 @@
 }
 
 .fullscreen-toggle-btn:hover {
-  background: #f8fafc;
-  border-color: #bfdbfe;
+  background: rgba(255, 255, 255, 0.55);
+  border-color: transparent;
   transform: translateY(-1px);
 }
 
@@ -116,9 +173,9 @@
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 999px;
-  background: #ffffff;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   margin: 0 auto;
   max-width: 1180px;
   padding: 9px 14px;
@@ -146,7 +203,7 @@
 }
 
 .progress-copy {
-  color: #0f172a;
+  color: #64748b;
   font-weight: 800;
   min-width: 82px;
 }
@@ -163,7 +220,7 @@
 }
 
 .progress-track {
-  height: 8px;
+  height: 7px;
   overflow: hidden;
   border-radius: 999px;
   background: var(--typing-accent-soft);
@@ -177,7 +234,7 @@
 }
 
 .progress-percent {
-  color: var(--typing-accent);
+  color: #64748b;
   font-size: 15px;
   font-weight: 850;
   min-width: 44px;
@@ -189,9 +246,9 @@
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 12px;
-  border: 1px solid #edf2f7;
-  border-radius: 18px;
-  background: #ffffff;
+  border: 1px solid #d6d6dc;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
   padding: 12px 14px;
 }
 
@@ -567,13 +624,13 @@
   display: flex;
   flex-direction: column;
   align-self: center;
-  gap: clamp(10px, 1.4vw, 18px);
+  gap: clamp(10px, 1.25vw, 16px);
   border: 0;
   border-radius: 0;
-  background: #ffffff;
+  background: transparent;
   justify-content: center;
-  min-height: calc(100svh - 148px);
-  max-width: 1180px;
+  min-height: calc(100svh - 190px);
+  max-width: 880px;
   padding: clamp(12px, 2vw, 28px) 0;
   width: 100%;
   box-shadow: none;
@@ -623,21 +680,21 @@
 
 .word-source,
 .word-level {
-  border: 1px solid #e2e8f0;
+  border: 0;
   border-radius: 999px;
-  background: #f8fafc;
-  color: #475569;
+  background: transparent;
+  color: #6b7280;
   font-size: 13px;
   font-weight: 700;
   padding: 7px 12px;
 }
 
 .pronunciation-chip {
-  border: 1px solid #dbe3ef;
+  border: 0;
   border-radius: 999px;
-  background: #0f172a;
-  border-color: #0f172a;
-  color: #ffffff;
+  background: transparent;
+  border-color: transparent;
+  color: #374151;
   cursor: pointer;
   font-size: 15px;
   font-weight: 800;
@@ -647,23 +704,24 @@
 .word-display {
   border: 0;
   border-radius: 0;
-  background: #ffffff;
+  background: transparent;
   order: 2;
   padding: clamp(8px, 1.4vw, 16px) 16px;
   text-align: center;
 }
 
 .word-text {
-  color: #0f172a;
-  font-size: clamp(72px, 12vw, 160px);
-  font-weight: 850;
-  line-height: 0.95;
+  color: #3f3f46;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(60px, 9vw, 116px);
+  font-weight: 500;
+  line-height: 1;
   overflow-wrap: anywhere;
 }
 
 .word-phonetic {
   margin-top: 10px;
-  color: #64748b;
+  color: #4b5563;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: clamp(16px, 1.8vw, 24px);
   font-weight: 650;
@@ -684,25 +742,17 @@
   margin: 0 auto;
   max-width: 820px;
   order: 3;
-  text-align: center;
+  text-align: left;
   width: 100%;
 }
 
 .word-meaning > div {
-  display: none;
-}
-
-.word-meaning > div:first-child,
-.word-meaning > div:nth-child(2) {
   display: block;
 }
 
-.word-meaning > div:first-child {
-  order: 2;
-}
-
-.word-meaning > div:nth-child(2) {
-  order: 1;
+.word-meaning > div + div {
+  border-top: 1px dashed #b9bbc1;
+  padding-top: 12px;
 }
 
 .meaning-zh,
@@ -715,27 +765,28 @@
 }
 
 .meaning-zh {
-  color: #0f172a;
-  font-size: clamp(20px, 2.2vw, 30px);
-  font-weight: 750;
+  color: #3f3f46;
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 600;
 }
 
 .meaning-en {
-  display: none;
+  display: block;
 }
 
 .meaning-en,
 .example-sentence,
 .collocation,
 .exam-note p {
-  color: #475569;
+  color: #3f3f46;
   font-size: clamp(17px, 1.7vw, 24px);
   line-height: 1.7;
 }
 
 .example-sentence {
-  color: #1e293b;
-  font-weight: 750;
+  color: #3f3f46;
+  font-size: clamp(18px, 1.7vw, 25px);
+  font-weight: 500;
 }
 
 .input-container {
@@ -750,34 +801,36 @@
 
 .word-input {
   width: 100%;
-  border: 2px solid #1d4ed8;
-  border-radius: clamp(24px, 3vw, 42px);
-  background: #ffffff;
-  color: #0f172a;
-  font-size: clamp(36px, 6vw, 78px);
-  font-weight: 850;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #3f3f46;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(44px, 7vw, 96px);
+  font-weight: 500;
   line-height: 1.1;
-  padding: clamp(18px, 2.3vw, 28px);
+  padding: 0;
   text-align: center;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .word-input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 7px rgba(37, 99, 235, 0.10);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .word-input::placeholder {
-  color: #cbd5e1;
-  font-weight: 600;
+  color: #8b8b92;
+  font-weight: 500;
 }
 
 .input-hint {
-  min-height: 42px;
-  color: #cbd5e1;
-  font-size: clamp(28px, 4.2vw, 58px);
-  font-weight: 850;
+  min-height: 30px;
+  color: #9ca3af;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(20px, 3vw, 38px);
+  font-weight: 500;
   letter-spacing: 0.04em;
   text-align: center;
 }
@@ -802,10 +855,10 @@
 }
 
 .action-btn {
-  border: 1px solid #dbe3ef;
+  border: 0;
   border-radius: 999px;
-  background: #ffffff;
-  color: #0f172a;
+  background: transparent;
+  color: #3f3f46;
   cursor: pointer;
   font-size: 15px;
   font-weight: 750;
@@ -814,15 +867,15 @@
 }
 
 .action-btn:hover {
-  background: #f8fafc;
-  border-color: #bfdbfe;
+  background: rgba(255, 255, 255, 0.55);
+  border-color: transparent;
   transform: translateY(-1px);
 }
 
 .pronunciation-btn {
-  border-color: #dbe3ef;
-  background: #ffffff;
-  color: #0f172a;
+  border-color: transparent;
+  background: transparent;
+  color: #3f3f46;
 }
 
 .hint-btn {
@@ -837,12 +890,16 @@
   align-self: center;
   justify-content: space-between;
   gap: 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 28px;
-  background: #ffffff;
-  max-width: 1180px;
-  padding: 18px;
+  border: 1px solid #d6d6dc;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.82);
+  bottom: 18px;
+  box-shadow: 0 14px 38px rgba(31, 41, 55, 0.08);
+  max-width: 820px;
+  padding: 10px 14px;
+  position: sticky;
   width: 100%;
+  z-index: 2;
 }
 
 .exam-note {
@@ -863,9 +920,9 @@
 .stat-value {
   display: block;
   margin-top: 4px;
-  color: #0f172a;
-  font-size: 26px;
-  font-weight: 800;
+  color: #3f3f46;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .correct-count {
@@ -931,7 +988,7 @@
 }
 
 .word-typing-trainer:fullscreen {
-  background: #ffffff;
+  background: #e7e7e9;
   width: 100%;
   min-height: 100vh;
   overflow: auto;
@@ -946,7 +1003,7 @@
 .word-typing-trainer.is-focus-fullscreen .typing-shell {
   gap: 14px;
   min-height: 100svh;
-  padding: clamp(16px, 2.5vw, 34px);
+  padding: clamp(16px, 2.5vw, 34px) clamp(18px, 4vw, 72px);
   box-shadow: none;
 }
 
@@ -996,9 +1053,9 @@
 }
 
 .word-typing-trainer.is-focus-fullscreen .word-input {
-  border-radius: clamp(22px, 2.5vw, 34px);
-  font-size: clamp(40px, 6vw, 82px);
-  padding: clamp(18px, 2.3vw, 28px);
+  border-radius: 0;
+  font-size: clamp(44px, 7vw, 96px);
+  padding: 0;
 }
 
 .word-typing-trainer.is-focus-fullscreen .input-hint {
@@ -1010,6 +1067,14 @@
 }
 
 @media (max-width: 720px) {
+  .word-typing-trainer {
+    display: block;
+  }
+
+  .typing-side-nav {
+    display: none;
+  }
+
   .word-typing-page {
     align-items: flex-start;
   }

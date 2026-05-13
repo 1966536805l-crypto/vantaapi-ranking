@@ -534,6 +534,18 @@ export default function WordTypingTrainer({
 
   return (
     <div ref={trainerRef} className={`word-typing-trainer${isFocusActive ? " is-focus-fullscreen" : ""}`}>
+      <aside className="typing-side-nav" aria-label="单词训练导航">
+        <div className="typing-brand-mark">JinMing</div>
+        <nav>
+          <a href="#word-practice">单词</a>
+          <a href="#word-bank">词库</a>
+          <a href="#custom-wordbook">自制</a>
+          <a href="#word-guide">帮助</a>
+        </nav>
+        <button type="button" onClick={toggleFullscreen}>
+          {isFocusActive ? "退出" : "全屏"}
+        </button>
+      </aside>
       <div className="typing-shell">
         <div className="typing-topbar">
           <div>
@@ -602,7 +614,7 @@ export default function WordTypingTrainer({
         </div>
 
         {currentWord ? (
-          <div className={`word-card ${errorShake ? 'shake' : ''} ${successPulse ? 'success' : ''}`}>
+          <div id="word-practice" className={`word-card ${errorShake ? 'shake' : ''} ${successPulse ? 'success' : ''}`}>
             <div className="word-card-header">
               <div className="word-meta">
                 <span className="word-source">{currentWord.source}</span>
@@ -715,7 +727,7 @@ export default function WordTypingTrainer({
         </div>
 
         <div className="typing-manage-grid">
-          <section className="word-bank-panel" aria-label="选择词库">
+          <section id="word-bank" className="word-bank-panel" aria-label="选择词库">
             <div className="word-bank-head">
               <div>
                 <p className="typing-eyebrow">选择词库</p>
@@ -764,7 +776,7 @@ export default function WordTypingTrainer({
           </section>
         </div>
 
-        <section className="word-typing-guide" aria-label="使用说明">
+        <section id="word-guide" className="word-typing-guide" aria-label="使用说明">
           <div>
             <strong>使用说明</strong>
             <span>先选官方或自制词库，听发音、看例句，在输入框完整打出英文；每个词库的进度都会自动保存。</span>
@@ -775,7 +787,7 @@ export default function WordTypingTrainer({
           </div>
         </section>
 
-        <section className="custom-word-bank" aria-label="自制题库">
+        <section id="custom-wordbook" className="custom-word-bank" aria-label="自制题库">
           <div className="custom-word-bank-head">
             <div>
               <p className="typing-eyebrow">自制题库</p>
