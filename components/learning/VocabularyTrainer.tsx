@@ -333,7 +333,7 @@ export default function VocabularyTrainer({
   const [selectedChoice, setSelectedChoice] = useState<SelectedChoice | null>(null);
   const [message, setMessage] = useState("");
   const [audioLoading, setAudioLoading] = useState(false);
-  const [practiceMode, setPracticeMode] = useState<PracticeMode>("choice");
+  const [practiceMode, setPracticeMode] = useState<PracticeMode>("free");
   const [spellingDraft, setSpellingDraft] = useState("");
   const [timeLeft, setTimeLeft] = useState(REVIEW_SECONDS);
   const [pendingUnknownWord, setPendingUnknownWord] = useState("");
