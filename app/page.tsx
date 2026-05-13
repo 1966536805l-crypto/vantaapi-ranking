@@ -630,13 +630,13 @@ export default async function HomePage({ searchParams }: { searchParams: HomeSea
         <div className="home-audit-hero">
           <p className="eyebrow">{t.eyebrow}</p>
           <h1>{t.title}</h1>
-          <p>{t.subtitle}</p>
           <RepoAuditForm language={language} />
           <div className="home-audit-outcomes" aria-label={preview.outcomesAria}>
             {t.outcomes.map((item) => (
               <span key={item}>{item}</span>
             ))}
           </div>
+          <p>{t.subtitle}</p>
         </div>
 
         <div className="home-audit-preview" aria-label={preview.reportAria}>

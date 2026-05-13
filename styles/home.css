@@ -22,7 +22,7 @@ body:has(.home-audit-page) .global-search-trigger {
     radial-gradient(circle at 20% 0%, rgba(15, 23, 42, 0.08), transparent 32%),
     linear-gradient(180deg, #f8fafc 0%, #ffffff 52%, #eef2f7 100%);
   color: #0f172a;
-  padding: 18px;
+  padding: 14px;
 }
 
 .home-audit-nav {
@@ -30,7 +30,7 @@ body:has(.home-audit-page) .global-search-trigger {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 8px;
@@ -78,11 +78,12 @@ body:has(.home-audit-page) .global-search-trigger {
 
 .home-audit-command {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(460px, 1.08fr);
-  gap: 22px;
+  grid-template-columns: minmax(0, 1fr) minmax(430px, 0.96fr);
+  gap: 18px;
   align-items: center;
   width: min(1180px, 100%);
-  margin: 54px auto 0;
+  min-height: calc(100vh - 118px);
+  margin: 18px auto 0;
 }
 
 .home-audit-hero {
@@ -91,26 +92,26 @@ body:has(.home-audit-page) .global-search-trigger {
 }
 
 .home-audit-hero h1 {
-  margin: 14px 0 0;
-  max-width: 720px;
-  font-size: clamp(40px, 6vw, 78px);
+  margin: 10px 0 0;
+  max-width: 660px;
+  font-size: clamp(34px, 5.2vw, 64px);
   font-weight: 850;
   letter-spacing: 0;
-  line-height: 0.98;
+  line-height: 1.02;
 }
 
 .home-audit-hero > p:not(.eyebrow) {
-  max-width: 650px;
-  margin: 18px 0 0;
+  max-width: 620px;
+  margin: 14px 0 0;
   color: #475569;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 620;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 .home-audit-form {
   max-width: 720px;
-  margin: 26px 0 0;
+  margin: 20px 0 0;
   text-align: left;
 }
 
@@ -133,8 +134,8 @@ body:has(.home-audit-page) .global-search-trigger {
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.92);
-  padding: 8px;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+  padding: 7px;
+  box-shadow: 0 20px 56px rgba(15, 23, 42, 0.10);
 }
 
 .home-audit-form input {
@@ -149,7 +150,7 @@ body:has(.home-audit-page) .global-search-trigger {
 }
 
 .home-audit-form button[type="submit"] {
-  min-height: 46px;
+  min-height: 44px;
   border: 0;
   border-radius: 8px;
   background: #0f172a;
@@ -190,7 +191,7 @@ body:has(.home-audit-page) .global-search-trigger {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .home-audit-outcomes span {
@@ -213,8 +214,8 @@ body:has(.home-audit-page) .global-search-trigger {
   border: 1px solid rgba(15, 23, 42, 0.10);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.82);
-  padding: 14px;
-  box-shadow: 0 26px 80px rgba(15, 23, 42, 0.10);
+  padding: 12px;
+  box-shadow: 0 22px 66px rgba(15, 23, 42, 0.10);
 }
 
 .home-audit-report-head {
@@ -223,32 +224,32 @@ body:has(.home-audit-page) .global-search-trigger {
   justify-content: space-between;
   gap: 16px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  padding: 8px 8px 16px;
+  padding: 6px 6px 12px;
 }
 
 .home-audit-report-head h2 {
   margin-top: 5px;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 850;
 }
 
 .home-audit-report-head > strong {
   display: grid;
-  width: 76px;
-  height: 76px;
+  width: 64px;
+  height: 64px;
   place-items: center;
   border-radius: 8px;
   background: #0f172a;
   color: white;
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 850;
 }
 
 .home-audit-score-strip {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .home-audit-score-strip article,
@@ -258,7 +259,7 @@ body:has(.home-audit-page) .global-search-trigger {
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 8px;
   background: rgba(248, 250, 252, 0.86);
-  padding: 14px;
+  padding: 12px;
 }
 
 .home-audit-score-strip span {
@@ -269,16 +270,16 @@ body:has(.home-audit-page) .global-search-trigger {
 
 .home-audit-score-strip strong {
   display: block;
-  margin-top: 9px;
+  margin-top: 7px;
   color: #0f172a;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 900;
   line-height: 1;
 }
 
 .home-audit-score-strip em {
   display: block;
-  margin-top: 8px;
+  margin-top: 6px;
   color: #475569;
   font-size: 11px;
   font-style: normal;
@@ -288,8 +289,8 @@ body:has(.home-audit-page) .global-search-trigger {
 .home-audit-evidence-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .home-audit-evidence-grid article > div {
@@ -317,23 +318,23 @@ body:has(.home-audit-page) .global-search-trigger {
 }
 
 .home-audit-evidence-grid p {
-  margin-top: 8px;
+  margin-top: 7px;
   color: #475569;
   font-size: 13px;
   font-weight: 650;
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 .home-audit-pr-preview {
   display: grid;
   grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
-  gap: 14px;
+  gap: 10px;
   align-items: start;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .home-audit-pr-preview h3 {
-  margin-top: 8px;
+  margin-top: 6px;
   color: #0f172a;
   font-size: 18px;
   font-weight: 850;
@@ -342,10 +343,11 @@ body:has(.home-audit-page) .global-search-trigger {
 
 .home-audit-pr-preview pre {
   overflow: auto;
+  max-height: 250px;
   border-radius: 8px;
   background: #0f172a;
   color: #e5e7eb;
-  padding: 13px;
+  padding: 12px;
   font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   line-height: 1.55;
@@ -357,7 +359,7 @@ body:has(.home-audit-page) .global-search-trigger {
   justify-content: center;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 34px auto 0;
+  margin: 18px auto 0;
 }
 
 .home-audit-footer a {
@@ -392,11 +394,12 @@ body:has(.home-audit-page) .global-search-trigger {
 
   .home-audit-command {
     grid-template-columns: 1fr;
-    margin-top: 42px;
+    min-height: auto;
+    margin-top: 24px;
   }
 
   .home-audit-hero h1 {
-    font-size: 44px;
+    font-size: 40px;
   }
 
   .home-audit-form label > div {
