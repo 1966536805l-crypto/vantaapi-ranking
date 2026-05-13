@@ -17,6 +17,7 @@ const multilingualBaseRoutes = [
   "",
   "/tools",
   "/programming",
+  "/english/word-typing",
   "/search",
 ];
 

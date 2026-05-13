@@ -187,8 +187,11 @@ async function checkSitemap() {
         return match[1];
       }
     });
+    const allowedLearningPublicRoutes = new Set(["/english/word-typing"]);
     const offFocus = ["/today", "/english", "/cpp", "/learn", "/languages", "/wrong", "/dashboard", "/progress", "/games", "/projects", "/questions", "/report"];
-    const exposed = offFocus.filter((route) => urls.some((path) => path === route || path.startsWith(`${route}/`)));
+    const exposed = offFocus.filter((route) => urls.some((path) =>
+      !allowedLearningPublicRoutes.has(path) && (path === route || path.startsWith(`${route}/`))
+    ));
     if (exposed.length) return logFail("/sitemap.xml", `off-focus routes exposed: ${exposed.join(", ")}`);
     logPass("/sitemap.xml", "sitemap includes focused URLs and no retired surfaces");
   } catch (error) {
